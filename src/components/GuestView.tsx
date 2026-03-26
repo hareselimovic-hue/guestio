@@ -1,19 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useRef } from "react";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
-  Copy, Check, Phone, Calendar
+  Copy, Check, Phone, ChevronDown
 } from "lucide-react";
+import { useState } from "react";
 
-const SECTION_META: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
-  WELCOME:     { icon: <Heart className="w-5 h-5" />,      color: "text-pink-600",   bg: "bg-pink-50" },
-  WIFI:        { icon: <Wifi className="w-5 h-5" />,       color: "text-blue-600",   bg: "bg-blue-50" },
-  CHECKIN:     { icon: <Key className="w-5 h-5" />,        color: "text-amber-600",  bg: "bg-amber-50" },
-  HOUSE_RULES: { icon: <ScrollText className="w-5 h-5" />, color: "text-purple-600", bg: "bg-purple-50" },
-  LOCATION:    { icon: <MapPin className="w-5 h-5" />,     color: "text-green-600",  bg: "bg-green-50" },
-  LOCAL_RECS:  { icon: <Star className="w-5 h-5" />,       color: "text-orange-600", bg: "bg-orange-50" },
-  CUSTOM:      { icon: <Plus className="w-5 h-5" />,       color: "text-gray-600",   bg: "bg-gray-50" },
+const SECTION_META: Record<string, { icon: React.ReactNode; color: string; bg: string; label: string }> = {
+  WELCOME:     { icon: <Heart className="w-5 h-5" />,      color: "text-pink-600",   bg: "bg-pink-50",   label: "Dobrodošlica" },
+  WIFI:        { icon: <Wifi className="w-5 h-5" />,       color: "text-blue-600",   bg: "bg-blue-50",   label: "WiFi" },
+  CHECKIN:     { icon: <Key className="w-5 h-5" />,        color: "text-amber-600",  bg: "bg-amber-50",  label: "Check-in" },
+  HOUSE_RULES: { icon: <ScrollText className="w-5 h-5" />, color: "text-purple-600", bg: "bg-purple-50", label: "Pravila" },
+  LOCATION:    { icon: <MapPin className="w-5 h-5" />,     color: "text-green-600",  bg: "bg-green-50",  label: "Lokacija" },
+  LOCAL_RECS:  { icon: <Star className="w-5 h-5" />,       color: "text-orange-600", bg: "bg-orange-50", label: "Preporuke" },
+  CUSTOM:      { icon: <Plus className="w-5 h-5" />,       color: "text-gray-600",   bg: "bg-gray-50",   label: "Info" },
 };
 
 interface Section {
@@ -25,91 +26,114 @@ interface Section {
 
 interface Props {
   property: { id: string; name: string; slug: string };
+  sections: Section[];
   guestName: string | null;
   checkIn: string | null;
   checkOut: string | null;
-  sections?: Section[];
 }
 
-export default function GuestView({ property, guestName, checkIn, checkOut, sections = [] }: Props) {
-  const [activeSection, setActiveSection] = useState(sections[0]?.id ?? "");
+export default function GuestView({ property, sections, guestName, checkIn, checkOut }: Props) {
+  const sectionsRef = useRef<HTMLDivElement>(null);
+
+  const welcomeSection = sections.find((s) => s.type === "WELCOME");
+  const otherSections = sections.filter((s) => s.type !== "WELCOME");
+
+  const welcomeContent = (welcomeSection?.content ?? {}) as Record<string, unknown>;
+  const heroImage = (welcomeContent.heroImage as string) ?? "";
+  const welcomeTitle = (welcomeContent.welcomeTitle as string) ?? property.name;
+  const ctaText = (welcomeContent.ctaText as string) || "Istražite vodič";
 
   const formatDate = (iso: string) =>
-    new Date(iso).toLocaleDateString("bs", { day: "numeric", month: "long", year: "numeric" });
+    new Date(iso).toLocaleDateString("bs", { day: "numeric", month: "long" });
+
+  function scrollToSections() {
+    sectionsRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
 
   return (
     <div className="min-h-screen bg-[#F7F7F5]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-      {/* Header */}
-      <div className="bg-[#0F2F61] text-white">
-        <div className="max-w-2xl mx-auto px-5 py-6">
-          <p className="text-[#8ba3c7] text-xs font-medium uppercase tracking-widest mb-1">
-            Vaš digitalni vodič
-          </p>
+
+      {/* ── HERO ── */}
+      <div
+        className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+        style={{
+          background: heroImage
+            ? `url(${heroImage}) center/cover no-repeat`
+            : "linear-gradient(135deg, #0F2F61 0%, #1a4a8a 100%)",
+        }}
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/50" />
+
+        {/* Content */}
+        <div className="relative z-10 text-center px-6 max-w-lg">
+          {/* Property badge */}
+          <div className="inline-block bg-white/20 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full mb-6 tracking-wide">
+            {property.name}
+          </div>
+
+          {/* Welcome message */}
           <h1
-            className="text-2xl font-bold"
+            className="text-4xl font-bold text-white mb-3 leading-tight"
             style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
           >
-            {property.name}
+            {guestName
+              ? <>Dobrodošli,<br /><span className="text-[#FF6700]">{guestName}</span>!</>
+              : welcomeTitle
+            }
           </h1>
 
-          {/* Guest personalization */}
-          {(guestName || checkIn) && (
-            <div className="mt-4 bg-white/10 rounded-xl px-4 py-3 space-y-1.5">
-              {guestName && (
-                <p className="text-sm font-medium">
-                  Dobrodošli, <span className="text-[#FF6700]">{guestName}</span>! 👋
-                </p>
-              )}
-              {(checkIn || checkOut) && (
-                <div className="flex items-center gap-2 text-xs text-[#8ba3c7]">
-                  <Calendar className="w-3.5 h-3.5" />
-                  {checkIn && formatDate(checkIn)}
-                  {checkIn && checkOut && " → "}
-                  {checkOut && formatDate(checkOut)}
-                </div>
-              )}
+          {/* Dates */}
+          {(checkIn || checkOut) && (
+            <div className="flex items-center justify-center gap-2 text-white/80 text-sm mb-2">
+              <span>{checkIn && formatDate(checkIn)}</span>
+              {checkIn && checkOut && <span className="text-white/40">→</span>}
+              <span>{checkOut && formatDate(checkOut)}</span>
             </div>
+          )}
+
+          {/* Subtitle from welcome message */}
+          {welcomeContent.message && (
+            <p className="text-white/80 text-sm leading-relaxed mt-3 mb-2">
+              {welcomeContent.message as string}
+            </p>
+          )}
+
+          {welcomeContent.hostName && (
+            <p className="text-white/60 text-xs mt-2">— {welcomeContent.hostName as string}</p>
+          )}
+
+          {/* CTA button */}
+          {otherSections.length > 0 && (
+            <button
+              onClick={scrollToSections}
+              className="mt-8 inline-flex items-center gap-2 bg-[#FF6700] hover:bg-[#e05c00] text-white font-semibold px-6 py-3 rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg"
+              style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
+            >
+              {ctaText}
+              <ChevronDown className="w-4 h-4" />
+            </button>
           )}
         </div>
 
-        {/* Section tabs */}
-        {sections.length > 0 && (
-          <div className="max-w-2xl mx-auto">
-            <div className="flex gap-1 px-4 overflow-x-auto pb-0 scrollbar-hide">
-              {sections.map((s) => {
-                const meta = SECTION_META[s.type];
-                return (
-                  <button
-                    key={s.id}
-                    onClick={() => setActiveSection(s.id)}
-                    className={`flex items-center gap-1.5 px-3 py-2.5 text-xs font-medium rounded-t-lg transition-colors whitespace-nowrap shrink-0 ${
-                      activeSection === s.id
-                        ? "bg-[#F7F7F5] text-[#262626]"
-                        : "text-[#8ba3c7] hover:text-white"
-                    }`}
-                  >
-                    {meta?.icon}
-                    {s.title}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+        {/* Scroll indicator */}
+        {otherSections.length > 0 && (
+          <button
+            onClick={scrollToSections}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 hover:text-white/80 transition-colors animate-bounce"
+          >
+            <ChevronDown className="w-6 h-6" />
+          </button>
         )}
       </div>
 
-      {/* Section content */}
-      <div className="max-w-2xl mx-auto px-5 py-6">
-        {sections.map((section) => (
-          <div
-            key={section.id}
-            className={activeSection === section.id ? "block" : "hidden"}
-          >
-            <SectionContent section={section} />
-          </div>
+      {/* ── SECTION CARDS ── */}
+      <div ref={sectionsRef} className="max-w-2xl mx-auto px-4 py-10 space-y-4">
+        {otherSections.map((section) => (
+          <SectionCard key={section.id} section={section} />
         ))}
 
-        {sections.length === 0 && (
+        {otherSections.length === 0 && (
           <div className="text-center py-16 text-[#6B6B6B]">
             <p className="text-lg font-medium">Vodič se priprema</p>
             <p className="text-sm mt-1">Domaćin još uvijek dodaje informacije.</p>
@@ -118,63 +142,54 @@ export default function GuestView({ property, guestName, checkIn, checkOut, sect
       </div>
 
       {/* Footer */}
-      <div className="max-w-2xl mx-auto px-5 pb-8 text-center">
+      <div className="pb-10 text-center">
         <p className="text-xs text-[#6B6B6B]">
-          Powered by <span className="font-semibold text-[#0F2F61]">Guestio</span>
+          Powered by{" "}
+          <span className="font-semibold text-[#0F2F61]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+            Guestio
+          </span>
         </p>
       </div>
     </div>
   );
 }
 
-function SectionContent({ section }: { section: Section }) {
+function SectionCard({ section }: { section: Section }) {
   const content = section.content as Record<string, unknown>;
-  const meta = SECTION_META[section.type];
+  const meta = SECTION_META[section.type] ?? SECTION_META.CUSTOM;
 
-  const card = (children: React.ReactNode) => (
+  return (
     <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
+      {/* Card header */}
       <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${meta?.bg} ${meta?.color}`}>
-          {meta?.icon}
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${meta.bg} ${meta.color}`}>
+          {meta.icon}
         </div>
         <h2
-          className="font-bold text-[#262626]"
+          className="font-bold text-[#262626] text-base"
           style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
         >
           {section.title}
         </h2>
       </div>
-      <div className="px-5 py-4">{children}</div>
+
+      {/* Card body */}
+      <div className="px-5 py-4">
+        <SectionBody type={section.type} content={content} />
+      </div>
     </div>
   );
+}
 
-  switch (section.type) {
-    case "WELCOME":
-      return card(
-        <div className="space-y-3">
-          {content.welcomeTitle && (
-            <h3 className="text-lg font-bold text-[#262626]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
-              {content.welcomeTitle as string}
-            </h3>
-          )}
-          {content.message && (
-            <p className="text-[#262626] leading-relaxed whitespace-pre-wrap">
-              {content.message as string}
-            </p>
-          )}
-          {content.hostName && (
-            <p className="text-sm text-[#6B6B6B] mt-2">— {content.hostName as string}</p>
-          )}
-        </div>
-      );
-
+function SectionBody({ type, content }: { type: string; content: Record<string, unknown> }) {
+  switch (type) {
     case "WIFI":
-      return card(
+      return (
         <div className="space-y-3">
-          <WifiField label="Mreža" value={(content.network as string) ?? ""} />
-          <WifiField label="Lozinka" value={(content.password as string) ?? ""} copyable />
+          <WifiRow label="Mreža" value={(content.network as string) ?? ""} />
+          <WifiRow label="Lozinka" value={(content.password as string) ?? ""} copyable />
           {content.note && (
-            <p className="text-sm text-[#6B6B6B] pt-1 border-t border-[#F0F0EE]">
+            <p className="text-sm text-[#6B6B6B] pt-2 border-t border-[#F0F0EE]">
               {content.note as string}
             </p>
           )}
@@ -182,17 +197,11 @@ function SectionContent({ section }: { section: Section }) {
       );
 
     case "CHECKIN":
-      return card(
+      return (
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[#F7F7F5] rounded-xl p-3 text-center">
-              <p className="text-xs text-[#6B6B6B] font-medium uppercase tracking-wide mb-1">Check-in</p>
-              <p className="text-2xl font-bold text-[#0F2F61]">{(content.checkIn as string) ?? "15:00"}</p>
-            </div>
-            <div className="bg-[#F7F7F5] rounded-xl p-3 text-center">
-              <p className="text-xs text-[#6B6B6B] font-medium uppercase tracking-wide mb-1">Check-out</p>
-              <p className="text-2xl font-bold text-[#0F2F61]">{(content.checkOut as string) ?? "11:00"}</p>
-            </div>
+            <TimeBox label="Check-in" value={(content.checkIn as string) ?? "15:00"} />
+            <TimeBox label="Check-out" value={(content.checkOut as string) ?? "11:00"} />
           </div>
           {content.instructions && (
             <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap">
@@ -213,15 +222,15 @@ function SectionContent({ section }: { section: Section }) {
 
     case "HOUSE_RULES": {
       const rules = (content.rules as string[]) ?? [];
-      return card(
-        <ul className="space-y-2">
+      return (
+        <ul className="space-y-2.5">
           {rules.length === 0 && <li className="text-sm text-[#6B6B6B]">Nema definisanih pravila.</li>}
           {rules.map((rule, i) => (
-            <li key={i} className="flex items-start gap-2.5 text-sm text-[#262626]">
-              <span className="w-5 h-5 bg-[#0F2F61]/10 text-[#0F2F61] rounded-full flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+            <li key={i} className="flex items-start gap-3 text-sm text-[#262626]">
+              <span className="w-6 h-6 bg-[#0F2F61]/10 text-[#0F2F61] rounded-full flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
                 {i + 1}
               </span>
-              {rule}
+              <span className="leading-relaxed">{rule}</span>
             </li>
           ))}
         </ul>
@@ -229,10 +238,10 @@ function SectionContent({ section }: { section: Section }) {
     }
 
     case "LOCATION":
-      return card(
+      return (
         <div className="space-y-4">
           {content.mapUrl && (
-            <div className="rounded-xl overflow-hidden aspect-video">
+            <div className="rounded-xl overflow-hidden" style={{ height: 220 }}>
               <iframe
                 src={content.mapUrl as string}
                 className="w-full h-full border-0"
@@ -257,54 +266,54 @@ function SectionContent({ section }: { section: Section }) {
 
     case "LOCAL_RECS": {
       const places = (content.places as Array<{ name: string; category: string; description: string }>) ?? [];
-      return card(
+      return (
         <div className="space-y-3">
           {places.length === 0 && <p className="text-sm text-[#6B6B6B]">Nema preporuka još.</p>}
           {places.map((place, i) => (
-            <div key={i} className="bg-[#F7F7F5] rounded-xl p-3.5">
-              <div className="flex items-start justify-between gap-2 mb-1">
-                <p className="font-semibold text-sm text-[#262626]">{place.name}</p>
-                {place.category && (
-                  <span className="text-xs bg-[#FF6700]/10 text-[#FF6700] px-2 py-0.5 rounded-full font-medium shrink-0">
-                    {place.category}
-                  </span>
+            <div key={i} className="flex gap-3 p-3 bg-[#F7F7F5] rounded-xl">
+              <div className="w-8 h-8 bg-[#FF6700]/10 rounded-lg flex items-center justify-center shrink-0">
+                <Star className="w-4 h-4 text-[#FF6700]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="font-semibold text-sm text-[#262626]">{place.name}</p>
+                  {place.category && (
+                    <span className="text-xs bg-[#FF6700]/10 text-[#FF6700] px-2 py-0.5 rounded-full font-medium">
+                      {place.category}
+                    </span>
+                  )}
+                </div>
+                {place.description && (
+                  <p className="text-xs text-[#6B6B6B] mt-0.5 leading-relaxed">{place.description}</p>
                 )}
               </div>
-              {place.description && (
-                <p className="text-xs text-[#6B6B6B] leading-relaxed">{place.description}</p>
-              )}
             </div>
           ))}
         </div>
       );
     }
 
-    case "CUSTOM":
-      return card(
+    default:
+      return (
         <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap">
           {(content.body as string) ?? ""}
         </p>
       );
-
-    default:
-      return null;
   }
 }
 
-function WifiField({ label, value, copyable }: { label: string; value: string; copyable?: boolean }) {
+function WifiRow({ label, value, copyable }: { label: string; value: string; copyable?: boolean }) {
   const [copied, setCopied] = useState(false);
-
   function copy() {
     navigator.clipboard.writeText(value);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
-
   return (
     <div className="flex items-center justify-between bg-[#F7F7F5] rounded-xl px-4 py-3">
       <div>
         <p className="text-xs text-[#6B6B6B] font-medium">{label}</p>
-        <p className="font-semibold text-[#262626] mt-0.5 text-sm">{value || "—"}</p>
+        <p className="font-semibold text-[#262626] mt-0.5 text-sm tracking-wide">{value || "—"}</p>
       </div>
       {copyable && value && (
         <button
@@ -314,6 +323,17 @@ function WifiField({ label, value, copyable }: { label: string; value: string; c
           {copied ? <><Check className="w-3 h-3 text-green-500" /> Kopirano</> : <><Copy className="w-3 h-3" /> Kopiraj</>}
         </button>
       )}
+    </div>
+  );
+}
+
+function TimeBox({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-[#F7F7F5] rounded-xl p-4 text-center">
+      <p className="text-xs text-[#6B6B6B] font-medium uppercase tracking-wide mb-1">{label}</p>
+      <p className="text-3xl font-bold text-[#0F2F61]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+        {value}
+      </p>
     </div>
   );
 }

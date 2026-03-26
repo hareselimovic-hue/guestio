@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
-  ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Trash2
+  ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Trash2,
+  ImagePlus, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -147,35 +148,7 @@ function SectionForm({
 
   switch (section.type) {
     case "WELCOME":
-      return (
-        <div className="space-y-3 pt-3">
-          <Field label="Naslov dobrodošlice">
-            <Input
-              value={(content.welcomeTitle as string) ?? ""}
-              onChange={(e) => setContent({ welcomeTitle: e.target.value })}
-              placeholder="npr. Dobrodošli u naš apartman!"
-              className="h-9 text-sm border-[#EDEDE9]"
-            />
-          </Field>
-          <Field label="Poruka gostima">
-            <Textarea
-              value={(content.message as string) ?? ""}
-              onChange={(e) => setContent({ message: e.target.value })}
-              placeholder="Napišite toplu dobrodošlicu za vaše goste..."
-              className="text-sm border-[#EDEDE9] resize-none"
-              rows={3}
-            />
-          </Field>
-          <Field label="Vaše ime / ime domaćina">
-            <Input
-              value={(content.hostName as string) ?? ""}
-              onChange={(e) => setContent({ hostName: e.target.value })}
-              placeholder="npr. Haris i Amina"
-              className="h-9 text-sm border-[#EDEDE9]"
-            />
-          </Field>
-        </div>
-      );
+      return <WelcomeForm content={content} setContent={setContent} onChange={onChange} section={section} />;
 
     case "WIFI":
       return (
@@ -330,6 +303,111 @@ function SectionForm({
     default:
       return null;
   }
+}
+
+function WelcomeForm({
+  content,
+  setContent,
+  onChange,
+  section,
+}: {
+  content: Record<string, unknown>;
+  setContent: (u: Record<string, unknown>) => void;
+  onChange: (c: Partial<{ title: string; content: Record<string, unknown> }>) => void;
+  section: { title: string };
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const imageUrl = (content.heroImage as string) ?? "";
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const data = await res.json();
+    if (data.url) setContent({ heroImage: data.url });
+    setUploading(false);
+  }
+
+  return (
+    <div className="space-y-3 pt-3">
+      {/* Hero image upload */}
+      <Field label="Hero slika (background)">
+        {imageUrl ? (
+          <div className="relative rounded-xl overflow-hidden h-36">
+            <img src={imageUrl} alt="hero" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 hover:opacity-100 transition-opacity">
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="bg-white text-[#262626] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+              >
+                <ImagePlus className="w-3.5 h-3.5" /> Promijeni
+              </button>
+              <button
+                onClick={() => setContent({ heroImage: "" })}
+                className="bg-white text-red-500 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+              >
+                <X className="w-3.5 h-3.5" /> Ukloni
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="w-full h-24 border-2 border-dashed border-[#EDEDE9] rounded-xl flex flex-col items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors"
+          >
+            {uploading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <>
+                <ImagePlus className="w-5 h-5" />
+                <span className="text-xs font-medium">Dodaj sliku (JPG, PNG, max 5MB)</span>
+              </>
+            )}
+          </button>
+        )}
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+      </Field>
+
+      <Field label="Naslov dobrodošlice">
+        <Input
+          value={(content.welcomeTitle as string) ?? ""}
+          onChange={(e) => setContent({ welcomeTitle: e.target.value })}
+          placeholder="npr. Dobrodošli u naš apartman!"
+          className="h-9 text-sm border-[#EDEDE9]"
+        />
+      </Field>
+      <Field label="Poruka gostima">
+        <Textarea
+          value={(content.message as string) ?? ""}
+          onChange={(e) => setContent({ message: e.target.value })}
+          placeholder="Napišite toplu dobrodošlicu za vaše goste..."
+          className="text-sm border-[#EDEDE9] resize-none"
+          rows={3}
+        />
+      </Field>
+      <Field label="Ime domaćina">
+        <Input
+          value={(content.hostName as string) ?? ""}
+          onChange={(e) => setContent({ hostName: e.target.value })}
+          placeholder="npr. Haris i Amina"
+          className="h-9 text-sm border-[#EDEDE9]"
+        />
+      </Field>
+      <Field label="Tekst dugmeta">
+        <Input
+          value={(content.ctaText as string) ?? ""}
+          onChange={(e) => setContent({ ctaText: e.target.value })}
+          placeholder="npr. Istražite vodič"
+          className="h-9 text-sm border-[#EDEDE9]"
+        />
+      </Field>
+    </div>
+  );
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
