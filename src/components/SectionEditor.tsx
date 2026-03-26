@@ -1,0 +1,419 @@
+"use client";
+
+import { useState } from "react";
+import {
+  Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
+  ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Trash2
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
+const SECTION_ICONS: Record<string, React.ReactNode> = {
+  WELCOME:     <Heart className="w-4 h-4" />,
+  WIFI:        <Wifi className="w-4 h-4" />,
+  CHECKIN:     <Key className="w-4 h-4" />,
+  HOUSE_RULES: <ScrollText className="w-4 h-4" />,
+  LOCATION:    <MapPin className="w-4 h-4" />,
+  LOCAL_RECS:  <Star className="w-4 h-4" />,
+  CUSTOM:      <Plus className="w-4 h-4" />,
+};
+
+const SECTION_COLORS: Record<string, string> = {
+  WELCOME:     "bg-pink-50 text-pink-600",
+  WIFI:        "bg-blue-50 text-blue-600",
+  CHECKIN:     "bg-amber-50 text-amber-600",
+  HOUSE_RULES: "bg-purple-50 text-purple-600",
+  LOCATION:    "bg-green-50 text-green-600",
+  LOCAL_RECS:  "bg-orange-50 text-orange-600",
+  CUSTOM:      "bg-gray-50 text-gray-600",
+};
+
+interface Section {
+  id: string;
+  type: string;
+  title: string;
+  content: Record<string, unknown>;
+  isVisible: boolean;
+  order: number;
+}
+
+interface SectionEditorProps {
+  sections: Section[];
+  onUpdate: (sections: Section[]) => void;
+}
+
+export default function SectionEditor({ sections, onUpdate }: SectionEditorProps) {
+  const [openId, setOpenId] = useState<string | null>(sections[0]?.id ?? null);
+  const [saving, setSaving] = useState<string | null>(null);
+
+  async function saveSection(section: Section) {
+    setSaving(section.id);
+    await fetch(`/api/sections/${section.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: section.title, content: section.content, isVisible: section.isVisible }),
+    });
+    setSaving(null);
+  }
+
+  function updateSection(id: string, changes: Partial<Section>) {
+    onUpdate(sections.map((s) => (s.id === id ? { ...s, ...changes } : s)));
+  }
+
+  async function toggleVisibility(section: Section) {
+    const updated = { ...section, isVisible: !section.isVisible };
+    updateSection(section.id, { isVisible: updated.isVisible });
+    await fetch(`/api/sections/${section.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isVisible: updated.isVisible }),
+    });
+  }
+
+  return (
+    <div className="space-y-2">
+      {sections.map((section) => (
+        <div
+          key={section.id}
+          className={`bg-white border rounded-xl overflow-hidden transition-all ${
+            section.isVisible ? "border-[#EDEDE9]" : "border-[#EDEDE9] opacity-60"
+          }`}
+        >
+          {/* Section header */}
+          <div
+            className="flex items-center gap-3 px-4 py-3.5 cursor-pointer hover:bg-[#F7F7F5] transition-colors"
+            onClick={() => setOpenId(openId === section.id ? null : section.id)}
+          >
+            <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${SECTION_COLORS[section.type] ?? "bg-gray-50 text-gray-600"}`}>
+              {SECTION_ICONS[section.type]}
+            </div>
+            <span className="font-medium text-[#262626] text-sm flex-1">{section.title}</span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={(e) => { e.stopPropagation(); toggleVisibility(section); }}
+                className="p-1.5 rounded-lg hover:bg-[#EDEDE9] text-[#6B6B6B] transition-colors"
+                title={section.isVisible ? "Sakrij sekciju" : "Prikaži sekciju"}
+              >
+                {section.isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+              </button>
+              {openId === section.id
+                ? <ChevronUp className="w-4 h-4 text-[#6B6B6B]" />
+                : <ChevronDown className="w-4 h-4 text-[#6B6B6B]" />
+              }
+            </div>
+          </div>
+
+          {/* Section form */}
+          {openId === section.id && (
+            <div className="px-4 pb-4 pt-1 border-t border-[#F0F0EE]">
+              <SectionForm
+                section={section}
+                onChange={(changes) => updateSection(section.id, changes)}
+              />
+              <div className="mt-4 flex justify-end">
+                <Button
+                  size="sm"
+                  onClick={() => saveSection(section)}
+                  disabled={saving === section.id}
+                  className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-8 text-xs px-4"
+                >
+                  {saving === section.id ? (
+                    <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> Čuvanje...</>
+                  ) : "Sačuvaj"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SectionForm({
+  section,
+  onChange,
+}: {
+  section: Section;
+  onChange: (changes: Partial<Section>) => void;
+}) {
+  const content = section.content as Record<string, unknown>;
+
+  function setContent(updates: Record<string, unknown>) {
+    onChange({ content: { ...content, ...updates } });
+  }
+
+  switch (section.type) {
+    case "WELCOME":
+      return (
+        <div className="space-y-3 pt-3">
+          <Field label="Naslov dobrodošlice">
+            <Input
+              value={(content.welcomeTitle as string) ?? ""}
+              onChange={(e) => setContent({ welcomeTitle: e.target.value })}
+              placeholder="npr. Dobrodošli u naš apartman!"
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+          </Field>
+          <Field label="Poruka gostima">
+            <Textarea
+              value={(content.message as string) ?? ""}
+              onChange={(e) => setContent({ message: e.target.value })}
+              placeholder="Napišite toplu dobrodošlicu za vaše goste..."
+              className="text-sm border-[#EDEDE9] resize-none"
+              rows={3}
+            />
+          </Field>
+          <Field label="Vaše ime / ime domaćina">
+            <Input
+              value={(content.hostName as string) ?? ""}
+              onChange={(e) => setContent({ hostName: e.target.value })}
+              placeholder="npr. Haris i Amina"
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+          </Field>
+        </div>
+      );
+
+    case "WIFI":
+      return (
+        <div className="space-y-3 pt-3">
+          <Field label="Naziv mreže (SSID)">
+            <Input
+              value={(content.network as string) ?? ""}
+              onChange={(e) => setContent({ network: e.target.value })}
+              placeholder="npr. Apartman_WiFi"
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+          </Field>
+          <Field label="Lozinka">
+            <Input
+              value={(content.password as string) ?? ""}
+              onChange={(e) => setContent({ password: e.target.value })}
+              placeholder="WiFi lozinka"
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+          </Field>
+          <Field label="Napomena (opciono)">
+            <Input
+              value={(content.note as string) ?? ""}
+              onChange={(e) => setContent({ note: e.target.value })}
+              placeholder="npr. 2.4GHz mreža za smart TV"
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+          </Field>
+        </div>
+      );
+
+    case "CHECKIN":
+      return (
+        <div className="space-y-3 pt-3">
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Check-in">
+              <Input
+                type="time"
+                value={(content.checkIn as string) ?? "15:00"}
+                onChange={(e) => setContent({ checkIn: e.target.value })}
+                className="h-9 text-sm border-[#EDEDE9]"
+              />
+            </Field>
+            <Field label="Check-out">
+              <Input
+                type="time"
+                value={(content.checkOut as string) ?? "11:00"}
+                onChange={(e) => setContent({ checkOut: e.target.value })}
+                className="h-9 text-sm border-[#EDEDE9]"
+              />
+            </Field>
+          </div>
+          <Field label="Upute za check-in">
+            <Textarea
+              value={(content.instructions as string) ?? ""}
+              onChange={(e) => setContent({ instructions: e.target.value })}
+              placeholder="Opišite proces check-ina korak po korak..."
+              className="text-sm border-[#EDEDE9] resize-none"
+              rows={4}
+            />
+          </Field>
+          <Field label="Kontakt za check-in (opciono)">
+            <Input
+              value={(content.contact as string) ?? ""}
+              onChange={(e) => setContent({ contact: e.target.value })}
+              placeholder="npr. +387 61 123 456"
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+          </Field>
+        </div>
+      );
+
+    case "HOUSE_RULES":
+      return (
+        <div className="space-y-3 pt-3">
+          <Label className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide">Pravila</Label>
+          <RulesList
+            rules={(content.rules as string[]) ?? []}
+            onChange={(rules) => setContent({ rules })}
+          />
+        </div>
+      );
+
+    case "LOCATION":
+      return (
+        <div className="space-y-3 pt-3">
+          <Field label="Adresa">
+            <Input
+              value={(content.address as string) ?? ""}
+              onChange={(e) => setContent({ address: e.target.value })}
+              placeholder="npr. Ferhadija 15, Sarajevo"
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+          </Field>
+          <Field label="Google Maps embed URL (opciono)">
+            <Input
+              value={(content.mapUrl as string) ?? ""}
+              onChange={(e) => setContent({ mapUrl: e.target.value })}
+              placeholder="https://www.google.com/maps/embed?..."
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+            <p className="text-xs text-[#6B6B6B] mt-1">
+              Google Maps → Share → Embed a map → kopiraj src URL
+            </p>
+          </Field>
+          <Field label="Upute za dolazak">
+            <Textarea
+              value={(content.directions as string) ?? ""}
+              onChange={(e) => setContent({ directions: e.target.value })}
+              placeholder="Opišite kako doći od aerodroma, centra..."
+              className="text-sm border-[#EDEDE9] resize-none"
+              rows={3}
+            />
+          </Field>
+        </div>
+      );
+
+    case "LOCAL_RECS":
+      return (
+        <div className="space-y-3 pt-3">
+          <Label className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide">Preporučena mjesta</Label>
+          <PlacesList
+            places={(content.places as Place[]) ?? []}
+            onChange={(places) => setContent({ places })}
+          />
+        </div>
+      );
+
+    case "CUSTOM":
+      return (
+        <div className="space-y-3 pt-3">
+          <Field label="Naslov sekcije">
+            <Input
+              value={section.title}
+              onChange={(e) => onChange({ title: e.target.value })}
+              placeholder="Naziv sekcije"
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+          </Field>
+          <Field label="Sadržaj">
+            <Textarea
+              value={(content.body as string) ?? ""}
+              onChange={(e) => setContent({ body: e.target.value })}
+              placeholder="Unesite sadržaj..."
+              className="text-sm border-[#EDEDE9] resize-none"
+              rows={5}
+            />
+          </Field>
+        </div>
+      );
+
+    default:
+      return null;
+  }
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs font-medium text-[#6B6B6B]">{label}</Label>
+      {children}
+    </div>
+  );
+}
+
+function RulesList({ rules, onChange }: { rules: string[]; onChange: (r: string[]) => void }) {
+  const add = () => onChange([...rules, ""]);
+  const remove = (i: number) => onChange(rules.filter((_, idx) => idx !== i));
+  const update = (i: number, val: string) => onChange(rules.map((r, idx) => (idx === i ? val : r)));
+
+  return (
+    <div className="space-y-2">
+      {rules.map((rule, i) => (
+        <div key={i} className="flex gap-2">
+          <Input
+            value={rule}
+            onChange={(e) => update(i, e.target.value)}
+            placeholder={`Pravilo ${i + 1}`}
+            className="h-9 text-sm border-[#EDEDE9]"
+          />
+          <button onClick={() => remove(i)} className="p-2 text-[#6B6B6B] hover:text-red-500 transition-colors">
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      ))}
+      <button
+        onClick={add}
+        className="flex items-center gap-1.5 text-sm text-[#FF6700] hover:text-[#e05c00] font-medium transition-colors"
+      >
+        <Plus className="w-3.5 h-3.5" /> Dodaj pravilo
+      </button>
+    </div>
+  );
+}
+
+type Place = { name: string; category: string; description: string };
+
+function PlacesList({ places, onChange }: { places: Place[]; onChange: (p: Place[]) => void }) {
+  const add = () => onChange([...places, { name: "", category: "", description: "" }]);
+  const remove = (i: number) => onChange(places.filter((_, idx) => idx !== i));
+  const update = (i: number, field: keyof Place, val: string) =>
+    onChange(places.map((p, idx) => (idx === i ? { ...p, [field]: val } : p)));
+
+  return (
+    <div className="space-y-3">
+      {places.map((place, i) => (
+        <div key={i} className="bg-[#F7F7F5] rounded-lg p-3 space-y-2">
+          <div className="flex gap-2">
+            <Input
+              value={place.name}
+              onChange={(e) => update(i, "name", e.target.value)}
+              placeholder="Naziv mjesta"
+              className="h-8 text-sm border-[#EDEDE9] bg-white flex-1"
+            />
+            <Input
+              value={place.category}
+              onChange={(e) => update(i, "category", e.target.value)}
+              placeholder="Kategorija"
+              className="h-8 text-sm border-[#EDEDE9] bg-white w-32"
+            />
+            <button onClick={() => remove(i)} className="p-1.5 text-[#6B6B6B] hover:text-red-500 transition-colors">
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+          <Input
+            value={place.description}
+            onChange={(e) => update(i, "description", e.target.value)}
+            placeholder="Kratak opis..."
+            className="h-8 text-sm border-[#EDEDE9] bg-white"
+          />
+        </div>
+      ))}
+      <button
+        onClick={add}
+        className="flex items-center gap-1.5 text-sm text-[#FF6700] hover:text-[#e05c00] font-medium transition-colors"
+      >
+        <Plus className="w-3.5 h-3.5" /> Dodaj mjesto
+      </button>
+    </div>
+  );
+}

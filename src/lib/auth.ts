@@ -15,7 +15,12 @@ export const auth = betterAuth({
     updateAge: 60 * 60 * 24,
   },
   trustedOrigins: [
-    process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3002",
+    "http://localhost:3003",
+    "http://localhost:3004",
+    "http://localhost:3005",
   ],
 });
 
