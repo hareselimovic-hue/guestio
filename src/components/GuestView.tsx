@@ -170,7 +170,7 @@ function SectionCard({ section }: { section: Section }) {
           className="font-bold text-[#262626] text-base"
           style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
         >
-          {section.title}
+          {section.type === "CUSTOM" ? section.title : meta.label}
         </h2>
       </div>
 
