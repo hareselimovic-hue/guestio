@@ -97,6 +97,7 @@ enum SectionType {
   HOUSE_RULES
   LOCATION
   LOCAL_RECS
+  CONTACT
   CUSTOM
 }
 

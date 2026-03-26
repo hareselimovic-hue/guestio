@@ -24,7 +24,7 @@ export default function LoginPage() {
     const { error } = await signIn.email({ email, password });
 
     if (error) {
-      setError(error.message ?? "Pogrešan email ili lozinka.");
+      setError(error.message ?? "Invalid email or password.");
       setLoading(false);
       return;
     }
@@ -40,9 +40,9 @@ export default function LoginPage() {
             Guestio
           </div>
         </div>
-        <CardTitle className="text-2xl font-bold text-[#262626]">Dobrodošli nazad</CardTitle>
+        <CardTitle className="text-2xl font-bold text-[#262626]">Welcome back</CardTitle>
         <CardDescription className="text-[#6B6B6B]">
-          Prijavite se na vaš račun
+          Sign in to your account
         </CardDescription>
       </CardHeader>
 
@@ -50,12 +50,12 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-[#262626] font-medium">
-              Email adresa
+              Email address
             </Label>
             <Input
               id="email"
               type="email"
-              placeholder="vas@email.com"
+              placeholder="you@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -65,7 +65,7 @@ export default function LoginPage() {
 
           <div className="space-y-2">
             <Label htmlFor="password" className="text-[#262626] font-medium">
-              Lozinka
+              Password
             </Label>
             <Input
               id="password"
@@ -89,16 +89,16 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-[#0F2F61] hover:bg-[#0a2347] text-white font-semibold py-2.5"
           >
-            {loading ? "Prijavljivanje..." : "Prijavi se"}
+            {loading ? "Signing in..." : "Sign in"}
           </Button>
         </form>
       </CardContent>
 
       <CardFooter className="justify-center">
         <p className="text-sm text-[#6B6B6B]">
-          Nemate račun?{" "}
+          Don't have an account?{" "}
           <Link href="/register" className="text-[#FF6700] font-medium hover:underline">
-            Registrujte se
+            Sign up
           </Link>
         </p>
       </CardFooter>

@@ -138,7 +138,7 @@ export default function PropertyEditorPage() {
           }`}
         >
           <Share2 className="w-3.5 h-3.5" />
-          Sekcije vodiča
+          Guide sections
         </button>
         <button
           onClick={() => setTab("guests")}
@@ -149,7 +149,7 @@ export default function PropertyEditorPage() {
           }`}
         >
           <Users className="w-3.5 h-3.5" />
-          Gosti
+          Guests
           {guests.length > 0 && (
             <span className="bg-[#0F2F61] text-white text-xs px-1.5 py-0.5 rounded-full">
               {guests.length}
@@ -175,17 +175,17 @@ export default function PropertyEditorPage() {
               className="font-semibold text-[#262626] mb-4"
               style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
             >
-              Generiši link za gosta
+              Generate guest link
             </h3>
             <form onSubmit={createGuestLink} className="space-y-3">
               <div>
                 <Label className="text-xs font-medium text-[#6B6B6B] mb-1.5 block">
-                  Ime gosta (opciono)
+                  Guest name (optional)
                 </Label>
                 <Input
                   value={guestName}
                   onChange={(e) => setGuestName(e.target.value)}
-                  placeholder="npr. Marko Marković"
+                  placeholder="e.g. John Smith"
                   className="h-9 text-sm border-[#EDEDE9]"
                 />
               </div>
@@ -215,7 +215,7 @@ export default function PropertyEditorPage() {
                 className="bg-[#FF6700] hover:bg-[#e05c00] text-white h-9 text-sm w-full"
               >
                 <Plus className="w-3.5 h-3.5 mr-1.5" />
-                {creating ? "Kreiranje..." : "Generiši link"}
+                {creating ? "Creating..." : "Generate link"}
               </Button>
             </form>
           </div>
@@ -223,7 +223,7 @@ export default function PropertyEditorPage() {
           {/* Guest links list */}
           {guests.length === 0 ? (
             <div className="text-center py-10 text-[#6B6B6B] text-sm">
-              Još nema kreiranih linkova za goste.
+              No guest links created yet.
             </div>
           ) : (
             <div className="space-y-2">
@@ -234,15 +234,15 @@ export default function PropertyEditorPage() {
                 >
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm text-[#262626]">
-                      {guest.guestName ?? "Anonimni gost"}
+                      {guest.guestName ?? "Anonymous guest"}
                     </p>
                     <p className="text-xs text-[#6B6B6B] mt-0.5">
                       {guest.checkIn
-                        ? `${new Date(guest.checkIn).toLocaleDateString("bs")} → ${guest.checkOut ? new Date(guest.checkOut).toLocaleDateString("bs") : "?"}`
-                        : "Bez datuma"
+                        ? `${new Date(guest.checkIn).toLocaleDateString("en")} → ${guest.checkOut ? new Date(guest.checkOut).toLocaleDateString("en") : "?"}`
+                        : "No dates"
                       }
                       {" · "}
-                      {guest.viewCount} pregleda
+                      {guest.viewCount} views
                     </p>
                   </div>
                   <button
@@ -250,9 +250,9 @@ export default function PropertyEditorPage() {
                     className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-[#EDEDE9] text-[#6B6B6B] hover:text-[#0F2F61] hover:border-[#0F2F61] transition-colors"
                   >
                     {copied === guest.token ? (
-                      <><Check className="w-3 h-3 text-green-500" /> Kopirano</>
+                      <><Check className="w-3 h-3 text-green-500" /> Copied</>
                     ) : (
-                      <><Copy className="w-3 h-3" /> Kopiraj link</>
+                      <><Copy className="w-3 h-3" /> Copy link</>
                     )}
                   </button>
                 </div>

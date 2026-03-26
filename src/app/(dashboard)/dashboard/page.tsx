@@ -19,17 +19,17 @@ export default async function DashboardPage() {
     }),
   ]);
 
-  const firstName = session!.user.name?.split(" ")[0] ?? "tu";
+  const firstName = session!.user.name?.split(" ")[0] ?? "there";
 
   return (
     <div className="p-8">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-[#262626]">
-          Dobrodošli, {firstName} 👋
+          Welcome, {firstName} 👋
         </h1>
         <p className="text-[#6B6B6B] mt-1">
-          Upravljajte vašim nekretninama i gostima
+          Manage your properties and guests
         </p>
       </div>
 
@@ -40,7 +40,7 @@ export default async function DashboardPage() {
             <div className="w-9 h-9 bg-[#0F2F61]/10 rounded-lg flex items-center justify-center">
               <Building2 className="w-5 h-5 text-[#0F2F61]" />
             </div>
-            <span className="text-sm text-[#6B6B6B] font-medium">Nekretnine</span>
+            <span className="text-sm text-[#6B6B6B] font-medium">Properties</span>
           </div>
           <p className="text-3xl font-bold text-[#262626]">{properties.length}</p>
         </div>
@@ -50,7 +50,7 @@ export default async function DashboardPage() {
             <div className="w-9 h-9 bg-[#FF6700]/10 rounded-lg flex items-center justify-center">
               <Users className="w-5 h-5 text-[#FF6700]" />
             </div>
-            <span className="text-sm text-[#6B6B6B] font-medium">Gost linkova</span>
+            <span className="text-sm text-[#6B6B6B] font-medium">Guest links</span>
           </div>
           <p className="text-3xl font-bold text-[#262626]">{totalGuests}</p>
         </div>
@@ -59,13 +59,13 @@ export default async function DashboardPage() {
       {/* Properties list */}
       <div className="bg-white rounded-xl border border-[#EDEDE9]">
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#EDEDE9]">
-          <h2 className="font-semibold text-[#262626]">Vaše nekretnine</h2>
+          <h2 className="font-semibold text-[#262626]">Your properties</h2>
           <Link
             href="/dashboard/properties/new"
             className="flex items-center gap-1.5 text-sm font-medium text-[#FF6700] hover:text-[#e05c00] transition-colors"
           >
             <Plus className="w-4 h-4" />
-            Nova nekretnina
+            New property
           </Link>
         </div>
 
@@ -74,16 +74,16 @@ export default async function DashboardPage() {
             <div className="w-14 h-14 bg-[#EDEDE9] rounded-full flex items-center justify-center mx-auto mb-4">
               <Building2 className="w-7 h-7 text-[#6B6B6B]" />
             </div>
-            <p className="text-[#262626] font-medium mb-1">Nema nekretnina</p>
+            <p className="text-[#262626] font-medium mb-1">No properties yet</p>
             <p className="text-[#6B6B6B] text-sm mb-4">
-              Kreirajte prvu nekretninu i počnite dijeliti vodiče s gostima
+              Create your first property and start sharing guides with guests
             </p>
             <Link
               href="/dashboard/properties/new"
               className="inline-flex items-center gap-2 bg-[#0F2F61] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#0a2347] transition-colors"
             >
               <Plus className="w-4 h-4" />
-              Kreiraj prvu nekretninu
+              Create first property
             </Link>
           </div>
         ) : (
@@ -99,7 +99,7 @@ export default async function DashboardPage() {
                       {p.name}
                     </p>
                     <p className="text-xs text-[#6B6B6B] mt-0.5">
-                      {p._count.sections} sekcija · {p._count.guests} gostiju
+                      {p._count.sections} sections · {p._count.guests} guests
                     </p>
                   </div>
                   <ArrowRight className="w-4 h-4 text-[#6B6B6B] group-hover:text-[#0F2F61] transition-colors" />

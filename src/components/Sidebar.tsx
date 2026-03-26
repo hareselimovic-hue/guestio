@@ -20,9 +20,9 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { href: "/dashboard", label: "Početna", icon: Home },
-  { href: "/dashboard/properties", label: "Nekretnine", icon: Building2 },
-  { href: "/dashboard/guests", label: "Gosti", icon: Users },
+  { href: "/dashboard", label: "Home", icon: Home },
+  { href: "/dashboard/properties", label: "Properties", icon: Building2 },
+  { href: "/dashboard/guests", label: "Guests", icon: Users },
 ];
 
 export default function Sidebar({ user }: SidebarProps) {
@@ -41,7 +41,7 @@ export default function Sidebar({ user }: SidebarProps) {
         <span className="text-white font-bold text-2xl tracking-tight">
           Guestio
         </span>
-        <p className="text-[#8ba3c7] text-xs mt-0.5">Digitalni vodič za goste</p>
+        <p className="text-[#8ba3c7] text-xs mt-0.5">Digital guest guidebook</p>
       </div>
 
       {/* Nav */}
@@ -76,7 +76,7 @@ export default function Sidebar({ user }: SidebarProps) {
       <div className="px-3 py-4 border-t border-[#1a3d75]">
         <div className="px-3 py-2 mb-2">
           <p className="text-white text-sm font-medium truncate">
-            {user.name ?? "Korisnik"}
+            {user.name ?? "User"}
           </p>
           <p className="text-[#8ba3c7] text-xs truncate">{user.email}</p>
         </div>
@@ -85,7 +85,7 @@ export default function Sidebar({ user }: SidebarProps) {
           className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-[#8ba3c7] hover:bg-[#1a3d75] hover:text-white transition-colors"
         >
           <LogOut className="w-4 h-4 shrink-0" />
-          <span>Odjava</span>
+          <span>Sign out</span>
         </button>
       </div>
     </aside>

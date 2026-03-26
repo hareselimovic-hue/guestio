@@ -25,7 +25,7 @@ export default function RegisterPage() {
     const { error } = await signUp.email({ name, email, password });
 
     if (error) {
-      setError(error.message ?? "Greška pri registraciji. Pokušajte ponovo.");
+      setError(error.message ?? "Registration failed. Please try again.");
       setLoading(false);
       return;
     }
@@ -41,9 +41,9 @@ export default function RegisterPage() {
             Guestio
           </div>
         </div>
-        <CardTitle className="text-2xl font-bold text-[#262626]">Kreirajte račun</CardTitle>
+        <CardTitle className="text-2xl font-bold text-[#262626]">Create an account</CardTitle>
         <CardDescription className="text-[#6B6B6B]">
-          Počnite kreirati digitalne vodiče za vaše goste
+          Start creating digital guides for your guests
         </CardDescription>
       </CardHeader>
 
@@ -51,12 +51,12 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-[#262626] font-medium">
-              Ime i prezime
+              Full name
             </Label>
             <Input
               id="name"
               type="text"
-              placeholder="Ime Prezime"
+              placeholder="John Smith"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -66,12 +66,12 @@ export default function RegisterPage() {
 
           <div className="space-y-2">
             <Label htmlFor="email" className="text-[#262626] font-medium">
-              Email adresa
+              Email address
             </Label>
             <Input
               id="email"
               type="email"
-              placeholder="vas@email.com"
+              placeholder="you@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -81,12 +81,12 @@ export default function RegisterPage() {
 
           <div className="space-y-2">
             <Label htmlFor="password" className="text-[#262626] font-medium">
-              Lozinka
+              Password
             </Label>
             <Input
               id="password"
               type="password"
-              placeholder="Minimum 8 znakova"
+              placeholder="Minimum 8 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -106,16 +106,16 @@ export default function RegisterPage() {
             disabled={loading}
             className="w-full bg-[#FF6700] hover:bg-[#e05c00] text-white font-semibold py-2.5"
           >
-            {loading ? "Kreiranje računa..." : "Kreiraj račun"}
+            {loading ? "Creating account..." : "Create account"}
           </Button>
         </form>
       </CardContent>
 
       <CardFooter className="justify-center">
         <p className="text-sm text-[#6B6B6B]">
-          Već imate račun?{" "}
+          Already have an account?{" "}
           <Link href="/login" className="text-[#FF6700] font-medium hover:underline">
-            Prijavite se
+            Sign in
           </Link>
         </p>
       </CardFooter>

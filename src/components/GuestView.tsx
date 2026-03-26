@@ -3,17 +3,18 @@
 import { useRef } from "react";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
-  Copy, Check, Phone, ChevronDown
+  Copy, Check, ChevronDown, Phone
 } from "lucide-react";
 import { useState } from "react";
 
 const SECTION_META: Record<string, { icon: React.ReactNode; color: string; bg: string; label: string }> = {
-  WELCOME:     { icon: <Heart className="w-5 h-5" />,      color: "text-pink-600",   bg: "bg-pink-50",   label: "Dobrodošlica" },
+  WELCOME:     { icon: <Heart className="w-5 h-5" />,      color: "text-pink-600",   bg: "bg-pink-50",   label: "Welcome" },
   WIFI:        { icon: <Wifi className="w-5 h-5" />,       color: "text-blue-600",   bg: "bg-blue-50",   label: "WiFi" },
   CHECKIN:     { icon: <Key className="w-5 h-5" />,        color: "text-amber-600",  bg: "bg-amber-50",  label: "Check-in" },
-  HOUSE_RULES: { icon: <ScrollText className="w-5 h-5" />, color: "text-purple-600", bg: "bg-purple-50", label: "Pravila" },
-  LOCATION:    { icon: <MapPin className="w-5 h-5" />,     color: "text-green-600",  bg: "bg-green-50",  label: "Lokacija" },
-  LOCAL_RECS:  { icon: <Star className="w-5 h-5" />,       color: "text-orange-600", bg: "bg-orange-50", label: "Preporuke" },
+  HOUSE_RULES: { icon: <ScrollText className="w-5 h-5" />, color: "text-purple-600", bg: "bg-purple-50", label: "House Rules" },
+  LOCATION:    { icon: <MapPin className="w-5 h-5" />,     color: "text-green-600",  bg: "bg-green-50",  label: "Location" },
+  LOCAL_RECS:  { icon: <Star className="w-5 h-5" />,       color: "text-orange-600", bg: "bg-orange-50", label: "Recommendations" },
+  CONTACT:     { icon: <Phone className="w-5 h-5" />,      color: "text-teal-600",   bg: "bg-teal-50",   label: "Contact" },
   CUSTOM:      { icon: <Plus className="w-5 h-5" />,       color: "text-gray-600",   bg: "bg-gray-50",   label: "Info" },
 };
 
@@ -41,10 +42,10 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   const welcomeContent = (welcomeSection?.content ?? {}) as Record<string, unknown>;
   const heroImage = (welcomeContent.heroImage as string) ?? "";
   const welcomeTitle = (welcomeContent.welcomeTitle as string) ?? property.name;
-  const ctaText = (welcomeContent.ctaText as string) || "Istražite vodič";
+  const ctaText = (welcomeContent.ctaText as string) || "Explore the guide";
 
   const formatDate = (iso: string) =>
-    new Date(iso).toLocaleDateString("bs", { day: "numeric", month: "long" });
+    new Date(iso).toLocaleDateString("en", { day: "numeric", month: "long" });
 
   function scrollToSections() {
     sectionsRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -78,7 +79,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
             style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
           >
             {guestName
-              ? <>Dobrodošli,<br /><span className="text-[#FF6700]">{guestName}</span>!</>
+              ? <>Welcome,<br /><span className="text-[#FF6700]">{guestName}</span>!</>
               : welcomeTitle
             }
           </h1>
@@ -135,8 +136,8 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 
         {otherSections.length === 0 && (
           <div className="text-center py-16 text-[#6B6B6B]">
-            <p className="text-lg font-medium">Vodič se priprema</p>
-            <p className="text-sm mt-1">Domaćin još uvijek dodaje informacije.</p>
+            <p className="text-lg font-medium">Guide coming soon</p>
+            <p className="text-sm mt-1">Your host is still adding information.</p>
           </div>
         )}
       </div>
@@ -186,8 +187,8 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
     case "WIFI":
       return (
         <div className="space-y-3">
-          <WifiRow label="Mreža" value={(content.network as string) ?? ""} />
-          <WifiRow label="Lozinka" value={(content.password as string) ?? ""} copyable />
+          <WifiRow label="Network" value={(content.network as string) ?? ""} />
+          <WifiRow label="Password" value={(content.password as string) ?? ""} copyable />
           {content.note && (
             <p className="text-sm text-[#6B6B6B] pt-2 border-t border-[#F0F0EE]">
               {content.note as string}
@@ -208,15 +209,6 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
               {content.instructions as string}
             </p>
           )}
-          {content.contact && (
-            <a
-              href={`tel:${content.contact}`}
-              className="flex items-center gap-2 text-sm font-medium text-[#0F2F61] bg-[#0F2F61]/5 px-4 py-2.5 rounded-xl hover:bg-[#0F2F61]/10 transition-colors"
-            >
-              <Phone className="w-4 h-4" />
-              {content.contact as string}
-            </a>
-          )}
         </div>
       );
 
@@ -224,7 +216,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
       const rules = (content.rules as string[]) ?? [];
       return (
         <ul className="space-y-2.5">
-          {rules.length === 0 && <li className="text-sm text-[#6B6B6B]">Nema definisanih pravila.</li>}
+          {rules.length === 0 && <li className="text-sm text-[#6B6B6B]">No rules defined.</li>}
           {rules.map((rule, i) => (
             <li key={i} className="flex items-start gap-3 text-sm text-[#262626]">
               <span className="w-6 h-6 bg-[#0F2F61]/10 text-[#0F2F61] rounded-full flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
@@ -268,7 +260,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
       const places = (content.places as Array<{ name: string; category: string; description: string }>) ?? [];
       return (
         <div className="space-y-3">
-          {places.length === 0 && <p className="text-sm text-[#6B6B6B]">Nema preporuka još.</p>}
+          {places.length === 0 && <p className="text-sm text-[#6B6B6B]">No recommendations yet.</p>}
           {places.map((place, i) => (
             <div key={i} className="flex gap-3 p-3 bg-[#F7F7F5] rounded-xl">
               <div className="w-8 h-8 bg-[#FF6700]/10 rounded-lg flex items-center justify-center shrink-0">
@@ -293,6 +285,54 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
       );
     }
 
+    case "CONTACT": {
+      const phone = (content.phone as string) ?? "";
+      const label = (content.label as string) ?? "";
+      const cleanPhone = phone.replace(/\s+/g, "");
+      const waPhone = cleanPhone.replace(/^\+/, "");
+
+      if (!phone) return <p className="text-sm text-[#6B6B6B]">No contact number provided.</p>;
+
+      return (
+        <div className="space-y-3">
+          {label && (
+            <p className="text-sm font-medium text-[#262626]">{label}</p>
+          )}
+          <p className="text-base font-semibold text-[#262626]">{phone}</p>
+          <div className="flex gap-2 flex-wrap">
+            {/* Phone call */}
+            <a
+              href={`tel:${cleanPhone}`}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-[#0F2F61] text-white hover:bg-[#0a2347] transition-colors"
+            >
+              <Phone className="w-4 h-4" />
+              Call
+            </a>
+
+            {/* Viber */}
+            <a
+              href={`viber://chat?number=${cleanPhone}`}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-[#7360F2] text-white hover:bg-[#5f4ed4] transition-colors"
+            >
+              <ViberIcon />
+              Viber
+            </a>
+
+            {/* WhatsApp */}
+            <a
+              href={`https://wa.me/${waPhone}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-[#25D366] text-white hover:bg-[#1db955] transition-colors"
+            >
+              <WhatsAppIcon />
+              WhatsApp
+            </a>
+          </div>
+        </div>
+      );
+    }
+
     default:
       return (
         <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap">
@@ -300,6 +340,22 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
         </p>
       );
   }
+}
+
+function ViberIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M11.4 0C6.57.16 2.38 3.34.83 7.9c-.6 1.76-.7 3.65-.3 5.47.37 1.64 1.1 3.16 2.14 4.45v3.3c0 .28.19.52.46.59.27.07.55-.04.7-.28l1.5-2.22c1.43.7 3 1.08 4.58 1.09h.32c.88 0 1.76-.1 2.62-.3 3.5-.84 6.22-3.47 7.19-6.93.16-.57.27-1.15.32-1.74.06-.63.08-1.27.04-1.9C19.1 4.22 15.6.45 11.4 0zm5.77 14.5c-.78 2.73-3.01 4.78-5.82 5.45-.72.17-1.46.26-2.2.26h-.29c-1.38-.01-2.74-.35-3.96-.98l-.38-.2-.83 1.22v-2.3l-.28-.26C2.44 16.4 1.63 14.9 1.3 13.25c-.36-1.65-.27-3.35.25-4.95C2.82 4.2 6.5 1.43 10.85 1.28h.29c3.65 0 6.82 2.6 7.44 6.2.04.53.05 1.06 0 1.59-.04.5-.13.98-.26 1.46l-.15-.03zM16 10.5c-.2-.09-.93-.46-1.08-.51-.14-.05-.25-.08-.35.08-.1.15-.4.51-.49.62-.09.1-.18.12-.34.04-.16-.08-.68-.25-1.3-.8-.48-.43-.8-.96-.9-1.12-.1-.16-.01-.25.07-.33.08-.08.17-.2.26-.3.09-.1.12-.17.17-.28.06-.12.03-.22-.02-.31-.04-.08-.35-.85-.48-1.16-.13-.31-.26-.26-.35-.27h-.31c-.1 0-.27.04-.4.19-.14.15-.53.52-.53 1.26s.54 1.46.62 1.56c.08.1 1.06 1.62 2.57 2.27.36.15.64.25.85.32.36.11.68.1.94.06.29-.05.88-.36 1.01-.71.12-.35.12-.65.08-.71-.04-.07-.14-.11-.34-.2z"/>
+    </svg>
+  );
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  );
 }
 
 function WifiRow({ label, value, copyable }: { label: string; value: string; copyable?: boolean }) {
@@ -320,7 +376,7 @@ function WifiRow({ label, value, copyable }: { label: string; value: string; cop
           onClick={copy}
           className="flex items-center gap-1.5 text-xs font-medium text-[#0F2F61] bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-[#F0F0EE] transition-colors"
         >
-          {copied ? <><Check className="w-3 h-3 text-green-500" /> Kopirano</> : <><Copy className="w-3 h-3" /> Kopiraj</>}
+          {copied ? <><Check className="w-3 h-3 text-green-500" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
         </button>
       )}
     </div>

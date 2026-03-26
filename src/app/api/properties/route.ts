@@ -43,12 +43,13 @@ export async function POST(req: NextRequest) {
       address: address?.trim() || null,
       sections: {
         create: [
-          { type: "WELCOME", title: "Dobrodošlica", content: { message: "" }, order: 0 },
+          { type: "WELCOME", title: "Welcome", content: { message: "" }, order: 0 },
           { type: "WIFI", title: "WiFi", content: { network: "", password: "" }, order: 1 },
           { type: "CHECKIN", title: "Check-in & Check-out", content: { checkIn: "15:00", checkOut: "11:00", instructions: "" }, order: 2 },
-          { type: "HOUSE_RULES", title: "Kućna pravila", content: { rules: [] }, order: 3 },
-          { type: "LOCATION", title: "Lokacija", content: { address: address?.trim() || "", mapUrl: "", directions: "" }, order: 4 },
-          { type: "LOCAL_RECS", title: "Lokalne preporuke", content: { places: [] }, order: 5 },
+          { type: "HOUSE_RULES", title: "House Rules", content: { rules: [] }, order: 3 },
+          { type: "LOCATION", title: "Location", content: { address: address?.trim() || "", mapUrl: "", directions: "" }, order: 4 },
+          { type: "LOCAL_RECS", title: "Local Recommendations", content: { places: [] }, order: 5 },
+          { type: "CONTACT", title: "Contact", content: { phone: "", label: "" }, order: 6 },
         ],
       },
     },

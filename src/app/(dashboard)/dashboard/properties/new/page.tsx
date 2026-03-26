@@ -28,7 +28,7 @@ export default function NewPropertyPage() {
 
     if (!res.ok) {
       const data = await res.json();
-      setError(data.error ?? "Greška pri kreiranju.");
+      setError(data.error ?? "Failed to create property.");
       setLoading(false);
       return;
     }
@@ -44,7 +44,7 @@ export default function NewPropertyPage() {
         className="inline-flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        Nazad
+        Back
       </Link>
 
       <div className="flex items-center gap-3 mb-8">
@@ -53,20 +53,20 @@ export default function NewPropertyPage() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-[#262626]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
-            Nova nekretnina
+            New property
           </h1>
-          <p className="text-sm text-[#6B6B6B]">Kreiraj digitalni vodič za tvoje goste</p>
+          <p className="text-sm text-[#6B6B6B]">Create a digital guide for your guests</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
           <Label htmlFor="name" className="text-[#262626] font-medium">
-            Naziv nekretnine <span className="text-red-500">*</span>
+            Property name <span className="text-red-500">*</span>
           </Label>
           <Input
             id="name"
-            placeholder="npr. Apartman Centar Sarajevo"
+            placeholder="e.g. Downtown Apartment"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -76,11 +76,11 @@ export default function NewPropertyPage() {
 
         <div className="space-y-2">
           <Label htmlFor="address" className="text-[#262626] font-medium">
-            Adresa <span className="text-[#6B6B6B] font-normal">(opciono)</span>
+            Address <span className="text-[#6B6B6B] font-normal">(optional)</span>
           </Label>
           <Input
             id="address"
-            placeholder="npr. Ferhadija 15, Sarajevo"
+            placeholder="e.g. 123 Main Street, New York"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             className="border-[#EDEDE9] focus:border-[#0F2F61] h-11"
@@ -97,7 +97,7 @@ export default function NewPropertyPage() {
             disabled={loading || !name.trim()}
             className="bg-[#0F2F61] hover:bg-[#0a2347] text-white px-6 h-11"
           >
-            {loading ? "Kreiranje..." : "Kreiraj nekretninu"}
+            {loading ? "Creating..." : "Create property"}
           </Button>
           <Button
             type="button"
@@ -105,7 +105,7 @@ export default function NewPropertyPage() {
             onClick={() => router.back()}
             className="h-11"
           >
-            Odustani
+            Cancel
           </Button>
         </div>
       </form>

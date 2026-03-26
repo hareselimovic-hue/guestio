@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
   ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Trash2,
-  ImagePlus, X
+  ImagePlus, X, Phone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ const SECTION_ICONS: Record<string, React.ReactNode> = {
   HOUSE_RULES: <ScrollText className="w-4 h-4" />,
   LOCATION:    <MapPin className="w-4 h-4" />,
   LOCAL_RECS:  <Star className="w-4 h-4" />,
+  CONTACT:     <Phone className="w-4 h-4" />,
   CUSTOM:      <Plus className="w-4 h-4" />,
 };
 
@@ -28,6 +29,7 @@ const SECTION_COLORS: Record<string, string> = {
   HOUSE_RULES: "bg-purple-50 text-purple-600",
   LOCATION:    "bg-green-50 text-green-600",
   LOCAL_RECS:  "bg-orange-50 text-orange-600",
+  CONTACT:     "bg-teal-50 text-teal-600",
   CUSTOM:      "bg-gray-50 text-gray-600",
 };
 
@@ -95,7 +97,7 @@ export default function SectionEditor({ sections, onUpdate }: SectionEditorProps
               <button
                 onClick={(e) => { e.stopPropagation(); toggleVisibility(section); }}
                 className="p-1.5 rounded-lg hover:bg-[#EDEDE9] text-[#6B6B6B] transition-colors"
-                title={section.isVisible ? "Sakrij sekciju" : "Prikaži sekciju"}
+                title={section.isVisible ? "Hide section" : "Show section"}
               >
                 {section.isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
               </button>
@@ -121,8 +123,8 @@ export default function SectionEditor({ sections, onUpdate }: SectionEditorProps
                   className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-8 text-xs px-4"
                 >
                   {saving === section.id ? (
-                    <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> Čuvanje...</>
-                  ) : "Sačuvaj"}
+                    <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> Saving...</>
+                  ) : "Save"}
                 </Button>
               </div>
             </div>
@@ -153,27 +155,27 @@ function SectionForm({
     case "WIFI":
       return (
         <div className="space-y-3 pt-3">
-          <Field label="Naziv mreže (SSID)">
+          <Field label="Network name (SSID)">
             <Input
               value={(content.network as string) ?? ""}
               onChange={(e) => setContent({ network: e.target.value })}
-              placeholder="npr. Apartman_WiFi"
+              placeholder="e.g. Apartment_WiFi"
               className="h-9 text-sm border-[#EDEDE9]"
             />
           </Field>
-          <Field label="Lozinka">
+          <Field label="Password">
             <Input
               value={(content.password as string) ?? ""}
               onChange={(e) => setContent({ password: e.target.value })}
-              placeholder="WiFi lozinka"
+              placeholder="WiFi password"
               className="h-9 text-sm border-[#EDEDE9]"
             />
           </Field>
-          <Field label="Napomena (opciono)">
+          <Field label="Note (optional)">
             <Input
               value={(content.note as string) ?? ""}
               onChange={(e) => setContent({ note: e.target.value })}
-              placeholder="npr. 2.4GHz mreža za smart TV"
+              placeholder="e.g. 2.4GHz network for smart TV"
               className="h-9 text-sm border-[#EDEDE9]"
             />
           </Field>
@@ -184,7 +186,7 @@ function SectionForm({
       return (
         <div className="space-y-3 pt-3">
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Check-in">
+            <Field label="Check-in time">
               <Input
                 type="time"
                 value={(content.checkIn as string) ?? "15:00"}
@@ -192,7 +194,7 @@ function SectionForm({
                 className="h-9 text-sm border-[#EDEDE9]"
               />
             </Field>
-            <Field label="Check-out">
+            <Field label="Check-out time">
               <Input
                 type="time"
                 value={(content.checkOut as string) ?? "11:00"}
@@ -201,21 +203,13 @@ function SectionForm({
               />
             </Field>
           </div>
-          <Field label="Upute za check-in">
+          <Field label="Check-in instructions">
             <Textarea
               value={(content.instructions as string) ?? ""}
               onChange={(e) => setContent({ instructions: e.target.value })}
-              placeholder="Opišite proces check-ina korak po korak..."
+              placeholder="Describe the check-in process step by step..."
               className="text-sm border-[#EDEDE9] resize-none"
               rows={4}
-            />
-          </Field>
-          <Field label="Kontakt za check-in (opciono)">
-            <Input
-              value={(content.contact as string) ?? ""}
-              onChange={(e) => setContent({ contact: e.target.value })}
-              placeholder="npr. +387 61 123 456"
-              className="h-9 text-sm border-[#EDEDE9]"
             />
           </Field>
         </div>
@@ -224,7 +218,7 @@ function SectionForm({
     case "HOUSE_RULES":
       return (
         <div className="space-y-3 pt-3">
-          <Label className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide">Pravila</Label>
+          <Label className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide">Rules</Label>
           <RulesList
             rules={(content.rules as string[]) ?? []}
             onChange={(rules) => setContent({ rules })}
@@ -235,15 +229,15 @@ function SectionForm({
     case "LOCATION":
       return (
         <div className="space-y-3 pt-3">
-          <Field label="Adresa">
+          <Field label="Address">
             <Input
               value={(content.address as string) ?? ""}
               onChange={(e) => setContent({ address: e.target.value })}
-              placeholder="npr. Ferhadija 15, Sarajevo"
+              placeholder="e.g. 123 Main Street, New York"
               className="h-9 text-sm border-[#EDEDE9]"
             />
           </Field>
-          <Field label="Google Maps embed URL (opciono)">
+          <Field label="Google Maps embed URL (optional)">
             <Input
               value={(content.mapUrl as string) ?? ""}
               onChange={(e) => setContent({ mapUrl: e.target.value })}
@@ -251,14 +245,14 @@ function SectionForm({
               className="h-9 text-sm border-[#EDEDE9]"
             />
             <p className="text-xs text-[#6B6B6B] mt-1">
-              Google Maps → Share → Embed a map → kopiraj src URL
+              Google Maps → Share → Embed a map → copy the src URL
             </p>
           </Field>
-          <Field label="Upute za dolazak">
+          <Field label="Directions">
             <Textarea
               value={(content.directions as string) ?? ""}
               onChange={(e) => setContent({ directions: e.target.value })}
-              placeholder="Opišite kako doći od aerodroma, centra..."
+              placeholder="Describe how to get here from the airport, city centre..."
               className="text-sm border-[#EDEDE9] resize-none"
               rows={3}
             />
@@ -269,7 +263,7 @@ function SectionForm({
     case "LOCAL_RECS":
       return (
         <div className="space-y-3 pt-3">
-          <Label className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide">Preporučena mjesta</Label>
+          <Label className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide">Recommended places</Label>
           <PlacesList
             places={(content.places as Place[]) ?? []}
             onChange={(places) => setContent({ places })}
@@ -277,22 +271,47 @@ function SectionForm({
         </div>
       );
 
-    case "CUSTOM":
+    case "CONTACT":
       return (
         <div className="space-y-3 pt-3">
-          <Field label="Naslov sekcije">
+          <Field label="Phone number">
             <Input
-              value={section.title}
-              onChange={(e) => onChange({ title: e.target.value })}
-              placeholder="Naziv sekcije"
+              value={(content.phone as string) ?? ""}
+              onChange={(e) => setContent({ phone: e.target.value })}
+              placeholder="e.g. +387 61 123 456"
               className="h-9 text-sm border-[#EDEDE9]"
             />
           </Field>
-          <Field label="Sadržaj">
+          <Field label="Label (optional)">
+            <Input
+              value={(content.label as string) ?? ""}
+              onChange={(e) => setContent({ label: e.target.value })}
+              placeholder="e.g. Host – Haris"
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+          </Field>
+          <p className="text-xs text-[#6B6B6B]">
+            Guests will see buttons for Phone call, Viber and WhatsApp.
+          </p>
+        </div>
+      );
+
+    case "CUSTOM":
+      return (
+        <div className="space-y-3 pt-3">
+          <Field label="Section title">
+            <Input
+              value={section.title}
+              onChange={(e) => onChange({ title: e.target.value })}
+              placeholder="Section name"
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+          </Field>
+          <Field label="Content">
             <Textarea
               value={(content.body as string) ?? ""}
               onChange={(e) => setContent({ body: e.target.value })}
-              placeholder="Unesite sadržaj..."
+              placeholder="Enter content..."
               className="text-sm border-[#EDEDE9] resize-none"
               rows={5}
             />
@@ -335,7 +354,7 @@ function WelcomeForm({
   return (
     <div className="space-y-3 pt-3">
       {/* Hero image upload */}
-      <Field label="Hero slika (background)">
+      <Field label="Hero image (background)">
         {imageUrl ? (
           <div className="relative rounded-xl overflow-hidden h-36">
             <img src={imageUrl} alt="hero" className="w-full h-full object-cover" />
@@ -344,13 +363,13 @@ function WelcomeForm({
                 onClick={() => fileRef.current?.click()}
                 className="bg-white text-[#262626] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"
               >
-                <ImagePlus className="w-3.5 h-3.5" /> Promijeni
+                <ImagePlus className="w-3.5 h-3.5" /> Change
               </button>
               <button
                 onClick={() => setContent({ heroImage: "" })}
                 className="bg-white text-red-500 text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"
               >
-                <X className="w-3.5 h-3.5" /> Ukloni
+                <X className="w-3.5 h-3.5" /> Remove
               </button>
             </div>
           </div>
@@ -365,7 +384,7 @@ function WelcomeForm({
             ) : (
               <>
                 <ImagePlus className="w-5 h-5" />
-                <span className="text-xs font-medium">Dodaj sliku (JPG, PNG, max 5MB)</span>
+                <span className="text-xs font-medium">Add image (JPG, PNG, max 5MB)</span>
               </>
             )}
           </button>
@@ -373,36 +392,36 @@ function WelcomeForm({
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
       </Field>
 
-      <Field label="Naslov dobrodošlice">
+      <Field label="Welcome title">
         <Input
           value={(content.welcomeTitle as string) ?? ""}
           onChange={(e) => setContent({ welcomeTitle: e.target.value })}
-          placeholder="npr. Dobrodošli u naš apartman!"
+          placeholder="e.g. Welcome to our apartment!"
           className="h-9 text-sm border-[#EDEDE9]"
         />
       </Field>
-      <Field label="Poruka gostima">
+      <Field label="Message to guests">
         <Textarea
           value={(content.message as string) ?? ""}
           onChange={(e) => setContent({ message: e.target.value })}
-          placeholder="Napišite toplu dobrodošlicu za vaše goste..."
+          placeholder="Write a warm welcome message for your guests..."
           className="text-sm border-[#EDEDE9] resize-none"
           rows={3}
         />
       </Field>
-      <Field label="Ime domaćina">
+      <Field label="Host name">
         <Input
           value={(content.hostName as string) ?? ""}
           onChange={(e) => setContent({ hostName: e.target.value })}
-          placeholder="npr. Haris i Amina"
+          placeholder="e.g. Haris & Amina"
           className="h-9 text-sm border-[#EDEDE9]"
         />
       </Field>
-      <Field label="Tekst dugmeta">
+      <Field label="Button text">
         <Input
           value={(content.ctaText as string) ?? ""}
           onChange={(e) => setContent({ ctaText: e.target.value })}
-          placeholder="npr. Istražite vodič"
+          placeholder="e.g. Explore the guide"
           className="h-9 text-sm border-[#EDEDE9]"
         />
       </Field>
@@ -431,7 +450,7 @@ function RulesList({ rules, onChange }: { rules: string[]; onChange: (r: string[
           <Input
             value={rule}
             onChange={(e) => update(i, e.target.value)}
-            placeholder={`Pravilo ${i + 1}`}
+            placeholder={`Rule ${i + 1}`}
             className="h-9 text-sm border-[#EDEDE9]"
           />
           <button onClick={() => remove(i)} className="p-2 text-[#6B6B6B] hover:text-red-500 transition-colors">
@@ -443,7 +462,7 @@ function RulesList({ rules, onChange }: { rules: string[]; onChange: (r: string[
         onClick={add}
         className="flex items-center gap-1.5 text-sm text-[#FF6700] hover:text-[#e05c00] font-medium transition-colors"
       >
-        <Plus className="w-3.5 h-3.5" /> Dodaj pravilo
+        <Plus className="w-3.5 h-3.5" /> Add rule
       </button>
     </div>
   );
@@ -465,13 +484,13 @@ function PlacesList({ places, onChange }: { places: Place[]; onChange: (p: Place
             <Input
               value={place.name}
               onChange={(e) => update(i, "name", e.target.value)}
-              placeholder="Naziv mjesta"
+              placeholder="Place name"
               className="h-8 text-sm border-[#EDEDE9] bg-white flex-1"
             />
             <Input
               value={place.category}
               onChange={(e) => update(i, "category", e.target.value)}
-              placeholder="Kategorija"
+              placeholder="Category"
               className="h-8 text-sm border-[#EDEDE9] bg-white w-32"
             />
             <button onClick={() => remove(i)} className="p-1.5 text-[#6B6B6B] hover:text-red-500 transition-colors">
@@ -481,7 +500,7 @@ function PlacesList({ places, onChange }: { places: Place[]; onChange: (p: Place
           <Input
             value={place.description}
             onChange={(e) => update(i, "description", e.target.value)}
-            placeholder="Kratak opis..."
+            placeholder="Short description..."
             className="h-8 text-sm border-[#EDEDE9] bg-white"
           />
         </div>
@@ -490,7 +509,7 @@ function PlacesList({ places, onChange }: { places: Place[]; onChange: (p: Place
         onClick={add}
         className="flex items-center gap-1.5 text-sm text-[#FF6700] hover:text-[#e05c00] font-medium transition-colors"
       >
-        <Plus className="w-3.5 h-3.5" /> Dodaj mjesto
+        <Plus className="w-3.5 h-3.5" /> Add place
       </button>
     </div>
   );
