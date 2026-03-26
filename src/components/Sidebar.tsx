@@ -5,8 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
 import {
   Home,
-  Building2,
-  Users,
   LogOut,
   ChevronRight,
 } from "lucide-react";
@@ -20,9 +18,7 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { href: "/dashboard", label: "Home", icon: Home },
-  { href: "/dashboard/properties", label: "Properties", icon: Building2 },
-  { href: "/dashboard/guests", label: "Guests", icon: Users },
+  { href: "/dashboard", label: "Dashboard", icon: Home },
 ];
 
 export default function Sidebar({ user }: SidebarProps) {

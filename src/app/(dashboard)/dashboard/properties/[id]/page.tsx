@@ -162,6 +162,7 @@ export default function PropertyEditorPage() {
       {tab === "sections" && (
         <SectionEditor
           sections={property.sections}
+          propertyId={property.id}
           onUpdate={(sections) => setProperty({ ...property, sections })}
         />
       )}

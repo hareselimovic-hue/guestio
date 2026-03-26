@@ -44,12 +44,29 @@ interface Section {
 
 interface SectionEditorProps {
   sections: Section[];
+  propertyId: string;
   onUpdate: (sections: Section[]) => void;
 }
 
-export default function SectionEditor({ sections, onUpdate }: SectionEditorProps) {
+export default function SectionEditor({ sections, propertyId, onUpdate }: SectionEditorProps) {
   const [openId, setOpenId] = useState<string | null>(sections[0]?.id ?? null);
   const [saving, setSaving] = useState<string | null>(null);
+  const [addingContact, setAddingContact] = useState(false);
+
+  const hasContact = sections.some((s) => s.type === "CONTACT");
+
+  async function addContactSection() {
+    setAddingContact(true);
+    const res = await fetch(`/api/properties/${propertyId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "CONTACT", title: "Contact", content: { phone: "", label: "" } }),
+    });
+    const section = await res.json();
+    onUpdate([...sections, { ...section, content: section.content as Record<string, unknown> }]);
+    setOpenId(section.id);
+    setAddingContact(false);
+  }
 
   async function saveSection(section: Section) {
     setSaving(section.id);
@@ -77,6 +94,16 @@ export default function SectionEditor({ sections, onUpdate }: SectionEditorProps
 
   return (
     <div className="space-y-2">
+      {!hasContact && (
+        <button
+          onClick={addContactSection}
+          disabled={addingContact}
+          className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-[#EDEDE9] rounded-xl py-3 text-sm font-medium text-[#6B6B6B] hover:border-teal-400 hover:text-teal-600 transition-colors"
+        >
+          {addingContact ? <Loader2 className="w-4 h-4 animate-spin" /> : <Phone className="w-4 h-4" />}
+          Add Contact section
+        </button>
+      )}
       {sections.map((section) => (
         <div
           key={section.id}

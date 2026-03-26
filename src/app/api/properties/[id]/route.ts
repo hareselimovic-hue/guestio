@@ -38,6 +38,24 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   return NextResponse.json(property);
 }
 
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { id } = await params;
+  const property = await prisma.property.findFirst({ where: { id, userId: session.user.id }, include: { sections: true } });
+  if (!property) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  const { type, title, content } = await req.json();
+  const maxOrder = property.sections.reduce((m, s) => Math.max(m, s.order), 0);
+
+  const section = await prisma.section.create({
+    data: { propertyId: id, type, title, content, order: maxOrder + 1 },
+  });
+
+  return NextResponse.json(section, { status: 201 });
+}
+
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
