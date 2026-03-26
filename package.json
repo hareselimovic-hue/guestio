@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "cross-env TURBOPACK=0 next dev --port 3000",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p ${PORT:-3000}",
+    "postinstall": "prisma generate",
     "lint": "eslint"
   },
   "dependencies": {
