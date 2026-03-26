@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  name         String?
+  passwordHash String
+  properties   Property[]
+  sessions     Session[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Property {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String      @unique
+  coverImage  String?
+  address     String?
+  sections    Section[]
+  guests      GuestLink[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Section {
+  id         String      @id @default(cuid())
+  propertyId String
+  property   Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  type       SectionType
+  title      String
+  content    Json
+  order      Int         @default(0)
+  isVisible  Boolean     @default(true)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+enum SectionType {
+  WELCOME
+  WIFI
+  CHECKIN
+  HOUSE_RULES
+  LOCATION
+  LOCAL_RECS
+  CUSTOM
+}
+
+model GuestLink {
+  id         String    @id @default(cuid())
+  propertyId String
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  token      String    @unique @default(cuid())
+  guestName  String?
+  checkIn    DateTime?
+  checkOut   DateTime?
+  viewCount  Int       @default(0)
+  createdAt  DateTime  @default(now())
+}
