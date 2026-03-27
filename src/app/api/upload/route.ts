@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { randomUUID } from "crypto";
 
 export const dynamic = "force-dynamic";
+
+const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+const VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm", "video/mov"];
 
 export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -16,24 +19,28 @@ export async function POST(req: NextRequest) {
 
   if (!file) return NextResponse.json({ error: "No file" }, { status: 400 });
 
-  const allowed = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
-  if (!allowed.includes(file.type)) {
-    return NextResponse.json({ error: "Only JPG, PNG, WEBP allowed" }, { status: 400 });
+  const isImage = IMAGE_TYPES.includes(file.type);
+  const isVideo = VIDEO_TYPES.includes(file.type);
+
+  if (!isImage && !isVideo) {
+    return NextResponse.json({ error: "Only images (JPG, PNG, WEBP) and videos (MP4, MOV, WEBM) allowed" }, { status: 400 });
   }
 
-  if (file.size > 5 * 1024 * 1024) {
-    return NextResponse.json({ error: "Max 5MB" }, { status: 400 });
+  const maxSize = isVideo ? 100 * 1024 * 1024 : 5 * 1024 * 1024;
+  if (file.size > maxSize) {
+    return NextResponse.json({ error: isVideo ? "Max 100MB for videos" : "Max 5MB for images" }, { status: 400 });
   }
 
-  const ext = file.name.split(".").pop() ?? "jpg";
+  const ext = file.name.split(".").pop() ?? (isVideo ? "mp4" : "jpg");
   const filename = `${randomUUID()}.${ext}`;
+  const uploadsDir = join(process.cwd(), "public", "uploads");
+
+  await mkdir(uploadsDir, { recursive: true });
+
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  await writeFile(
-    join(process.cwd(), "public", "uploads", filename),
-    buffer
-  );
+  await writeFile(join(uploadsDir, filename), buffer);
 
   return NextResponse.json({ url: `/uploads/${filename}` });
 }

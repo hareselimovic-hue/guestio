@@ -197,9 +197,15 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
         </div>
       );
 
-    case "CHECKIN":
+    case "CHECKIN": {
+      const checkInType = (content.checkInType as string) ?? "SELF";
+      const videoUrl = (content.videoUrl as string) ?? "";
       return (
         <div className="space-y-4">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-[#0F2F61]/10 text-[#0F2F61]">
+            {checkInType === "SELF" ? "Self check-in" : "Personal welcome"}
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <TimeBox label="Check-in" value={(content.checkIn as string) ?? "15:00"} />
             <TimeBox label="Check-out" value={(content.checkOut as string) ?? "11:00"} />
@@ -209,8 +215,14 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
               {content.instructions as string}
             </p>
           )}
+          {checkInType === "SELF" && videoUrl && (
+            <div className="rounded-xl overflow-hidden bg-black">
+              <video src={videoUrl} controls className="w-full" style={{ maxHeight: 280 }} />
+            </div>
+          )}
         </div>
       );
+    }
 
     case "HOUSE_RULES": {
       const rules = (content.rules as string[]) ?? [];

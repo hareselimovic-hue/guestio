@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
   ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Trash2,
-  ImagePlus, X, Phone
+  ImagePlus, X, Phone, Video
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,29 +44,13 @@ interface Section {
 
 interface SectionEditorProps {
   sections: Section[];
-  propertyId: string;
+  propertyId?: string;
   onUpdate: (sections: Section[]) => void;
 }
 
 export default function SectionEditor({ sections, propertyId, onUpdate }: SectionEditorProps) {
   const [openId, setOpenId] = useState<string | null>(sections[0]?.id ?? null);
   const [saving, setSaving] = useState<string | null>(null);
-  const [addingContact, setAddingContact] = useState(false);
-
-  const hasContact = sections.some((s) => s.type === "CONTACT");
-
-  async function addContactSection() {
-    setAddingContact(true);
-    const res = await fetch(`/api/properties/${propertyId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "CONTACT", title: "Contact", content: { phone: "", label: "" } }),
-    });
-    const section = await res.json();
-    onUpdate([...sections, { ...section, content: section.content as Record<string, unknown> }]);
-    setOpenId(section.id);
-    setAddingContact(false);
-  }
 
   async function saveSection(section: Section) {
     setSaving(section.id);
@@ -94,16 +78,6 @@ export default function SectionEditor({ sections, propertyId, onUpdate }: Sectio
 
   return (
     <div className="space-y-2">
-      {!hasContact && (
-        <button
-          onClick={addContactSection}
-          disabled={addingContact}
-          className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-[#EDEDE9] rounded-xl py-3 text-sm font-medium text-[#6B6B6B] hover:border-teal-400 hover:text-teal-600 transition-colors"
-        >
-          {addingContact ? <Loader2 className="w-4 h-4 animate-spin" /> : <Phone className="w-4 h-4" />}
-          Add Contact section
-        </button>
-      )}
       {sections.map((section) => (
         <div
           key={section.id}
@@ -210,37 +184,7 @@ function SectionForm({
       );
 
     case "CHECKIN":
-      return (
-        <div className="space-y-3 pt-3">
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Check-in time">
-              <Input
-                type="time"
-                value={(content.checkIn as string) ?? "15:00"}
-                onChange={(e) => setContent({ checkIn: e.target.value })}
-                className="h-9 text-sm border-[#EDEDE9]"
-              />
-            </Field>
-            <Field label="Check-out time">
-              <Input
-                type="time"
-                value={(content.checkOut as string) ?? "11:00"}
-                onChange={(e) => setContent({ checkOut: e.target.value })}
-                className="h-9 text-sm border-[#EDEDE9]"
-              />
-            </Field>
-          </div>
-          <Field label="Check-in instructions">
-            <Textarea
-              value={(content.instructions as string) ?? ""}
-              onChange={(e) => setContent({ instructions: e.target.value })}
-              placeholder="Describe the check-in process step by step..."
-              className="text-sm border-[#EDEDE9] resize-none"
-              rows={4}
-            />
-          </Field>
-        </div>
-      );
+      return <CheckinForm content={content} setContent={setContent} />;
 
     case "HOUSE_RULES":
       return (
@@ -349,6 +293,132 @@ function SectionForm({
     default:
       return null;
   }
+}
+
+function CheckinForm({
+  content,
+  setContent,
+}: {
+  content: Record<string, unknown>;
+  setContent: (u: Record<string, unknown>) => void;
+}) {
+  const checkInType = (content.checkInType as string) ?? "SELF";
+  const videoUrl = (content.videoUrl as string) ?? "";
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleVideo(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const data = await res.json();
+    if (data.url) setContent({ videoUrl: data.url });
+    else alert(data.error ?? "Upload failed");
+    setUploading(false);
+  }
+
+  return (
+    <div className="space-y-3 pt-3">
+      {/* Check-in type toggle */}
+      <Field label="Check-in type">
+        <div className="flex gap-2">
+          {(["SELF", "PERSONAL"] as const).map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => setContent({ checkInType: type })}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                checkInType === type
+                  ? "bg-[#0F2F61] text-white border-[#0F2F61]"
+                  : "bg-white text-[#6B6B6B] border-[#EDEDE9] hover:border-[#0F2F61]"
+              }`}
+            >
+              {type === "SELF" ? "Self check-in" : "Personal welcome"}
+            </button>
+          ))}
+        </div>
+      </Field>
+
+      {/* Times */}
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Check-in time">
+          <Input
+            type="time"
+            value={(content.checkIn as string) ?? "15:00"}
+            onChange={(e) => setContent({ checkIn: e.target.value })}
+            className="h-9 text-sm border-[#EDEDE9]"
+          />
+        </Field>
+        <Field label="Check-out time">
+          <Input
+            type="time"
+            value={(content.checkOut as string) ?? "11:00"}
+            onChange={(e) => setContent({ checkOut: e.target.value })}
+            className="h-9 text-sm border-[#EDEDE9]"
+          />
+        </Field>
+      </div>
+
+      {/* Instructions */}
+      <Field label="Instructions">
+        <Textarea
+          value={(content.instructions as string) ?? ""}
+          onChange={(e) => setContent({ instructions: e.target.value })}
+          placeholder={
+            checkInType === "SELF"
+              ? "Describe the self check-in process step by step..."
+              : "Describe how you will welcome guests personally..."
+          }
+          className="text-sm border-[#EDEDE9] resize-none"
+          rows={4}
+        />
+      </Field>
+
+      {/* Video upload — only for self check-in */}
+      {checkInType === "SELF" && (
+        <Field label="Instruction video (optional)">
+          {videoUrl ? (
+            <div className="relative rounded-xl overflow-hidden bg-black">
+              <video src={videoUrl} controls className="w-full max-h-48 rounded-xl" />
+              <div className="flex gap-2 mt-2">
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  className="text-xs font-medium text-[#0F2F61] bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-[#F0F0EE] transition-colors"
+                >
+                  Replace video
+                </button>
+                <button
+                  onClick={() => setContent({ videoUrl: "" })}
+                  className="text-xs font-medium text-red-500 bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="w-full h-20 border-2 border-dashed border-[#EDEDE9] rounded-xl flex flex-col items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors"
+            >
+              {uploading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <>
+                  <Video className="w-5 h-5" />
+                  <span className="text-xs font-medium">Upload video (MP4, MOV, max 100MB)</span>
+                </>
+              )}
+            </button>
+          )}
+          <input ref={fileRef} type="file" accept="video/*" className="hidden" onChange={handleVideo} />
+        </Field>
+      )}
+    </div>
+  );
 }
 
 function WelcomeForm({

@@ -16,6 +16,16 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   });
 
   if (!property) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  // Auto-add Contact section if missing
+  if (!property.sections.some((s) => s.type === "CONTACT")) {
+    const maxOrder = property.sections.reduce((m, s) => Math.max(m, s.order), 0);
+    const contact = await prisma.section.create({
+      data: { propertyId: property.id, type: "CONTACT", title: "Contact", content: { phone: "", label: "" }, order: maxOrder + 1 },
+    });
+    property.sections.push(contact);
+  }
+
   return NextResponse.json(property);
 }
 
