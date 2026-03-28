@@ -381,8 +381,11 @@ function CheckinForm({
 }) {
   const checkInType = (content.checkInType as string) ?? "SELF";
   const videoUrl = (content.videoUrl as string) ?? "";
+  const photoUrl = (content.photoUrl as string) ?? "";
   const fileRef = useRef<HTMLInputElement>(null);
+  const photoRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   async function handleVideo(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -395,6 +398,19 @@ function CheckinForm({
     if (data.url) setContent({ videoUrl: data.url });
     else alert(data.error ?? "Upload failed");
     setUploading(false);
+  }
+
+  async function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const data = await res.json();
+    if (data.url) setContent({ photoUrl: data.url });
+    else alert(data.error ?? "Upload failed");
+    setUploadingPhoto(false);
   }
 
   return (
@@ -454,45 +470,85 @@ function CheckinForm({
         />
       </Field>
 
-      {/* Video upload — only for self check-in */}
+      {/* Photo + Video upload — only for self check-in */}
       {checkInType === "SELF" && (
-        <Field label="Instruction video (optional)">
-          {videoUrl ? (
-            <div className="relative rounded-xl overflow-hidden bg-black">
-              <video src={videoUrl} controls className="w-full max-h-48 rounded-xl" />
-              <div className="flex gap-2 mt-2">
-                <button
-                  onClick={() => fileRef.current?.click()}
-                  className="text-xs font-medium text-[#0F2F61] bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-[#F0F0EE] transition-colors"
-                >
-                  Replace video
-                </button>
-                <button
-                  onClick={() => setContent({ videoUrl: "" })}
-                  className="text-xs font-medium text-red-500 bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
-                >
-                  Remove
-                </button>
+        <>
+          <Field label="Instruction photo (optional)">
+            {photoUrl ? (
+              <div className="relative rounded-xl overflow-hidden">
+                <img src={photoUrl} alt="check-in" className="w-full max-h-48 object-cover rounded-xl" />
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => photoRef.current?.click()}
+                    className="text-xs font-medium text-[#0F2F61] bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-[#F0F0EE] transition-colors"
+                  >
+                    Replace photo
+                  </button>
+                  <button
+                    onClick={() => setContent({ photoUrl: "" })}
+                    className="text-xs font-medium text-red-500 bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <button
-              onClick={() => fileRef.current?.click()}
-              disabled={uploading}
-              className="w-full h-20 border-2 border-dashed border-[#EDEDE9] rounded-xl flex flex-col items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors"
-            >
-              {uploading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <>
-                  <Video className="w-5 h-5" />
-                  <span className="text-xs font-medium">Upload video (MP4, MOV, max 100MB)</span>
-                </>
-              )}
-            </button>
-          )}
-          <input ref={fileRef} type="file" accept="video/*" className="hidden" onChange={handleVideo} />
-        </Field>
+            ) : (
+              <button
+                onClick={() => photoRef.current?.click()}
+                disabled={uploadingPhoto}
+                className="w-full h-20 border-2 border-dashed border-[#EDEDE9] rounded-xl flex flex-col items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors"
+              >
+                {uploadingPhoto ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <ImagePlus className="w-5 h-5" />
+                    <span className="text-xs font-medium">Upload photo (JPG, PNG, max 5MB)</span>
+                  </>
+                )}
+              </button>
+            )}
+            <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
+          </Field>
+
+          <Field label="Instruction video (optional)">
+            {videoUrl ? (
+              <div className="relative rounded-xl overflow-hidden bg-black">
+                <video src={videoUrl} controls className="w-full max-h-48 rounded-xl" />
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => fileRef.current?.click()}
+                    className="text-xs font-medium text-[#0F2F61] bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-[#F0F0EE] transition-colors"
+                  >
+                    Replace video
+                  </button>
+                  <button
+                    onClick={() => setContent({ videoUrl: "" })}
+                    className="text-xs font-medium text-red-500 bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+                className="w-full h-20 border-2 border-dashed border-[#EDEDE9] rounded-xl flex flex-col items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors"
+              >
+                {uploading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <Video className="w-5 h-5" />
+                    <span className="text-xs font-medium">Upload video (MP4, MOV, max 100MB)</span>
+                  </>
+                )}
+              </button>
+            )}
+            <input ref={fileRef} type="file" accept="video/*" className="hidden" onChange={handleVideo} />
+          </Field>
+        </>
       )}
     </div>
   );

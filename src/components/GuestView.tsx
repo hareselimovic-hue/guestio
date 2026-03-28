@@ -295,6 +295,11 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
               {content.instructions as string}
             </p>
           )}
+          {checkInType === "SELF" && (content.photoUrl as string) && (
+            <div className="rounded-xl overflow-hidden">
+              <img src={content.photoUrl as string} alt="Check-in instructions" className="w-full object-cover rounded-xl" style={{ maxHeight: 280 }} />
+            </div>
+          )}
           {checkInType === "SELF" && videoUrl && (
             <div className="rounded-xl overflow-hidden bg-black">
               <video src={videoUrl} controls className="w-full" style={{ maxHeight: 280 }} />
