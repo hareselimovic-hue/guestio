@@ -39,7 +39,7 @@ export default function NewPropertyPage() {
   }
 
   return (
-    <div className="p-8 max-w-xl">
+    <div className="p-4 sm:p-8 max-w-xl">
       <Link
         href="/dashboard"
         className="inline-flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] mb-6 transition-colors"

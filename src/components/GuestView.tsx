@@ -154,7 +154,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
               </svg>
             </div>
             <h2 className="font-bold text-[#262626] text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
-              Discover Bosnia
+              Want to explore Sarajevo & beyond like a true local?
             </h2>
           </div>
           <div className="px-5 py-4 space-y-3">

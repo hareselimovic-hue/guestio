@@ -115,9 +115,9 @@ export default function PropertyEditorPage() {
   }
 
   return (
-    <div className="p-8 max-w-3xl">
+    <div className="p-4 sm:p-8 max-w-3xl">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-start gap-3 mb-6">
         <Link href="/dashboard" className="text-[#6B6B6B] hover:text-[#262626] transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
@@ -184,27 +184,28 @@ export default function PropertyEditorPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-[#F7F7F5] p-1 rounded-xl mb-6 w-fit">
+      <div className="flex gap-1 bg-[#F7F7F5] p-1 rounded-xl mb-6 w-full sm:w-fit overflow-x-auto">
         <button
           onClick={() => setTab("sections")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
             tab === "sections"
               ? "bg-white text-[#262626] shadow-sm"
               : "text-[#6B6B6B] hover:text-[#262626]"
           }`}
         >
-          <Share2 className="w-3.5 h-3.5" />
-          Guide sections
+          <Share2 className="w-3.5 h-3.5 shrink-0" />
+          <span className="hidden xs:inline sm:inline">Guide sections</span>
+          <span className="xs:hidden sm:hidden">Sections</span>
         </button>
         <button
           onClick={() => setTab("guests")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
             tab === "guests"
               ? "bg-white text-[#262626] shadow-sm"
               : "text-[#6B6B6B] hover:text-[#262626]"
           }`}
         >
-          <Users className="w-3.5 h-3.5" />
+          <Users className="w-3.5 h-3.5 shrink-0" />
           Guests
           {guests.length > 0 && (
             <span className="bg-[#0F2F61] text-white text-xs px-1.5 py-0.5 rounded-full">
@@ -214,14 +215,14 @@ export default function PropertyEditorPage() {
         </button>
         <button
           onClick={() => setTab("owner")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
             tab === "owner"
               ? "bg-white text-[#262626] shadow-sm"
               : "text-[#6B6B6B] hover:text-[#262626]"
           }`}
         >
-          <Building2 className="w-3.5 h-3.5" />
-          Owner Info
+          <Building2 className="w-3.5 h-3.5 shrink-0" />
+          Owner
         </button>
       </div>
 

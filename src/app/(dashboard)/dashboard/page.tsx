@@ -22,7 +22,7 @@ export default async function DashboardPage() {
   const firstName = session!.user.name?.split(" ")[0] ?? "there";
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-[#262626]">
