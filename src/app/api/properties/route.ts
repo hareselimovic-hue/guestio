@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getUserWorkspaceIds, propertyAccessWhere } from "@/lib/workspace";
 
 export const dynamic = "force-dynamic";
 
@@ -23,8 +24,9 @@ export async function GET() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const wsIds = await getUserWorkspaceIds(session.user.id);
   const properties = await prisma.property.findMany({
-    where: { userId: session.user.id },
+    where: propertyAccessWhere(session.user.id, wsIds),
     include: { _count: { select: { guests: true, sections: true } } },
     orderBy: { createdAt: "desc" },
   });
@@ -44,9 +46,14 @@ export async function POST(req: NextRequest) {
   const existing = await prisma.property.findUnique({ where: { slug } });
   if (existing) return NextResponse.json({ error: "This URL is already taken, choose another." }, { status: 409 });
 
+  // Auto-assign to workspace if user belongs to one
+  const wsIds = await getUserWorkspaceIds(session.user.id);
+  const workspaceId = wsIds.length > 0 ? wsIds[0] : null;
+
   const property = await prisma.property.create({
     data: {
       userId: session.user.id,
+      workspaceId,
       name: name.trim(),
       slug,
       address: address?.trim() || null,

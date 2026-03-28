@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getUserWorkspaceIds } from "@/lib/workspace";
 
 export const dynamic = "force-dynamic";
 
@@ -12,9 +13,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
   const data = await req.json();
 
-  // Verify ownership via property
+  // Verify access via property (own or workspace)
+  const wsIds = await getUserWorkspaceIds(session.user.id);
+  const accessFilter = wsIds.length > 0
+    ? { OR: [{ workspaceId: { in: wsIds } }, { userId: session.user.id, workspaceId: null }] }
+    : { userId: session.user.id };
   const section = await prisma.section.findFirst({
-    where: { id, property: { userId: session.user.id } },
+    where: { id, property: accessFilter },
   });
   if (!section) return NextResponse.json({ error: "Not found" }, { status: 404 });
 

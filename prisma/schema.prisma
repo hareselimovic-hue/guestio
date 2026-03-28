@@ -18,9 +18,11 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  sessions    Session[]
-  accounts    Account[]
-  properties  Property[]
+  sessions         Session[]
+  accounts         Account[]
+  properties       Property[]
+  ownedWorkspace   Workspace?        @relation("WorkspaceOwner")
+  workspaceMember  WorkspaceMember[]
 }
 
 model Session {
@@ -64,20 +66,22 @@ model Verification {
 // ─── Guestio models ───────────────────────────────────────────────────────────
 
 model Property {
-  id         String      @id @default(cuid())
-  userId     String
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name       String
-  slug       String      @unique
+  id           String      @id @default(cuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId  String?
+  workspace    Workspace?  @relation(fields: [workspaceId], references: [id])
+  name         String
+  slug         String      @unique
   coverImage   String?
   address      String?
   ownerName    String?
   ownerAddress String?
   bankAccount  String?
-  sections   Section[]
-  guests     GuestLink[]
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  sections     Section[]
+  guests       GuestLink[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 }
 
 model Section {
@@ -103,6 +107,37 @@ enum SectionType {
   CONTACT
   PARKING
   CUSTOM
+}
+
+model Workspace {
+  id         String            @id @default(cuid())
+  name       String
+  ownerId    String            @unique
+  owner      User              @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+  members    WorkspaceMember[]
+  invites    WorkspaceInvite[]
+  properties Property[]
+  createdAt  DateTime          @default(now())
+}
+
+model WorkspaceMember {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt    DateTime  @default(now())
+
+  @@unique([workspaceId, userId])
+}
+
+model WorkspaceInvite {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  token       String    @unique @default(cuid())
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
 }
 
 model GuestLink {

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
-import { Home, LogOut, ChevronRight, Menu, X } from "lucide-react";
+import { Home, LogOut, ChevronRight, Menu, X, Settings } from "lucide-react";
 
 interface SidebarProps {
   user: { id: string; name?: string | null; email: string };
@@ -12,12 +12,20 @@ interface SidebarProps {
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 export default function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [workspaceName, setWorkspaceName] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/workspace")
+      .then((r) => r.json())
+      .then((d) => { if (d?.workspace?.name) setWorkspaceName(d.workspace.name); });
+  }, []);
 
   async function handleSignOut() {
     await signOut();
@@ -69,14 +77,17 @@ export default function Sidebar({ user }: SidebarProps) {
       <aside className="hidden md:flex w-64 bg-[#0F2F61] flex-col h-full shrink-0">
         <div className="px-6 py-6 border-b border-[#1a3d75]">
           <span className="text-white font-bold text-2xl tracking-tight">Guestio</span>
-          <p className="text-[#8ba3c7] text-xs mt-0.5">Digital guest guidebook</p>
+          <p className="text-[#8ba3c7] text-xs mt-0.5">{workspaceName ?? "Digital guest guidebook"}</p>
         </div>
         <NavContent />
       </aside>
 
       {/* ── Mobile top bar ── */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#0F2F61] flex items-center justify-between px-4 py-3 shadow-md">
-        <span className="text-white font-bold text-xl tracking-tight">Guestio</span>
+        <div>
+          <span className="text-white font-bold text-xl tracking-tight">Guestio</span>
+          {workspaceName && <p className="text-[#8ba3c7] text-xs leading-tight">{workspaceName}</p>}
+        </div>
         <button onClick={() => setOpen(true)} className="text-white p-1">
           <Menu className="w-6 h-6" />
         </button>
