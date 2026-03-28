@@ -227,7 +227,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 }
 
 function SectionCard({ section }: { section: Section }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const content = section.content as Record<string, unknown>;
   const meta = SECTION_META[section.type] ?? SECTION_META.CUSTOM;
 
@@ -267,7 +267,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
     case "WIFI":
       return (
         <div className="space-y-3">
-          <WifiRow label="Network" value={(content.network as string) ?? ""} />
+          <WifiRow label="Network" value={(content.network as string) ?? ""} copyable />
           <WifiRow label="Password" value={(content.password as string) ?? ""} copyable />
           {content.note && (
             <p className="text-sm text-[#6B6B6B] pt-2 border-t border-[#F0F0EE]">
