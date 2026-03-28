@@ -26,6 +26,15 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     property.sections.push(contact);
   }
 
+  // Auto-add Parking section if missing
+  if (!property.sections.some((s) => s.type === "PARKING")) {
+    const maxOrder = property.sections.reduce((m, s) => Math.max(m, s.order), 0);
+    const parking = await prisma.section.create({
+      data: { propertyId: property.id, type: "PARKING", title: "Parking", content: { available: false, parkingType: "", paid: false, notes: "" }, order: maxOrder + 1 },
+    });
+    property.sections.push(parking);
+  }
+
   return NextResponse.json(property);
 }
 

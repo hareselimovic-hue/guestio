@@ -227,28 +227,37 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 }
 
 function SectionCard({ section }: { section: Section }) {
+  const [open, setOpen] = useState(true);
   const content = section.content as Record<string, unknown>;
   const meta = SECTION_META[section.type] ?? SECTION_META.CUSTOM;
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
-      {/* Card header */}
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${meta.bg} ${meta.color}`}>
-          {meta.icon}
+      {/* Card header — tap to toggle */}
+      <button
+        onClick={() => setOpen(!open)}
+        className={`w-full flex items-center justify-between px-5 py-4 text-left ${open ? "border-b border-[#F0F0EE]" : ""}`}
+      >
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${meta.bg} ${meta.color}`}>
+            {meta.icon}
+          </div>
+          <h2
+            className="font-bold text-[#262626] text-base"
+            style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
+          >
+            {section.type === "CUSTOM" ? section.title : meta.label}
+          </h2>
         </div>
-        <h2
-          className="font-bold text-[#262626] text-base"
-          style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
-        >
-          {section.type === "CUSTOM" ? section.title : meta.label}
-        </h2>
-      </div>
+        <ChevronDown className={`w-4 h-4 text-[#6B6B6B] transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`} />
+      </button>
 
       {/* Card body */}
-      <div className="px-5 py-4">
-        <SectionBody type={section.type} content={content} />
-      </div>
+      {open && (
+        <div className="px-5 py-4">
+          <SectionBody type={section.type} content={content} />
+        </div>
+      )}
     </div>
   );
 }
@@ -328,7 +337,14 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
           {content.address && (
             <div className="flex items-start gap-2.5 text-sm text-[#262626]">
               <MapPin className="w-4 h-4 text-[#6B6B6B] shrink-0 mt-0.5" />
-              {content.address as string}
+              <a
+                href={`https://maps.google.com/?q=${encodeURIComponent(content.address as string)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline text-[#0F2F61]"
+              >
+                {content.address as string}
+              </a>
             </div>
           )}
           {content.directions && (
