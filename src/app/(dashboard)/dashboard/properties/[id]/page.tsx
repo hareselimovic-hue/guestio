@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Share2, Users, ExternalLink, Copy, Check, Plus, Building2, Pencil } from "lucide-react";
+import { ArrowLeft, Share2, ExternalLink, Check, Building2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,22 +30,12 @@ interface Property {
   sections: Section[];
 }
 
-interface GuestLink {
-  id: string;
-  token: string;
-  guestName: string | null;
-  checkIn: string | null;
-  checkOut: string | null;
-  viewCount: number;
-  createdAt: string;
-}
 
 export default function PropertyEditorPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [property, setProperty] = useState<Property | null>(null);
-  const [guests, setGuests] = useState<GuestLink[]>([]);
-  const [tab, setTab] = useState<"sections" | "guests" | "owner">("sections");
+  const [tab, setTab] = useState<"sections" | "owner">("sections");
   const [ownerName, setOwnerName] = useState("");
   const [ownerAddress, setOwnerAddress] = useState("");
   const [bankAccount, setBankAccount] = useState("");
@@ -61,21 +51,9 @@ export default function PropertyEditorPage() {
   const [internalNameValue, setInternalNameValue] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Guest form
-  const [guestName, setGuestName] = useState("");
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
-  const [creating, setCreating] = useState(false);
-
-  const [copied, setCopied] = useState<string | null>(null);
-
   useEffect(() => {
-    Promise.all([
-      fetch(`/api/properties/${id}`).then((r) => r.json()),
-      fetch(`/api/properties/${id}/guests`).then((r) => r.json()),
-    ]).then(([prop, g]) => {
+    fetch(`/api/properties/${id}`).then((r) => r.json()).then((prop) => {
       setProperty(prop);
-      setGuests(g);
       setOwnerName(prop.ownerName ?? "");
       setOwnerAddress(prop.ownerAddress ?? "");
       setBankAccount(prop.bankAccount ?? "");
@@ -86,29 +64,6 @@ export default function PropertyEditorPage() {
       setLoading(false);
     });
   }, [id]);
-
-  async function createGuestLink(e: React.FormEvent) {
-    e.preventDefault();
-    setCreating(true);
-    const res = await fetch(`/api/properties/${id}/guests`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ guestName, checkIn: checkIn || null, checkOut: checkOut || null }),
-    });
-    const guest = await res.json();
-    setGuests([guest, ...guests]);
-    setGuestName("");
-    setCheckIn("");
-    setCheckOut("");
-    setCreating(false);
-  }
-
-  function copyLink(token: string) {
-    const url = `${window.location.origin}/g/${property!.slug}/${token}`;
-    navigator.clipboard.writeText(url);
-    setCopied(token);
-    setTimeout(() => setCopied(null), 2000);
-  }
 
   if (loading) {
     return (
@@ -274,22 +229,6 @@ export default function PropertyEditorPage() {
           <span className="xs:hidden sm:hidden">Sections</span>
         </button>
         <button
-          onClick={() => setTab("guests")}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-            tab === "guests"
-              ? "bg-white text-[#262626] shadow-sm"
-              : "text-[#6B6B6B] hover:text-[#262626]"
-          }`}
-        >
-          <Users className="w-3.5 h-3.5 shrink-0" />
-          Guests
-          {guests.length > 0 && (
-            <span className="bg-[#0F2F61] text-white text-xs px-1.5 py-0.5 rounded-full">
-              {guests.length}
-            </span>
-          )}
-        </button>
-        <button
           onClick={() => setTab("owner")}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
             tab === "owner"
@@ -366,101 +305,6 @@ export default function PropertyEditorPage() {
         </div>
       )}
 
-      {/* Guests tab */}
-      {tab === "guests" && (
-        <div className="space-y-5">
-          {/* Create guest link form */}
-          <div className="bg-white border border-[#EDEDE9] rounded-xl p-5">
-            <h3
-              className="font-semibold text-[#262626] mb-4"
-              style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
-            >
-              Generate guest link
-            </h3>
-            <form onSubmit={createGuestLink} className="space-y-3">
-              <div>
-                <Label className="text-xs font-medium text-[#6B6B6B] mb-1.5 block">
-                  Guest name (optional)
-                </Label>
-                <Input
-                  value={guestName}
-                  onChange={(e) => setGuestName(e.target.value)}
-                  placeholder="e.g. John Smith"
-                  className="h-9 text-sm border-[#EDEDE9]"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="text-xs font-medium text-[#6B6B6B] mb-1.5 block">Check-in</Label>
-                  <Input
-                    type="date"
-                    value={checkIn}
-                    onChange={(e) => setCheckIn(e.target.value)}
-                    className="h-9 text-sm border-[#EDEDE9]"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs font-medium text-[#6B6B6B] mb-1.5 block">Check-out</Label>
-                  <Input
-                    type="date"
-                    value={checkOut}
-                    onChange={(e) => setCheckOut(e.target.value)}
-                    className="h-9 text-sm border-[#EDEDE9]"
-                  />
-                </div>
-              </div>
-              <Button
-                type="submit"
-                disabled={creating}
-                className="bg-[#FF6700] hover:bg-[#e05c00] text-white h-9 text-sm w-full"
-              >
-                <Plus className="w-3.5 h-3.5 mr-1.5" />
-                {creating ? "Creating..." : "Generate link"}
-              </Button>
-            </form>
-          </div>
-
-          {/* Guest links list */}
-          {guests.length === 0 ? (
-            <div className="text-center py-10 text-[#6B6B6B] text-sm">
-              No guest links created yet.
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {guests.map((guest) => (
-                <div
-                  key={guest.id}
-                  className="bg-white border border-[#EDEDE9] rounded-xl px-4 py-3.5 flex items-center gap-4"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm text-[#262626]">
-                      {guest.guestName ?? "Anonymous guest"}
-                    </p>
-                    <p className="text-xs text-[#6B6B6B] mt-0.5">
-                      {guest.checkIn
-                        ? `${new Date(guest.checkIn).toLocaleDateString("en")} → ${guest.checkOut ? new Date(guest.checkOut).toLocaleDateString("en") : "?"}`
-                        : "No dates"
-                      }
-                      {" · "}
-                      {guest.viewCount} views
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => copyLink(guest.token)}
-                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-[#EDEDE9] text-[#6B6B6B] hover:text-[#0F2F61] hover:border-[#0F2F61] transition-colors"
-                  >
-                    {copied === guest.token ? (
-                      <><Check className="w-3 h-3 text-green-500" /> Copied</>
-                    ) : (
-                      <><Copy className="w-3 h-3" /> Copy link</>
-                    )}
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
