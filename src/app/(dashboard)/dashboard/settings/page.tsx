@@ -44,16 +44,20 @@ export default function SettingsPage() {
   const [emailError, setEmailError] = useState("");
 
   useEffect(() => {
-    fetch("/api/workspace")
-      .then((r) => r.json())
-      .then((d) => {
-        setData(d);
-        if (d) {
-          setNewName(d.workspace.name);
-          setMembers(d.workspace.members?.map((m: { user: Member }) => m.user) ?? []);
-        }
-        setLoading(false);
-      });
+    Promise.all([
+      fetch("/api/workspace").then((r) => r.json()),
+      fetch("/api/workspace/invite").then((r) => r.json()),
+    ]).then(([d, inv]) => {
+      setData(d);
+      if (d) {
+        setNewName(d.workspace.name);
+        setMembers(d.workspace.members?.map((m: { user: Member }) => m.user) ?? []);
+      }
+      if (inv?.token) {
+        setInviteLink(`${window.location.origin}/invite/${inv.token}`);
+      }
+      setLoading(false);
+    });
   }, []);
 
   async function createWorkspace(e: React.FormEvent) {
@@ -88,6 +92,14 @@ export default function SettingsPage() {
   async function generateInvite() {
     setGeneratingInvite(true);
     const res = await fetch("/api/workspace/invite", { method: "POST" });
+    const d = await res.json();
+    if (d.token) setInviteLink(`${window.location.origin}/invite/${d.token}`);
+    setGeneratingInvite(false);
+  }
+
+  async function rotateInvite() {
+    setGeneratingInvite(true);
+    const res = await fetch("/api/workspace/invite", { method: "PUT" });
     const d = await res.json();
     if (d.token) setInviteLink(`${window.location.origin}/invite/${d.token}`);
     setGeneratingInvite(false);
@@ -303,8 +315,8 @@ export default function SettingsPage() {
                       </button>
                     </div>
                     <button
-                      onClick={generateInvite}
-                      className="text-xs text-[#6B6B6B] hover:text-[#0F2F61] transition-colors"
+                      onClick={rotateInvite}
+                      className="text-xs text-[#6B6B6B] hover:text-red-500 transition-colors"
                     >
                       Generate new link (invalidates current)
                     </button>
