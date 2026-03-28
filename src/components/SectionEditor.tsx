@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { upload } from "@vercel/blob/client";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
   ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Trash2,
@@ -384,14 +385,14 @@ function CheckinForm({
     if (!file) return;
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      const data = await res.json();
-      if (data.url) setContent({ videoUrl: data.url });
-      else alert(data.error ?? "Upload failed");
-    } catch {
-      alert("Upload failed. Please try again.");
+      const blob = await upload(file.name, file, {
+        access: "public",
+        handleUploadUrl: "/api/upload-video",
+        multipart: true,
+      });
+      setContent({ videoUrl: blob.url });
+    } catch (err) {
+      alert("Video upload failed: " + (err instanceof Error ? err.message : String(err)));
     } finally {
       setUploading(false);
     }
