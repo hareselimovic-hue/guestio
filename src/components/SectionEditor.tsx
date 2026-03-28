@@ -210,17 +210,9 @@ function SectionForm({
               className="h-9 text-sm border-[#EDEDE9]"
             />
           </Field>
-          <Field label="Google Maps embed URL (optional)">
-            <Input
-              value={(content.mapUrl as string) ?? ""}
-              onChange={(e) => setContent({ mapUrl: e.target.value })}
-              placeholder="https://www.google.com/maps/embed?..."
-              className="h-9 text-sm border-[#EDEDE9]"
-            />
-            <p className="text-xs text-[#6B6B6B] mt-1">
-              Google Maps → Share → Embed a map → copy the src URL
-            </p>
-          </Field>
+          <p className="text-xs text-[#6B6B6B] -mt-1">
+            A "Open in Google Maps" button will be generated automatically from the address above.
+          </p>
           <Field label="Directions">
             <Textarea
               value={(content.directions as string) ?? ""}

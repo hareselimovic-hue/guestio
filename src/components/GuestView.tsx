@@ -329,28 +329,22 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
     case "LOCATION":
       return (
         <div className="space-y-4">
-          {content.mapUrl && (
-            <div className="rounded-xl overflow-hidden" style={{ height: 220 }}>
-              <iframe
-                src={content.mapUrl as string}
-                className="w-full h-full border-0"
-                allowFullScreen
-                loading="lazy"
-              />
-            </div>
-          )}
           {content.address && (
             <div className="flex items-start gap-2.5 text-sm text-[#262626]">
               <MapPin className="w-4 h-4 text-[#6B6B6B] shrink-0 mt-0.5" />
-              <a
-                href={`https://maps.google.com/?q=${encodeURIComponent(content.address as string)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline text-[#0F2F61]"
-              >
-                {content.address as string}
-              </a>
+              <span className="leading-relaxed">{content.address as string}</span>
             </div>
+          )}
+          {content.address && (
+            <a
+              href={`https://maps.google.com/?q=${encodeURIComponent(content.address as string)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-[#0F2F61] hover:bg-[#0a2347] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+            >
+              <MapPin className="w-4 h-4" />
+              Open in Google Maps
+            </a>
           )}
           {content.directions && (
             <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap border-t border-[#F0F0EE] pt-3">
