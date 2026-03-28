@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Settings, Users, Link2, Copy, Check, Trash2, Plus } from "lucide-react";
+import { Settings, Users, Link2, Copy, Check, Trash2, Plus, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +36,12 @@ export default function SettingsPage() {
   const [inviteLink, setInviteLink] = useState("");
   const [generatingInvite, setGeneratingInvite] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Email invite
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   useEffect(() => {
     fetch("/api/workspace")
@@ -91,6 +97,27 @@ export default function SettingsPage() {
     navigator.clipboard.writeText(inviteLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  async function sendEmailInvite(e: React.FormEvent) {
+    e.preventDefault();
+    setSendingEmail(true);
+    setEmailError("");
+    setEmailSent(false);
+    const res = await fetch("/api/workspace/invite/email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: inviteEmail }),
+    });
+    const d = await res.json();
+    if (!res.ok) {
+      setEmailError(d.error ?? "Failed to send email.");
+    } else {
+      setEmailSent(true);
+      setInviteEmail("");
+      setTimeout(() => setEmailSent(false), 4000);
+    }
+    setSendingEmail(false);
   }
 
   async function removeMember(userId: string) {
@@ -224,44 +251,76 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* ── Invite link ── */}
+          {/* ── Invite ── */}
           {data.isOwner && (
-            <div className="bg-white border border-[#EDEDE9] rounded-xl p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <Link2 className="w-4 h-4 text-[#6B6B6B]" />
-                <h2 className="font-semibold text-[#262626]">Invite link</h2>
+            <div className="bg-white border border-[#EDEDE9] rounded-xl p-5 space-y-5">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Mail className="w-4 h-4 text-[#6B6B6B]" />
+                  <h2 className="font-semibold text-[#262626]">Invite by email</h2>
+                </div>
+                <p className="text-sm text-[#6B6B6B] mb-3">
+                  Send an invite directly to someone's email. They'll get a link to join your workspace.
+                </p>
+                <form onSubmit={sendEmailInvite} className="flex gap-2">
+                  <Input
+                    type="email"
+                    placeholder="colleague@example.com"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    required
+                    className="h-9 text-sm border-[#EDEDE9] flex-1"
+                  />
+                  <Button
+                    type="submit"
+                    disabled={sendingEmail || !inviteEmail.trim()}
+                    className="bg-[#FF6700] hover:bg-[#e05c00] text-white h-9 text-sm shrink-0"
+                  >
+                    {sendingEmail ? "Sending..." : emailSent ? <><Check className="w-3.5 h-3.5 mr-1" /> Sent!</> : "Send invite"}
+                  </Button>
+                </form>
+                {emailError && <p className="text-xs text-red-500 mt-2">{emailError}</p>}
+                {emailSent && <p className="text-xs text-green-600 mt-2">Invite sent successfully!</p>}
               </div>
-              <p className="text-sm text-[#6B6B6B] mb-4">
-                Generate a link and share it with your team. Anyone with the link can join your workspace.
-              </p>
-              {inviteLink ? (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 bg-[#F7F7F5] rounded-lg px-3 py-2">
-                    <span className="text-xs text-[#262626] flex-1 truncate font-mono">{inviteLink}</span>
+
+              <div className="border-t border-[#F0F0EE] pt-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <Link2 className="w-4 h-4 text-[#6B6B6B]" />
+                  <h2 className="font-semibold text-[#262626]">Invite link</h2>
+                </div>
+                <p className="text-sm text-[#6B6B6B] mb-3">
+                  Or generate a link and share it manually. Anyone with the link can join.
+                </p>
+                {inviteLink ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 bg-[#F7F7F5] rounded-lg px-3 py-2">
+                      <span className="text-xs text-[#262626] flex-1 truncate font-mono">{inviteLink}</span>
+                      <button
+                        onClick={copyLink}
+                        className="flex items-center gap-1.5 text-xs font-medium text-[#0F2F61] bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-[#F0F0EE] transition-colors shrink-0"
+                      >
+                        {copied ? <><Check className="w-3 h-3 text-green-500" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
+                      </button>
+                    </div>
                     <button
-                      onClick={copyLink}
-                      className="flex items-center gap-1.5 text-xs font-medium text-[#0F2F61] bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-[#F0F0EE] transition-colors shrink-0"
+                      onClick={generateInvite}
+                      className="text-xs text-[#6B6B6B] hover:text-[#0F2F61] transition-colors"
                     >
-                      {copied ? <><Check className="w-3 h-3 text-green-500" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
+                      Generate new link (invalidates current)
                     </button>
                   </div>
-                  <button
+                ) : (
+                  <Button
                     onClick={generateInvite}
-                    className="text-xs text-[#6B6B6B] hover:text-[#0F2F61] transition-colors"
+                    disabled={generatingInvite}
+                    variant="outline"
+                    className="h-9 text-sm"
                   >
-                    Generate new link (invalidates current)
-                  </button>
-                </div>
-              ) : (
-                <Button
-                  onClick={generateInvite}
-                  disabled={generatingInvite}
-                  className="bg-[#FF6700] hover:bg-[#e05c00] text-white h-9 text-sm"
-                >
-                  <Link2 className="w-3.5 h-3.5 mr-1.5" />
-                  {generatingInvite ? "Generating..." : "Generate invite link"}
-                </Button>
-              )}
+                    <Link2 className="w-3.5 h-3.5 mr-1.5" />
+                    {generatingInvite ? "Generating..." : "Generate invite link"}
+                  </Button>
+                )}
+              </div>
             </div>
           )}
         </div>
