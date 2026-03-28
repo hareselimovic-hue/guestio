@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Share2, Users, ExternalLink, Copy, Check, Plus } from "lucide-react";
+import { ArrowLeft, Share2, Users, ExternalLink, Copy, Check, Plus, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +23,9 @@ interface Property {
   name: string;
   slug: string;
   address: string | null;
+  ownerName: string | null;
+  ownerAddress: string | null;
+  bankAccount: string | null;
   sections: Section[];
 }
 
@@ -41,7 +44,12 @@ export default function PropertyEditorPage() {
   const router = useRouter();
   const [property, setProperty] = useState<Property | null>(null);
   const [guests, setGuests] = useState<GuestLink[]>([]);
-  const [tab, setTab] = useState<"sections" | "guests">("sections");
+  const [tab, setTab] = useState<"sections" | "guests" | "owner">("sections");
+  const [ownerName, setOwnerName] = useState("");
+  const [ownerAddress, setOwnerAddress] = useState("");
+  const [bankAccount, setBankAccount] = useState("");
+  const [ownerSaving, setOwnerSaving] = useState(false);
+  const [ownerSaved, setOwnerSaved] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Guest form
@@ -59,6 +67,9 @@ export default function PropertyEditorPage() {
     ]).then(([prop, g]) => {
       setProperty(prop);
       setGuests(g);
+      setOwnerName(prop.ownerName ?? "");
+      setOwnerAddress(prop.ownerAddress ?? "");
+      setBankAccount(prop.bankAccount ?? "");
       setLoading(false);
     });
   }, [id]);
@@ -156,6 +167,17 @@ export default function PropertyEditorPage() {
             </span>
           )}
         </button>
+        <button
+          onClick={() => setTab("owner")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            tab === "owner"
+              ? "bg-white text-[#262626] shadow-sm"
+              : "text-[#6B6B6B] hover:text-[#262626]"
+          }`}
+        >
+          <Building2 className="w-3.5 h-3.5" />
+          Owner Info
+        </button>
       </div>
 
       {/* Sections tab */}
@@ -165,6 +187,61 @@ export default function PropertyEditorPage() {
           propertyId={property.id}
           onUpdate={(sections) => setProperty({ ...property, sections })}
         />
+      )}
+
+      {/* Owner Info tab */}
+      {tab === "owner" && (
+        <div className="bg-white border border-[#EDEDE9] rounded-xl p-5 space-y-4">
+          <div>
+            <p className="text-xs text-[#6B6B6B] mb-4">
+              This information is private and only visible to you — never shown to guests.
+            </p>
+          </div>
+          <div>
+            <Label className="text-xs font-medium text-[#6B6B6B] mb-1.5 block">Owner name</Label>
+            <Input
+              value={ownerName}
+              onChange={(e) => setOwnerName(e.target.value)}
+              placeholder="e.g. John Smith"
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+          </div>
+          <div>
+            <Label className="text-xs font-medium text-[#6B6B6B] mb-1.5 block">Address</Label>
+            <Input
+              value={ownerAddress}
+              onChange={(e) => setOwnerAddress(e.target.value)}
+              placeholder="e.g. 123 Main Street, Sarajevo"
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+          </div>
+          <div>
+            <Label className="text-xs font-medium text-[#6B6B6B] mb-1.5 block">Bank account number</Label>
+            <Input
+              value={bankAccount}
+              onChange={(e) => setBankAccount(e.target.value)}
+              placeholder="e.g. BA39 1234 5678 9012 3456"
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+          </div>
+          <Button
+            onClick={async () => {
+              setOwnerSaving(true);
+              await fetch(`/api/properties/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ownerName, ownerAddress, bankAccount }),
+              });
+              setOwnerSaving(false);
+              setOwnerSaved(true);
+              setTimeout(() => setOwnerSaved(false), 2000);
+            }}
+            disabled={ownerSaving}
+            className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm w-full"
+          >
+            {ownerSaved ? <><Check className="w-3.5 h-3.5 mr-1.5" /> Saved</> : ownerSaving ? "Saving..." : "Save"}
+          </Button>
+        </div>
       )}
 
       {/* Guests tab */}

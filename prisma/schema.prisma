@@ -69,8 +69,11 @@ model Property {
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   name       String
   slug       String      @unique
-  coverImage String?
-  address    String?
+  coverImage   String?
+  address      String?
+  ownerName    String?
+  ownerAddress String?
+  bankAccount  String?
   sections   Section[]
   guests     GuestLink[]
   createdAt  DateTime    @default(now())

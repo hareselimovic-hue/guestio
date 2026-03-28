@@ -42,6 +42,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(data.name && { name: data.name }),
       ...(data.address !== undefined && { address: data.address }),
       ...(data.coverImage !== undefined && { coverImage: data.coverImage }),
+      ...(data.ownerName !== undefined && { ownerName: data.ownerName }),
+      ...(data.ownerAddress !== undefined && { ownerAddress: data.ownerAddress }),
+      ...(data.bankAccount !== undefined && { bankAccount: data.bankAccount }),
     },
   });
 
