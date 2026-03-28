@@ -33,7 +33,12 @@ export async function POST(req: NextRequest) {
   const ext = file.name.split(".").pop() ?? (isVideo ? "mp4" : "jpg");
   const filename = `${randomUUID()}.${ext}`;
 
-  const blob = await put(filename, file, { access: "public" });
-
-  return NextResponse.json({ url: blob.url });
+  try {
+    const blob = await put(filename, file, { access: "public" });
+    return NextResponse.json({ url: blob.url });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Blob upload failed";
+    console.error("Upload error:", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
 }

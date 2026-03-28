@@ -579,11 +579,13 @@ function WelcomeForm({
       const fd = new FormData();
       fd.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
-      const data = await res.json();
+      const text = await res.text();
+      let data: { url?: string; error?: string };
+      try { data = JSON.parse(text); } catch { data = { error: text.slice(0, 200) }; }
       if (data.url) setContent({ heroImage: data.url });
-      else alert(data.error ?? "Upload failed");
-    } catch {
-      alert("Upload failed. Please try again.");
+      else alert("Upload error: " + (data.error ?? "Unknown"));
+    } catch (e) {
+      alert("Upload error: " + (e instanceof Error ? e.message : String(e)));
     } finally {
       setUploading(false);
     }
