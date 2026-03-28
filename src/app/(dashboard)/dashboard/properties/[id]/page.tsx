@@ -51,6 +51,8 @@ export default function PropertyEditorPage() {
   const [bankAccount, setBankAccount] = useState("");
   const [ownerSaving, setOwnerSaving] = useState(false);
   const [ownerSaved, setOwnerSaved] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nameValue, setNameValue] = useState("");
   const [editingSlug, setEditingSlug] = useState(false);
   const [slugValue, setSlugValue] = useState("");
   const [slugError, setSlugError] = useState("");
@@ -77,6 +79,7 @@ export default function PropertyEditorPage() {
       setOwnerName(prop.ownerName ?? "");
       setOwnerAddress(prop.ownerAddress ?? "");
       setBankAccount(prop.bankAccount ?? "");
+      setNameValue(prop.name ?? "");
       setSlugValue(prop.slug ?? "");
       setInternalName(prop.internalName ?? "");
       setInternalNameValue(prop.internalName ?? "");
@@ -128,12 +131,41 @@ export default function PropertyEditorPage() {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex-1">
-          <h1
-            className="text-xl font-bold text-[#262626]"
-            style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
-          >
-            {property.name}
-          </h1>
+          {editingName ? (
+            <div className="flex items-center gap-2">
+              <input
+                autoFocus
+                value={nameValue}
+                onChange={(e) => setNameValue(e.target.value)}
+                className="text-xl font-bold text-[#262626] border border-[#0F2F61] rounded-lg px-2 py-0.5 outline-none flex-1"
+                style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
+              />
+              <button
+                onClick={async () => {
+                  if (!nameValue.trim()) return;
+                  await fetch(`/api/properties/${id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: nameValue.trim() }),
+                  });
+                  setProperty({ ...property, name: nameValue.trim() });
+                  setEditingName(false);
+                }}
+                className="text-xs font-medium text-white bg-[#0F2F61] px-2.5 py-1 rounded-lg shrink-0"
+              >Save</button>
+              <button onClick={() => { setEditingName(false); setNameValue(property.name); }} className="text-xs text-[#6B6B6B] shrink-0">Cancel</button>
+            </div>
+          ) : (
+            <button onClick={() => setEditingName(true)} className="flex items-center gap-1.5 group text-left">
+              <h1
+                className="text-xl font-bold text-[#262626] group-hover:text-[#0F2F61] transition-colors"
+                style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
+              >
+                {property.name}
+              </h1>
+              <Pencil className="w-3.5 h-3.5 text-[#BABAB5] group-hover:text-[#0F2F61] transition-colors opacity-0 group-hover:opacity-100 shrink-0" />
+            </button>
+          )}
           {/* Internal name — editable inline */}
           {editingInternalName ? (
             <div className="flex items-center gap-2 mt-0.5">

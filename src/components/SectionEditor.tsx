@@ -5,7 +5,7 @@ import { upload } from "@vercel/blob/client";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
   ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Trash2,
-  ImagePlus, X, Phone, Video, ParkingSquare
+  ImagePlus, X, Phone, Video, ParkingSquare, Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,30 +53,34 @@ interface SectionEditorProps {
 
 export default function SectionEditor({ sections, propertyId, onUpdate }: SectionEditorProps) {
   const [openId, setOpenId] = useState<string | null>(sections[0]?.id ?? null);
-  const [saving, setSaving] = useState<string | null>(null);
-
-  async function saveSection(section: Section) {
-    setSaving(section.id);
-    await fetch(`/api/sections/${section.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: section.title, content: section.content, isVisible: section.isVisible }),
-    });
-    setSaving(null);
-  }
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [dirtyIds, setDirtyIds] = useState<Set<string>>(new Set());
 
   function updateSection(id: string, changes: Partial<Section>) {
     onUpdate(sections.map((s) => (s.id === id ? { ...s, ...changes } : s)));
+    setDirtyIds((prev) => new Set(prev).add(id));
   }
 
   async function toggleVisibility(section: Section) {
     const updated = { ...section, isVisible: !section.isVisible };
     updateSection(section.id, { isVisible: updated.isVisible });
-    await fetch(`/api/sections/${section.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isVisible: updated.isVisible }),
-    });
+  }
+
+  async function saveAll() {
+    setSaving(true);
+    const dirty = sections.filter((s) => dirtyIds.has(s.id));
+    await Promise.all(dirty.map((s) =>
+      fetch(`/api/sections/${s.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: s.title, content: s.content, isVisible: s.isVisible }),
+      })
+    ));
+    setDirtyIds(new Set());
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
   }
 
   return (
@@ -98,6 +102,9 @@ export default function SectionEditor({ sections, propertyId, onUpdate }: Sectio
             </div>
             <span className="font-medium text-[#262626] text-sm flex-1">{section.title}</span>
             <div className="flex items-center gap-1">
+              {dirtyIds.has(section.id) && (
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700] shrink-0" />
+              )}
               <button
                 onClick={(e) => { e.stopPropagation(); toggleVisibility(section); }}
                 className="p-1.5 rounded-lg hover:bg-[#EDEDE9] text-[#6B6B6B] transition-colors"
@@ -119,22 +126,29 @@ export default function SectionEditor({ sections, propertyId, onUpdate }: Sectio
                 section={section}
                 onChange={(changes) => updateSection(section.id, changes)}
               />
-              <div className="mt-4 flex justify-end">
-                <Button
-                  size="sm"
-                  onClick={() => saveSection(section)}
-                  disabled={saving === section.id}
-                  className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-8 text-xs px-4"
-                >
-                  {saving === section.id ? (
-                    <><Loader2 className="w-3 h-3 mr-1.5 animate-spin" /> Saving...</>
-                  ) : "Save"}
-                </Button>
-              </div>
             </div>
           )}
         </div>
       ))}
+
+      {/* Single save button */}
+      <div className="pt-2 flex justify-end">
+        <Button
+          onClick={saveAll}
+          disabled={saving || dirtyIds.size === 0}
+          className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm px-6"
+        >
+          {saving ? (
+            <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Saving...</>
+          ) : saved ? (
+            <><Check className="w-3.5 h-3.5 mr-1.5" /> Saved</>
+          ) : dirtyIds.size > 0 ? (
+            `Save changes (${dirtyIds.size})`
+          ) : (
+            "Save changes"
+          )}
+        </Button>
+      </div>
     </div>
   );
 }
