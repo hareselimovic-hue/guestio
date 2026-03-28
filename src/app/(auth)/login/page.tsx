@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,7 +30,8 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
+    const redirect = searchParams.get("redirect");
+    router.push(redirect ?? "/dashboard");
   }
 
   return (
@@ -97,7 +99,10 @@ export default function LoginPage() {
       <CardFooter className="justify-center">
         <p className="text-sm text-[#6B6B6B]">
           Don't have an account?{" "}
-          <Link href="/register" className="text-[#FF6700] font-medium hover:underline">
+          <Link
+            href={searchParams.get("redirect") ? `/register?redirect=${searchParams.get("redirect")}` : "/register"}
+            className="text-[#FF6700] font-medium hover:underline"
+          >
             Sign up
           </Link>
         </p>

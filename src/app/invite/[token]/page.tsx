@@ -28,6 +28,10 @@ export default function InvitePage() {
   async function handleJoin() {
     setJoining(true);
     const res = await fetch(`/api/invite/${token}/accept`, { method: "POST" });
+    if (res.status === 401) {
+      router.push(`/login?redirect=/invite/${token}`);
+      return;
+    }
     const d = await res.json();
     if (res.ok || d.alreadyMember) {
       setJoined(true);
