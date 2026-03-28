@@ -383,26 +383,36 @@ function CheckinForm({
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const data = await res.json();
-    if (data.url) setContent({ videoUrl: data.url });
-    else alert(data.error ?? "Upload failed");
-    setUploading(false);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.url) setContent({ videoUrl: data.url });
+      else alert(data.error ?? "Upload failed");
+    } catch {
+      alert("Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadingPhoto(true);
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const data = await res.json();
-    if (data.url) setContent({ photoUrl: data.url });
-    else alert(data.error ?? "Upload failed");
-    setUploadingPhoto(false);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.url) setContent({ photoUrl: data.url });
+      else alert(data.error ?? "Upload failed");
+    } catch {
+      alert("Upload failed. Please try again.");
+    } finally {
+      setUploadingPhoto(false);
+    }
   }
 
   return (
@@ -565,12 +575,18 @@ function WelcomeForm({
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const data = await res.json();
-    if (data.url) setContent({ heroImage: data.url });
-    setUploading(false);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.url) setContent({ heroImage: data.url });
+      else alert(data.error ?? "Upload failed");
+    } catch {
+      alert("Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+    }
   }
 
   return (
