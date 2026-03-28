@@ -206,18 +206,26 @@ function SectionForm({
           <Field label="Address">
             <Input
               value={(content.address as string) ?? ""}
-              onChange={(e) => setContent({ address: e.target.value })}
+              onChange={(e) => setContent({ ...content, address: e.target.value })}
               placeholder="e.g. 123 Main Street, New York"
               className="h-9 text-sm border-[#EDEDE9]"
             />
           </Field>
+          <Field label="Google Maps link (optional)">
+            <Input
+              value={(content.mapUrl as string) ?? ""}
+              onChange={(e) => setContent({ ...content, mapUrl: e.target.value })}
+              placeholder="https://maps.app.goo.gl/..."
+              className="h-9 text-sm border-[#EDEDE9]"
+            />
+          </Field>
           <p className="text-xs text-[#6B6B6B] -mt-1">
-            A "Open in Google Maps" button will be generated automatically from the address above.
+            Zalijepite share link iz Google Maps za tačan pin. Ako je prazno, koristi se adresa.
           </p>
           <Field label="Directions">
             <Textarea
               value={(content.directions as string) ?? ""}
-              onChange={(e) => setContent({ directions: e.target.value })}
+              onChange={(e) => setContent({ ...content, directions: e.target.value })}
               placeholder="Describe how to get here from the airport, city centre..."
               className="text-sm border-[#EDEDE9] resize-none"
               rows={3}

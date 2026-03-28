@@ -337,7 +337,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
           )}
           {content.address && (
             <a
-              href={`https://maps.google.com/?q=${encodeURIComponent(content.address as string)}`}
+              href={(content.mapUrl as string) || `https://maps.google.com/?q=${encodeURIComponent(content.address as string)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#0F2F61] hover:bg-[#0a2347] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
