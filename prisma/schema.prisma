@@ -101,6 +101,7 @@ enum SectionType {
   LOCATION
   LOCAL_RECS
   CONTACT
+  PARKING
   CUSTOM
 }
 

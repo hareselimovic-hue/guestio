@@ -21,6 +21,11 @@ export const auth = betterAuth({
     "http://localhost:3003",
     "http://localhost:3004",
     "http://localhost:3005",
+    "http://localhost:3006",
+    "http://localhost:3007",
+    "http://localhost:3008",
+    "http://localhost:3009",
+    "https://guestio.vercel.app",
   ],
 });
 

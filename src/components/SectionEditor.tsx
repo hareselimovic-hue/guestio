@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
   ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Trash2,
-  ImagePlus, X, Phone, Video
+  ImagePlus, X, Phone, Video, ParkingSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ const SECTION_ICONS: Record<string, React.ReactNode> = {
   LOCATION:    <MapPin className="w-4 h-4" />,
   LOCAL_RECS:  <Star className="w-4 h-4" />,
   CONTACT:     <Phone className="w-4 h-4" />,
+  PARKING:     <ParkingSquare className="w-4 h-4" />,
   CUSTOM:      <Plus className="w-4 h-4" />,
 };
 
@@ -30,6 +31,7 @@ const SECTION_COLORS: Record<string, string> = {
   LOCATION:    "bg-green-50 text-green-600",
   LOCAL_RECS:  "bg-orange-50 text-orange-600",
   CONTACT:     "bg-teal-50 text-teal-600",
+  PARKING:     "bg-slate-50 text-slate-600",
   CUSTOM:      "bg-gray-50 text-gray-600",
 };
 
@@ -266,6 +268,81 @@ function SectionForm({
           </p>
         </div>
       );
+
+    case "PARKING": {
+      const available = (content.available as boolean) ?? false;
+      return (
+        <div className="space-y-3 pt-3">
+          <Field label="Parking available">
+            <div className="flex gap-2">
+              {([true, false] as const).map((val) => (
+                <button
+                  key={String(val)}
+                  type="button"
+                  onClick={() => setContent({ available: val })}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                    available === val
+                      ? "bg-[#0F2F61] text-white border-[#0F2F61]"
+                      : "bg-white text-[#6B6B6B] border-[#EDEDE9] hover:border-[#0F2F61]"
+                  }`}
+                >
+                  {val ? "Yes" : "No"}
+                </button>
+              ))}
+            </div>
+          </Field>
+          {available && (
+            <>
+              <Field label="Parking type">
+                <div className="flex gap-2 flex-wrap">
+                  {["Garage", "Street", "Parking lot"].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setContent({ parkingType: type })}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                        (content.parkingType as string) === type
+                          ? "bg-[#0F2F61] text-white border-[#0F2F61]"
+                          : "bg-white text-[#6B6B6B] border-[#EDEDE9] hover:border-[#0F2F61]"
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+              <Field label="Cost">
+                <div className="flex gap-2">
+                  {([false, true] as const).map((val) => (
+                    <button
+                      key={String(val)}
+                      type="button"
+                      onClick={() => setContent({ paid: val })}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                        (content.paid as boolean) === val
+                          ? "bg-[#0F2F61] text-white border-[#0F2F61]"
+                          : "bg-white text-[#6B6B6B] border-[#EDEDE9] hover:border-[#0F2F61]"
+                      }`}
+                    >
+                      {val ? "Paid" : "Free"}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+            </>
+          )}
+          <Field label="Notes (optional)">
+            <Textarea
+              value={(content.notes as string) ?? ""}
+              onChange={(e) => setContent({ notes: e.target.value })}
+              placeholder="e.g. Park in spot #12, code for gate is 1234..."
+              className="text-sm border-[#EDEDE9] resize-none"
+              rows={3}
+            />
+          </Field>
+        </div>
+      );
+    }
 
     case "CUSTOM":
       return (

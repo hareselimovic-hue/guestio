@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
           { type: "LOCATION", title: "Location", content: { address: address?.trim() || "", mapUrl: "", directions: "" }, order: 4 },
           { type: "LOCAL_RECS", title: "Local Recommendations", content: { places: [] }, order: 5 },
           { type: "CONTACT", title: "Contact", content: { phone: "", label: "" }, order: 6 },
+          { type: "PARKING", title: "Parking", content: { available: false, parkingType: "", paid: false, notes: "" }, order: 7 },
         ],
       },
     },

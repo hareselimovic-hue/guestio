@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
-  Copy, Check, ChevronDown, Phone
+  Copy, Check, ChevronDown, Phone, ParkingSquare
 } from "lucide-react";
 import { useState } from "react";
 
@@ -14,8 +14,9 @@ const SECTION_META: Record<string, { icon: React.ReactNode; color: string; bg: s
   HOUSE_RULES: { icon: <ScrollText className="w-5 h-5" />, color: "text-purple-600", bg: "bg-purple-50", label: "House Rules" },
   LOCATION:    { icon: <MapPin className="w-5 h-5" />,     color: "text-green-600",  bg: "bg-green-50",  label: "Location" },
   LOCAL_RECS:  { icon: <Star className="w-5 h-5" />,       color: "text-orange-600", bg: "bg-orange-50", label: "Recommendations" },
-  CONTACT:     { icon: <Phone className="w-5 h-5" />,      color: "text-teal-600",   bg: "bg-teal-50",   label: "Contact" },
-  CUSTOM:      { icon: <Plus className="w-5 h-5" />,       color: "text-gray-600",   bg: "bg-gray-50",   label: "Info" },
+  CONTACT:     { icon: <Phone className="w-5 h-5" />,           color: "text-teal-600",  bg: "bg-teal-50",  label: "Contact" },
+  PARKING:     { icon: <ParkingSquare className="w-5 h-5" />,  color: "text-slate-600", bg: "bg-slate-50", label: "Parking" },
+  CUSTOM:      { icon: <Plus className="w-5 h-5" />,            color: "text-gray-600",  bg: "bg-gray-50",  label: "Info" },
 };
 
 interface Section {
@@ -341,6 +342,41 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
               WhatsApp
             </a>
           </div>
+        </div>
+      );
+    }
+
+    case "PARKING": {
+      const available = (content.available as boolean) ?? false;
+      const parkingType = (content.parkingType as string) ?? "";
+      const paid = (content.paid as boolean) ?? false;
+      const notes = (content.notes as string) ?? "";
+      return (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={`inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-full ${
+              available ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"
+            }`}>
+              {available ? "✓ Available" : "✗ No parking"}
+            </span>
+            {available && parkingType && (
+              <span className="text-sm bg-[#F7F7F5] text-[#262626] px-3 py-1.5 rounded-full font-medium">
+                {parkingType}
+              </span>
+            )}
+            {available && (
+              <span className={`text-sm px-3 py-1.5 rounded-full font-medium ${
+                paid ? "bg-amber-50 text-amber-700" : "bg-blue-50 text-blue-700"
+              }`}>
+                {paid ? "Paid" : "Free"}
+              </span>
+            )}
+          </div>
+          {notes && (
+            <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap border-t border-[#F0F0EE] pt-3">
+              {notes}
+            </p>
+          )}
         </div>
       );
     }
