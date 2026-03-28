@@ -6,9 +6,11 @@ import { Resend } from "resend";
 
 export const dynamic = "force-dynamic";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(req: NextRequest) {
+  if (!process.env.RESEND_API_KEY) {
+    return NextResponse.json({ error: "Email sending is not configured." }, { status: 503 });
+  }
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
