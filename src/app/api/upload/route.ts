@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
+import { put } from "@vercel/blob";
 import { randomUUID } from "crypto";
 
 export const dynamic = "force-dynamic";
@@ -33,14 +32,8 @@ export async function POST(req: NextRequest) {
 
   const ext = file.name.split(".").pop() ?? (isVideo ? "mp4" : "jpg");
   const filename = `${randomUUID()}.${ext}`;
-  const uploadsDir = join(process.cwd(), "public", "uploads");
 
-  await mkdir(uploadsDir, { recursive: true });
+  const blob = await put(filename, file, { access: "public" });
 
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-
-  await writeFile(join(uploadsDir, filename), buffer);
-
-  return NextResponse.json({ url: `/uploads/${filename}` });
+  return NextResponse.json({ url: blob.url });
 }
