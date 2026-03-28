@@ -12,6 +12,7 @@ export default function NewPropertyPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
+  const [customSlug, setCustomSlug] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -23,7 +24,7 @@ export default function NewPropertyPage() {
     const res = await fetch("/api/properties", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, address }),
+      body: JSON.stringify({ name, address, customSlug: customSlug.trim() || undefined }),
     });
 
     if (!res.ok) {
@@ -85,6 +86,29 @@ export default function NewPropertyPage() {
             onChange={(e) => setAddress(e.target.value)}
             className="border-[#EDEDE9] focus:border-[#0F2F61] h-11"
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="slug" className="text-[#262626] font-medium">
+            Guest link URL <span className="text-[#6B6B6B] font-normal">(optional)</span>
+          </Label>
+          <div className="flex items-center border border-[#EDEDE9] rounded-lg overflow-hidden focus-within:border-[#0F2F61] h-11">
+            <span className="px-3 text-sm text-[#6B6B6B] bg-[#F7F7F5] h-full flex items-center border-r border-[#EDEDE9] shrink-0">
+              /g/
+            </span>
+            <Input
+              id="slug"
+              placeholder="studio-bascarsija"
+              value={customSlug}
+              onChange={(e) => setCustomSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}
+              className="border-0 focus-visible:ring-0 h-full rounded-none"
+            />
+          </div>
+          {customSlug && (
+            <p className="text-xs text-[#6B6B6B]">
+              Guest link: <span className="font-medium text-[#0F2F61]">guestio.vercel.app/g/{customSlug}/preview</span>
+            </p>
+          )}
         </div>
 
         {error && (

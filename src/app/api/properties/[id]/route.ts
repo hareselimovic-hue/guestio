@@ -36,6 +36,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
   const data = await req.json();
 
+  // Slug uniqueness check
+  if (data.slug) {
+    const existing = await prisma.property.findFirst({ where: { slug: data.slug, NOT: { id } } });
+    if (existing) return NextResponse.json({ error: "This URL is already taken." }, { status: 409 });
+  }
+
   const property = await prisma.property.updateMany({
     where: { id, userId: session.user.id },
     data: {
@@ -45,6 +51,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(data.ownerName !== undefined && { ownerName: data.ownerName }),
       ...(data.ownerAddress !== undefined && { ownerAddress: data.ownerAddress }),
       ...(data.bankAccount !== undefined && { bankAccount: data.bankAccount }),
+      ...(data.slug && { slug: data.slug }),
     },
   });
 

@@ -5,14 +5,18 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-function slugify(text: string) {
+function toSlug(text: string) {
   return text
     .toLowerCase()
     .trim()
     .replace(/[^\w\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
-    + "-" + Math.random().toString(36).slice(2, 7);
+    .replace(/^-|-$/g, "");
+}
+
+function slugify(text: string) {
+  return toSlug(text) + "-" + Math.random().toString(36).slice(2, 7);
 }
 
 export async function GET() {
@@ -32,14 +36,19 @@ export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, address } = await req.json();
+  const { name, address, customSlug } = await req.json();
   if (!name?.trim()) return NextResponse.json({ error: "Name is required" }, { status: 400 });
+
+  const slug = customSlug?.trim() ? toSlug(customSlug.trim()) : slugify(name.trim());
+
+  const existing = await prisma.property.findUnique({ where: { slug } });
+  if (existing) return NextResponse.json({ error: "This URL is already taken, choose another." }, { status: 409 });
 
   const property = await prisma.property.create({
     data: {
       userId: session.user.id,
       name: name.trim(),
-      slug: slugify(name.trim()),
+      slug,
       address: address?.trim() || null,
       sections: {
         create: [

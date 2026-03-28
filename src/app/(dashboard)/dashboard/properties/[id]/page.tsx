@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Share2, Users, ExternalLink, Copy, Check, Plus, Building2 } from "lucide-react";
+import { ArrowLeft, Share2, Users, ExternalLink, Copy, Check, Plus, Building2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,6 +50,9 @@ export default function PropertyEditorPage() {
   const [bankAccount, setBankAccount] = useState("");
   const [ownerSaving, setOwnerSaving] = useState(false);
   const [ownerSaved, setOwnerSaved] = useState(false);
+  const [editingSlug, setEditingSlug] = useState(false);
+  const [slugValue, setSlugValue] = useState("");
+  const [slugError, setSlugError] = useState("");
   const [loading, setLoading] = useState(true);
 
   // Guest form
@@ -70,6 +73,7 @@ export default function PropertyEditorPage() {
       setOwnerName(prop.ownerName ?? "");
       setOwnerAddress(prop.ownerAddress ?? "");
       setBankAccount(prop.bankAccount ?? "");
+      setSlugValue(prop.slug ?? "");
       setLoading(false);
     });
   }, [id]);
@@ -126,6 +130,47 @@ export default function PropertyEditorPage() {
           </h1>
           {property.address && (
             <p className="text-sm text-[#6B6B6B] mt-0.5">{property.address}</p>
+          )}
+          {/* Slug / guest link */}
+          {editingSlug ? (
+            <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center border border-[#0F2F61] rounded-lg overflow-hidden h-7 text-xs">
+                <span className="px-2 text-[#6B6B6B] bg-[#F7F7F5] h-full flex items-center border-r border-[#EDEDE9]">/g/</span>
+                <input
+                  autoFocus
+                  value={slugValue}
+                  onChange={(e) => setSlugValue(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}
+                  className="px-2 h-full outline-none text-[#262626] w-40"
+                />
+              </div>
+              <button
+                onClick={async () => {
+                  setSlugError("");
+                  const res = await fetch(`/api/properties/${id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ slug: slugValue }),
+                  });
+                  if (!res.ok) {
+                    const d = await res.json();
+                    setSlugError(d.error ?? "Error");
+                  } else {
+                    setProperty({ ...property, slug: slugValue });
+                    setEditingSlug(false);
+                  }
+                }}
+                className="text-xs font-medium text-white bg-[#0F2F61] px-2.5 py-1 rounded-lg"
+              >Save</button>
+              <button onClick={() => { setEditingSlug(false); setSlugValue(property.slug); setSlugError(""); }} className="text-xs text-[#6B6B6B]">Cancel</button>
+              {slugError && <span className="text-xs text-red-500">{slugError}</span>}
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="text-xs text-[#6B6B6B]">/g/{property.slug}/preview</span>
+              <button onClick={() => setEditingSlug(true)} className="text-[#6B6B6B] hover:text-[#0F2F61] transition-colors">
+                <Pencil className="w-3 h-3" />
+              </button>
+            </div>
           )}
         </div>
         <a
