@@ -58,6 +58,7 @@ export default function Sidebar({ user }: SidebarProps) {
       <div className="px-3 py-4 border-t border-[#1a3d75]">
         <div className="px-3 py-2 mb-2">
           <p className="text-white text-sm font-medium truncate">{user.name ?? "User"}</p>
+          {workspaceName && <p className="text-[#FF6700] text-xs truncate">{workspaceName}</p>}
           <p className="text-[#8ba3c7] text-xs truncate">{user.email}</p>
         </div>
         <button

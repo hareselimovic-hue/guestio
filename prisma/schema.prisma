@@ -72,6 +72,7 @@ model Property {
   workspaceId  String?
   workspace    Workspace?  @relation(fields: [workspaceId], references: [id])
   name         String
+  internalName String?
   slug         String      @unique
   coverImage   String?
   address      String?

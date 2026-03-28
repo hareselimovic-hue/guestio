@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 export default function NewPropertyPage() {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [internalName, setInternalName] = useState("");
   const [address, setAddress] = useState("");
   const [customSlug, setCustomSlug] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,7 +25,7 @@ export default function NewPropertyPage() {
     const res = await fetch("/api/properties", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, address, customSlug: customSlug.trim() || undefined }),
+      body: JSON.stringify({ name, internalName: internalName.trim() || undefined, address, customSlug: customSlug.trim() || undefined }),
     });
 
     if (!res.ok) {
@@ -71,6 +72,19 @@ export default function NewPropertyPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            className="border-[#EDEDE9] focus:border-[#0F2F61] h-11"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="internalName" className="text-[#262626] font-medium">
+            Internal name <span className="text-[#6B6B6B] font-normal">(optional, admin only)</span>
+          </Label>
+          <Input
+            id="internalName"
+            placeholder="e.g. apt-101, studio-bascarsija-2"
+            value={internalName}
+            onChange={(e) => setInternalName(e.target.value)}
             className="border-[#EDEDE9] focus:border-[#0F2F61] h-11"
           />
         </div>

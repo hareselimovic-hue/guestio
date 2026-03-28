@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, address, customSlug } = await req.json();
+  const { name, internalName, address, customSlug } = await req.json();
   if (!name?.trim()) return NextResponse.json({ error: "Name is required" }, { status: 400 });
 
   const slug = customSlug?.trim() ? toSlug(customSlug.trim()) : slugify(name.trim());
@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
       userId: session.user.id,
       workspaceId,
       name: name.trim(),
+      internalName: internalName?.trim() || null,
       slug,
       address: address?.trim() || null,
       sections: {

@@ -355,7 +355,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
       );
 
     case "LOCAL_RECS": {
-      const places = (content.places as Array<{ name: string; category: string; description: string }>) ?? [];
+      const places = (content.places as Array<{ name: string; category: string; description: string; link?: string }>) ?? [];
       return (
         <div className="space-y-3">
           {places.length === 0 && <p className="text-sm text-[#6B6B6B]">No recommendations yet.</p>}
@@ -375,6 +375,17 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
                 </div>
                 {place.description && (
                   <p className="text-xs text-[#6B6B6B] mt-0.5 leading-relaxed">{place.description}</p>
+                )}
+                {place.link && (
+                  <a
+                    href={place.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 mt-2 text-xs font-medium text-white bg-[#0F2F61] hover:bg-[#0a2347] px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    <MapPin className="w-3 h-3" />
+                    Open in Google Maps
+                  </a>
                 )}
               </div>
             </div>

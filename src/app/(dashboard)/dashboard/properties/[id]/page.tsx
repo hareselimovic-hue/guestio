@@ -21,6 +21,7 @@ interface Section {
 interface Property {
   id: string;
   name: string;
+  internalName: string | null;
   slug: string;
   address: string | null;
   ownerName: string | null;
@@ -53,6 +54,9 @@ export default function PropertyEditorPage() {
   const [editingSlug, setEditingSlug] = useState(false);
   const [slugValue, setSlugValue] = useState("");
   const [slugError, setSlugError] = useState("");
+  const [internalName, setInternalName] = useState("");
+  const [editingInternalName, setEditingInternalName] = useState(false);
+  const [internalNameValue, setInternalNameValue] = useState("");
   const [loading, setLoading] = useState(true);
 
   // Guest form
@@ -74,6 +78,8 @@ export default function PropertyEditorPage() {
       setOwnerAddress(prop.ownerAddress ?? "");
       setBankAccount(prop.bankAccount ?? "");
       setSlugValue(prop.slug ?? "");
+      setInternalName(prop.internalName ?? "");
+      setInternalNameValue(prop.internalName ?? "");
       setLoading(false);
     });
   }, [id]);
@@ -128,6 +134,44 @@ export default function PropertyEditorPage() {
           >
             {property.name}
           </h1>
+          {/* Internal name — editable inline */}
+          {editingInternalName ? (
+            <div className="flex items-center gap-2 mt-0.5">
+              <input
+                autoFocus
+                value={internalNameValue}
+                onChange={(e) => setInternalNameValue(e.target.value)}
+                placeholder="Internal name..."
+                className="text-xs border border-[#0F2F61] rounded px-2 py-0.5 outline-none text-[#6B6B6B] w-40"
+              />
+              <button
+                onClick={async () => {
+                  await fetch(`/api/properties/${id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ internalName: internalNameValue || null }),
+                  });
+                  setInternalName(internalNameValue);
+                  setProperty({ ...property, internalName: internalNameValue || null });
+                  setEditingInternalName(false);
+                }}
+                className="text-xs font-medium text-white bg-[#0F2F61] px-2 py-0.5 rounded"
+              >Save</button>
+              <button onClick={() => { setEditingInternalName(false); setInternalNameValue(internalName); }} className="text-xs text-[#6B6B6B]">Cancel</button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setEditingInternalName(true)}
+              className="flex items-center gap-1 mt-0.5 group"
+            >
+              {internalName ? (
+                <span className="text-xs text-[#6B6B6B] italic group-hover:text-[#0F2F61] transition-colors">{internalName}</span>
+              ) : (
+                <span className="text-xs text-[#BABAB5] group-hover:text-[#6B6B6B] transition-colors italic">+ internal name</span>
+              )}
+              <Pencil className="w-2.5 h-2.5 text-[#BABAB5] group-hover:text-[#6B6B6B] transition-colors opacity-0 group-hover:opacity-100" />
+            </button>
+          )}
           {property.address && (
             <p className="text-sm text-[#6B6B6B] mt-0.5">{property.address}</p>
           )}

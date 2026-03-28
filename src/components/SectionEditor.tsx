@@ -709,10 +709,10 @@ function RulesList({ rules, onChange }: { rules: string[]; onChange: (r: string[
   );
 }
 
-type Place = { name: string; category: string; description: string };
+type Place = { name: string; category: string; description: string; link?: string };
 
 function PlacesList({ places, onChange }: { places: Place[]; onChange: (p: Place[]) => void }) {
-  const add = () => onChange([...places, { name: "", category: "", description: "" }]);
+  const add = () => onChange([...places, { name: "", category: "", description: "", link: "" }]);
   const remove = (i: number) => onChange(places.filter((_, idx) => idx !== i));
   const update = (i: number, field: keyof Place, val: string) =>
     onChange(places.map((p, idx) => (idx === i ? { ...p, [field]: val } : p)));
@@ -742,6 +742,12 @@ function PlacesList({ places, onChange }: { places: Place[]; onChange: (p: Place
             value={place.description}
             onChange={(e) => update(i, "description", e.target.value)}
             placeholder="Short description..."
+            className="h-8 text-sm border-[#EDEDE9] bg-white"
+          />
+          <Input
+            value={place.link ?? ""}
+            onChange={(e) => update(i, "link", e.target.value)}
+            placeholder="Google Maps link (optional) — e.g. https://maps.app.goo.gl/..."
             className="h-8 text-sm border-[#EDEDE9] bg-white"
           />
         </div>

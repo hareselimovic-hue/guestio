@@ -98,6 +98,9 @@ export default async function DashboardPage() {
                     <p className="font-medium text-[#262626] group-hover:text-[#0F2F61] transition-colors">
                       {p.name}
                     </p>
+                    {p.internalName && (
+                      <p className="text-xs text-[#6B6B6B] mt-0.5 italic">{p.internalName}</p>
+                    )}
                     <p className="text-xs text-[#6B6B6B] mt-0.5">
                       {p._count.sections} sections · {p._count.guests} guests
                     </p>

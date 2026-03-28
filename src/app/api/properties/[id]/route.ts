@@ -58,6 +58,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     where: { id, ...propertyAccessWhere(session.user.id, wsIds) },
     data: {
       ...(data.name && { name: data.name }),
+      ...(data.internalName !== undefined && { internalName: data.internalName }),
       ...(data.address !== undefined && { address: data.address }),
       ...(data.coverImage !== undefined && { coverImage: data.coverImage }),
       ...(data.ownerName !== undefined && { ownerName: data.ownerName }),
