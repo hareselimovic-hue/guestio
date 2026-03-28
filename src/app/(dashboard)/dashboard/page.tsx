@@ -2,20 +2,24 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getUserWorkspaceIds, propertyAccessWhere } from "@/lib/workspace";
 import { Building2, Users, Plus, ArrowRight } from "lucide-react";
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({ headers: await headers() });
 
+  const wsIds = await getUserWorkspaceIds(session!.user.id);
+  const accessWhere = propertyAccessWhere(session!.user.id, wsIds);
+
   const [properties, totalGuests] = await Promise.all([
     prisma.property.findMany({
-      where: { userId: session!.user.id },
+      where: accessWhere,
       include: { _count: { select: { guests: true, sections: true } } },
       orderBy: { createdAt: "desc" },
       take: 5,
     }),
     prisma.guestLink.count({
-      where: { property: { userId: session!.user.id } },
+      where: { property: accessWhere },
     }),
   ]);
 

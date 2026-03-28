@@ -34,9 +34,15 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ to
     data: { workspaceId: invite.workspaceId, userId: session.user.id },
   });
 
-  // Assign their existing properties to this workspace
+  // Assign new member's existing properties to this workspace
   await prisma.property.updateMany({
     where: { userId: session.user.id, workspaceId: null },
+    data: { workspaceId: invite.workspaceId },
+  });
+
+  // Also ensure workspace owner's properties are all assigned (repair any missed on workspace creation)
+  await prisma.property.updateMany({
+    where: { userId: invite.workspace.ownerId, workspaceId: null },
     data: { workspaceId: invite.workspaceId },
   });
 
