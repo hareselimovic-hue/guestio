@@ -14,6 +14,29 @@ export async function getUserWorkspaceIds(userId: string): Promise<string[]> {
 }
 
 /**
+ * Returns all userIds that share a workspace with this user (including themselves).
+ */
+export async function getWorkspaceMemberUserIds(userId: string): Promise<string[]> {
+  // Find the workspace this user belongs to
+  const workspace = await prisma.workspace.findFirst({
+    where: {
+      OR: [
+        { ownerId: userId },
+        { members: { some: { userId } } },
+      ],
+    },
+    include: { members: { select: { userId: true } } },
+  });
+
+  if (!workspace) return [userId];
+
+  const memberIds = workspace.members.map((m) => m.userId);
+  // Include the owner too
+  const allIds = [...new Set([workspace.ownerId, ...memberIds])];
+  return allIds;
+}
+
+/**
  * Returns the workspace the user belongs to (owned or member), or null.
  */
 export async function getUserWorkspace(userId: string) {
@@ -37,16 +60,24 @@ export async function getUserWorkspace(userId: string) {
 }
 
 /**
- * Prisma `where` clause for property access (owned personally or via workspace).
+ * Prisma `where` clause for property access.
+ * Includes: properties with workspaceId set, personal properties, AND
+ * properties owned by any workspace member (covers cases where workspaceId wasn't set).
  */
-export function propertyAccessWhere(userId: string, workspaceIds: string[]) {
+export function propertyAccessWhere(userId: string, workspaceIds: string[], memberUserIds: string[] = []) {
   if (workspaceIds.length === 0) {
     return { userId };
   }
-  return {
-    OR: [
-      { workspaceId: { in: workspaceIds } },
-      { userId, workspaceId: null },
-    ],
-  };
+
+  const conditions: object[] = [
+    { workspaceId: { in: workspaceIds } },
+    { userId, workspaceId: null },
+  ];
+
+  // Also include properties owned by workspace members even if workspaceId isn't set
+  if (memberUserIds.length > 0) {
+    conditions.push({ userId: { in: memberUserIds } });
+  }
+
+  return { OR: conditions };
 }
