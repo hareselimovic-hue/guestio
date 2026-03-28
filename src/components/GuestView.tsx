@@ -143,6 +143,76 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
         )}
       </div>
 
+      {/* ── UPSELL CARDS ── */}
+      <div className="max-w-2xl mx-auto px-4 pb-6 space-y-4">
+        {/* TrueLocal */}
+        <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-green-50 text-green-600">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <h2 className="font-bold text-[#262626] text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+              Discover Bosnia
+            </h2>
+          </div>
+          <div className="px-5 py-4 space-y-3">
+            <p className="text-sm text-[#262626] leading-relaxed">
+              Looking for authentic local experiences in Bosnia & Herzegovina? Explore hand-picked tours, activities and hidden gems curated just for you.
+            </p>
+            <a
+              href="https://www.truelocal.ba"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+            >
+              Explore TrueLocal.ba
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        {/* Rent-a-car */}
+        <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-blue-50 text-blue-600">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+            </div>
+            <h2 className="font-bold text-[#262626] text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+              Rent-a-car
+            </h2>
+          </div>
+          <div className="px-5 py-4 space-y-3">
+            <p className="text-sm text-[#262626] leading-relaxed">
+              Need a car during your stay? We offer reliable and affordable car rental — contact us and we'll arrange everything for you.
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              <a
+                href="tel:+38761684110"
+                className="inline-flex items-center gap-2 bg-[#0F2F61] hover:bg-[#0a2347] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+              >
+                <Phone className="w-4 h-4" />
+                Call us
+              </a>
+              <a
+                href="https://wa.me/38761684110"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db955] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+              >
+                <WhatsAppIcon />
+                WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Footer */}
       <div className="pb-10 text-center">
         <p className="text-xs text-[#6B6B6B]">
