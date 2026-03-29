@@ -21,6 +21,8 @@ const SECTION_META: Record<string, { icon: React.ReactNode; color: string; bg: s
 
 const UI_STRINGS: Record<string, {
   welcome: string; exploreGuide: string; guideSoon: string; guideSoonSub: string;
+  trueLocalTitle: string; trueLocalBody: string; trueLocalCta: string;
+  rentCarTitle: string; rentCarBody: string; callUs: string;
   sections: Record<string, { label: string; subtitle?: string }>;
 }> = {
   EN: {
@@ -28,6 +30,12 @@ const UI_STRINGS: Record<string, {
     exploreGuide: "Explore the guide",
     guideSoon: "Guide coming soon",
     guideSoonSub: "Your host is still adding information.",
+    trueLocalTitle: "Want to explore Sarajevo & beyond like a true local?",
+    trueLocalBody: "Looking for authentic local experiences in Bosnia & Herzegovina? Explore hand-picked tours, activities and hidden gems curated just for you.",
+    trueLocalCta: "Explore TrueLocal.ba",
+    rentCarTitle: "Rent-a-car",
+    rentCarBody: "Need a car during your stay? We offer reliable and affordable car rental — contact us and we'll arrange everything for you.",
+    callUs: "Call us",
     sections: {
       WIFI:        { label: "WiFi",               subtitle: "Internet & WiFi" },
       CHECKIN:     { label: "Check-in & Check-out", subtitle: "Arrival & departure info" },
@@ -43,6 +51,12 @@ const UI_STRINGS: Record<string, {
     exploreGuide: "Zum Gästeführer",
     guideSoon: "Leitfaden kommt bald",
     guideSoonSub: "Ihr Gastgeber fügt noch Informationen hinzu.",
+    trueLocalTitle: "Sarajevo & Umgebung wie ein Einheimischer entdecken?",
+    trueLocalBody: "Suchen Sie authentische lokale Erlebnisse in Bosnien & Herzegowina? Entdecken Sie handverlesene Touren, Aktivitäten und versteckte Juwelen.",
+    trueLocalCta: "TrueLocal.ba entdecken",
+    rentCarTitle: "Mietwagen",
+    rentCarBody: "Benötigen Sie ein Auto während Ihres Aufenthalts? Wir bieten zuverlässige und erschwingliche Mietwagen — kontaktieren Sie uns.",
+    callUs: "Anrufen",
     sections: {
       WIFI:        { label: "WLAN",               subtitle: "Internet & WLAN" },
       CHECKIN:     { label: "Check-in & Check-out", subtitle: "Anreise & Abreise" },
@@ -58,6 +72,12 @@ const UI_STRINGS: Record<string, {
     exploreGuide: "Rehberi Keşfet",
     guideSoon: "Rehber Yakında",
     guideSoonSub: "Ev sahibiniz henüz bilgi ekliyor.",
+    trueLocalTitle: "Saraybosna'yı gerçek bir yerel gibi keşfetmek ister misiniz?",
+    trueLocalBody: "Bosna Hersek'te otantik yerel deneyimler mi arıyorsunuz? Özenle seçilmiş turları, aktiviteleri ve gizli hazineleri keşfedin.",
+    trueLocalCta: "TrueLocal.ba'yı Keşfet",
+    rentCarTitle: "Araç Kiralama",
+    rentCarBody: "Konaklama sürenizde araç mı gerekiyor? Güvenilir ve uygun fiyatlı araç kiralama sunuyoruz — bizimle iletişime geçin.",
+    callUs: "Ara",
     sections: {
       WIFI:        { label: "WiFi",               subtitle: "İnternet & WiFi" },
       CHECKIN:     { label: "Giriş & Çıkış",      subtitle: "Varış & Ayrılış bilgisi" },
@@ -73,6 +93,12 @@ const UI_STRINGS: Record<string, {
     exploreGuide: "Esplora la guida",
     guideSoon: "Guida in arrivo",
     guideSoonSub: "Il tuo host sta ancora aggiungendo informazioni.",
+    trueLocalTitle: "Vuoi esplorare Sarajevo come un vero locale?",
+    trueLocalBody: "Cerchi esperienze locali autentiche in Bosnia ed Erzegovina? Scopri tour, attività e gemme nascoste selezionate per te.",
+    trueLocalCta: "Esplora TrueLocal.ba",
+    rentCarTitle: "Noleggio auto",
+    rentCarBody: "Hai bisogno di un'auto durante il soggiorno? Offriamo noleggio affidabile e conveniente — contattaci e organizziamo tutto.",
+    callUs: "Chiama",
     sections: {
       WIFI:        { label: "WiFi",               subtitle: "Internet & WiFi" },
       CHECKIN:     { label: "Check-in & Check-out", subtitle: "Info arrivo & partenza" },
@@ -266,12 +292,12 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
               </svg>
             </div>
             <h2 className="font-bold text-[#262626] text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
-              Want to explore Sarajevo & beyond like a true local?
+              {ui.trueLocalTitle}
             </h2>
           </div>
           <div className="px-5 py-4 space-y-3">
             <p className="text-sm text-[#262626] leading-relaxed">
-              Looking for authentic local experiences in Bosnia & Herzegovina? Explore hand-picked tours, activities and hidden gems curated just for you.
+              {ui.trueLocalBody}
             </p>
             <a
               href="https://www.truelocal.ba"
@@ -279,7 +305,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
             >
-              Explore TrueLocal.ba
+              {ui.trueLocalCta}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
               </svg>
@@ -296,12 +322,12 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
               </svg>
             </div>
             <h2 className="font-bold text-[#262626] text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
-              Rent-a-car
+              {ui.rentCarTitle}
             </h2>
           </div>
           <div className="px-5 py-4 space-y-3">
             <p className="text-sm text-[#262626] leading-relaxed">
-              Need a car during your stay? We offer reliable and affordable car rental — contact us and we'll arrange everything for you.
+              {ui.rentCarBody}
             </p>
             <div className="flex gap-2 flex-wrap">
               <a
@@ -309,7 +335,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
                 className="inline-flex items-center gap-2 bg-[#0F2F61] hover:bg-[#0a2347] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
               >
                 <Phone className="w-4 h-4" />
-                Call us
+                {ui.callUs}
               </a>
               <a
                 href="https://wa.me/38761684110"
