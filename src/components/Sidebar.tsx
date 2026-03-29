@@ -4,11 +4,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
-import { Home, LogOut, ChevronRight, Menu, X, Settings } from "lucide-react";
+import { Home, LogOut, ChevronRight, Menu, X, Settings, ShieldCheck } from "lucide-react";
 
 interface SidebarProps {
   user: { id: string; name?: string | null; email: string };
 }
+
+const ADMIN_EMAIL = "hareselimovic@gmail.com";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -36,7 +38,7 @@ export default function Sidebar({ user }: SidebarProps) {
     <>
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {[...navItems, ...(user.email === ADMIN_EMAIL ? [{ href: "/dashboard/admin", label: "Admin", icon: ShieldCheck }] : [])].map(({ href, label, icon: Icon }) => {
           const isActive = href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
           return (
             <Link

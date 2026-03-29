@@ -371,37 +371,107 @@ function SectionForm({
     }
 
     case "CUSTOM":
-      return (
-        <div className="space-y-3 pt-3">
-          <Field label="Section title">
-            <Input
-              value={section.title}
-              onChange={(e) => onChange({ title: e.target.value })}
-              placeholder="Section name"
-              className="h-9 text-sm border-[#EDEDE9]"
-            />
-          </Field>
-          <Field label="Content">
-            <Textarea
-              value={(content.body as string) ?? ""}
-              onChange={(e) => setContent({ body: e.target.value })}
-              placeholder="Enter content..."
-              className="text-sm border-[#EDEDE9] resize-none"
-              rows={5}
-            />
-          </Field>
-          <Field label="Photos (optional, max 3)">
-            <MultiImageUpload
-              photos={(content.images as string[]) ?? []}
-              onChange={(images) => setContent({ images })}
-            />
-          </Field>
-        </div>
-      );
+      return <CustomForm content={content} setContent={setContent} onChange={onChange} section={section} />;
 
     default:
       return null;
   }
+}
+
+interface CustomLink { name: string; url: string; description: string; }
+
+function CustomForm({
+  content,
+  setContent,
+  onChange,
+  section,
+}: {
+  content: Record<string, unknown>;
+  setContent: (u: Record<string, unknown>) => void;
+  onChange: (c: Partial<{ title: string; content: Record<string, unknown> }>) => void;
+  section: { title: string };
+}) {
+  const links: CustomLink[] = (content.links as CustomLink[]) ?? [];
+
+  function updateLink(idx: number, field: keyof CustomLink, value: string) {
+    const updated = links.map((l, i) => i === idx ? { ...l, [field]: value } : l);
+    setContent({ links: updated });
+  }
+
+  function addLink() {
+    setContent({ links: [...links, { name: "", url: "", description: "" }] });
+  }
+
+  function removeLink(idx: number) {
+    setContent({ links: links.filter((_, i) => i !== idx) });
+  }
+
+  return (
+    <div className="space-y-3 pt-3">
+      <Field label="Section title">
+        <Input
+          value={section.title}
+          onChange={(e) => onChange({ title: e.target.value })}
+          placeholder="Section name"
+          className="h-9 text-sm border-[#EDEDE9]"
+        />
+      </Field>
+      <Field label="Description (optional)">
+        <Textarea
+          value={(content.body as string) ?? ""}
+          onChange={(e) => setContent({ body: e.target.value })}
+          placeholder="Short intro text..."
+          className="text-sm border-[#EDEDE9] resize-none"
+          rows={3}
+        />
+      </Field>
+      <div>
+        <Label className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide mb-2 block">Items</Label>
+        <div className="space-y-3">
+          {links.map((link, idx) => (
+            <div key={idx} className="border border-[#EDEDE9] rounded-xl p-3 space-y-2 bg-[#F7F7F5]">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-[#6B6B6B]">Item {idx + 1}</span>
+                <button onClick={() => removeLink(idx)} className="text-red-400 hover:text-red-600 transition-colors">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <Input
+                value={link.name}
+                onChange={(e) => updateLink(idx, "name", e.target.value)}
+                placeholder="Name"
+                className="h-8 text-sm border-[#EDEDE9] bg-white"
+              />
+              <Input
+                value={link.url}
+                onChange={(e) => updateLink(idx, "url", e.target.value)}
+                placeholder="Link (optional) — https://..."
+                className="h-8 text-sm border-[#EDEDE9] bg-white"
+              />
+              <Input
+                value={link.description}
+                onChange={(e) => updateLink(idx, "description", e.target.value)}
+                placeholder="Description"
+                className="h-8 text-sm border-[#EDEDE9] bg-white"
+              />
+            </div>
+          ))}
+          <button
+            onClick={addLink}
+            className="w-full h-9 border-2 border-dashed border-[#EDEDE9] rounded-xl flex items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors text-sm"
+          >
+            <Plus className="w-4 h-4" /> Add item
+          </button>
+        </div>
+      </div>
+      <Field label="Photos (optional, max 3)">
+        <MultiImageUpload
+          photos={(content.images as string[]) ?? []}
+          onChange={(images) => setContent({ images })}
+        />
+      </Field>
+    </div>
+  );
 }
 
 function MultiImageUpload({

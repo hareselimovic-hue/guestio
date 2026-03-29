@@ -488,12 +488,33 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
 
     default: {
       const images = (content.images as string[]) ?? [];
+      const links = (content.links as { name: string; url: string; description: string }[]) ?? [];
       return (
         <div className="space-y-3">
           {(content.body as string) && (
             <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap">
               {content.body as string}
             </p>
+          )}
+          {links.length > 0 && (
+            <div className="space-y-2">
+              {links.map((item, i) => (
+                <div key={i} className="bg-[#F7F7F5] rounded-xl p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-semibold text-sm text-[#262626]">{item.name}</p>
+                    {item.url && (
+                      <a href={item.url} target="_blank" rel="noopener noreferrer"
+                        className="text-xs text-[#0F2F61] font-medium shrink-0 underline underline-offset-2">
+                        Otvori →
+                      </a>
+                    )}
+                  </div>
+                  {item.description && (
+                    <p className="text-xs text-[#6B6B6B] mt-1 leading-relaxed">{item.description}</p>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
           {images.length > 0 && (
             <div className={images.length > 1 ? "grid grid-cols-2 gap-2" : ""}>

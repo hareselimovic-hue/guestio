@@ -143,6 +143,12 @@ model WorkspaceInvite {
   createdAt   DateTime  @default(now())
 }
 
+model WhitelistEmail {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
 model GuestLink {
   id         String    @id @default(cuid())
   propertyId String
