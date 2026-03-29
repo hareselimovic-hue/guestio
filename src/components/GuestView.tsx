@@ -174,7 +174,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       <div ref={sectionsRef} className="max-w-2xl mx-auto px-4 py-10 space-y-4">
 
         {otherSections.map((section) => (
-          <SectionCard key={`${section.id}-${lang}`} section={section} lang={lang} />
+          <SectionCard key={section.id} section={section} lang={lang} />
         ))}
 
         {otherSections.length === 0 && (
@@ -270,7 +270,6 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 
 function SectionCard({ section, lang }: { section: Section; lang: string }) {
   const [open, setOpen] = useState(false);
-  const content = getContent(section, lang);
   const meta = SECTION_META[section.type] ?? SECTION_META.CUSTOM;
 
   return (
@@ -302,7 +301,7 @@ function SectionCard({ section, lang }: { section: Section; lang: string }) {
       {/* Card body */}
       {open && (
         <div className="px-5 py-4">
-          <SectionBody type={section.type} content={content} />
+          <SectionBody type={section.type} content={getContent(section, lang)} />
         </div>
       )}
     </div>
