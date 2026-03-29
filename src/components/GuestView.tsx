@@ -10,7 +10,7 @@ import { useState } from "react";
 const SECTION_META: Record<string, { icon: React.ReactNode; color: string; bg: string; label: string }> = {
   WELCOME:     { icon: <Heart className="w-5 h-5" />,      color: "text-pink-600",   bg: "bg-pink-50",   label: "Welcome" },
   WIFI:        { icon: <Wifi className="w-5 h-5" />,       color: "text-blue-600",   bg: "bg-blue-50",   label: "WiFi" },
-  CHECKIN:     { icon: <Key className="w-5 h-5" />,        color: "text-amber-600",  bg: "bg-amber-50",  label: "Check-in" },
+  CHECKIN:     { icon: <Key className="w-5 h-5" />,        color: "text-amber-600",  bg: "bg-amber-50",  label: "Check-in & Check-out" },
   HOUSE_RULES: { icon: <ScrollText className="w-5 h-5" />, color: "text-purple-600", bg: "bg-purple-50", label: "House Rules" },
   LOCATION:    { icon: <MapPin className="w-5 h-5" />,     color: "text-green-600",  bg: "bg-green-50",  label: "Location" },
   LOCAL_RECS:  { icon: <Star className="w-5 h-5" />,       color: "text-orange-600", bg: "bg-orange-50", label: "Recommendations" },
