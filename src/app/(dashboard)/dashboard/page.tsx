@@ -36,14 +36,14 @@ export default async function DashboardPage() {
 
       {/* Stats */}
       <div className="mb-8">
-        <div className="bg-white rounded-xl p-5 border border-[#EDEDE9] w-fit min-w-[160px]">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-9 h-9 bg-[#0F2F61]/10 rounded-lg flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-[#0F2F61]" />
-            </div>
-            <span className="text-sm text-[#6B6B6B] font-medium">Properties</span>
+        <div className="bg-white rounded-xl p-5 border border-[#EDEDE9] flex items-center gap-4 w-full max-w-xs">
+          <div className="w-9 h-9 bg-[#0F2F61]/10 rounded-lg flex items-center justify-center shrink-0">
+            <Building2 className="w-5 h-5 text-[#0F2F61]" />
           </div>
-          <p className="text-3xl font-bold text-[#262626]">{properties.length}</p>
+          <div>
+            <p className="text-sm text-[#6B6B6B] font-medium">Properties</p>
+            <p className="text-2xl font-bold text-[#262626] leading-tight">{properties.length}</p>
+          </div>
         </div>
       </div>
 
