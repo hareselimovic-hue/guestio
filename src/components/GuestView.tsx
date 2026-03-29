@@ -7,16 +7,16 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-const SECTION_META: Record<string, { icon: React.ReactNode; color: string; bg: string; label: string }> = {
-  WELCOME:     { icon: <Heart className="w-5 h-5" />,      color: "text-pink-600",   bg: "bg-pink-50",   label: "Welcome" },
-  WIFI:        { icon: <Wifi className="w-5 h-5" />,       color: "text-blue-600",   bg: "bg-blue-50",   label: "Internet & WiFi" },
-  CHECKIN:     { icon: <Key className="w-5 h-5" />,        color: "text-amber-600",  bg: "bg-amber-50",  label: "Arrival & departure info" },
-  HOUSE_RULES: { icon: <ScrollText className="w-5 h-5" />, color: "text-purple-600", bg: "bg-purple-50", label: "House Rules & Guidelines" },
-  LOCATION:    { icon: <MapPin className="w-5 h-5" />,     color: "text-green-600",  bg: "bg-green-50",  label: "How to get here" },
-  LOCAL_RECS:  { icon: <Star className="w-5 h-5" />,       color: "text-orange-600", bg: "bg-orange-50", label: "Things to do nearby" },
-  CONTACT:     { icon: <Phone className="w-5 h-5" />,           color: "text-teal-600",  bg: "bg-teal-50",  label: "Need help?" },
-  PARKING:     { icon: <ParkingSquare className="w-5 h-5" />,  color: "text-slate-600", bg: "bg-slate-50", label: "Parking & Access" },
-  CUSTOM:      { icon: <Plus className="w-5 h-5" />,            color: "text-gray-600",  bg: "bg-gray-50",  label: "Info" },
+const SECTION_META: Record<string, { icon: React.ReactNode; color: string; bg: string; label: string; subtitle?: string }> = {
+  WELCOME:     { icon: <Heart className="w-5 h-5" />,           color: "text-pink-600",   bg: "bg-pink-50",   label: "Welcome" },
+  WIFI:        { icon: <Wifi className="w-5 h-5" />,            color: "text-blue-600",   bg: "bg-blue-50",   label: "WiFi",                  subtitle: "Internet & WiFi" },
+  CHECKIN:     { icon: <Key className="w-5 h-5" />,             color: "text-amber-600",  bg: "bg-amber-50",  label: "Check-in & Check-out",  subtitle: "Arrival & departure info" },
+  HOUSE_RULES: { icon: <ScrollText className="w-5 h-5" />,      color: "text-purple-600", bg: "bg-purple-50", label: "House Rules",            subtitle: "House Rules & Guidelines" },
+  LOCATION:    { icon: <MapPin className="w-5 h-5" />,          color: "text-green-600",  bg: "bg-green-50",  label: "Location",              subtitle: "How to get here" },
+  LOCAL_RECS:  { icon: <Star className="w-5 h-5" />,            color: "text-orange-600", bg: "bg-orange-50", label: "Recommendations",       subtitle: "Things to do nearby" },
+  CONTACT:     { icon: <Phone className="w-5 h-5" />,           color: "text-teal-600",   bg: "bg-teal-50",   label: "Contact",               subtitle: "Need help?" },
+  PARKING:     { icon: <ParkingSquare className="w-5 h-5" />,   color: "text-slate-600",  bg: "bg-slate-50",  label: "Parking",               subtitle: "Parking & Access" },
+  CUSTOM:      { icon: <Plus className="w-5 h-5" />,            color: "text-gray-600",   bg: "bg-gray-50",   label: "Info" },
 };
 
 interface Section {
@@ -242,12 +242,17 @@ function SectionCard({ section }: { section: Section }) {
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${meta.bg} ${meta.color}`}>
             {meta.icon}
           </div>
-          <h2
-            className="font-bold text-[#262626] text-base"
-            style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
-          >
-            {section.type === "CUSTOM" ? section.title : meta.label}
-          </h2>
+          <div>
+            <h2
+              className="font-bold text-[#262626] text-base leading-tight"
+              style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
+            >
+              {section.type === "CUSTOM" ? section.title : meta.label}
+            </h2>
+            {meta.subtitle && (
+              <p className="text-xs text-[#9B9B9B] font-normal mt-0.5">{meta.subtitle}</p>
+            )}
+          </div>
         </div>
         <ChevronDown className={`w-4 h-4 text-[#6B6B6B] transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`} />
       </button>
