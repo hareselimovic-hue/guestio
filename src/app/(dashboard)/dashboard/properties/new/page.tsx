@@ -120,7 +120,7 @@ export default function NewPropertyPage() {
           </div>
           {customSlug && (
             <p className="text-xs text-[#6B6B6B]">
-              Guest link: <span className="font-medium text-[#0F2F61]">guestio.vercel.app/g/{customSlug}/preview</span>
+              Guest link: <span className="font-medium text-[#0F2F61]">smartstay.vercel.app/g/{customSlug}/preview</span>
             </p>
           )}
         </div>

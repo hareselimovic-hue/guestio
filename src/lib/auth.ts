@@ -25,7 +25,7 @@ export const auth = betterAuth({
     "http://localhost:3007",
     "http://localhost:3008",
     "http://localhost:3009",
-    "https://guestio.vercel.app",
+    "https://smartstay.vercel.app",
   ],
 });
 

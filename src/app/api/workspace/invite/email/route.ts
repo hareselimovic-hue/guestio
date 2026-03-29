@@ -34,13 +34,13 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://guestio.vercel.app"}/invite/${invite.token}`;
+  const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://smartstay.vercel.app"}/invite/${invite.token}`;
   const fromEmail = process.env.RESEND_FROM_EMAIL ?? "noreply@resend.dev";
 
   const { error } = await resend.emails.send({
     from: fromEmail,
     to: email.trim(),
-    subject: `You've been invited to join ${workspace.name} on Guestio`,
+    subject: `You've been invited to join ${workspace.name} on SmartStay`,
     html: `
 <!DOCTYPE html>
 <html>
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
         <!-- Logo -->
         <tr><td style="padding-bottom:28px;text-align:center;">
-          <span style="font-size:22px;font-weight:800;color:#0F2F61;letter-spacing:-0.5px;">Guestio</span>
+          <span style="font-size:22px;font-weight:800;color:#0F2F61;letter-spacing:-0.5px;">SmartStay</span>
         </td></tr>
         <!-- Card -->
         <tr><td style="background:#fff;border-radius:16px;border:1px solid #EDEDE9;padding:40px 36px;">
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
           </p>
           <p style="margin:0 0 28px;font-size:15px;color:#6B6B6B;line-height:1.6;">
             <strong style="color:#262626;">${session.user.name}</strong> has invited you to join the
-            <strong style="color:#0F2F61;">${workspace.name}</strong> workspace on Guestio.
+            <strong style="color:#0F2F61;">${workspace.name}</strong> workspace on SmartStay.
             You'll have full access to all properties and guests.
           </p>
           <a href="${inviteUrl}"
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
         </td></tr>
         <tr><td style="padding-top:20px;text-align:center;">
           <p style="margin:0;font-size:12px;color:#BABAB5;">
-            Guestio — Digital guest guidebooks
+            SmartStay — Digital guest guidebooks
           </p>
         </td></tr>
       </table>

@@ -40,7 +40,7 @@ function RegisterForm() {
       <CardHeader className="text-center pb-2">
         <div className="flex justify-center mb-4">
           <div className="bg-[#0F2F61] text-white px-4 py-2 rounded-lg font-bold text-xl tracking-tight">
-            Guestio
+            SmartStay
           </div>
         </div>
         <CardTitle className="text-2xl font-bold text-[#262626]">Create an account</CardTitle>

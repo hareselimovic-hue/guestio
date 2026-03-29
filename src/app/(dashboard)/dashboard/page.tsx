@@ -1,9 +1,9 @@
 import { headers } from "next/headers";
-import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
-import { Building2, Users, Plus, ArrowRight } from "lucide-react";
+import { Building2 } from "lucide-react";
+import PropertiesList from "@/components/PropertiesList";
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -14,17 +14,11 @@ export default async function DashboardPage() {
   ]);
   const accessWhere = propertyAccessWhere(session!.user.id, wsIds, memberUserIds);
 
-  const [properties, totalGuests] = await Promise.all([
-    prisma.property.findMany({
-      where: accessWhere,
-      include: { _count: { select: { guests: true, sections: true } } },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    }),
-    prisma.guestLink.count({
-      where: { property: accessWhere },
-    }),
-  ]);
+  const properties = await prisma.property.findMany({
+    where: accessWhere,
+    include: { _count: { select: { guests: true, sections: true } } },
+    orderBy: { createdAt: "desc" },
+  });
 
   const firstName = session!.user.name?.split(" ")[0] ?? "there";
 
@@ -41,8 +35,8 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="bg-white rounded-xl p-5 border border-[#EDEDE9]">
+      <div className="mb-8">
+        <div className="bg-white rounded-xl p-5 border border-[#EDEDE9] w-fit min-w-[160px]">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-9 h-9 bg-[#0F2F61]/10 rounded-lg flex items-center justify-center">
               <Building2 className="w-5 h-5 text-[#0F2F61]" />
@@ -51,74 +45,10 @@ export default async function DashboardPage() {
           </div>
           <p className="text-3xl font-bold text-[#262626]">{properties.length}</p>
         </div>
-
-        <div className="bg-white rounded-xl p-5 border border-[#EDEDE9]">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-9 h-9 bg-[#FF6700]/10 rounded-lg flex items-center justify-center">
-              <Users className="w-5 h-5 text-[#FF6700]" />
-            </div>
-            <span className="text-sm text-[#6B6B6B] font-medium">Guest links</span>
-          </div>
-          <p className="text-3xl font-bold text-[#262626]">{totalGuests}</p>
-        </div>
       </div>
 
-      {/* Properties list */}
-      <div className="bg-white rounded-xl border border-[#EDEDE9]">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#EDEDE9]">
-          <h2 className="font-semibold text-[#262626]">Your properties</h2>
-          <Link
-            href="/dashboard/properties/new"
-            className="flex items-center gap-1.5 text-sm font-medium text-[#FF6700] hover:text-[#e05c00] transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            New property
-          </Link>
-        </div>
-
-        {properties.length === 0 ? (
-          <div className="px-6 py-12 text-center">
-            <div className="w-14 h-14 bg-[#EDEDE9] rounded-full flex items-center justify-center mx-auto mb-4">
-              <Building2 className="w-7 h-7 text-[#6B6B6B]" />
-            </div>
-            <p className="text-[#262626] font-medium mb-1">No properties yet</p>
-            <p className="text-[#6B6B6B] text-sm mb-4">
-              Create your first property and start sharing guides with guests
-            </p>
-            <Link
-              href="/dashboard/properties/new"
-              className="inline-flex items-center gap-2 bg-[#0F2F61] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#0a2347] transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Create first property
-            </Link>
-          </div>
-        ) : (
-          <ul className="divide-y divide-[#EDEDE9]">
-            {properties.map((p) => (
-              <li key={p.id}>
-                <Link
-                  href={`/dashboard/properties/${p.id}`}
-                  className="flex items-center justify-between px-6 py-4 hover:bg-[#F7F7F5] transition-colors group"
-                >
-                  <div>
-                    <p className="font-medium text-[#262626] group-hover:text-[#0F2F61] transition-colors">
-                      {p.name}
-                    </p>
-                    {p.internalName && (
-                      <p className="text-xs text-[#6B6B6B] mt-0.5 italic">{p.internalName}</p>
-                    )}
-                    <p className="text-xs text-[#6B6B6B] mt-0.5">
-                      {p._count.sections} sections · {p._count.guests} guests
-                    </p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-[#6B6B6B] group-hover:text-[#0F2F61] transition-colors" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      {/* Properties list with search */}
+      <PropertiesList properties={properties} />
     </div>
   );
 }

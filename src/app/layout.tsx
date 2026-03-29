@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Guestio — Digital Guest Guidebook",
+  title: "SmartStay — Digital Guest Guidebook",
   description: "Create personalized digital guidebooks for your guests",
 };
 

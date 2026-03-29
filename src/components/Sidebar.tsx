@@ -77,7 +77,7 @@ export default function Sidebar({ user }: SidebarProps) {
       {/* ── Desktop sidebar ── */}
       <aside className="hidden md:flex w-64 bg-[#0F2F61] flex-col h-full shrink-0">
         <div className="px-6 py-6 border-b border-[#1a3d75]">
-          <span className="text-white font-bold text-2xl tracking-tight">Guestio</span>
+          <span className="text-white font-bold text-2xl tracking-tight">SmartStay</span>
           <p className="text-[#8ba3c7] text-xs mt-0.5">{workspaceName ?? "Digital guest guidebook"}</p>
         </div>
         <NavContent />
@@ -86,7 +86,7 @@ export default function Sidebar({ user }: SidebarProps) {
       {/* ── Mobile top bar ── */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#0F2F61] flex items-center justify-between px-4 py-3 shadow-md">
         <div>
-          <span className="text-white font-bold text-xl tracking-tight">Guestio</span>
+          <span className="text-white font-bold text-xl tracking-tight">SmartStay</span>
           {workspaceName && <p className="text-[#8ba3c7] text-xs leading-tight">{workspaceName}</p>}
         </div>
         <button onClick={() => setOpen(true)} className="text-white p-1">
@@ -102,7 +102,7 @@ export default function Sidebar({ user }: SidebarProps) {
           {/* Drawer */}
           <aside className="relative w-72 max-w-[85vw] bg-[#0F2F61] flex flex-col h-full shadow-xl">
             <div className="px-6 py-5 border-b border-[#1a3d75] flex items-center justify-between">
-              <span className="text-white font-bold text-xl tracking-tight">Guestio</span>
+              <span className="text-white font-bold text-xl tracking-tight">SmartStay</span>
               <button onClick={() => setOpen(false)} className="text-[#8ba3c7] hover:text-white">
                 <X className="w-5 h-5" />
               </button>
