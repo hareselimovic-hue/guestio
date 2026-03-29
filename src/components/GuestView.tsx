@@ -7,16 +7,82 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-const SECTION_META: Record<string, { icon: React.ReactNode; color: string; bg: string; label: string; subtitle?: string }> = {
-  WELCOME:     { icon: <Heart className="w-5 h-5" />,           color: "text-pink-600",   bg: "bg-pink-50",   label: "Welcome" },
-  WIFI:        { icon: <Wifi className="w-5 h-5" />,            color: "text-blue-600",   bg: "bg-blue-50",   label: "WiFi",                  subtitle: "Internet & WiFi" },
-  CHECKIN:     { icon: <Key className="w-5 h-5" />,             color: "text-amber-600",  bg: "bg-amber-50",  label: "Check-in & Check-out",  subtitle: "Arrival & departure info" },
-  HOUSE_RULES: { icon: <ScrollText className="w-5 h-5" />,      color: "text-purple-600", bg: "bg-purple-50", label: "House Rules",            subtitle: "House Rules & Guidelines" },
-  LOCATION:    { icon: <MapPin className="w-5 h-5" />,          color: "text-green-600",  bg: "bg-green-50",  label: "Location",              subtitle: "How to get here" },
-  LOCAL_RECS:  { icon: <Star className="w-5 h-5" />,            color: "text-orange-600", bg: "bg-orange-50", label: "Recommendations",       subtitle: "Things to do nearby" },
-  CONTACT:     { icon: <Phone className="w-5 h-5" />,           color: "text-teal-600",   bg: "bg-teal-50",   label: "Contact",               subtitle: "Need help?" },
-  PARKING:     { icon: <ParkingSquare className="w-5 h-5" />,   color: "text-slate-600",  bg: "bg-slate-50",  label: "Parking",               subtitle: "Parking & Access" },
-  CUSTOM:      { icon: <Plus className="w-5 h-5" />,            color: "text-gray-600",   bg: "bg-gray-50",   label: "Info" },
+const SECTION_META: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
+  WELCOME:     { icon: <Heart className="w-5 h-5" />,           color: "text-pink-600",   bg: "bg-pink-50" },
+  WIFI:        { icon: <Wifi className="w-5 h-5" />,            color: "text-blue-600",   bg: "bg-blue-50" },
+  CHECKIN:     { icon: <Key className="w-5 h-5" />,             color: "text-amber-600",  bg: "bg-amber-50" },
+  HOUSE_RULES: { icon: <ScrollText className="w-5 h-5" />,      color: "text-purple-600", bg: "bg-purple-50" },
+  LOCATION:    { icon: <MapPin className="w-5 h-5" />,          color: "text-green-600",  bg: "bg-green-50" },
+  LOCAL_RECS:  { icon: <Star className="w-5 h-5" />,            color: "text-orange-600", bg: "bg-orange-50" },
+  CONTACT:     { icon: <Phone className="w-5 h-5" />,           color: "text-teal-600",   bg: "bg-teal-50" },
+  PARKING:     { icon: <ParkingSquare className="w-5 h-5" />,   color: "text-slate-600",  bg: "bg-slate-50" },
+  CUSTOM:      { icon: <Plus className="w-5 h-5" />,            color: "text-gray-600",   bg: "bg-gray-50" },
+};
+
+const UI_STRINGS: Record<string, {
+  welcome: string; exploreGuide: string; guideSoon: string; guideSoonSub: string;
+  sections: Record<string, { label: string; subtitle?: string }>;
+}> = {
+  EN: {
+    welcome: "Welcome",
+    exploreGuide: "Explore the guide",
+    guideSoon: "Guide coming soon",
+    guideSoonSub: "Your host is still adding information.",
+    sections: {
+      WIFI:        { label: "WiFi",               subtitle: "Internet & WiFi" },
+      CHECKIN:     { label: "Check-in & Check-out", subtitle: "Arrival & departure info" },
+      HOUSE_RULES: { label: "House Rules",        subtitle: "House Rules & Guidelines" },
+      LOCATION:    { label: "Location",           subtitle: "How to get here" },
+      LOCAL_RECS:  { label: "Recommendations",    subtitle: "Things to do nearby" },
+      CONTACT:     { label: "Contact",            subtitle: "Need help?" },
+      PARKING:     { label: "Parking",            subtitle: "Parking & Access" },
+    },
+  },
+  DE: {
+    welcome: "Willkommen",
+    exploreGuide: "Zum Gästeführer",
+    guideSoon: "Leitfaden kommt bald",
+    guideSoonSub: "Ihr Gastgeber fügt noch Informationen hinzu.",
+    sections: {
+      WIFI:        { label: "WLAN",               subtitle: "Internet & WLAN" },
+      CHECKIN:     { label: "Check-in & Check-out", subtitle: "Anreise & Abreise" },
+      HOUSE_RULES: { label: "Hausregeln",         subtitle: "Regeln & Richtlinien" },
+      LOCATION:    { label: "Lage",               subtitle: "So kommen Sie her" },
+      LOCAL_RECS:  { label: "Empfehlungen",       subtitle: "Aktivitäten in der Nähe" },
+      CONTACT:     { label: "Kontakt",            subtitle: "Brauchen Sie Hilfe?" },
+      PARKING:     { label: "Parken",             subtitle: "Parken & Zugang" },
+    },
+  },
+  TR: {
+    welcome: "Hoş Geldiniz",
+    exploreGuide: "Rehberi Keşfet",
+    guideSoon: "Rehber Yakında",
+    guideSoonSub: "Ev sahibiniz henüz bilgi ekliyor.",
+    sections: {
+      WIFI:        { label: "WiFi",               subtitle: "İnternet & WiFi" },
+      CHECKIN:     { label: "Giriş & Çıkış",      subtitle: "Varış & Ayrılış bilgisi" },
+      HOUSE_RULES: { label: "Ev Kuralları",       subtitle: "Kurallar & Yönergeler" },
+      LOCATION:    { label: "Konum",              subtitle: "Nasıl Gelinir" },
+      LOCAL_RECS:  { label: "Tavsiyeler",         subtitle: "Yakında Yapılacaklar" },
+      CONTACT:     { label: "İletişim",           subtitle: "Yardıma mı İhtiyacınız Var?" },
+      PARKING:     { label: "Otopark",            subtitle: "Park & Erişim" },
+    },
+  },
+  IT: {
+    welcome: "Benvenuto",
+    exploreGuide: "Esplora la guida",
+    guideSoon: "Guida in arrivo",
+    guideSoonSub: "Il tuo host sta ancora aggiungendo informazioni.",
+    sections: {
+      WIFI:        { label: "WiFi",               subtitle: "Internet & WiFi" },
+      CHECKIN:     { label: "Check-in & Check-out", subtitle: "Info arrivo & partenza" },
+      HOUSE_RULES: { label: "Regole della casa",  subtitle: "Regole e linee guida" },
+      LOCATION:    { label: "Posizione",          subtitle: "Come arrivare" },
+      LOCAL_RECS:  { label: "Consigli locali",    subtitle: "Cosa fare nei dintorni" },
+      CONTACT:     { label: "Contatti",           subtitle: "Hai bisogno di aiuto?" },
+      PARKING:     { label: "Parcheggio",         subtitle: "Parcheggio & Accesso" },
+    },
+  },
 };
 
 interface SectionTranslation {
@@ -63,10 +129,14 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   const welcomeSection = sections.find((s) => s.type === "WELCOME");
   const otherSections = sections.filter((s) => s.type !== "WELCOME");
 
-  const welcomeContent = (welcomeSection?.content ?? {}) as Record<string, unknown>;
-  const heroImage = (welcomeContent.heroImage as string) ?? "";
+  const ui = UI_STRINGS[lang] ?? UI_STRINGS.EN;
+
+  // Always use EN for heroImage (not translated), use translated content for text fields
+  const welcomeContentEN = (welcomeSection?.content ?? {}) as Record<string, unknown>;
+  const welcomeContent = welcomeSection ? getContent(welcomeSection, lang) : welcomeContentEN;
+  const heroImage = (welcomeContentEN.heroImage as string) ?? "";
   const welcomeTitle = (welcomeContent.welcomeTitle as string) ?? property.name;
-  const ctaText = (welcomeContent.ctaText as string) || "Explore the guide";
+  const ctaText = (welcomeContent.ctaText as string) || ui.exploreGuide;
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString("en", { day: "numeric", month: "long" });
@@ -103,7 +173,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
             style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
           >
             {guestName
-              ? <>Welcome,<br /><span className="text-[#FF6700]">{guestName}</span>!</>
+              ? <>{ui.welcome},<br /><span className="text-[#FF6700]">{guestName}</span>!</>
               : welcomeTitle
             }
           </h1>
@@ -174,13 +244,13 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       <div ref={sectionsRef} className="max-w-2xl mx-auto px-4 py-10 space-y-4">
 
         {otherSections.map((section) => (
-          <SectionCard key={section.id} section={section} content={getContent(section, lang)} />
+          <SectionCard key={section.id} section={section} content={getContent(section, lang)} ui={ui} />
         ))}
 
         {otherSections.length === 0 && (
           <div className="text-center py-16 text-[#6B6B6B]">
-            <p className="text-lg font-medium">Guide coming soon</p>
-            <p className="text-sm mt-1">Your host is still adding information.</p>
+            <p className="text-lg font-medium">{ui.guideSoon}</p>
+            <p className="text-sm mt-1">{ui.guideSoonSub}</p>
           </div>
         )}
       </div>
@@ -268,9 +338,10 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   );
 }
 
-function SectionCard({ section, content }: { section: Section; content: Record<string, unknown> }) {
+function SectionCard({ section, content, ui }: { section: Section; content: Record<string, unknown>; ui: typeof UI_STRINGS["EN"] }) {
   const [open, setOpen] = useState(false);
   const meta = SECTION_META[section.type] ?? SECTION_META.CUSTOM;
+  const sectionStrings = ui.sections[section.type];
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
@@ -288,10 +359,10 @@ function SectionCard({ section, content }: { section: Section; content: Record<s
               className="font-bold text-[#262626] text-base leading-tight"
               style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
             >
-              {section.type === "CUSTOM" ? section.title : meta.label}
+              {section.type === "CUSTOM" ? section.title : (sectionStrings?.label ?? section.title)}
             </h2>
-            {meta.subtitle && (
-              <p className="text-xs text-[#9B9B9B] font-normal mt-0.5">{meta.subtitle}</p>
+            {sectionStrings?.subtitle && (
+              <p className="text-xs text-[#9B9B9B] font-normal mt-0.5">{sectionStrings.subtitle}</p>
             )}
           </div>
         </div>
