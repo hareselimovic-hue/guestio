@@ -174,7 +174,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       <div ref={sectionsRef} className="max-w-2xl mx-auto px-4 py-10 space-y-4">
 
         {otherSections.map((section) => (
-          <SectionCard key={section.id} section={section} lang={lang} />
+          <SectionCard key={`${section.id}-${lang}`} section={section} lang={lang} />
         ))}
 
         {otherSections.length === 0 && (
