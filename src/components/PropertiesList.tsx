@@ -24,9 +24,9 @@ export default function PropertiesList({ properties }: { properties: Property[] 
 
   return (
     <div className="bg-white rounded-xl border border-[#EDEDE9]">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-[#EDEDE9] gap-3">
-        <h2 className="font-semibold text-[#262626] shrink-0">Your properties</h2>
-        <div className="flex items-center gap-3 flex-1 justify-end">
+      <div className="flex flex-wrap items-center justify-between px-6 py-4 border-b border-[#EDEDE9] gap-3">
+        <h2 className="font-semibold text-[#262626]">Your properties</h2>
+        <div className="flex items-center gap-3">
           {properties.length > 0 && (
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#BABAB5]" />
@@ -34,8 +34,8 @@ export default function PropertiesList({ properties }: { properties: Property[] 
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search properties..."
-                className="pl-8 pr-3 h-8 text-sm border border-[#EDEDE9] rounded-lg outline-none focus:border-[#0F2F61] transition-colors w-48"
+                placeholder="Search..."
+                className="pl-8 pr-3 h-8 text-sm border border-[#EDEDE9] rounded-lg outline-none focus:border-[#0F2F61] transition-colors w-36 sm:w-48"
               />
             </div>
           )}
