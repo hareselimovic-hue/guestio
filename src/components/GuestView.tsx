@@ -19,11 +19,17 @@ const SECTION_META: Record<string, { icon: React.ReactNode; color: string; bg: s
   CUSTOM:      { icon: <Plus className="w-5 h-5" />,            color: "text-gray-600",   bg: "bg-gray-50",   label: "Info" },
 };
 
+interface SectionTranslation {
+  language: string;
+  content: unknown;
+}
+
 interface Section {
   id: string;
   type: string;
   title: string;
   content: unknown;
+  translations?: SectionTranslation[];
 }
 
 interface Props {
@@ -34,8 +40,25 @@ interface Props {
   checkOut: string | null;
 }
 
+const LANGUAGES = [
+  { code: "EN", flag: "🇬🇧", label: "EN" },
+  { code: "DE", flag: "🇩🇪", label: "DE" },
+  { code: "TR", flag: "🇹🇷", label: "TR" },
+  { code: "IT", flag: "🇮🇹", label: "IT" },
+];
+
+function getContent(section: Section, lang: string): Record<string, unknown> {
+  if (lang === "EN") return section.content as Record<string, unknown>;
+  const t = section.translations?.find((t) => t.language === lang);
+  return (t?.content ?? section.content) as Record<string, unknown>;
+}
+
 export default function GuestView({ property, sections, guestName, checkIn, checkOut }: Props) {
   const sectionsRef = useRef<HTMLDivElement>(null);
+  const [lang, setLang] = useState("EN");
+
+  // Only show language switcher if at least one section has any translation
+  const hasTranslations = sections.some((s) => s.translations && s.translations.length > 0);
 
   const welcomeSection = sections.find((s) => s.type === "WELCOME");
   const otherSections = sections.filter((s) => s.type !== "WELCOME");
@@ -131,8 +154,29 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 
       {/* ── SECTION CARDS ── */}
       <div ref={sectionsRef} className="max-w-2xl mx-auto px-4 py-10 space-y-4">
+
+        {/* Language switcher */}
+        {hasTranslations && (
+          <div className="flex gap-2 justify-end">
+            {LANGUAGES.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => setLang(l.code)}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  lang === l.code
+                    ? "bg-[#0F2F61] text-white"
+                    : "bg-white border border-[#EDEDE9] text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61]"
+                }`}
+              >
+                <span>{l.flag}</span>
+                <span>{l.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
         {otherSections.map((section) => (
-          <SectionCard key={section.id} section={section} />
+          <SectionCard key={section.id} section={section} lang={lang} />
         ))}
 
         {otherSections.length === 0 && (
@@ -226,9 +270,9 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   );
 }
 
-function SectionCard({ section }: { section: Section }) {
+function SectionCard({ section, lang }: { section: Section; lang: string }) {
   const [open, setOpen] = useState(false);
-  const content = section.content as Record<string, unknown>;
+  const content = getContent(section, lang);
   const meta = SECTION_META[section.type] ?? SECTION_META.CUSTOM;
 
   return (

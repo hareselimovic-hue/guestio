@@ -17,6 +17,7 @@ export default async function GuestPage({
       sections: {
         where: { isVisible: true },
         orderBy: { order: "asc" },
+        include: { translations: true },
       },
     },
   });

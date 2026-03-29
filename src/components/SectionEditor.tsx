@@ -58,6 +58,7 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
   const [saved, setSaved] = useState(false);
   const [dirtyIds, setDirtyIds] = useState<Set<string>>(new Set());
   const [addingCustom, setAddingCustom] = useState(false);
+  const [translating, setTranslating] = useState(false);
 
   useEffect(() => {
     if (markDirtyIds && markDirtyIds.length > 0) {
@@ -100,6 +101,7 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
   async function saveAll() {
     setSaving(true);
     const dirty = sections.filter((s) => dirtyIds.has(s.id));
+    const dirtyIds_ = dirty.map((s) => s.id);
     await Promise.all(dirty.map((s) =>
       fetch(`/api/sections/${s.id}`, {
         method: "PATCH",
@@ -111,6 +113,16 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+
+    // Fire-and-forget translation in background
+    if (propertyId && dirtyIds_.length > 0) {
+      setTranslating(true);
+      fetch(`/api/properties/${propertyId}/translate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sectionIds: dirtyIds_ }),
+      }).finally(() => setTranslating(false));
+    }
   }
 
   return (
@@ -183,7 +195,13 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
       )}
 
       {/* Single save button */}
-      <div className="pt-2 flex justify-end">
+      <div className="pt-2 flex items-center justify-end gap-3">
+        {translating && (
+          <span className="text-xs text-[#6B6B6B] flex items-center gap-1.5">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            Translating...
+          </span>
+        )}
         <Button
           onClick={saveAll}
           disabled={saving || dirtyIds.size === 0}
