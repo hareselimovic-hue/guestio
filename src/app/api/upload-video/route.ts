@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       request,
       onBeforeGenerateToken: async () => ({
         allowedContentTypes: ["video/mp4", "video/quicktime", "video/webm", "video/mov"],
-        maximumSizeInBytes: 100 * 1024 * 1024,
+        maximumSizeInBytes: 50 * 1024 * 1024,
         addRandomSuffix: true,
       }),
     });

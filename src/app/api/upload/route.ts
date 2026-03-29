@@ -25,9 +25,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Only images (JPG, PNG, WEBP) and videos (MP4, MOV, WEBM) allowed" }, { status: 400 });
   }
 
-  const maxSize = isVideo ? 100 * 1024 * 1024 : 5 * 1024 * 1024;
+  const maxSize = isVideo ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
   if (file.size > maxSize) {
-    return NextResponse.json({ error: isVideo ? "Max 100MB for videos" : "Max 5MB for images" }, { status: 400 });
+    return NextResponse.json({ error: isVideo ? "Max 50MB for videos" : "Max 10MB for images" }, { status: 400 });
   }
 
   const ext = file.name.split(".").pop() ?? (isVideo ? "mp4" : "jpg");

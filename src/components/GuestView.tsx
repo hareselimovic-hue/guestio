@@ -218,7 +218,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
         <p className="text-xs text-[#6B6B6B]">
           Powered by{" "}
           <span className="font-semibold text-[#0F2F61]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
-            Guestio
+            SmartStay
           </span>
         </p>
       </div>
@@ -295,11 +295,20 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
               {content.instructions as string}
             </p>
           )}
-          {checkInType === "SELF" && (content.photoUrl as string) && (
-            <div className="rounded-xl overflow-hidden">
-              <img src={content.photoUrl as string} alt="Check-in instructions" className="w-full object-cover rounded-xl" style={{ maxHeight: 280 }} />
-            </div>
-          )}
+          {checkInType === "SELF" && (() => {
+            const photos: string[] = (content.photos as string[]) ?? (
+              (content.photoUrl as string) ? [(content.photoUrl as string)] : []
+            );
+            return photos.length > 0 ? (
+              <div className={photos.length > 1 ? "grid grid-cols-2 gap-2" : ""}>
+                {photos.map((url, i) => (
+                  <div key={i} className="rounded-xl overflow-hidden">
+                    <img src={url} alt={`Check-in photo ${i + 1}`} className="w-full object-cover rounded-xl" style={{ maxHeight: 240 }} />
+                  </div>
+                ))}
+              </div>
+            ) : null;
+          })()}
           {checkInType === "SELF" && videoUrl && (
             <div className="rounded-xl overflow-hidden bg-black">
               <video src={videoUrl} controls className="w-full" style={{ maxHeight: 280 }} />
@@ -477,12 +486,27 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
       );
     }
 
-    default:
+    default: {
+      const images = (content.images as string[]) ?? [];
       return (
-        <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap">
-          {(content.body as string) ?? ""}
-        </p>
+        <div className="space-y-3">
+          {(content.body as string) && (
+            <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap">
+              {content.body as string}
+            </p>
+          )}
+          {images.length > 0 && (
+            <div className={images.length > 1 ? "grid grid-cols-2 gap-2" : ""}>
+              {images.map((url, i) => (
+                <div key={i} className="rounded-xl overflow-hidden">
+                  <img src={url} alt={`photo ${i + 1}`} className="w-full object-cover rounded-xl" style={{ maxHeight: 240 }} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       );
+    }
   }
 }
 

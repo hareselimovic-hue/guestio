@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { upload } from "@vercel/blob/client";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
@@ -49,13 +49,24 @@ interface SectionEditorProps {
   sections: Section[];
   propertyId?: string;
   onUpdate: (sections: Section[]) => void;
+  markDirtyIds?: string[];
 }
 
-export default function SectionEditor({ sections, propertyId, onUpdate }: SectionEditorProps) {
+export default function SectionEditor({ sections, propertyId, onUpdate, markDirtyIds }: SectionEditorProps) {
   const [openId, setOpenId] = useState<string | null>(sections[0]?.id ?? null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [dirtyIds, setDirtyIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (markDirtyIds && markDirtyIds.length > 0) {
+      setDirtyIds((prev) => {
+        const next = new Set(prev);
+        markDirtyIds.forEach((id) => next.add(id));
+        return next;
+      });
+    }
+  }, [markDirtyIds]);
 
   function updateSection(id: string, changes: Partial<Section>) {
     onUpdate(sections.map((s) => (s.id === id ? { ...s, ...changes } : s)));
@@ -379,12 +390,97 @@ function SectionForm({
               rows={5}
             />
           </Field>
+          <Field label="Photos (optional, max 3)">
+            <MultiImageUpload
+              photos={(content.images as string[]) ?? []}
+              onChange={(images) => setContent({ images })}
+            />
+          </Field>
         </div>
       );
 
     default:
       return null;
   }
+}
+
+function MultiImageUpload({
+  photos,
+  onChange,
+}: {
+  photos: string[];
+  onChange: (photos: string[]) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const MAX = 3;
+
+  async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    const remaining = MAX - photos.length;
+    const toUpload = files.slice(0, remaining);
+    setUploading(true);
+    try {
+      const urls = await Promise.all(toUpload.map(async (file) => {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        const data = await res.json();
+        if (!data.url) throw new Error(data.error ?? "Upload failed");
+        return data.url as string;
+      }));
+      onChange([...photos, ...urls]);
+    } catch (err) {
+      alert("Upload failed: " + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  function removePhoto(idx: number) {
+    onChange(photos.filter((_, i) => i !== idx));
+  }
+
+  return (
+    <div className="space-y-2">
+      {photos.length > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          {photos.map((url, idx) => (
+            <div key={idx} className="relative rounded-xl overflow-hidden aspect-square">
+              <img src={url} alt={`photo ${idx + 1}`} className="w-full h-full object-cover" />
+              <button
+                onClick={() => removePhoto(idx)}
+                className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full p-0.5 transition-colors"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      {photos.length < MAX && (
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="w-full h-16 border-2 border-dashed border-[#EDEDE9] rounded-xl flex items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors"
+        >
+          {uploading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <>
+              <ImagePlus className="w-4 h-4" />
+              <span className="text-xs font-medium">
+                Add photo ({photos.length}/{MAX}) — JPG, PNG, max 10MB
+              </span>
+            </>
+          )}
+        </button>
+      )}
+      <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
+    </div>
+  );
 }
 
 function CheckinForm({
@@ -396,11 +492,12 @@ function CheckinForm({
 }) {
   const checkInType = (content.checkInType as string) ?? "SELF";
   const videoUrl = (content.videoUrl as string) ?? "";
-  const photoUrl = (content.photoUrl as string) ?? "";
+  // Support both legacy photoUrl (single) and new photos[] (multi)
+  const photos: string[] = (content.photos as string[]) ?? (
+    (content.photoUrl as string) ? [(content.photoUrl as string)] : []
+  );
   const fileRef = useRef<HTMLInputElement>(null);
-  const photoRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   async function handleVideo(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -417,24 +514,6 @@ function CheckinForm({
       alert("Video upload failed: " + (err instanceof Error ? err.message : String(err)));
     } finally {
       setUploading(false);
-    }
-  }
-
-  async function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingPhoto(true);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      const data = await res.json();
-      if (data.url) setContent({ photoUrl: data.url });
-      else alert(data.error ?? "Upload failed");
-    } catch {
-      alert("Upload failed. Please try again.");
-    } finally {
-      setUploadingPhoto(false);
     }
   }
 
@@ -498,42 +577,11 @@ function CheckinForm({
       {/* Photo + Video upload — only for self check-in */}
       {checkInType === "SELF" && (
         <>
-          <Field label="Instruction photo (optional)">
-            {photoUrl ? (
-              <div className="relative rounded-xl overflow-hidden">
-                <img src={photoUrl} alt="check-in" className="w-full max-h-48 object-cover rounded-xl" />
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => photoRef.current?.click()}
-                    className="text-xs font-medium text-[#0F2F61] bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-[#F0F0EE] transition-colors"
-                  >
-                    Replace photo
-                  </button>
-                  <button
-                    onClick={() => setContent({ photoUrl: "" })}
-                    className="text-xs font-medium text-red-500 bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => photoRef.current?.click()}
-                disabled={uploadingPhoto}
-                className="w-full h-20 border-2 border-dashed border-[#EDEDE9] rounded-xl flex flex-col items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors"
-              >
-                {uploadingPhoto ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <>
-                    <ImagePlus className="w-5 h-5" />
-                    <span className="text-xs font-medium">Upload photo (JPG, PNG, max 5MB)</span>
-                  </>
-                )}
-              </button>
-            )}
-            <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
+          <Field label="Instruction photos (optional, max 3)">
+            <MultiImageUpload
+              photos={photos}
+              onChange={(p) => setContent({ photos: p, photoUrl: undefined })}
+            />
           </Field>
 
           <Field label="Instruction video (optional)">
@@ -566,7 +614,7 @@ function CheckinForm({
                 ) : (
                   <>
                     <Video className="w-5 h-5" />
-                    <span className="text-xs font-medium">Upload video (MP4, MOV, max 100MB)</span>
+                    <span className="text-xs font-medium">Upload video (MP4, MOV, max 50MB)</span>
                   </>
                 )}
               </button>
