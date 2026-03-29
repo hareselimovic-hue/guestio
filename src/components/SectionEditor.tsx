@@ -57,6 +57,7 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [dirtyIds, setDirtyIds] = useState<Set<string>>(new Set());
+  const [addingCustom, setAddingCustom] = useState(false);
 
   useEffect(() => {
     if (markDirtyIds && markDirtyIds.length > 0) {
@@ -76,6 +77,24 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
   async function toggleVisibility(section: Section) {
     const updated = { ...section, isVisible: !section.isVisible };
     updateSection(section.id, { isVisible: updated.isVisible });
+  }
+
+  async function addCustomSection() {
+    if (!propertyId) return;
+    setAddingCustom(true);
+    const res = await fetch(`/api/properties/${propertyId}/sections`, { method: "POST" });
+    if (res.ok) {
+      const section = await res.json();
+      onUpdate([...sections, section]);
+      setOpenId(section.id);
+    }
+    setAddingCustom(false);
+  }
+
+  async function deleteSection(id: string) {
+    await fetch(`/api/sections/${id}`, { method: "DELETE" });
+    onUpdate(sections.filter((s) => s.id !== id));
+    setDirtyIds((prev) => { const next = new Set(prev); next.delete(id); return next; });
   }
 
   async function saveAll() {
@@ -123,6 +142,15 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
               >
                 {section.isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
               </button>
+              {section.type === "CUSTOM" && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); deleteSection(section.id); }}
+                  className="p-1.5 rounded-lg hover:bg-red-50 text-[#6B6B6B] hover:text-red-500 transition-colors"
+                  title="Delete section"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
               {openId === section.id
                 ? <ChevronUp className="w-4 h-4 text-[#6B6B6B]" />
                 : <ChevronDown className="w-4 h-4 text-[#6B6B6B]" />
@@ -141,6 +169,18 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
           )}
         </div>
       ))}
+
+      {/* Add custom section */}
+      {propertyId && (
+        <button
+          onClick={addCustomSection}
+          disabled={addingCustom}
+          className="w-full h-10 border-2 border-dashed border-[#EDEDE9] rounded-xl flex items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors text-sm"
+        >
+          {addingCustom ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+          Add custom section
+        </button>
+      )}
 
       {/* Single save button */}
       <div className="pt-2 flex justify-end">
