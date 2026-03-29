@@ -117,8 +117,8 @@ ${JSON.stringify(translatableText, null, 2)}`;
       const translatedContent = applyTranslation(content, translations[lang] ?? {});
       return prisma.sectionTranslation.upsert({
         where: { sectionId_language: { sectionId: id, language: lang } },
-        create: { sectionId: id, language: lang, content: translatedContent },
-        update: { content: translatedContent },
+        create: { sectionId: id, language: lang, content: translatedContent as never },
+        update: { content: translatedContent as never },
       });
     })
   );

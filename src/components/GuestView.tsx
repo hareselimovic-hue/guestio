@@ -135,8 +135,8 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   const welcomeContentEN = (welcomeSection?.content ?? {}) as Record<string, unknown>;
   const welcomeContent = welcomeSection ? getContent(welcomeSection, lang) : welcomeContentEN;
   const heroImage = (welcomeContentEN.heroImage as string) ?? "";
-  const welcomeTitle = (welcomeContent.welcomeTitle as string) ?? property.name;
-  const ctaText = (welcomeContent.ctaText as string) || ui.exploreGuide;
+  const welcomeTitle = ((welcomeContent.welcomeTitle as string) ?? property.name) as string;
+  const ctaText = ((welcomeContent.ctaText as string) || ui.exploreGuide) as string;
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString("en", { day: "numeric", month: "long" });
@@ -188,13 +188,13 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
           )}
 
           {/* Subtitle from welcome message */}
-          {welcomeContent.message && (
+          {(welcomeContent.message as string) && (
             <p className="text-white/80 text-sm leading-relaxed mt-3 mb-2">
               {welcomeContent.message as string}
             </p>
           )}
 
-          {welcomeContent.hostName && (
+          {(welcomeContent.hostName as string) && (
             <p className="text-white/60 text-xs mt-2">— {welcomeContent.hostName as string}</p>
           )}
 
@@ -386,7 +386,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
         <div className="space-y-3">
           <WifiRow label="Network" value={(content.network as string) ?? ""} copyable />
           <WifiRow label="Password" value={(content.password as string) ?? ""} copyable />
-          {content.note && (
+          {(content.note as string) && (
             <p className="text-sm text-[#6B6B6B] pt-2 border-t border-[#F0F0EE]">
               {content.note as string}
             </p>
@@ -407,7 +407,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
             <TimeBox label="Check-in" value={(content.checkIn as string) ?? "15:00"} />
             <TimeBox label="Check-out" value={(content.checkOut as string) ?? "11:00"} />
           </div>
-          {content.instructions && (
+          {(content.instructions as string) && (
             <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap">
               {content.instructions as string}
             </p>
@@ -455,13 +455,13 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
     case "LOCATION":
       return (
         <div className="space-y-4">
-          {content.address && (
+          {(content.address as string) && (
             <div className="flex items-start gap-2.5 text-sm text-[#262626]">
               <MapPin className="w-4 h-4 text-[#6B6B6B] shrink-0 mt-0.5" />
               <span className="leading-relaxed">{content.address as string}</span>
             </div>
           )}
-          {content.address && (
+          {(content.address as string) && (
             <a
               href={(content.mapUrl as string) || `https://maps.google.com/?q=${encodeURIComponent(content.address as string)}`}
               target="_blank"
@@ -472,7 +472,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
               Open in Google Maps
             </a>
           )}
-          {content.directions && (
+          {(content.directions as string) && (
             <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap border-t border-[#F0F0EE] pt-3">
               {content.directions as string}
             </p>

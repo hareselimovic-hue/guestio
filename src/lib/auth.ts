@@ -11,7 +11,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
-    async beforeCreateUser({ user }) {
+    async beforeCreateUser({ user }: { user: { email: string } }) {
       if (user.email === ADMIN_EMAIL) return;
       const allowed = await prisma.whitelistEmail.findUnique({ where: { email: user.email } });
       if (!allowed) throw new Error("Your email is not on the access list. Contact the administrator.");

@@ -130,8 +130,8 @@ ${JSON.stringify(Object.fromEntries(sectionsToTranslate), null, 2)}`;
       upserts.push(
         prisma.sectionTranslation.upsert({
           where: { sectionId_language: { sectionId: section.id, language: lang } },
-          create: { sectionId: section.id, language: lang, content: translatedContent },
-          update: { content: translatedContent },
+          create: { sectionId: section.id, language: lang, content: translatedContent as never },
+          update: { content: translatedContent as never },
         })
       );
     }
