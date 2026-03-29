@@ -150,30 +150,28 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
             <ChevronDown className="w-6 h-6" />
           </button>
         )}
+
+        {/* Language dropdown — top right */}
+        {hasTranslations && (
+          <div className="absolute top-4 right-4 z-20">
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+              className="bg-white/20 backdrop-blur-sm text-white text-sm font-medium px-3 py-1.5 rounded-full border border-white/30 outline-none cursor-pointer appearance-none pr-7"
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 8px center" }}
+            >
+              {LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code} style={{ color: "#262626", background: "#fff" }}>
+                  {l.flag} {l.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* ── SECTION CARDS ── */}
       <div ref={sectionsRef} className="max-w-2xl mx-auto px-4 py-10 space-y-4">
-
-        {/* Language switcher */}
-        {hasTranslations && (
-          <div className="flex gap-2 justify-end">
-            {LANGUAGES.map((l) => (
-              <button
-                key={l.code}
-                onClick={() => setLang(l.code)}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  lang === l.code
-                    ? "bg-[#0F2F61] text-white"
-                    : "bg-white border border-[#EDEDE9] text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61]"
-                }`}
-              >
-                <span>{l.flag}</span>
-                <span>{l.label}</span>
-              </button>
-            ))}
-          </div>
-        )}
 
         {otherSections.map((section) => (
           <SectionCard key={section.id} section={section} lang={lang} />
