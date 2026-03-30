@@ -22,7 +22,7 @@ export default function AuthLayout({
         className="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-end pb-16"
         style={{
           backgroundImage:
-            "url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&q=80')",
+            "url('https://smartstay.ba/guest-photo.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
