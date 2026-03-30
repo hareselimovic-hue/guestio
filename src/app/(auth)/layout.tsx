@@ -22,7 +22,7 @@ export default function AuthLayout({
         className="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-end pb-16"
         style={{
           backgroundImage:
-            "url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&q=80')",
+            "url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&q=80')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -33,7 +33,7 @@ export default function AuthLayout({
         {/* Quote */}
         <div className="relative z-10 text-center px-12">
           <p className="text-white text-2xl font-semibold leading-snug mb-3">
-            &ldquo;Sve što gostu treba —<br />na jednom linku.&rdquo;
+            &ldquo;Everything your guest needs —<br />in one link.&rdquo;
           </p>
           <p className="text-white/60 text-sm tracking-widest uppercase">SmartStay</p>
         </div>
