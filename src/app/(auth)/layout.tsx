@@ -6,14 +6,17 @@ export default function AuthLayout({
   return (
     <div className="min-h-screen flex">
       {/* Left — form */}
-      <div className="w-full lg:w-1/2 flex flex-col bg-white">
-        <div className="px-8 pt-8">
+      <div className="w-full lg:w-1/2 flex flex-col bg-[#F4F4F1] lg:bg-white">
+        <div className="px-8 pt-10 flex flex-col items-center lg:items-start">
           <div className="inline-block bg-[#0F2F61] text-white px-4 py-2 rounded-lg font-bold text-xl tracking-tight">
             SmartStay
           </div>
+          <p className="text-[#6B6B6B] text-xs mt-1.5 lg:hidden">Guest guides made simple</p>
         </div>
-        <div className="flex-1 flex items-center justify-center px-8 py-12">
-          <div className="w-full max-w-sm">{children}</div>
+        <div className="flex-1 flex items-center justify-center px-6 py-10">
+          <div className="w-full max-w-sm bg-white lg:bg-transparent rounded-2xl shadow-sm lg:shadow-none p-7 lg:p-0">
+            {children}
+          </div>
         </div>
       </div>
 
