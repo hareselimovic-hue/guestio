@@ -81,6 +81,7 @@ model Property {
   ownerEmail   String?
   ownerPhone   String?
   bankAccount  String?
+  rentlioPropertyId Int?     @unique
   sections     Section[]
   guests       GuestLink[]
   createdAt    DateTime    @default(now())
