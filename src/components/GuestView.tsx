@@ -149,13 +149,20 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   const sectionsRef = useRef<HTMLDivElement>(null);
   const [lang, setLang] = useState("EN");
   const [showInstallHint, setShowInstallHint] = useState(false);
+  const [showInstallSteps, setShowInstallSteps] = useState(false);
+  const isIOS = typeof navigator !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   useEffect(() => {
-    // Show hint once on mobile if not dismissed before
     const dismissed = localStorage.getItem("smartstay-install-hint");
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (!dismissed && isMobile) setShowInstallHint(true);
   }, []);
+
+  function dismissHint() {
+    localStorage.setItem("smartstay-install-hint", "1");
+    setShowInstallHint(false);
+    setShowInstallSteps(false);
+  }
 
   // Only show language switcher if at least one section has any translation
   const hasTranslations = sections.some((s) => s.translations && s.translations.length > 0);
@@ -370,22 +377,68 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       </div>
 
       {/* Add to Home Screen hint */}
-      {showInstallHint && (
+      {showInstallHint && !showInstallSteps && (
         <div className="fixed bottom-4 left-4 right-4 z-50 bg-[#0F2F61] text-white rounded-2xl px-4 py-3 flex items-center gap-3 shadow-xl">
           <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0 text-sm font-bold">S</div>
           <p className="text-xs flex-1 leading-snug">
-            Save this guide to your home screen for offline access
+            Save this guide to your home screen — works offline too
           </p>
           <button
-            onClick={() => {
-              localStorage.setItem("smartstay-install-hint", "1");
-              setShowInstallHint(false);
-            }}
-            className="text-white/70 hover:text-white transition-colors shrink-0 text-lg leading-none"
-            aria-label="Dismiss"
+            onClick={() => setShowInstallSteps(true)}
+            className="bg-white text-[#0F2F61] text-xs font-semibold px-3 py-1.5 rounded-lg shrink-0"
           >
-            ✕
+            How?
           </button>
+          <button onClick={dismissHint} className="text-white/60 hover:text-white shrink-0 text-lg leading-none" aria-label="Dismiss">✕</button>
+        </div>
+      )}
+
+      {/* Install steps modal */}
+      {showInstallSteps && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end" onClick={dismissHint}>
+          <div className="bg-white rounded-t-3xl w-full px-6 pt-6 pb-8" onClick={(e) => e.stopPropagation()}>
+            <div className="w-10 h-1 bg-[#EDEDE9] rounded-full mx-auto mb-5" />
+            <h3 className="font-bold text-[#262626] text-base mb-4" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+              Add to Home Screen
+            </h3>
+            {isIOS ? (
+              <ol className="space-y-3 text-sm text-[#262626]">
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 bg-[#0F2F61]/10 text-[#0F2F61] rounded-full flex items-center justify-center shrink-0 text-xs font-bold">1</span>
+                  <span>Tap the <strong>Share</strong> button at the bottom of Safari <span className="text-base">⎋</span></span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 bg-[#0F2F61]/10 text-[#0F2F61] rounded-full flex items-center justify-center shrink-0 text-xs font-bold">2</span>
+                  <span>Scroll down and tap <strong>Add to Home Screen</strong></span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 bg-[#0F2F61]/10 text-[#0F2F61] rounded-full flex items-center justify-center shrink-0 text-xs font-bold">3</span>
+                  <span>Tap <strong>Add</strong> — the guide will appear on your home screen and work offline</span>
+                </li>
+              </ol>
+            ) : (
+              <ol className="space-y-3 text-sm text-[#262626]">
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 bg-[#0F2F61]/10 text-[#0F2F61] rounded-full flex items-center justify-center shrink-0 text-xs font-bold">1</span>
+                  <span>Tap the <strong>⋮ menu</strong> in Chrome (top right)</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 bg-[#0F2F61]/10 text-[#0F2F61] rounded-full flex items-center justify-center shrink-0 text-xs font-bold">2</span>
+                  <span>Tap <strong>Add to Home screen</strong></span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="w-6 h-6 bg-[#0F2F61]/10 text-[#0F2F61] rounded-full flex items-center justify-center shrink-0 text-xs font-bold">3</span>
+                  <span>Tap <strong>Add</strong> — the guide will appear on your home screen and work offline</span>
+                </li>
+              </ol>
+            )}
+            <button
+              onClick={dismissHint}
+              className="mt-6 w-full bg-[#0F2F61] text-white py-3 rounded-xl text-sm font-semibold"
+            >
+              Got it
+            </button>
+          </div>
         </div>
       )}
     </div>
