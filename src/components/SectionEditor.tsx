@@ -669,25 +669,17 @@ function CheckinForm({
         </div>
       </Field>
 
-      {/* Times */}
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Check-in time">
-          <Input
-            type="time"
-            value={(content.checkIn as string) ?? "15:00"}
-            onChange={(e) => setContent({ checkIn: e.target.value })}
-            className="h-9 text-sm border-[#EDEDE9]"
-          />
-        </Field>
-        <Field label="Check-out time">
-          <Input
-            type="time"
-            value={(content.checkOut as string) ?? "11:00"}
-            onChange={(e) => setContent({ checkOut: e.target.value })}
-            className="h-9 text-sm border-[#EDEDE9]"
-          />
-        </Field>
-      </div>
+      {/* ── Check-in ── */}
+      <p className="text-xs font-semibold uppercase tracking-widest text-[#6B6B6B] pt-1">Check-in</p>
+
+      <Field label="Check-in time">
+        <Input
+          type="time"
+          value={(content.checkIn as string) ?? "15:00"}
+          onChange={(e) => setContent({ checkIn: e.target.value })}
+          className="h-9 text-sm border-[#EDEDE9]"
+        />
+      </Field>
 
       {/* Instructions */}
       <Field label="Instructions">
@@ -754,6 +746,31 @@ function CheckinForm({
           </Field>
         </>
       )}
+
+      {/* ── Divider ── */}
+      <hr className="border-[#EDEDE9]" />
+
+      {/* ── Check-out ── */}
+      <p className="text-xs font-semibold uppercase tracking-widest text-[#6B6B6B]">Check-out</p>
+
+      <Field label="Check-out time">
+        <Input
+          type="time"
+          value={(content.checkOut as string) ?? "11:00"}
+          onChange={(e) => setContent({ checkOut: e.target.value })}
+          className="h-9 text-sm border-[#EDEDE9]"
+        />
+      </Field>
+
+      <Field label="Check-out instructions (optional)">
+        <Textarea
+          value={(content.checkOutInstructions as string) ?? ""}
+          onChange={(e) => setContent({ checkOutInstructions: e.target.value })}
+          placeholder="E.g. Leave the key on the table, make sure all windows are closed..."
+          className="text-sm border-[#EDEDE9] resize-none"
+          rows={3}
+        />
+      </Field>
     </div>
   );
 }
