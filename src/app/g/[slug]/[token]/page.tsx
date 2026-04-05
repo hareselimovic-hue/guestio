@@ -44,7 +44,6 @@ export default async function GuestPage({
       guestName={guestLink?.guestName ?? null}
       checkIn={guestLink?.checkIn?.toISOString() ?? null}
       checkOut={guestLink?.checkOut?.toISOString() ?? null}
-      isPreview={token === "preview"}
     />
   );
 }

@@ -130,7 +130,6 @@ interface Props {
   guestName: string | null;
   checkIn: string | null;
   checkOut: string | null;
-  isPreview?: boolean;
 }
 
 const LANGUAGES = [
@@ -146,17 +145,12 @@ function getContent(section: Section, lang: string): Record<string, unknown> {
   return (t?.content ?? section.content) as Record<string, unknown>;
 }
 
-export default function GuestView({ property, sections, guestName, checkIn, checkOut, isPreview = false }: Props) {
+export default function GuestView({ property, sections, guestName, checkIn, checkOut }: Props) {
   const sectionsRef = useRef<HTMLDivElement>(null);
   const [lang, setLang] = useState("EN");
-  const [showInstallHint, setShowInstallHint] = useState(false);
+  const [showInstallHint, setShowInstallHint] = useState(true);
   const [showInstallSteps, setShowInstallSteps] = useState(false);
   const isIOS = typeof navigator !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  useEffect(() => {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (isMobile && !isPreview) setShowInstallHint(true);
-  }, []);
 
   function dismissHint() {
     setShowInstallHint(false);
