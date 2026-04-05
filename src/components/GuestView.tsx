@@ -130,6 +130,7 @@ interface Props {
   guestName: string | null;
   checkIn: string | null;
   checkOut: string | null;
+  isPreview?: boolean;
 }
 
 const LANGUAGES = [
@@ -145,7 +146,7 @@ function getContent(section: Section, lang: string): Record<string, unknown> {
   return (t?.content ?? section.content) as Record<string, unknown>;
 }
 
-export default function GuestView({ property, sections, guestName, checkIn, checkOut }: Props) {
+export default function GuestView({ property, sections, guestName, checkIn, checkOut, isPreview = false }: Props) {
   const sectionsRef = useRef<HTMLDivElement>(null);
   const [lang, setLang] = useState("EN");
   const [showInstallHint, setShowInstallHint] = useState(false);
@@ -155,7 +156,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   useEffect(() => {
     const dismissed = localStorage.getItem("smartstay-install-hint");
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (!dismissed && isMobile) setShowInstallHint(true);
+    if (!dismissed && isMobile && !isPreview) setShowInstallHint(true);
   }, []);
 
   function dismissHint() {
