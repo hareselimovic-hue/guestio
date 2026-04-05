@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Plus, Users, Shield, CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import { Trash2, Plus, Users, Shield, CheckCircle, XCircle } from "lucide-react";
 
 interface User {
   id: string;
@@ -27,34 +27,6 @@ export default function AdminPanel({ users, whitelist: initialWhitelist }: Admin
   const [newEmail, setNewEmail] = useState("");
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState("");
-  const [syncing, setSyncing] = useState(false);
-  const [syncResult, setSyncResult] = useState<{ created: number; total: number; alreadyExisted: number } | null>(null);
-  const [matching, setMatching] = useState(false);
-  const [matchResult, setMatchResult] = useState<{ matched: number; unmatched: number } | null>(null);
-
-  async function syncRentlio() {
-    setSyncing(true);
-    setSyncResult(null);
-    try {
-      const res = await fetch("/api/rentlio/sync", { method: "POST" });
-      const data = await res.json();
-      if (res.ok) setSyncResult(data);
-    } finally {
-      setSyncing(false);
-    }
-  }
-
-  async function matchExisting() {
-    setMatching(true);
-    setMatchResult(null);
-    try {
-      const res = await fetch("/api/rentlio/match", { method: "POST" });
-      const data = await res.json();
-      if (res.ok) setMatchResult(data);
-    } finally {
-      setMatching(false);
-    }
-  }
 
   async function addEmail() {
     const email = newEmail.trim().toLowerCase();
@@ -94,54 +66,6 @@ export default function AdminPanel({ users, whitelist: initialWhitelist }: Admin
 
   return (
     <div className="space-y-10">
-      {/* ── Rentlio Sync ── */}
-      <section>
-        <div className="flex items-center gap-2 mb-4">
-          <RefreshCw className="w-5 h-5 text-[#FF6700]" />
-          <h2 className="text-lg font-semibold text-[#262626]">Rentlio sinhronizacija</h2>
-        </div>
-        <p className="text-sm text-[#6B6B6B] mb-4">
-          Kreira SmartStay property za svaki Rentlio apartman koji još nije u sistemu.
-        </p>
-        <button
-          onClick={syncRentlio}
-          disabled={syncing}
-          className="flex items-center gap-2 bg-[#0F2F61] text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[#0a2347] disabled:opacity-50 transition-colors"
-        >
-          <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
-          {syncing ? "Sinhronizacija..." : "Sync Rentlio properties"}
-        </button>
-        {syncResult && (
-          <div className="mt-4 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-800">
-            ✓ Pronađeno <strong>{syncResult.total}</strong> apartmana u Rentliu —{" "}
-            <strong>{syncResult.created}</strong> novo kreirano,{" "}
-            <strong>{syncResult.alreadyExisted}</strong> već postojalo.
-          </div>
-        )}
-
-        <div className="mt-6 pt-6 border-t border-[#E0E0E0]">
-          <p className="text-sm font-medium text-[#262626] mb-1">Poveži postojeće po imenu</p>
-          <p className="text-sm text-[#6B6B6B] mb-3">
-            Jednom akcijom — postavlja Rentlio ID na propertije koji već postoje u SmartStay, a nisu još linkani.
-          </p>
-          <button
-            onClick={matchExisting}
-            disabled={matching}
-            className="flex items-center gap-2 bg-white border border-[#0F2F61] text-[#0F2F61] px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[#F0F4FF] disabled:opacity-50 transition-colors"
-          >
-            <RefreshCw className={`w-4 h-4 ${matching ? "animate-spin" : ""}`} />
-            {matching ? "Matching..." : "Match existing → Rentlio"}
-          </button>
-          {matchResult && (
-            <div className="mt-3 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-800">
-              ✓ <strong>{matchResult.matched}</strong> apartmana uspješno linkovano.{" "}
-              {matchResult.unmatched > 0 && (
-                <span className="text-[#6B6B6B]">({matchResult.unmatched} nije pronađeno po imenu)</span>
-              )}
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* ── Whitelist ── */}
       <section>
