@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
   Copy, Check, ChevronDown, Phone, ParkingSquare
@@ -148,6 +148,14 @@ function getContent(section: Section, lang: string): Record<string, unknown> {
 export default function GuestView({ property, sections, guestName, checkIn, checkOut }: Props) {
   const sectionsRef = useRef<HTMLDivElement>(null);
   const [lang, setLang] = useState("EN");
+  const [showInstallHint, setShowInstallHint] = useState(false);
+
+  useEffect(() => {
+    // Show hint once on mobile if not dismissed before
+    const dismissed = localStorage.getItem("smartstay-install-hint");
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (!dismissed && isMobile) setShowInstallHint(true);
+  }, []);
 
   // Only show language switcher if at least one section has any translation
   const hasTranslations = sections.some((s) => s.translations && s.translations.length > 0);
@@ -360,6 +368,26 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
           </span>
         </p>
       </div>
+
+      {/* Add to Home Screen hint */}
+      {showInstallHint && (
+        <div className="fixed bottom-4 left-4 right-4 z-50 bg-[#0F2F61] text-white rounded-2xl px-4 py-3 flex items-center gap-3 shadow-xl">
+          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0 text-sm font-bold">S</div>
+          <p className="text-xs flex-1 leading-snug">
+            Save this guide to your home screen for offline access
+          </p>
+          <button
+            onClick={() => {
+              localStorage.setItem("smartstay-install-hint", "1");
+              setShowInstallHint(false);
+            }}
+            className="text-white/70 hover:text-white transition-colors shrink-0 text-lg leading-none"
+            aria-label="Dismiss"
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   );
 }
