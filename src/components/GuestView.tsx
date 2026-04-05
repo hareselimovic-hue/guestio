@@ -154,13 +154,11 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   const isIOS = typeof navigator !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   useEffect(() => {
-    const dismissed = localStorage.getItem("smartstay-install-hint");
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (!dismissed && isMobile && !isPreview) setShowInstallHint(true);
+    if (isMobile && !isPreview) setShowInstallHint(true);
   }, []);
 
   function dismissHint() {
-    localStorage.setItem("smartstay-install-hint", "1");
     setShowInstallHint(false);
     setShowInstallSteps(false);
   }
