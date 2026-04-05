@@ -1,8 +1,20 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import GuestView from "@/components/GuestView";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string; token: string }>;
+}): Promise<Metadata> {
+  const { slug, token } = await params;
+  return {
+    manifest: `/g/${slug}/${token}/manifest.json`,
+  };
+}
 
 export default async function GuestPage({
   params,
