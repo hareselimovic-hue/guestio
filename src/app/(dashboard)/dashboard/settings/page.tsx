@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Settings, Users, Link2, Copy, Check, Trash2, Plus } from "lucide-react";
+import { Settings, Users, Link2, Copy, Check, Trash2, Plus, Plug, Loader2, CheckCircle2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,10 +17,24 @@ interface WorkspaceData {
   isOwner: boolean;
 }
 
+interface RentlioStatus {
+  connected: boolean;
+  connectedAt?: string;
+  maskedKey?: string;
+}
+
 export default function SettingsPage() {
   const [data, setData] = useState<WorkspaceData | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Rentlio integration
+  const [rentlio, setRentlio] = useState<RentlioStatus>({ connected: false });
+  const [rentlioKey, setRentlioKey] = useState("");
+  const [connectingRentlio, setConnectingRentlio] = useState(false);
+  const [rentlioError, setRentlioError] = useState("");
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<string>("");
 
   // Create workspace
   const [wsName, setWsName] = useState("");
@@ -41,7 +55,8 @@ export default function SettingsPage() {
     Promise.all([
       fetch("/api/workspace").then((r) => r.json()),
       fetch("/api/workspace/invite").then((r) => r.json()),
-    ]).then(([d, inv]) => {
+      fetch("/api/workspace/rentlio").then((r) => r.json()),
+    ]).then(([d, inv, rl]) => {
       setData(d);
       if (d) {
         setNewName(d.workspace.name);
@@ -50,6 +65,7 @@ export default function SettingsPage() {
       if (inv?.token) {
         setInviteLink(`${window.location.origin}/invite/${inv.token}`);
       }
+      if (rl) setRentlio(rl);
       setLoading(false);
     });
   }, []);
@@ -109,6 +125,37 @@ export default function SettingsPage() {
   async function removeMember(userId: string) {
     await fetch(`/api/workspace/members/${userId}`, { method: "DELETE" });
     setMembers((prev) => prev.filter((m) => m.id !== userId));
+  }
+
+  async function connectRentlio() {
+    setConnectingRentlio(true);
+    setRentlioError("");
+    const res = await fetch("/api/workspace/rentlio", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ apiKey: rentlioKey }),
+    });
+    const d = await res.json();
+    if (!res.ok) { setRentlioError(d.error ?? "Error"); setConnectingRentlio(false); return; }
+    setRentlio(d);
+    setRentlioKey("");
+    setConnectingRentlio(false);
+  }
+
+  async function disconnectRentlio() {
+    await fetch("/api/workspace/rentlio", { method: "DELETE" });
+    setRentlio({ connected: false });
+    setSyncResult("");
+  }
+
+  async function syncRentlio() {
+    setSyncing(true);
+    setSyncResult("");
+    const res = await fetch("/api/rentlio/sync", { method: "POST" });
+    const d = await res.json();
+    if (!res.ok) { setSyncResult("Greška: " + (d.error ?? "Unknown")); setSyncing(false); return; }
+    setSyncResult(`Sinkronizirano ${d.total} apartmana — ${d.created} novo kreirano, ${d.alreadyExisted} već postojalo.`);
+    setSyncing(false);
   }
 
   if (loading) {
@@ -234,6 +281,96 @@ export default function SettingsPage() {
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* ── Rentlio integration ── */}
+          <div className="bg-white border border-[#EDEDE9] rounded-xl p-5">
+            <div className="flex items-center gap-2 mb-1">
+              <Plug className="w-4 h-4 text-[#6B6B6B]" />
+              <h2 className="font-semibold text-[#262626]">Integrations</h2>
+            </div>
+            <p className="text-sm text-[#6B6B6B] mb-4">Povežite vanjske servise sa vašim workspaceom.</p>
+
+            <div className="border border-[#EDEDE9] rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-[#F0F4FF] rounded-lg flex items-center justify-center text-sm font-bold text-[#0F2F61]">R</div>
+                  <div>
+                    <p className="text-sm font-semibold text-[#262626]">Rentlio</p>
+                    <p className="text-xs text-[#6B6B6B]">Property management system</p>
+                  </div>
+                </div>
+                {rentlio.connected && (
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full">
+                    <CheckCircle2 className="w-3 h-3" />
+                    Konektovano
+                  </div>
+                )}
+              </div>
+
+              {rentlio.connected ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between bg-[#F7F7F5] rounded-lg px-3 py-2">
+                    <span className="text-xs font-mono text-[#262626]">{rentlio.maskedKey}</span>
+                    {rentlio.connectedAt && (
+                      <span className="text-xs text-[#6B6B6B]">
+                        {new Date(rentlio.connectedAt).toLocaleDateString("bs-BA")}
+                      </span>
+                    )}
+                  </div>
+                  {syncResult && (
+                    <p className="text-xs text-[#6B6B6B] bg-[#F7F7F5] rounded-lg px-3 py-2">{syncResult}</p>
+                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={syncRentlio}
+                      disabled={syncing}
+                      className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm flex-1"
+                    >
+                      {syncing ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <RefreshCw className="w-4 h-4 mr-1.5" />}
+                      {syncing ? "Sinkronizacija..." : "Sync apartmana"}
+                    </Button>
+                    {data.isOwner && (
+                      <Button
+                        variant="outline"
+                        onClick={disconnectRentlio}
+                        className="h-9 text-sm text-red-500 hover:text-red-600 hover:border-red-300"
+                      >
+                        Odspoji
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                data.isOwner ? (
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium text-[#6B6B6B]">Rentlio API key</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="password"
+                        value={rentlioKey}
+                        onChange={(e) => setRentlioKey(e.target.value)}
+                        placeholder="Unesi Rentlio API key..."
+                        className="h-9 text-sm border-[#EDEDE9] flex-1 font-mono"
+                      />
+                      <Button
+                        onClick={connectRentlio}
+                        disabled={connectingRentlio || !rentlioKey.trim()}
+                        className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm shrink-0"
+                      >
+                        {connectingRentlio ? <Loader2 className="w-4 h-4 animate-spin" /> : "Poveži"}
+                      </Button>
+                    </div>
+                    {rentlioError && <p className="text-xs text-red-500">{rentlioError}</p>}
+                    <p className="text-xs text-[#6B6B6B]">
+                      API key se nalazi u Rentlio → Settings → API.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-xs text-[#6B6B6B]">Samo vlasnik workspacea može upravljati integracijama.</p>
+                )
+              )}
             </div>
           </div>
 

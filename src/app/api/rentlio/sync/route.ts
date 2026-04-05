@@ -5,9 +5,6 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-const RENTLIO_API_KEY = process.env.RENTLIO_API_KEY!;
-const ADMIN_EMAIL = "hareselimovic@gmail.com";
-
 function slugify(text: string) {
   return text
     .toLowerCase()
@@ -18,13 +15,13 @@ function slugify(text: string) {
     .replace(/^-|-$/g, "") + "-" + Math.random().toString(36).slice(2, 7);
 }
 
-async function fetchAllRentlioProperties() {
+async function fetchAllRentlioProperties(apiKey: string) {
   let page = 1;
   const allProperties = [];
 
   while (true) {
     const res = await fetch(`https://api.rentl.io/v1/properties?page=${page}&perPage=30`, {
-      headers: { apikey: RENTLIO_API_KEY },
+      headers: { apikey: apiKey },
     });
     const data = await res.json();
     if (!data.data || data.data.length === 0) break;
@@ -38,25 +35,37 @@ async function fetchAllRentlioProperties() {
 
 export async function POST() {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session || session.user.email !== ADMIN_EMAIL) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Pronađi workspace korisnika
+  const workspace = await prisma.workspace.findFirst({
+    where: {
+      OR: [
+        { ownerId: session.user.id },
+        { members: { some: { userId: session.user.id } } },
+      ],
+    },
+  });
+
+  if (!workspace?.rentlioApiKey) {
+    return NextResponse.json(
+      { error: "Rentlio nije konektovan. Dodaj API key u Settings → Integrations." },
+      { status: 400 }
+    );
   }
 
-  // Fetch all properties from Rentlio
-  const rentlioProperties = await fetchAllRentlioProperties();
+  // Fetch svih propertija iz Rentlia
+  const rentlioProperties = await fetchAllRentlioProperties(workspace.rentlioApiKey);
 
-  // Get existing properties with rentlioPropertyId set
+  // Postojeći koji već imaju rentlioPropertyId u ovom workspaceu
   const existingProperties = await prisma.property.findMany({
-    where: { rentlioPropertyId: { not: null } },
+    where: {
+      workspaceId: workspace.id,
+      rentlioPropertyId: { not: null },
+    },
     select: { rentlioPropertyId: true },
   });
   const existingIds = new Set(existingProperties.map((p) => p.rentlioPropertyId));
-
-  // Get workspace for admin user
-  const wsResult = await prisma.workspace.findFirst({
-    where: { owner: { email: ADMIN_EMAIL } },
-  });
-  const workspaceId = wsResult?.id ?? null;
 
   const toCreate = rentlioProperties.filter((p) => !existingIds.has(p.id));
 
@@ -66,7 +75,7 @@ export async function POST() {
     const property = await prisma.property.create({
       data: {
         userId: session.user.id,
-        workspaceId,
+        workspaceId: workspace.id,
         name: rp.name,
         slug,
         address: [rp.address, rp.city].filter(Boolean).join(", ") || null,

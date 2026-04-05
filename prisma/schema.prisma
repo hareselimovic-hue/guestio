@@ -126,14 +126,16 @@ enum SectionType {
 }
 
 model Workspace {
-  id         String            @id @default(cuid())
-  name       String
-  ownerId    String            @unique
-  owner      User              @relation("WorkspaceOwner", fields: [ownerId], references: [id])
-  members    WorkspaceMember[]
-  invites    WorkspaceInvite[]
-  properties Property[]
-  createdAt  DateTime          @default(now())
+  id                 String            @id @default(cuid())
+  name               String
+  ownerId            String            @unique
+  owner              User              @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+  members            WorkspaceMember[]
+  invites            WorkspaceInvite[]
+  properties         Property[]
+  rentlioApiKey      String?
+  rentlioConnectedAt DateTime?
+  createdAt          DateTime          @default(now())
 }
 
 model WorkspaceMember {
