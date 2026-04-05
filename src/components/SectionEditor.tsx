@@ -670,7 +670,7 @@ function CheckinForm({
       </Field>
 
       {/* ── Check-in ── */}
-      <p className="text-xs font-semibold uppercase tracking-widest text-[#6B6B6B] pt-1">Check-in</p>
+      <p className="text-sm font-bold text-[#262626] pt-1">Check-in</p>
 
       <Field label="Check-in time">
         <Input
@@ -751,7 +751,7 @@ function CheckinForm({
       <hr className="border-[#EDEDE9]" />
 
       {/* ── Check-out ── */}
-      <p className="text-xs font-semibold uppercase tracking-widest text-[#6B6B6B]">Check-out</p>
+      <p className="text-sm font-bold text-[#262626]">Check-out</p>
 
       <Field label="Check-out time">
         <Input

@@ -430,7 +430,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
       return (
         <div className="space-y-4">
           {/* ── Check-in ── */}
-          <p className="text-xs font-semibold uppercase tracking-widest text-[#6B6B6B]">Check-in</p>
+          <p className="text-sm font-bold text-[#262626]">Check-in</p>
           <div className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-[#0F2F61]/10 text-[#0F2F61]">
             {checkInType === "SELF" ? "Self check-in" : "Personal welcome"}
           </div>
@@ -459,7 +459,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
           <hr className="border-[#EDEDE9]" />
 
           {/* ── Check-out ── */}
-          <p className="text-xs font-semibold uppercase tracking-widest text-[#6B6B6B]">Check-out</p>
+          <p className="text-sm font-bold text-[#262626]">Check-out</p>
           <TimeBox label="Check-out" value={(content.checkOut as string) ?? "11:00"} />
           {checkOutInstructions && (
             <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap">
