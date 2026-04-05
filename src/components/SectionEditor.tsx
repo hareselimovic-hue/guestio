@@ -535,13 +535,15 @@ function CustomForm({
 function MultiImageUpload({
   photos,
   onChange,
+  max = 3,
 }: {
   photos: string[];
   onChange: (photos: string[]) => void;
+  max?: number;
 }) {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const MAX = 3;
+  const MAX = max;
 
   async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
@@ -574,7 +576,7 @@ function MultiImageUpload({
   return (
     <div className="space-y-2">
       {photos.length > 0 && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className={`grid gap-2 ${MAX >= 4 ? "grid-cols-2" : "grid-cols-3"}`}>
           {photos.map((url, idx) => (
             <div key={idx} className="relative rounded-xl overflow-hidden aspect-square">
               <img src={url} alt={`photo ${idx + 1}`} className="w-full h-full object-cover" />
@@ -705,10 +707,11 @@ function CheckinForm({
       {/* Photo + Video upload — only for self check-in */}
       {checkInType === "SELF" && (
         <>
-          <Field label="Instruction photos (optional, max 3)">
+          <Field label="Instruction photos (optional, max 4)">
             <MultiImageUpload
               photos={photos}
               onChange={(p) => setContent({ photos: p, photoUrl: undefined })}
+              max={4}
             />
           </Field>
 
