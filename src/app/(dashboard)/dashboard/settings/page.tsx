@@ -52,6 +52,7 @@ export default function SettingsPage() {
   const [syncResult, setSyncResult] = useState<string>("");
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [preview, setPreview] = useState<PreviewData | null>(null);
+  const [showList, setShowList] = useState(false);
 
   // Create workspace
   const [wsName, setWsName] = useState("");
@@ -171,7 +172,7 @@ export default function SettingsPage() {
     setSyncResult("");
     const res = await fetch("/api/rentlio/preview");
     const d = await res.json();
-    if (!res.ok) { setSyncResult("Greška: " + (d.error ?? "Unknown")); setLoadingPreview(false); return; }
+    if (!res.ok) { setSyncResult("Error: " + (d.error ?? "Unknown")); setLoadingPreview(false); return; }
     setPreview(d);
     setLoadingPreview(false);
   }
@@ -182,9 +183,9 @@ export default function SettingsPage() {
     setPreview(null);
     const res = await fetch("/api/rentlio/sync", { method: "POST" });
     const d = await res.json();
-    if (!res.ok) { setSyncResult("Greška: " + (d.error ?? "Unknown")); setSyncing(false); return; }
+    if (!res.ok) { setSyncResult("Error: " + (d.error ?? "Unknown")); setSyncing(false); return; }
     setSyncResult(
-      `Završeno — ${d.matched} matchovano po imenu, ${d.created} novo kreirano, ${d.alreadyLinked} već linkovanо.`
+      `Done — ${d.matched} matched by name, ${d.created} newly created, ${d.alreadyLinked} already linked.`
     );
     setSyncing(false);
   }
@@ -321,7 +322,7 @@ export default function SettingsPage() {
               <Plug className="w-4 h-4 text-[#6B6B6B]" />
               <h2 className="font-semibold text-[#262626]">Integrations</h2>
             </div>
-            <p className="text-sm text-[#6B6B6B] mb-4">Povežite vanjske servise sa vašim workspaceom.</p>
+            <p className="text-sm text-[#6B6B6B] mb-4">Connect external services to your workspace.</p>
 
             <div className="border border-[#EDEDE9] rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
@@ -335,7 +336,7 @@ export default function SettingsPage() {
                 {rentlio.connected && (
                   <div className="flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full">
                     <CheckCircle2 className="w-3 h-3" />
-                    Konektovano
+                    Connected
                   </div>
                 )}
               </div>
@@ -354,24 +355,28 @@ export default function SettingsPage() {
                   {preview && !syncResult && (
                     <div className="bg-[#F7F7F5] rounded-lg p-4 space-y-3">
                       {preview.new + preview.matchable === 0 ? (
-                        <p className="text-sm font-medium text-[#262626]">Svi apartmani su već importovani.</p>
+                        <p className="text-sm font-medium text-[#262626]">All properties are already imported.</p>
                       ) : (
                         <p className="text-sm font-medium text-[#262626]">
-                          Pronađeno <span className="text-[#0F2F61]">{preview.new + preview.matchable}</span> apartmana koji nisu importovani.
-                          {preview.matchable > 0 && (
-                            <span className="text-[#6B6B6B]"> ({preview.matchable} matchovano po imenu, {preview.new} potpuno novo)</span>
-                          )}
+                          Found <span className="text-[#0F2F61]">{preview.new + preview.matchable}</span> properties not yet imported.
                         </p>
                       )}
                       {preview.new + preview.matchable > 0 && (
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
                           <Button
                             onClick={syncRentlio}
                             disabled={syncing}
                             className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm"
                           >
                             {syncing ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
-                            {syncing ? "Importovanje..." : "Import"}
+                            {syncing ? "Importing..." : "Import"}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => setShowList(true)}
+                            className="h-9 text-sm"
+                          >
+                            Show list
                           </Button>
                           <Button
                             variant="outline"
@@ -398,7 +403,7 @@ export default function SettingsPage() {
                         className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm flex-1"
                       >
                         {loadingPreview ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <RefreshCw className="w-4 h-4 mr-1.5" />}
-                        {loadingPreview ? "Provjera..." : "Sync apartmana"}
+                        {loadingPreview ? "Checking..." : "Sync properties"}
                       </Button>
                       {data.isOwner && (
                         <Button
@@ -406,7 +411,7 @@ export default function SettingsPage() {
                           onClick={disconnectRentlio}
                           className="h-9 text-sm text-red-500 hover:text-red-600 hover:border-red-300"
                         >
-                          Odspoji
+                          Disconnect
                         </Button>
                       )}
                     </div>
@@ -421,7 +426,7 @@ export default function SettingsPage() {
                         type="password"
                         value={rentlioKey}
                         onChange={(e) => setRentlioKey(e.target.value)}
-                        placeholder="Unesi Rentlio API key..."
+                        placeholder="Enter your Rentlio API key..."
                         className="h-9 text-sm border-[#EDEDE9] flex-1 font-mono"
                       />
                       <Button
@@ -429,16 +434,16 @@ export default function SettingsPage() {
                         disabled={connectingRentlio || !rentlioKey.trim()}
                         className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm shrink-0"
                       >
-                        {connectingRentlio ? <Loader2 className="w-4 h-4 animate-spin" /> : "Poveži"}
+                        {connectingRentlio ? <Loader2 className="w-4 h-4 animate-spin" /> : "Connect"}
                       </Button>
                     </div>
                     {rentlioError && <p className="text-xs text-red-500">{rentlioError}</p>}
                     <p className="text-xs text-[#6B6B6B]">
-                      API key se nalazi u Rentlio → Settings → API.
+                      Find your API key in Rentlio → Settings → API.
                     </p>
                   </div>
                 ) : (
-                  <p className="text-xs text-[#6B6B6B]">Samo vlasnik workspacea može upravljati integracijama.</p>
+                  <p className="text-xs text-[#6B6B6B]">Only the workspace owner can manage integrations.</p>
                 )
               )}
             </div>
@@ -485,6 +490,40 @@ export default function SettingsPage() {
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── Show list modal ── */}
+      {showList && preview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowList(false)}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#EDEDE9]">
+              <h3 className="font-semibold text-[#262626]">Properties to import ({preview.new + preview.matchable})</h3>
+              <button onClick={() => setShowList(false)} className="text-[#6B6B6B] hover:text-[#262626] transition-colors text-lg leading-none">✕</button>
+            </div>
+            <ul className="divide-y divide-[#F0F0EE] max-h-80 overflow-y-auto">
+              {preview.items.filter(i => i.status !== "linked").map((item) => (
+                <li key={item.rentlioId} className="flex items-center justify-between px-5 py-3">
+                  <span className="text-sm text-[#262626]">{item.rentlioName}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ml-3 ${item.status === "matchable" ? "bg-blue-50 text-blue-600" : "bg-amber-50 text-amber-600"}`}>
+                    {item.status === "matchable" ? "Name match" : "New"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="px-5 py-4 border-t border-[#EDEDE9] flex gap-2">
+              <Button
+                onClick={() => { setShowList(false); syncRentlio(); }}
+                disabled={syncing}
+                className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm flex-1"
+              >
+                Import all
+              </Button>
+              <Button variant="outline" onClick={() => setShowList(false)} className="h-9 text-sm">
+                Cancel
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

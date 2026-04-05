@@ -29,6 +29,8 @@ export default function AdminPanel({ users, whitelist: initialWhitelist }: Admin
   const [error, setError] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<{ created: number; total: number; alreadyExisted: number } | null>(null);
+  const [matching, setMatching] = useState(false);
+  const [matchResult, setMatchResult] = useState<{ matched: number; unmatched: number } | null>(null);
 
   async function syncRentlio() {
     setSyncing(true);
@@ -39,6 +41,18 @@ export default function AdminPanel({ users, whitelist: initialWhitelist }: Admin
       if (res.ok) setSyncResult(data);
     } finally {
       setSyncing(false);
+    }
+  }
+
+  async function matchExisting() {
+    setMatching(true);
+    setMatchResult(null);
+    try {
+      const res = await fetch("/api/rentlio/match", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) setMatchResult(data);
+    } finally {
+      setMatching(false);
     }
   }
 
@@ -104,6 +118,29 @@ export default function AdminPanel({ users, whitelist: initialWhitelist }: Admin
             <strong>{syncResult.alreadyExisted}</strong> već postojalo.
           </div>
         )}
+
+        <div className="mt-6 pt-6 border-t border-[#E0E0E0]">
+          <p className="text-sm font-medium text-[#262626] mb-1">Poveži postojeće po imenu</p>
+          <p className="text-sm text-[#6B6B6B] mb-3">
+            Jednom akcijom — postavlja Rentlio ID na propertije koji već postoje u SmartStay, a nisu još linkani.
+          </p>
+          <button
+            onClick={matchExisting}
+            disabled={matching}
+            className="flex items-center gap-2 bg-white border border-[#0F2F61] text-[#0F2F61] px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[#F0F4FF] disabled:opacity-50 transition-colors"
+          >
+            <RefreshCw className={`w-4 h-4 ${matching ? "animate-spin" : ""}`} />
+            {matching ? "Matching..." : "Match existing → Rentlio"}
+          </button>
+          {matchResult && (
+            <div className="mt-3 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm text-green-800">
+              ✓ <strong>{matchResult.matched}</strong> apartmana uspješno linkovano.{" "}
+              {matchResult.unmatched > 0 && (
+                <span className="text-[#6B6B6B]">({matchResult.unmatched} nije pronađeno po imenu)</span>
+              )}
+            </div>
+          )}
+        </div>
       </section>
 
       {/* ── Whitelist ── */}
