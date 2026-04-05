@@ -57,20 +57,38 @@ export async function POST() {
   // Fetch svih propertija iz Rentlia
   const rentlioProperties = await fetchAllRentlioProperties(workspace.rentlioApiKey);
 
-  // Postojeći koji već imaju rentlioPropertyId u ovom workspaceu
-  const existingProperties = await prisma.property.findMany({
-    where: {
-      workspaceId: workspace.id,
-      rentlioPropertyId: { not: null },
-    },
-    select: { rentlioPropertyId: true },
+  // Svi lokalni propertiji u workspaceu
+  const localProperties = await prisma.property.findMany({
+    where: { workspaceId: workspace.id },
+    select: { id: true, name: true, rentlioPropertyId: true },
   });
-  const existingIds = new Set(existingProperties.map((p) => p.rentlioPropertyId));
 
-  const toCreate = rentlioProperties.filter((p) => !existingIds.has(p.id));
+  const linkedIds = new Set(localProperties.filter(p => p.rentlioPropertyId).map(p => p.rentlioPropertyId));
+  const localByName = new Map(localProperties.map(p => [p.name.toLowerCase().trim(), p]));
 
+  const matched = [];
   const created = [];
-  for (const rp of toCreate) {
+  const skipped = [];
+
+  for (const rp of rentlioProperties) {
+    // Već linkovan — preskoči
+    if (linkedIds.has(rp.id)) {
+      skipped.push(rp.name);
+      continue;
+    }
+
+    // Postoji lokalno po imenu — povezi ID
+    const nameMatch = localByName.get(rp.name.toLowerCase().trim());
+    if (nameMatch) {
+      await prisma.property.update({
+        where: { id: nameMatch.id },
+        data: { rentlioPropertyId: rp.id },
+      });
+      matched.push({ localName: nameMatch.name, rentlioId: rp.id });
+      continue;
+    }
+
+    // Novi — kreiraj
     const slug = slugify(rp.name);
     const property = await prisma.property.create({
       data: {
@@ -100,8 +118,10 @@ export async function POST() {
   return NextResponse.json({
     ok: true,
     total: rentlioProperties.length,
-    alreadyExisted: existingIds.size,
+    alreadyLinked: skipped.length,
+    matched: matched.length,
     created: created.length,
+    matchedProperties: matched,
     createdProperties: created,
   });
 }

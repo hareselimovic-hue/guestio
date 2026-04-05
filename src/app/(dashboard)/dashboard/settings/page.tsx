@@ -23,6 +23,21 @@ interface RentlioStatus {
   maskedKey?: string;
 }
 
+interface PreviewItem {
+  rentlioId: number;
+  rentlioName: string;
+  status: "linked" | "matchable" | "new";
+  localName?: string;
+}
+
+interface PreviewData {
+  total: number;
+  linked: number;
+  matchable: number;
+  new: number;
+  items: PreviewItem[];
+}
+
 export default function SettingsPage() {
   const [data, setData] = useState<WorkspaceData | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
@@ -35,6 +50,8 @@ export default function SettingsPage() {
   const [rentlioError, setRentlioError] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<string>("");
+  const [loadingPreview, setLoadingPreview] = useState(false);
+  const [preview, setPreview] = useState<PreviewData | null>(null);
 
   // Create workspace
   const [wsName, setWsName] = useState("");
@@ -148,13 +165,27 @@ export default function SettingsPage() {
     setSyncResult("");
   }
 
+  async function checkRentlio() {
+    setLoadingPreview(true);
+    setPreview(null);
+    setSyncResult("");
+    const res = await fetch("/api/rentlio/preview");
+    const d = await res.json();
+    if (!res.ok) { setSyncResult("Greška: " + (d.error ?? "Unknown")); setLoadingPreview(false); return; }
+    setPreview(d);
+    setLoadingPreview(false);
+  }
+
   async function syncRentlio() {
     setSyncing(true);
     setSyncResult("");
+    setPreview(null);
     const res = await fetch("/api/rentlio/sync", { method: "POST" });
     const d = await res.json();
     if (!res.ok) { setSyncResult("Greška: " + (d.error ?? "Unknown")); setSyncing(false); return; }
-    setSyncResult(`Sinkronizirano ${d.total} apartmana — ${d.created} novo kreirano, ${d.alreadyExisted} već postojalo.`);
+    setSyncResult(
+      `Završeno — ${d.matched} matchovano po imenu, ${d.created} novo kreirano, ${d.alreadyLinked} već linkovanо.`
+    );
     setSyncing(false);
   }
 
@@ -319,28 +350,67 @@ export default function SettingsPage() {
                       </span>
                     )}
                   </div>
+                  {/* Preview — broj novih */}
+                  {preview && !syncResult && (
+                    <div className="bg-[#F7F7F5] rounded-lg p-4 space-y-3">
+                      {preview.new + preview.matchable === 0 ? (
+                        <p className="text-sm font-medium text-[#262626]">Svi apartmani su već importovani.</p>
+                      ) : (
+                        <p className="text-sm font-medium text-[#262626]">
+                          Pronađeno <span className="text-[#0F2F61]">{preview.new + preview.matchable}</span> apartmana koji nisu importovani.
+                          {preview.matchable > 0 && (
+                            <span className="text-[#6B6B6B]"> ({preview.matchable} matchovano po imenu, {preview.new} potpuno novo)</span>
+                          )}
+                        </p>
+                      )}
+                      {preview.new + preview.matchable > 0 && (
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={syncRentlio}
+                            disabled={syncing}
+                            className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm"
+                          >
+                            {syncing ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
+                            {syncing ? "Importovanje..." : "Import"}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => setPreview(null)}
+                            className="h-9 text-sm"
+                            disabled={syncing}
+                          >
+                            Not now
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {syncResult && (
                     <p className="text-xs text-[#6B6B6B] bg-[#F7F7F5] rounded-lg px-3 py-2">{syncResult}</p>
                   )}
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={syncRentlio}
-                      disabled={syncing}
-                      className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm flex-1"
-                    >
-                      {syncing ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <RefreshCw className="w-4 h-4 mr-1.5" />}
-                      {syncing ? "Sinkronizacija..." : "Sync apartmana"}
-                    </Button>
-                    {data.isOwner && (
+
+                  {!preview && !syncResult && (
+                    <div className="flex gap-2">
                       <Button
-                        variant="outline"
-                        onClick={disconnectRentlio}
-                        className="h-9 text-sm text-red-500 hover:text-red-600 hover:border-red-300"
+                        onClick={checkRentlio}
+                        disabled={loadingPreview}
+                        className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm flex-1"
                       >
-                        Odspoji
+                        {loadingPreview ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <RefreshCw className="w-4 h-4 mr-1.5" />}
+                        {loadingPreview ? "Provjera..." : "Sync apartmana"}
                       </Button>
-                    )}
-                  </div>
+                      {data.isOwner && (
+                        <Button
+                          variant="outline"
+                          onClick={disconnectRentlio}
+                          className="h-9 text-sm text-red-500 hover:text-red-600 hover:border-red-300"
+                        >
+                          Odspoji
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 data.isOwner ? (
