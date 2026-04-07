@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Plus, ArrowRight, Building2, Search } from "lucide-react";
+import { Plus, ArrowRight, Building2, Search, Check } from "lucide-react";
 
 interface Property {
   id: string;
@@ -11,8 +11,30 @@ interface Property {
   _count: { sections: number; guests: number };
 }
 
+const LS_KEY = "smartstay_linked_properties";
+
 export default function PropertiesList({ properties }: { properties: Property[] }) {
   const [query, setQuery] = useState("");
+  const [linked, setLinked] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(LS_KEY) ?? "[]");
+      setLinked(new Set(stored));
+    } catch {}
+  }, []);
+
+  function toggleLinked(id: string, e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setLinked((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      localStorage.setItem(LS_KEY, JSON.stringify([...next]));
+      return next;
+    });
+  }
 
   const filtered = query.trim()
     ? properties.filter(
@@ -72,27 +94,45 @@ export default function PropertiesList({ properties }: { properties: Property[] 
         </div>
       ) : (
         <ul className="divide-y divide-[#EDEDE9]">
-          {filtered.map((p) => (
-            <li key={p.id}>
-              <Link
-                href={`/dashboard/properties/${p.id}`}
-                className="flex items-center justify-between px-6 py-4 hover:bg-[#F7F7F5] transition-colors group"
-              >
-                <div>
-                  <p className="font-medium text-[#262626] group-hover:text-[#0F2F61] transition-colors">
-                    {p.name}
-                  </p>
-                  {p.internalName && (
-                    <p className="text-xs text-[#6B6B6B] mt-0.5 italic">{p.internalName}</p>
-                  )}
-                  <p className="text-xs text-[#6B6B6B] mt-0.5">
-                    {p._count.sections} sections
-                  </p>
-                </div>
-                <ArrowRight className="w-4 h-4 text-[#6B6B6B] group-hover:text-[#0F2F61] transition-colors" />
-              </Link>
-            </li>
-          ))}
+          {filtered.map((p) => {
+            const isLinked = linked.has(p.id);
+            return (
+              <li key={p.id} className="flex items-center">
+                <button
+                  onClick={(e) => toggleLinked(p.id, e)}
+                  title={isLinked ? "Linked on all platforms" : "Mark as linked"}
+                  className="ml-4 shrink-0 flex items-center justify-center"
+                >
+                  <span
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                      isLinked
+                        ? "bg-green-500 border-green-500"
+                        : "border-[#EDEDE9] hover:border-[#BABAB5]"
+                    }`}
+                  >
+                    {isLinked && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+                  </span>
+                </button>
+                <Link
+                  href={`/dashboard/properties/${p.id}`}
+                  className="flex flex-1 items-center justify-between px-4 py-4 hover:bg-[#F7F7F5] transition-colors group"
+                >
+                  <div>
+                    <p className={`font-medium transition-colors group-hover:text-[#0F2F61] ${isLinked ? "text-[#6B6B6B]" : "text-[#262626]"}`}>
+                      {p.name}
+                    </p>
+                    {p.internalName && (
+                      <p className="text-xs text-[#6B6B6B] mt-0.5 italic">{p.internalName}</p>
+                    )}
+                    <p className="text-xs text-[#6B6B6B] mt-0.5">
+                      {p._count.sections} sections
+                    </p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-[#6B6B6B] group-hover:text-[#0F2F61] transition-colors" />
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
