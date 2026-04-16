@@ -70,6 +70,20 @@ export const auth = betterAuth({
       const allowed = await prisma.whitelistEmail.findUnique({ where: { email: user.email } });
       if (!allowed) throw new Error("Your email is not on the access list. Contact the administrator.");
     },
+    async afterCreateUser({ user }: { user: { email: string; name: string } }) {
+      if (!process.env.RESEND_API_KEY) return;
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      const fromEmail = process.env.RESEND_FROM_EMAIL ?? "noreply@resend.dev";
+      await resend.emails.send({
+        from: fromEmail,
+        to: "info@smartstay.ba",
+        subject: `Novi korisnik: ${user.email}`,
+        html: `<p>Novi korisnik se registrovao na SmartStay.</p>
+<p><strong>Ime:</strong> ${user.name ?? "—"}<br>
+<strong>Email:</strong> ${user.email}<br>
+<strong>Vrijeme:</strong> ${new Date().toLocaleString("bs-BA", { timeZone: "Europe/Sarajevo" })}</p>`,
+      });
+    },
   },
   session: {
     expiresIn: 60 * 60 * 24 * 7,
