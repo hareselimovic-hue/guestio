@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Plus, Users, Shield, CheckCircle, XCircle } from "lucide-react";
+import { Trash2, Plus, Users, Shield, CheckCircle, XCircle, CreditCard } from "lucide-react";
 
 interface User {
   id: string;
@@ -17,16 +17,27 @@ interface WhitelistEntry {
   createdAt: Date | string;
 }
 
+interface SubUser {
+  id: string;
+  name: string;
+  email: string;
+  subscription: { id: string; validUntil: string; daysLeft: number } | null;
+}
+
 interface AdminPanelProps {
   users: User[];
   whitelist: WhitelistEntry[];
+  subUsers: SubUser[];
 }
 
-export default function AdminPanel({ users, whitelist: initialWhitelist }: AdminPanelProps) {
+export default function AdminPanel({ users, whitelist: initialWhitelist, subUsers: initialSubUsers }: AdminPanelProps) {
   const [whitelist, setWhitelist] = useState(initialWhitelist);
   const [newEmail, setNewEmail] = useState("");
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState("");
+  const [subUsers, setSubUsers] = useState(initialSubUsers);
+  const [extendingId, setExtendingId] = useState<string | null>(null);
+  const [newDate, setNewDate] = useState("");
 
   async function addEmail() {
     const email = newEmail.trim().toLowerCase();
@@ -58,6 +69,36 @@ export default function AdminPanel({ users, whitelist: initialWhitelist }: Admin
   async function removeEmail(id: string) {
     const res = await fetch(`/api/admin/whitelist?id=${id}`, { method: "DELETE" });
     if (res.ok) setWhitelist((prev) => prev.filter((e) => e.id !== id));
+  }
+
+  async function extendSubscription(userId: string) {
+    if (!newDate) return;
+    const res = await fetch("/api/admin/subscriptions", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, validUntil: newDate }),
+    });
+    if (res.ok) {
+      const d = await res.json();
+      const now = new Date();
+      const daysLeft = Math.ceil((new Date(d.subscription.validUntil).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      setSubUsers((prev) => prev.map((u) =>
+        u.id === userId ? { ...u, subscription: { id: d.subscription.id, validUntil: d.subscription.validUntil, daysLeft } } : u
+      ));
+      setExtendingId(null);
+      setNewDate("");
+    }
+  }
+
+  function setQuickDate(userId: string, days: number | "2030") {
+    const d = new Date();
+    if (days === "2030") {
+      setNewDate("2030-12-31");
+    } else {
+      d.setDate(d.getDate() + days);
+      setNewDate(d.toISOString().split("T")[0]);
+    }
+    setExtendingId(userId);
   }
 
   function fmt(date: Date | string) {
@@ -170,6 +211,81 @@ export default function AdminPanel({ users, whitelist: initialWhitelist }: Admin
                     </td>
                   </tr>
                 ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      {/* ── Pretplate ── */}
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <CreditCard className="w-5 h-5 text-[#FF6700]" />
+          <h2 className="text-lg font-semibold text-[#262626]">Pretplate</h2>
+        </div>
+
+        {subUsers.length === 0 ? (
+          <p className="text-sm text-[#6B6B6B] italic">Nema korisnika.</p>
+        ) : (
+          <div className="border border-[#E0E0E0] rounded-xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-[#F7F7F5]">
+                <tr>
+                  <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium">Korisnik</th>
+                  <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium hidden sm:table-cell">Važi do</th>
+                  <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium">Dana</th>
+                  <th className="px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#F0F0F0]">
+                {subUsers.map((u) => {
+                  const days = u.subscription?.daysLeft ?? null;
+                  const expired = days !== null && days <= 0;
+                  const warning = days !== null && days > 0 && days <= 7;
+                  return (
+                    <tr key={u.id} className="hover:bg-[#FAFAFA]">
+                      <td className="px-4 py-3">
+                        <p className="text-[#262626] font-medium">{u.name}</p>
+                        <p className="text-[#6B6B6B] text-xs">{u.email}</p>
+                      </td>
+                      <td className="px-4 py-3 text-[#6B6B6B] hidden sm:table-cell">
+                        {u.subscription ? fmt(u.subscription.validUntil) : "—"}
+                      </td>
+                      <td className="px-4 py-3 font-semibold">
+                        {days === null ? (
+                          <span className="text-[#CCCCCC]">—</span>
+                        ) : expired ? (
+                          <span className="text-red-500">Istekla</span>
+                        ) : warning ? (
+                          <span className="text-orange-500">{days}d</span>
+                        ) : (
+                          <span className="text-green-600">{days}d</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {extendingId === u.id ? (
+                          <div className="flex items-center gap-1.5 justify-end flex-wrap">
+                            <input
+                              type="date"
+                              value={newDate}
+                              onChange={(e) => setNewDate(e.target.value)}
+                              className="border border-[#E0E0E0] rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#FF6700]"
+                            />
+                            <button onClick={() => extendSubscription(u.id)} className="bg-[#FF6700] text-white text-xs px-2.5 py-1 rounded-lg hover:bg-[#e05c00] font-medium">Sačuvaj</button>
+                            <button onClick={() => { setExtendingId(null); setNewDate(""); }} className="text-[#6B6B6B] text-xs px-2 py-1">Otkaži</button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1 justify-end">
+                            <button onClick={() => setQuickDate(u.id, 30)} className="text-xs border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#F7F7F5] text-[#262626]">+30d</button>
+                            <button onClick={() => setQuickDate(u.id, 365)} className="text-xs border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#F7F7F5] text-[#262626]">+1god</button>
+                            <button onClick={() => setQuickDate(u.id, "2030")} className="text-xs border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#F7F7F5] text-[#262626]">2030</button>
+                            <button onClick={() => { setExtendingId(u.id); setNewDate(u.subscription ? u.subscription.validUntil.split("T")[0] : ""); }} className="text-xs bg-[#F7F7F5] border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#EDEDE9] text-[#262626]">Datum</button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -23,6 +23,7 @@ model User {
   properties       Property[]
   ownedWorkspace   Workspace?        @relation("WorkspaceOwner")
   workspaceMember  WorkspaceMember[]
+  subscription     Subscription?
 }
 
 model Session {
@@ -162,6 +163,15 @@ model WhitelistEmail {
   id        String   @id @default(cuid())
   email     String   @unique
   createdAt DateTime @default(now())
+}
+
+model Subscription {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  validUntil DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model GuestLink {

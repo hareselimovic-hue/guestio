@@ -70,7 +70,12 @@ export const auth = betterAuth({
       const allowed = await prisma.whitelistEmail.findUnique({ where: { email: user.email } });
       if (!allowed) throw new Error("Your email is not on the access list. Contact the administrator.");
     },
-    async afterCreateUser({ user }: { user: { email: string; name: string } }) {
+    async afterCreateUser({ user }: { user: { id: string; email: string; name: string } }) {
+      // Kreira 30-dnevni trial subscription
+      const validUntil = new Date();
+      validUntil.setDate(validUntil.getDate() + 30);
+      await prisma.subscription.create({ data: { userId: user.id, validUntil } });
+
       if (!process.env.RESEND_API_KEY) return;
       const resend = new Resend(process.env.RESEND_API_KEY);
       const fromEmail = process.env.RESEND_FROM_EMAIL ?? "noreply@resend.dev";

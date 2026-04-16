@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
-import { Home, LogOut, ChevronRight, Menu, X, Settings, ShieldCheck } from "lucide-react";
+import { Home, LogOut, ChevronRight, Menu, X, Settings, ShieldCheck, CreditCard } from "lucide-react";
 
 interface SidebarProps {
   user: { id: string; name?: string | null; email: string };
@@ -15,6 +15,7 @@ const ADMIN_EMAIL = "hareselimovic@gmail.com";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
+  { href: "/dashboard/subscription", label: "Pretplata", icon: CreditCard },
 ];
 
 export default function Sidebar({ user }: SidebarProps) {

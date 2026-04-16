@@ -8,6 +8,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email" }, { status: 400 });
   }
 
+  // Auto-whitelist email so they can register immediately
+  const { prisma } = await import("@/lib/prisma");
+  await prisma.whitelistEmail.upsert({
+    where: { email },
+    update: {},
+    create: { email },
+  });
+
   if (process.env.RESEND_API_KEY) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const fromEmail = process.env.RESEND_FROM_EMAIL ?? "noreply@resend.dev";
@@ -26,7 +34,7 @@ export async function POST(req: NextRequest) {
       resend.emails.send({
         from: fromEmail,
         to: email,
-        subject: "Hvala na interesu za SmartStay!",
+        subject: "Dobrodošli u SmartStay — kreirajte nalog",
         html: `
 <!DOCTYPE html>
 <html>
@@ -40,18 +48,23 @@ export async function POST(req: NextRequest) {
         </td></tr>
         <tr><td style="background:#fff;border-radius:16px;border:1px solid #EDEDE9;padding:40px 36px;">
           <p style="margin:0 0 8px;font-size:24px;font-weight:700;color:#262626;line-height:1.3;">
-            Hvala na interesu! 🎉
+            Hvala na prijavi! 🎉
           </p>
-          <p style="margin:0 0 24px;font-size:15px;color:#6B6B6B;line-height:1.6;">
-            Primili smo vaš zahtjev. Javit ćemo vam se uskoro s više informacija o mogućnosti registracije na SmartStay platformu.
+          <p style="margin:0 0 16px;font-size:15px;color:#6B6B6B;line-height:1.6;">
+            Vaš email je dodan na listu i možete se odmah registrovati na SmartStay platformi.
           </p>
-          <p style="margin:0 0 24px;font-size:15px;color:#6B6B6B;line-height:1.6;">
-            U međuvremenu, pogledajte kako izgleda digitalni vodič za goste:
+          <div style="background:#F0FFF4;border:1px solid #BBF7D0;border-radius:10px;padding:14px 18px;margin:0 0 24px;">
+            <p style="margin:0;font-size:14px;font-weight:600;color:#166534;">
+              🎁 Prvim korisnicima — 1 mjesec besplatno
+            </p>
+          </div>
+          <p style="margin:0 0 20px;font-size:15px;color:#6B6B6B;line-height:1.6;">
+            Kliknite na dugme ispod, kreirajte nalog i počnite odmah:
           </p>
-          <a href="https://smartstay.ba"
+          <a href="https://app.smartstay.ba/register"
              style="display:inline-block;background:#FF6700;color:#fff;font-size:15px;font-weight:600;
                     padding:13px 28px;border-radius:10px;text-decoration:none;">
-            Pogledaj demo →
+            Kreirajte nalog →
           </a>
           <p style="margin:24px 0 0;font-size:12px;color:#BABAB5;">
             Ako niste vi ostavili ovaj email, slobodno ignorirajte ovu poruku.
