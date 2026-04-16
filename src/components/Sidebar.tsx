@@ -15,7 +15,7 @@ const ADMIN_EMAIL = "hareselimovic@gmail.com";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
-  { href: "/dashboard/subscription", label: "Pretplata", icon: CreditCard },
+  { href: "/dashboard/subscription", label: "Subscription", icon: CreditCard },
 ];
 
 export default function Sidebar({ user }: SidebarProps) {
