@@ -8,7 +8,18 @@ export default async function SubscriptionPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/login");
 
-  const sub = await prisma.subscription.findUnique({ where: { userId: session.user.id } });
+  // If subscription doesn't exist yet (race condition on register), create it now
+  let sub = await prisma.subscription.findUnique({ where: { userId: session.user.id } });
+  if (!sub) {
+    const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+    const validUntil = new Date(user?.createdAt ?? new Date());
+    validUntil.setDate(validUntil.getDate() + 30);
+    sub = await prisma.subscription.upsert({
+      where: { userId: session.user.id },
+      update: {},
+      create: { userId: session.user.id, validUntil },
+    });
+  }
 
   const now = new Date();
   const isActive = sub && sub.validUntil >= now;

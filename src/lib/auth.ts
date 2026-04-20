@@ -72,9 +72,17 @@ export const auth = betterAuth({
     },
     async afterCreateUser({ user }: { user: { id: string; email: string; name: string } }) {
       // Kreira 30-dnevni trial subscription
-      const validUntil = new Date();
-      validUntil.setDate(validUntil.getDate() + 30);
-      await prisma.subscription.create({ data: { userId: user.id, validUntil } });
+      try {
+        const validUntil = new Date();
+        validUntil.setDate(validUntil.getDate() + 30);
+        await prisma.subscription.upsert({
+          where: { userId: user.id },
+          update: {},
+          create: { userId: user.id, validUntil },
+        });
+      } catch (err) {
+        console.error("[afterCreateUser] Failed to create subscription:", err);
+      }
 
       if (!process.env.RESEND_API_KEY) return;
       const resend = new Resend(process.env.RESEND_API_KEY);

@@ -12,8 +12,19 @@ export async function GET() {
   const isAdmin = session.user.email === ADMIN_EMAIL;
   if (isAdmin) return NextResponse.json({ expired: false, isAdmin: true });
 
-  const sub = await prisma.subscription.findUnique({ where: { userId: session.user.id } });
-  const expired = !sub || sub.validUntil < new Date();
+  let sub = await prisma.subscription.findUnique({ where: { userId: session.user.id } });
+  // If no subscription yet (race condition after registration), treat as active trial
+  if (!sub) {
+    const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+    const validUntil = new Date(user?.createdAt ?? new Date());
+    validUntil.setDate(validUntil.getDate() + 30);
+    sub = await prisma.subscription.upsert({
+      where: { userId: session.user.id },
+      update: {},
+      create: { userId: session.user.id, validUntil },
+    });
+  }
+  const expired = sub.validUntil < new Date();
 
   return NextResponse.json({ expired, isAdmin: false });
 }
