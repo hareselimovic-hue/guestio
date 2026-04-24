@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
@@ -8,6 +7,7 @@ import { Home, LogOut, ChevronRight, Settings, ShieldCheck, CreditCard, BarChart
 
 interface SidebarProps {
   user: { id: string; name?: string | null; email: string };
+  workspaceName: string | null;
 }
 
 const ADMIN_EMAIL = "hareselimovic@gmail.com";
@@ -19,16 +19,9 @@ const navItems = [
   { href: "/dashboard/subscription", label: "Subscription", icon: CreditCard },
 ];
 
-export default function Sidebar({ user }: SidebarProps) {
+export default function Sidebar({ user, workspaceName }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [workspaceName, setWorkspaceName] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/workspace")
-      .then((r) => r.json())
-      .then((d) => { if (d?.workspace?.name) setWorkspaceName(d.workspace.name); });
-  }, []);
 
   async function handleSignOut() {
     await signOut();
