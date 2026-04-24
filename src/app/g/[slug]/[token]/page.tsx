@@ -29,11 +29,16 @@ export default async function GuestPage({
     guestLink = await prisma.guestLink.findUnique({ where: { token } });
     if (!guestLink || guestLink.propertyId !== property.id) notFound();
 
-    // Increment view count
-    await prisma.guestLink.update({
-      where: { id: guestLink.id },
-      data: { viewCount: { increment: 1 } },
-    });
+    // Increment view count + record individual view event
+    await Promise.all([
+      prisma.guestLink.update({
+        where: { id: guestLink.id },
+        data: { viewCount: { increment: 1 } },
+      }),
+      prisma.guestLinkView.create({
+        data: { guestLinkId: guestLink.id },
+      }),
+    ]);
   }
 
   return (

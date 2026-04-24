@@ -175,13 +175,24 @@ model Subscription {
 }
 
 model GuestLink {
-  id         String    @id @default(cuid())
+  id         String          @id @default(cuid())
   propertyId String
-  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  token      String    @unique @default(cuid())
+  property   Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  token      String          @unique @default(cuid())
   guestName  String?
   checkIn    DateTime?
   checkOut   DateTime?
-  viewCount  Int       @default(0)
-  createdAt  DateTime  @default(now())
+  viewCount  Int             @default(0)
+  views      GuestLinkView[]
+  createdAt  DateTime        @default(now())
+}
+
+model GuestLinkView {
+  id          String    @id @default(cuid())
+  guestLinkId String
+  guestLink   GuestLink @relation(fields: [guestLinkId], references: [id], onDelete: Cascade)
+  viewedAt    DateTime  @default(now())
+
+  @@index([guestLinkId])
+  @@index([viewedAt])
 }
