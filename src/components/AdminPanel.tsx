@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Plus, Users, Shield, CheckCircle, XCircle, CreditCard, Building2 } from "lucide-react";
+import { Trash2, Plus, Users, Shield, CheckCircle, XCircle, CreditCard } from "lucide-react";
 
 interface User {
   id: string;
@@ -9,6 +9,7 @@ interface User {
   email: string;
   createdAt: Date | string;
   emailVerified: boolean;
+  _count: { properties: number };
 }
 
 interface WhitelistEntry {
@@ -24,23 +25,13 @@ interface SubUser {
   subscription: { id: string; validUntil: string; daysLeft: number } | null;
 }
 
-interface ExternalClient {
-  id: string;
-  name: string;
-  email: string;
-  createdAt: string;
-  propertyCount: number;
-  daysLeft: number | null;
-}
-
 interface AdminPanelProps {
   users: User[];
   whitelist: WhitelistEntry[];
   subUsers: SubUser[];
-  externalClients: ExternalClient[];
 }
 
-export default function AdminPanel({ users, whitelist: initialWhitelist, subUsers: initialSubUsers, externalClients }: AdminPanelProps) {
+export default function AdminPanel({ users, whitelist: initialWhitelist, subUsers: initialSubUsers }: AdminPanelProps) {
   const [whitelist, setWhitelist] = useState(initialWhitelist);
   const [newEmail, setNewEmail] = useState("");
   const [adding, setAdding] = useState(false);
@@ -118,65 +109,6 @@ export default function AdminPanel({ users, whitelist: initialWhitelist, subUser
   return (
     <div className="space-y-10">
 
-      {/* ── Eksterni klijenti ── */}
-      <section>
-        <div className="flex items-center gap-2 mb-4">
-          <Building2 className="w-5 h-5 text-[#FF6700]" />
-          <h2 className="text-lg font-semibold text-[#262626]">
-            Eksterni klijenti{" "}
-            <span className="text-[#6B6B6B] font-normal text-base">({externalClients.length})</span>
-          </h2>
-        </div>
-
-        {externalClients.length === 0 ? (
-          <p className="text-sm text-[#6B6B6B] italic">Nema eksternih klijenata.</p>
-        ) : (
-          <div className="border border-[#E0E0E0] rounded-xl overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-[#F7F7F5]">
-                <tr>
-                  <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium">Klijent</th>
-                  <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium hidden md:table-cell">Registrovan</th>
-                  <th className="text-center px-4 py-3 text-[#6B6B6B] font-medium">Properties</th>
-                  <th className="text-center px-4 py-3 text-[#6B6B6B] font-medium">Trial</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#F0F0F0]">
-                {externalClients.map((c) => {
-                  const expired = c.daysLeft !== null && c.daysLeft <= 0;
-                  const warning = c.daysLeft !== null && c.daysLeft > 0 && c.daysLeft <= 7;
-                  return (
-                    <tr key={c.id} className="hover:bg-[#FAFAFA]">
-                      <td className="px-4 py-3">
-                        <p className="text-[#262626] font-medium">{c.name}</p>
-                        <p className="text-[#6B6B6B] text-xs">{c.email}</p>
-                      </td>
-                      <td className="px-4 py-3 text-[#6B6B6B] hidden md:table-cell">{fmt(c.createdAt)}</td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`font-semibold ${c.propertyCount > 0 ? "text-[#262626]" : "text-[#CCCCCC]"}`}>
-                          {c.propertyCount}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-center font-semibold">
-                        {c.daysLeft === null ? (
-                          <span className="text-[#CCCCCC]">—</span>
-                        ) : expired ? (
-                          <span className="text-red-500">Istekla</span>
-                        ) : warning ? (
-                          <span className="text-orange-500">{c.daysLeft}d</span>
-                        ) : (
-                          <span className="text-green-600">{c.daysLeft}d</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
       {/* ── Whitelist ── */}
       <section>
         <div className="flex items-center gap-2 mb-4">
@@ -187,7 +119,6 @@ export default function AdminPanel({ users, whitelist: initialWhitelist, subUser
           Samo emailovi s ove liste mogu kreirati nalog. Vaš admin email je uvijek dozvoljen.
         </p>
 
-        {/* Add form */}
         <div className="flex gap-2 mb-4">
           <input
             type="email"
@@ -208,7 +139,6 @@ export default function AdminPanel({ users, whitelist: initialWhitelist, subUser
         </div>
         {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
-        {/* Whitelist table */}
         {whitelist.length === 0 ? (
           <p className="text-sm text-[#6B6B6B] italic">Nema emailova na whitelisti.</p>
         ) : (
@@ -242,7 +172,7 @@ export default function AdminPanel({ users, whitelist: initialWhitelist, subUser
         )}
       </section>
 
-      {/* ── Users ── */}
+      {/* ── Registrovani korisnici ── */}
       <section>
         <div className="flex items-center gap-2 mb-4">
           <Users className="w-5 h-5 text-[#FF6700]" />
@@ -262,6 +192,7 @@ export default function AdminPanel({ users, whitelist: initialWhitelist, subUser
                   <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium">Ime</th>
                   <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium">Email</th>
                   <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium hidden md:table-cell">Registrovan</th>
+                  <th className="text-center px-4 py-3 text-[#6B6B6B] font-medium">Prop.</th>
                   <th className="text-center px-4 py-3 text-[#6B6B6B] font-medium hidden sm:table-cell">Verificiran</th>
                 </tr>
               </thead>
@@ -271,6 +202,11 @@ export default function AdminPanel({ users, whitelist: initialWhitelist, subUser
                     <td className="px-4 py-3 text-[#262626] font-medium">{u.name}</td>
                     <td className="px-4 py-3 text-[#6B6B6B]">{u.email}</td>
                     <td className="px-4 py-3 text-[#6B6B6B] hidden md:table-cell">{fmt(u.createdAt)}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`font-semibold ${u._count.properties > 0 ? "text-[#262626]" : "text-[#CCCCCC]"}`}>
+                        {u._count.properties}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 text-center hidden sm:table-cell">
                       {u.emailVerified ? (
                         <CheckCircle className="w-4 h-4 text-green-500 inline" />
