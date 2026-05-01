@@ -23,13 +23,17 @@ export default async function GuestPage({
 
   if (!property) notFound();
 
-  // Handle preview (no token needed for host)
+  // Handle preview (track at property level) or real guest link
   let guestLink = null;
-  if (token !== "preview") {
+  if (token === "preview") {
+    await prisma.property.update({
+      where: { id: property.id },
+      data: { previewViewCount: { increment: 1 } },
+    });
+  } else {
     guestLink = await prisma.guestLink.findUnique({ where: { token } });
     if (!guestLink || guestLink.propertyId !== property.id) notFound();
 
-    // Increment view count + record individual view event
     await Promise.all([
       prisma.guestLink.update({
         where: { id: guestLink.id },

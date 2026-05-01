@@ -38,6 +38,7 @@ export default async function AnalyticsPage() {
       id: true,
       name: true,
       slug: true,
+      previewViewCount: true,
       guests: {
         select: {
           id: true,
@@ -58,7 +59,8 @@ export default async function AnalyticsPage() {
 
   // Aggregate stats
   const totalLinks = properties.reduce((sum, p) => sum + p.guests.length, 0);
-  const totalViews = properties.reduce((sum, p) => sum + p.guests.reduce((s, g) => s + g.viewCount, 0), 0);
+  const totalViews = properties.reduce((sum, p) =>
+    sum + p.previewViewCount + p.guests.reduce((s, g) => s + g.viewCount, 0), 0);
 
   // Recent views (last 50, across all properties)
   const allViews: { viewedAt: Date; propertyName: string; token: string; guestName: string | null }[] = [];
@@ -122,7 +124,7 @@ export default async function AnalyticsPage() {
               </thead>
               <tbody>
                 {properties.map((property) => {
-                  const views = property.guests.reduce((s, g) => s + g.viewCount, 0);
+                  const views = property.previewViewCount + property.guests.reduce((s, g) => s + g.viewCount, 0);
                   const lastView = property.guests
                     .flatMap((g) => g.views.map((v) => v.viewedAt))
                     .sort((a, b) => b.getTime() - a.getTime())[0];

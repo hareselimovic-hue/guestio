@@ -22,6 +22,7 @@ export async function GET() {
       id: true,
       name: true,
       slug: true,
+      previewViewCount: true,
       guests: {
         select: {
           id: true,
