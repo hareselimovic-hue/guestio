@@ -5,7 +5,7 @@ import { upload } from "@vercel/blob/client";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
   ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Trash2,
-  ImagePlus, X, Phone, Video, ParkingSquare, Check
+  ImagePlus, X, Phone, Video, ParkingSquare, Check, Brain
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ const SECTION_ICONS: Record<string, React.ReactNode> = {
   CONTACT:     <Phone className="w-4 h-4" />,
   PARKING:     <ParkingSquare className="w-4 h-4" />,
   CUSTOM:      <Plus className="w-4 h-4" />,
+  AI_CONTEXT:  <Brain className="w-4 h-4" />,
 };
 
 const SECTION_COLORS: Record<string, string> = {
@@ -34,6 +35,7 @@ const SECTION_COLORS: Record<string, string> = {
   CONTACT:     "bg-teal-50 text-teal-600",
   PARKING:     "bg-slate-50 text-slate-600",
   CUSTOM:      "bg-gray-50 text-gray-600",
+  AI_CONTEXT:  "bg-violet-50 text-violet-600",
 };
 
 interface Section {
@@ -58,6 +60,7 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
   const [saved, setSaved] = useState(false);
   const [dirtyIds, setDirtyIds] = useState<Set<string>>(new Set());
   const [addingCustom, setAddingCustom] = useState(false);
+  const [addingAiContext, setAddingAiContext] = useState(false);
   const [translating, setTranslating] = useState(false);
 
   useEffect(() => {
@@ -90,6 +93,22 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
       setOpenId(section.id);
     }
     setAddingCustom(false);
+  }
+
+  async function addAiContextSection() {
+    if (!propertyId) return;
+    setAddingAiContext(true);
+    const res = await fetch(`/api/properties/${propertyId}/sections`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "AI_CONTEXT" }),
+    });
+    if (res.ok) {
+      const section = await res.json();
+      onUpdate([...sections, section]);
+      setOpenId(section.id);
+    }
+    setAddingAiContext(false);
   }
 
   async function deleteSection(id: string) {
@@ -147,14 +166,16 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
               {dirtyIds.has(section.id) && (
                 <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700] shrink-0" />
               )}
-              <button
-                onClick={(e) => { e.stopPropagation(); toggleVisibility(section); }}
-                className="p-1.5 rounded-lg hover:bg-[#EDEDE9] text-[#6B6B6B] transition-colors"
-                title={section.isVisible ? "Hide section" : "Show section"}
-              >
-                {section.isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-              </button>
-              {section.type === "CUSTOM" && (
+              {section.type !== "AI_CONTEXT" && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); toggleVisibility(section); }}
+                  className="p-1.5 rounded-lg hover:bg-[#EDEDE9] text-[#6B6B6B] transition-colors"
+                  title={section.isVisible ? "Hide section" : "Show section"}
+                >
+                  {section.isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                </button>
+              )}
+              {(section.type === "CUSTOM" || section.type === "AI_CONTEXT") && (
                 <button
                   onClick={(e) => { e.stopPropagation(); deleteSection(section.id); }}
                   className="p-1.5 rounded-lg hover:bg-red-50 text-[#6B6B6B] hover:text-red-500 transition-colors"
@@ -184,14 +205,25 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
 
       {/* Add custom section */}
       {propertyId && (
-        <button
-          onClick={addCustomSection}
-          disabled={addingCustom}
-          className="w-full h-10 border-2 border-dashed border-[#EDEDE9] rounded-xl flex items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors text-sm"
-        >
-          {addingCustom ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-          Add custom section
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={addCustomSection}
+            disabled={addingCustom}
+            className="flex-1 h-10 border-2 border-dashed border-[#EDEDE9] rounded-xl flex items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors text-sm"
+          >
+            {addingCustom ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+            Add custom section
+          </button>
+          <button
+            onClick={addAiContextSection}
+            disabled={addingAiContext || sections.some((s) => s.type === "AI_CONTEXT")}
+            className="h-10 px-4 border-2 border-dashed border-violet-200 rounded-xl flex items-center justify-center gap-2 text-violet-500 hover:border-violet-400 hover:text-violet-600 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Add AI context section (one per property)"
+          >
+            {addingAiContext ? <Loader2 className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
+            AI context
+          </button>
+        </div>
       )}
 
       {/* Single save button */}
@@ -430,6 +462,25 @@ function SectionForm({
 
     case "CUSTOM":
       return <CustomForm content={content} setContent={setContent} onChange={onChange} section={section} />;
+
+    case "AI_CONTEXT":
+      return (
+        <div className="space-y-3 pt-3">
+          <div className="flex items-start gap-2 p-3 bg-violet-50 rounded-lg text-xs text-violet-700 border border-violet-100">
+            <Brain className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+            <span>This content is only visible to the AI assistant and never shown to guests. Add any extra details about the property that guests might ask about.</span>
+          </div>
+          <Field label="Additional context for AI assistant">
+            <Textarea
+              value={(content.body as string) ?? ""}
+              onChange={(e) => setContent({ body: e.target.value })}
+              placeholder="e.g. The key lockbox is behind the fire extinguisher. Pool is open 8am–10pm. Nearest pharmacy is 2 min walk on the left..."
+              className="text-sm border-[#EDEDE9] resize-none"
+              rows={6}
+            />
+          </Field>
+        </div>
+      );
 
     default:
       return null;

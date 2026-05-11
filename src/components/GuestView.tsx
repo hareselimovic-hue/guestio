@@ -154,7 +154,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   const hasTranslations = sections.some((s) => s.translations && s.translations.length > 0);
 
   const welcomeSection = sections.find((s) => s.type === "WELCOME");
-  const otherSections = sections.filter((s) => s.type !== "WELCOME");
+  const otherSections = sections.filter((s) => s.type !== "WELCOME" && s.type !== "AI_CONTEXT");
 
   const ui = UI_STRINGS[lang] ?? UI_STRINGS.EN;
 

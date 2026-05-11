@@ -84,6 +84,7 @@ model Property {
   bankAccount  String?
   rentlioPropertyId Int?     @unique
   previewViewCount  Int      @default(0)
+  chatCount         Int      @default(0)
   sections     Section[]
   guests       GuestLink[]
   createdAt    DateTime    @default(now())
@@ -125,6 +126,7 @@ enum SectionType {
   CONTACT
   PARKING
   CUSTOM
+  AI_CONTEXT
 }
 
 model Workspace {

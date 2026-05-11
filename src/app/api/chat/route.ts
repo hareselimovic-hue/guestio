@@ -70,6 +70,10 @@ function buildContext(propertyName: string, sections: Section[], lang: string): 
         if (content.hostName) lines.push(`Host name: ${content.hostName}`);
         break;
 
+      case "AI_CONTEXT":
+        if (content.body) lines.push(`Additional property info:\n${content.body}`);
+        break;
+
       default:
         if (content.body) lines.push(`${section.title}: ${content.body}`);
         break;
@@ -107,6 +111,12 @@ export async function POST(req: NextRequest) {
   }
 
   const context = buildContext(property.name, property.sections, lang);
+
+  // Track chat usage (fire and forget)
+  prisma.property.update({
+    where: { id: property.id },
+    data: { chatCount: { increment: 1 } },
+  }).catch(() => {});
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 

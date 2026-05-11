@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
-import { BarChart2, Eye, Link2, ExternalLink } from "lucide-react";
+import { BarChart2, Eye, Link2, ExternalLink, MessageCircle } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +39,7 @@ export default async function AnalyticsPage() {
       name: true,
       slug: true,
       previewViewCount: true,
+      chatCount: true,
       guests: {
         select: {
           id: true,
@@ -61,6 +62,7 @@ export default async function AnalyticsPage() {
   const totalLinks = properties.reduce((sum, p) => sum + p.guests.length, 0);
   const totalViews = properties.reduce((sum, p) =>
     sum + p.previewViewCount + p.guests.reduce((s, g) => s + g.viewCount, 0), 0);
+  const totalChats = properties.reduce((sum, p) => sum + (p.chatCount ?? 0), 0);
 
   // Recent views (last 50, across all properties)
   const allViews: { viewedAt: Date; propertyName: string; token: string; guestName: string | null }[] = [];
@@ -104,6 +106,10 @@ export default async function AnalyticsPage() {
           <p className="text-xs text-[#6B6B6B] font-medium uppercase tracking-wide mb-1">Ukupno otvaranja</p>
           <p className="text-3xl font-bold text-[#FF6700]">{totalViews}</p>
         </div>
+        <div className="bg-white rounded-xl p-5 border border-[#EDEDE9] col-span-2 sm:col-span-1">
+          <p className="text-xs text-[#6B6B6B] font-medium uppercase tracking-wide mb-1">AI chat poruke</p>
+          <p className="text-3xl font-bold text-violet-600">{totalChats}</p>
+        </div>
       </div>
 
       {/* Per-property breakdown */}
@@ -119,6 +125,7 @@ export default async function AnalyticsPage() {
                   <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Apartman</th>
                   <th className="text-center px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Linkovi</th>
                   <th className="text-center px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Otvaranja</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide hidden sm:table-cell">AI chat</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide hidden sm:table-cell">Zadnje otvaranje</th>
                 </tr>
               </thead>
@@ -141,6 +148,12 @@ export default async function AnalyticsPage() {
                         <span className={`inline-flex items-center gap-1 font-semibold ${views > 0 ? "text-[#FF6700]" : "text-[#BABAB5]"}`}>
                           <Eye className="w-3.5 h-3.5" />
                           {views}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center hidden sm:table-cell">
+                        <span className={`inline-flex items-center gap-1 font-semibold ${(property.chatCount ?? 0) > 0 ? "text-violet-600" : "text-[#BABAB5]"}`}>
+                          <MessageCircle className="w-3.5 h-3.5" />
+                          {property.chatCount ?? 0}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-[#6B6B6B] hidden sm:table-cell">

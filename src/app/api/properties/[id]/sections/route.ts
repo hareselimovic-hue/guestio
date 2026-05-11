@@ -25,12 +25,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const maxOrder = property.sections.reduce((max, s) => Math.max(max, s.order), 0);
 
+  const body = await req.json().catch(() => ({}));
+  const isAiContext = body?.type === "AI_CONTEXT";
+
   const section = await prisma.section.create({
     data: {
       propertyId,
-      type: "CUSTOM",
-      title: "Custom",
-      content: { body: "", links: [] },
+      type: isAiContext ? "AI_CONTEXT" : "CUSTOM",
+      title: isAiContext ? "AI Context" : "Custom",
+      content: isAiContext ? { body: "" } : { body: "", links: [] },
       order: maxOrder + 1,
     },
   });
