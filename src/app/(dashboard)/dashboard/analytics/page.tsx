@@ -9,15 +9,15 @@ export const dynamic = "force-dynamic";
 function timeAgo(date: Date): string {
   const now = new Date();
   const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
-  if (diff < 60) return "upravo";
-  if (diff < 3600) return `prije ${Math.floor(diff / 60)} min`;
-  if (diff < 86400) return `prije ${Math.floor(diff / 3600)} h`;
-  if (diff < 604800) return `prije ${Math.floor(diff / 86400)} dana`;
-  return date.toLocaleDateString("hr-HR", { day: "numeric", month: "short" });
+  if (diff < 60) return "just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} h ago`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`;
+  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
 function formatDateTime(date: Date): string {
-  return date.toLocaleString("hr-HR", {
+  return date.toLocaleString("en-GB", {
     day: "2-digit", month: "2-digit", year: "numeric",
     hour: "2-digit", minute: "2-digit",
   });
@@ -89,44 +89,44 @@ export default async function AnalyticsPage() {
           <BarChart2 className="w-6 h-6 text-[#0F2F61]" />
           Analytics
         </h1>
-        <p className="text-[#6B6B6B] mt-1 text-sm">Pregled otvaranja guest linkova po apartmanu</p>
+        <p className="text-[#6B6B6B] mt-1 text-sm">Guest link opens and AI chat usage per property</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
         <div className="bg-white rounded-xl p-5 border border-[#EDEDE9]">
-          <p className="text-xs text-[#6B6B6B] font-medium uppercase tracking-wide mb-1">Apartmani</p>
+          <p className="text-xs text-[#6B6B6B] font-medium uppercase tracking-wide mb-1">Properties</p>
           <p className="text-3xl font-bold text-[#262626]">{properties.length}</p>
         </div>
         <div className="bg-white rounded-xl p-5 border border-[#EDEDE9]">
-          <p className="text-xs text-[#6B6B6B] font-medium uppercase tracking-wide mb-1">Guest linkovi</p>
+          <p className="text-xs text-[#6B6B6B] font-medium uppercase tracking-wide mb-1">Guest links</p>
           <p className="text-3xl font-bold text-[#262626]">{totalLinks}</p>
         </div>
         <div className="bg-white rounded-xl p-5 border border-[#EDEDE9] col-span-2 sm:col-span-1">
-          <p className="text-xs text-[#6B6B6B] font-medium uppercase tracking-wide mb-1">Ukupno otvaranja</p>
+          <p className="text-xs text-[#6B6B6B] font-medium uppercase tracking-wide mb-1">Total opens</p>
           <p className="text-3xl font-bold text-[#FF6700]">{totalViews}</p>
         </div>
         <div className="bg-white rounded-xl p-5 border border-[#EDEDE9] col-span-2 sm:col-span-1">
-          <p className="text-xs text-[#6B6B6B] font-medium uppercase tracking-wide mb-1">AI chat poruke</p>
+          <p className="text-xs text-[#6B6B6B] font-medium uppercase tracking-wide mb-1">AI chat messages</p>
           <p className="text-3xl font-bold text-violet-600">{totalChats}</p>
         </div>
       </div>
 
       {/* Per-property breakdown */}
       <div className="mb-8">
-        <h2 className="text-base font-semibold text-[#262626] mb-3">Po apartmanu</h2>
+        <h2 className="text-base font-semibold text-[#262626] mb-3">By property</h2>
         <div className="bg-white rounded-xl border border-[#EDEDE9] overflow-hidden">
           {properties.length === 0 ? (
-            <p className="text-[#6B6B6B] text-sm p-6">Nema apartmana.</p>
+            <p className="text-[#6B6B6B] text-sm p-6">No properties yet.</p>
           ) : (
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#EDEDE9] bg-[#F7F7F5]">
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Apartman</th>
-                  <th className="text-center px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Linkovi</th>
-                  <th className="text-center px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Otvaranja</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Property</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Links</th>
+                  <th className="text-center px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Opens</th>
                   <th className="text-center px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide hidden sm:table-cell">AI chat</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide hidden sm:table-cell">Zadnje otvaranje</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide hidden sm:table-cell">Last opened</th>
                 </tr>
               </thead>
               <tbody>
@@ -170,21 +170,21 @@ export default async function AnalyticsPage() {
 
       {/* Recent views feed */}
       <div>
-        <h2 className="text-base font-semibold text-[#262626] mb-3">Zadnja otvaranja</h2>
+        <h2 className="text-base font-semibold text-[#262626] mb-3">Recent opens</h2>
         {recentViews.length === 0 ? (
           <div className="bg-white rounded-xl border border-[#EDEDE9] p-8 text-center">
             <Eye className="w-8 h-8 text-[#EDEDE9] mx-auto mb-3" />
-            <p className="text-[#6B6B6B] text-sm">Još nema otvaranja.</p>
-            <p className="text-[#BABAB5] text-xs mt-1">Pojavit će se ovdje čim gost otvori link.</p>
+            <p className="text-[#6B6B6B] text-sm">No opens yet.</p>
+            <p className="text-[#BABAB5] text-xs mt-1">This will appear here as soon as a guest opens a link.</p>
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-[#EDEDE9] overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#EDEDE9] bg-[#F7F7F5]">
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Apartman</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Property</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide hidden sm:table-cell">Link</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Otvoreno</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Opened</th>
                 </tr>
               </thead>
               <tbody>
