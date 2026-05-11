@@ -6,6 +6,7 @@ import {
   Copy, Check, ChevronDown, Phone, ParkingSquare
 } from "lucide-react";
 import { useState } from "react";
+import GuestChat from "./GuestChat";
 
 const SECTION_META: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
   WELCOME:     { icon: <Heart className="w-5 h-5" />,           color: "text-pink-600",   bg: "bg-pink-50" },
@@ -130,6 +131,7 @@ interface Props {
   guestName: string | null;
   checkIn: string | null;
   checkOut: string | null;
+  token: string;
 }
 
 const LANGUAGES = [
@@ -145,7 +147,7 @@ function getContent(section: Section, lang: string): Record<string, unknown> {
   return (t?.content ?? section.content) as Record<string, unknown>;
 }
 
-export default function GuestView({ property, sections, guestName, checkIn, checkOut }: Props) {
+export default function GuestView({ property, sections, guestName, checkIn, checkOut, token }: Props) {
   const sectionsRef = useRef<HTMLDivElement>(null);
   const [lang, setLang] = useState("EN");
   // Only show language switcher if at least one section has any translation
@@ -359,6 +361,9 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
           </span>
         </p>
       </div>
+
+      {/* AI Chat */}
+      <GuestChat propertySlug={property.slug} token={token} lang={lang} />
 
     </div>
   );
