@@ -28,6 +28,7 @@ export default function GuestChat({ propertySlug, token, lang }: Props) {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -35,6 +36,28 @@ export default function GuestChat({ propertySlug, token, lang }: Props) {
 
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 100);
+  }, [open]);
+
+  // Adjust panel position when virtual keyboard opens on mobile
+  useEffect(() => {
+    if (!open) return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const adjust = () => {
+      const panel = panelRef.current;
+      if (!panel) return;
+      const offsetBottom = window.innerHeight - vv.height - vv.offsetTop;
+      panel.style.bottom = `${Math.max(0, offsetBottom)}px`;
+    };
+
+    vv.addEventListener("resize", adjust);
+    vv.addEventListener("scroll", adjust);
+    return () => {
+      vv.removeEventListener("resize", adjust);
+      vv.removeEventListener("scroll", adjust);
+      if (panelRef.current) panelRef.current.style.bottom = "";
+    };
   }, [open]);
 
   async function send(question?: string) {
@@ -100,7 +123,7 @@ export default function GuestChat({ propertySlug, token, lang }: Props) {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-0 left-0 right-0 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[360px] z-50 bg-white sm:rounded-2xl shadow-2xl border border-[#EDEDE9] flex flex-col overflow-hidden"
+        <div ref={panelRef} className="fixed bottom-0 left-0 right-0 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[360px] z-50 bg-white sm:rounded-2xl shadow-2xl border border-[#EDEDE9] flex flex-col overflow-hidden"
           style={{ height: 500, maxHeight: "85vh" }}>
 
           {/* Header */}
