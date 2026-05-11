@@ -205,11 +205,11 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
 
       {/* Add custom section */}
       {propertyId && (
-        <div className="flex gap-2">
+        <>
           <button
             onClick={addCustomSection}
             disabled={addingCustom}
-            className="flex-1 h-10 border-2 border-dashed border-[#EDEDE9] rounded-xl flex items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors text-sm"
+            className="w-full h-10 border-2 border-dashed border-[#EDEDE9] rounded-xl flex items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors text-sm"
           >
             {addingCustom ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             Add custom section
@@ -217,13 +217,13 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
           <button
             onClick={addAiContextSection}
             disabled={addingAiContext || sections.some((s) => s.type === "AI_CONTEXT")}
-            className="h-10 px-4 border-2 border-dashed border-violet-200 rounded-xl flex items-center justify-center gap-2 text-violet-500 hover:border-violet-400 hover:text-violet-600 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full h-10 border-2 border-dashed border-violet-200 rounded-xl flex items-center justify-center gap-2 text-violet-500 hover:border-violet-400 hover:text-violet-600 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
             title="Add AI context section (one per property)"
           >
             {addingAiContext ? <Loader2 className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
-            AI context
+            AI context <span className="text-xs opacity-60">(optional)</span>
           </button>
-        </div>
+        </>
       )}
 
       {/* Single save button */}
