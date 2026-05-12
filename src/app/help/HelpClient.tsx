@@ -280,47 +280,27 @@ function TabLinks() {
     <>
       <Card>
         <SectionHeading icon={<Link2 className="w-5 h-5" />} color="bg-[#FF6700]">
-          Preview vs. pravi guest link
+          Link koji šaljete gostima
         </SectionHeading>
-        <p className="text-[#6B6B6B] text-sm leading-relaxed mb-3">
-          Sadržaj guidebooka je isti za oba linka — razlika je isključivo u tome <strong className="text-[#262626]">kako se prati korištenje</strong>.
+        <p className="text-[#6B6B6B] text-sm leading-relaxed mb-4">
+          Svaki apartman ima <strong className="text-[#262626]">preview link</strong> — to je link koji šaljete gostima.
+          Sadrži kompletan guidebook: WiFi, check-in, pravila, preporuke i sve ostalo što ste unijeli.
         </p>
-        <div className="grid sm:grid-cols-2 gap-4 mt-2">
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-            <p className="font-semibold text-sm text-[#262626] mb-2">🔍 Preview link</p>
-            <ul className="space-y-1.5 text-xs text-[#6B6B6B]">
-              <li className="flex gap-2"><span className="text-amber-500 shrink-0">•</span>Isti sadržaj kao pravi link</li>
-              <li className="flex gap-2"><span className="text-amber-500 shrink-0">•</span>Broji se odvojeno (previewViewCount)</li>
-              <li className="flex gap-2"><span className="text-amber-500 shrink-0">•</span>Bez gostovog imena i datuma</li>
-              <li className="flex gap-2"><span className="text-amber-500 shrink-0">•</span>Možete ga slobodno slati gostima</li>
-            </ul>
-          </div>
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-            <p className="font-semibold text-sm text-[#262626] mb-2">✅ Pravi guest link</p>
-            <ul className="space-y-1.5 text-xs text-[#6B6B6B]">
-              <li className="flex gap-2"><span className="text-green-500 shrink-0">•</span>Isti sadržaj, jedinstven token po gostu</li>
-              <li className="flex gap-2"><span className="text-green-500 shrink-0">•</span>Vidite ime gosta + kada je otvorio</li>
-              <li className="flex gap-2"><span className="text-green-500 shrink-0">•</span>Korisno za više apartmana / gostiju</li>
-              <li className="flex gap-2"><span className="text-green-500 shrink-0">•</span>Rentlio kreira automatski po rezervaciji</li>
-            </ul>
-          </div>
-        </div>
-        <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-700">
-          💡 Ako imate jedan apartman i ne trebate pratiti pojedinačne goste — <strong>preview link je potpuno u redu</strong> za slanje gostima.
+        <div className="bg-[#F7F7F5] rounded-xl border border-[#EDEDE9] p-4 font-mono text-xs text-[#6B6B6B] break-all">
+          app.smartstay.ba/g/<span className="text-[#FF6700]">naziv-apartmana</span>/preview
         </div>
       </Card>
 
       <Card>
         <SectionHeading icon={<ChevronRight className="w-5 h-5" />} color="bg-[#0F2F61]">
-          Kako kreirati guest link?
+          Kako pronaći i podijeliti link?
         </SectionHeading>
         <ol className="space-y-4">
           {[
             "Otvorite apartman iz dashboarda.",
             "Na vrhu stranice kliknite dugme Share (ikona dijeljenja).",
-            "Popunite ime gosta i datume boravka (opcionalno, ali preporučeno).",
-            "Kliknite Generate link — link se kreira i možete ga kopirati.",
-            "Pošaljite link gostu putem WhatsApp-a, emaila ili SMS-a.",
+            "Kopirajte preview link i pošaljite gostu — WhatsApp, email, SMS.",
+            "Opciono: preuzmite QR kod koji gost može skenirati.",
           ].map((text, i) => (
             <li key={i} className="flex items-start gap-4 list-none">
               <span className="w-7 h-7 rounded-full bg-[#0F2F61] text-white text-sm font-bold flex items-center justify-center shrink-0 mt-0.5">
@@ -338,10 +318,10 @@ function TabLinks() {
         </SectionHeading>
         <ul className="space-y-2.5">
           {[
-            "Preview link možete slobodno slati gostima — sadržaj je isti kao pravi link.",
-            "Pravi guest link ima smisla kad trebate znati koji gost (po imenu) je otvorio link i kada.",
-            "Link možete podijeliti i kao QR kod (dostupno u Share panelu).",
-            "Jedan link po rezervaciji — tako tačno pratite ko je i kada otvorio guidebook.",
+            "Pošaljite link dan-dva prije dolaska — gost ima vremena da pročita upute.",
+            "QR kod možete odštampati i ostaviti u apartmanu za buduće goste.",
+            "Link je uvijek ažuran — ako izmijenite sadržaj, gost odmah vidi novu verziju.",
+            "Isti link možete koristiti za sve goste u tom apartmanu.",
           ].map((item) => (
             <li key={item} className="flex items-start gap-2 text-sm text-[#6B6B6B] list-none">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 mt-1.5" />{item}
