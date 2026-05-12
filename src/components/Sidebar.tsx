@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
-import { Home, LogOut, ChevronRight, Settings, ShieldCheck, CreditCard, BarChart2 } from "lucide-react";
+import { Home, LogOut, ChevronRight, Settings, ShieldCheck, CreditCard, BarChart2, HelpCircle } from "lucide-react";
 
 interface SidebarProps {
   user: { id: string; name?: string | null; email: string };
@@ -48,6 +48,18 @@ export default function Sidebar({ user, workspaceName }: SidebarProps) {
           );
         })}
       </nav>
+
+      {/* Help link */}
+        <div className="px-3 pb-2">
+          <Link
+            href="/help"
+            target="_blank"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#8ba3c7] hover:bg-[#1a3d75] hover:text-white transition-colors"
+          >
+            <HelpCircle className="w-4 h-4 shrink-0" />
+            <span>Help</span>
+          </Link>
+        </div>
 
       {/* User + logout */}
       <div className="px-3 py-4 border-t border-[#1a3d75]">

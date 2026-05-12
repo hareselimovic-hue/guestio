@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, BarChart2, Settings, MoreHorizontal, CreditCard, ShieldCheck, X } from "lucide-react";
+import { Home, BarChart2, Settings, MoreHorizontal, CreditCard, ShieldCheck, X, HelpCircle } from "lucide-react";
 import { signOut } from "@/lib/auth-client";
 
 interface BottomNavProps {
@@ -85,6 +85,16 @@ export default function BottomNav({ user }: BottomNavProps) {
               >
                 <CreditCard className="w-5 h-5 text-[#6B6B6B]" />
                 Subscription
+              </Link>
+
+              <Link
+                href="/help"
+                target="_blank"
+                onClick={() => setShowMore(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#262626] hover:bg-[#F7F7F5] transition-colors"
+              >
+                <HelpCircle className="w-5 h-5 text-[#6B6B6B]" />
+                Help
               </Link>
 
               {isAdmin && (
