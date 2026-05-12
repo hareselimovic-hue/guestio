@@ -28,19 +28,19 @@ export default function HelpClient() {
 
         {/* Tabs */}
         <div className="max-w-4xl mx-auto px-4 sm:px-8">
-          <div className="flex gap-1 overflow-x-auto pb-0 scrollbar-hide">
+          <div className="flex">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActive(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors ${
                   active === tab.id
                     ? "border-[#FF6700] text-white"
                     : "border-transparent text-[#8ba3c7] hover:text-white"
                 }`}
               >
                 {tab.icon}
-                {tab.label}
+                <span className="leading-tight text-center">{tab.label}</span>
               </button>
             ))}
           </div>
