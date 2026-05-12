@@ -185,15 +185,17 @@ export default function GuestChat({ propertySlug, token, lang }: Props) {
           {/* Input */}
           <div className="px-3 py-3 border-t border-[#EDEDE9] bg-white shrink-0">
             <div className="flex gap-2 items-center overflow-hidden">
-              <input
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
-                placeholder="Type a question..."
-                disabled={loading}
-                className="flex-1 min-w-0 text-sm px-4 py-2.5 rounded-xl border border-[#EDEDE9] focus:outline-none focus:border-[#FF6700] transition-colors disabled:opacity-50 bg-[#F7F7F5]"
-              />
+              <div className="flex-1 min-w-0">
+                <input
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
+                  placeholder="Type a question..."
+                  disabled={loading}
+                  className="w-full text-sm px-4 py-2.5 rounded-xl border border-[#EDEDE9] focus:outline-none focus:border-[#FF6700] transition-colors disabled:opacity-50 bg-[#F7F7F5]"
+                />
+              </div>
               <button
                 onClick={() => send()}
                 disabled={!input.trim() || loading}
