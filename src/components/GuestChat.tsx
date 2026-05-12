@@ -137,7 +137,10 @@ export default function GuestChat({ propertySlug, token, lang }: Props) {
               </p>
               <p className="text-xs text-[#9B9B9B]">Powered by AI · answers in seconds</p>
             </div>
-            <button onClick={() => setOpen(false)} className="text-[#6B6B6B] hover:text-[#262626] transition-colors shrink-0">
+            <button
+              onClick={() => { inputRef.current?.blur(); setOpen(false); }}
+              className="text-[#6B6B6B] hover:text-[#262626] transition-colors shrink-0 p-1"
+            >
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -184,22 +187,22 @@ export default function GuestChat({ propertySlug, token, lang }: Props) {
 
           {/* Input */}
           <div className="px-3 py-3 border-t border-[#EDEDE9] bg-white shrink-0">
-            <div className="flex gap-2 items-center overflow-hidden">
-              <div className="flex-1 min-w-0">
-                <input
-                  ref={inputRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
-                  placeholder="Type a question..."
-                  disabled={loading}
-                  className="w-full text-sm px-4 py-2.5 rounded-xl border border-[#EDEDE9] focus:outline-none focus:border-[#FF6700] transition-colors disabled:opacity-50 bg-[#F7F7F5]"
-                />
-              </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 40px", gap: "8px", alignItems: "center" }}>
+              <input
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
+                placeholder="Type a question..."
+                disabled={loading}
+                style={{ fontSize: 16, minWidth: 0, width: "100%" }}
+                className="text-sm px-4 py-2.5 rounded-xl border border-[#EDEDE9] focus:outline-none focus:border-[#FF6700] transition-colors disabled:opacity-50 bg-[#F7F7F5]"
+              />
               <button
                 onClick={() => send()}
                 disabled={!input.trim() || loading}
-                className="w-10 h-10 bg-[#FF6700] hover:bg-[#e05c00] disabled:opacity-40 text-white rounded-xl flex items-center justify-center transition-colors shrink-0"
+                style={{ width: 40, height: 40, flexShrink: 0 }}
+                className="bg-[#FF6700] hover:bg-[#e05c00] disabled:opacity-40 text-white rounded-xl flex items-center justify-center transition-colors"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </button>
