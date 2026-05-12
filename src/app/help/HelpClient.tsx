@@ -154,7 +154,7 @@ function TabAI() {
                   <Brain className="w-3.5 h-3.5 text-violet-600" />
                 </div>
                 <span className="text-sm font-medium text-[#262626]">AI Context</span>
-                <span className="ml-auto text-xs text-violet-500 bg-violet-50 px-2 py-0.5 rounded-full border border-violet-100">Skriveno od gostiju</span>
+                <span className="ml-auto text-xs text-violet-400">optional</span>
               </div>
               <div className="px-4 py-3">
                 <p className="text-xs text-[#6B6B6B] leading-relaxed">Ključ je u kutijici iza aparata za kafu. Bazen radi 08–22h, pristup bijelom karticom. Najbliža apoteka je 2 min hoda, lijevo od ulaza...</p>
