@@ -4,6 +4,9 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Sidebar from "@/components/Sidebar";
 import BottomNav from "@/components/BottomNav";
+import SubscriptionExpiryPopup from "@/components/SubscriptionExpiryPopup";
+
+const ADMIN_EMAIL = "hareselimovic@gmail.com";
 
 export default async function DashboardLayout({
   children,
@@ -16,10 +19,19 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  const workspace = await prisma.workspace.findFirst({
-    where: { ownerId: session.user.id },
-    select: { name: true },
-  });
+  const [workspace, subscription] = await Promise.all([
+    prisma.workspace.findFirst({
+      where: { ownerId: session.user.id },
+      select: { name: true },
+    }),
+    session.user.email !== ADMIN_EMAIL
+      ? prisma.subscription.findUnique({ where: { userId: session.user.id } })
+      : null,
+  ]);
+
+  const daysLeft = subscription
+    ? Math.ceil((subscription.validUntil.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : 0;
 
   return (
     <div className="flex h-screen bg-[#F7F7F5]">
@@ -28,6 +40,9 @@ export default async function DashboardLayout({
         {children}
       </main>
       <BottomNav user={session.user} />
+      {daysLeft > 0 && daysLeft <= 5 && (
+        <SubscriptionExpiryPopup daysLeft={daysLeft} />
+      )}
     </div>
   );
 }
