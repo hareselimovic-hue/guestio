@@ -16,14 +16,14 @@ export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const origin = req.headers.get("origin") ?? "";
 
-  // Handle CORS preflight for /api/auth/* from mobile dev origins
-  if (pathname.startsWith("/api/auth/") && MOBILE_ORIGINS.has(origin)) {
+  // Handle CORS for all /api/* routes from mobile dev origins
+  if (pathname.startsWith("/api/") && MOBILE_ORIGINS.has(origin)) {
     if (req.method === "OPTIONS") {
       return new NextResponse(null, {
         status: 204,
         headers: {
           "Access-Control-Allow-Origin": origin,
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type, Cookie, Authorization",
           "Access-Control-Allow-Credentials": "true",
         },
@@ -70,5 +70,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/api/auth/:path*"],
+  matcher: ["/dashboard/:path*", "/api/:path*"],
 };
