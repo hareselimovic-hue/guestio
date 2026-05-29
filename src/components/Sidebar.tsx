@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
-import { Home, LogOut, ChevronRight, Settings, ShieldCheck, CreditCard, BarChart2, HelpCircle } from "lucide-react";
+import { Home, LogOut, ChevronRight, Settings, ShieldCheck, CreditCard, BarChart2, HelpCircle, MessageSquare } from "lucide-react";
 
 interface SidebarProps {
   user: { id: string; name?: string | null; email: string };
@@ -15,6 +15,7 @@ const ADMIN_EMAIL = "hareselimovic@gmail.com";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart2 },
+  { href: "/dashboard/team", label: "Team Channel", icon: MessageSquare },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
   { href: "/dashboard/subscription", label: "Subscription", icon: CreditCard },
 ];

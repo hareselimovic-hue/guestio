@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, BarChart2, Settings, MoreHorizontal, CreditCard, ShieldCheck, X, HelpCircle } from "lucide-react";
+import { Home, BarChart2, Settings, MoreHorizontal, CreditCard, ShieldCheck, X, HelpCircle, MessageSquare } from "lucide-react";
 import { signOut } from "@/lib/auth-client";
 
 interface BottomNavProps {
@@ -15,6 +15,7 @@ const ADMIN_EMAIL = "hareselimovic@gmail.com";
 const mainItems = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart2 },
+  { href: "/dashboard/team", label: "Team", icon: MessageSquare },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 

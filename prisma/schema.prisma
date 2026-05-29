@@ -24,6 +24,8 @@ model User {
   ownedWorkspace   Workspace?        @relation("WorkspaceOwner")
   workspaceMember  WorkspaceMember[]
   subscription     Subscription?
+  tasks            Task[]            @relation("TaskAuthor")
+  taskComments     TaskComment[]     @relation("TaskCommentAuthor")
 }
 
 model Session {
@@ -87,6 +89,7 @@ model Property {
   chatCount         Int      @default(0)
   sections     Section[]
   guests       GuestLink[]
+  tasks        Task[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 }
@@ -137,6 +140,7 @@ model Workspace {
   members            WorkspaceMember[]
   invites            WorkspaceInvite[]
   properties         Property[]
+  tasks              Task[]
   rentlioApiKey      String?
   rentlioConnectedAt DateTime?
   createdAt          DateTime          @default(now())
@@ -198,4 +202,39 @@ model GuestLinkView {
 
   @@index([guestLinkId])
   @@index([viewedAt])
+}
+
+// ─── Team Channel ─────────────────────────────────────────────────────────────
+
+model Task {
+  id          String        @id @default(cuid())
+  workspaceId String
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User          @relation("TaskAuthor", fields: [authorId], references: [id])
+  propertyId  String?
+  property    Property?     @relation(fields: [propertyId], references: [id])
+  content     String
+  status      TaskStatus    @default(IN_PROGRESS)
+  mentionIds  String[]
+  comments    TaskComment[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([workspaceId, createdAt(sort: Desc)])
+}
+
+model TaskComment {
+  id        String   @id @default(cuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation("TaskCommentAuthor", fields: [authorId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+}
+
+enum TaskStatus {
+  IN_PROGRESS
+  DONE
 }
