@@ -44,28 +44,20 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
   const [expanded, setExpanded] = useState(false);
   const [comment, setComment] = useState("");
   const [commentMentionIds, setCommentMentionIds] = useState<string[]>([]);
-  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const [posting, setPosting] = useState(false);
 
   const mentionedNames = task.mentionIds
     .map(id => members.find(m => m.id === id)?.name)
     .filter(Boolean);
 
-  const mentionMatches = mentionQuery !== null
-    ? members.filter(m => m.name.toLowerCase().includes(mentionQuery.toLowerCase())).slice(0, 5)
+  const atMatch = comment.match(/@([^@ \n]*)$/);
+  const mentionMatches = atMatch
+    ? members.filter(m => m.name.toLowerCase().includes(atMatch[1].toLowerCase())).slice(0, 5)
     : [];
 
-  function handleCommentChange(value: string) {
-    setComment(value);
-    const match = value.match(/@([^@ \n]*)$/);
-    setMentionQuery(match ? match[1] : null);
-  }
-
   function selectMention(member: Member) {
-    const replaced = comment.replace(/@([^@ \n]*)$/, `@${member.name.split(" ")[0]} `);
-    setComment(replaced);
+    setComment(c => c.replace(/@([^@ \n]*)$/, `@${member.name.split(" ")[0]} `));
     setCommentMentionIds(ids => ids.includes(member.id) ? ids : [...ids, member.id]);
-    setMentionQuery(null);
   }
 
   async function toggleStatus() {
@@ -91,7 +83,6 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
       onUpdate({ ...task, comments: [...task.comments, newComment] });
       setComment("");
       setCommentMentionIds([]);
-      setMentionQuery(null);
     }
     setPosting(false);
   }
@@ -186,7 +177,7 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
             <div className="flex gap-2">
               <input
                 value={comment}
-                onChange={e => handleCommentChange(e.target.value)}
+                onChange={e => setComment(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addComment(); } }}
                 placeholder="Dodaj komentar... (@ za označi)"
                 className="flex-1 text-base border border-[#EDEDE9] rounded-xl px-3 py-2 outline-none focus:border-[#0F2F61] bg-[#F7F7F5]"
@@ -215,24 +206,16 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
   const [content, setContent] = useState("");
   const [propertyId, setPropertyId] = useState("");
   const [mentionIds, setMentionIds] = useState<string[]>([]);
-  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const mentionMatches = mentionQuery !== null
-    ? members.filter(m => m.name.toLowerCase().includes(mentionQuery.toLowerCase())).slice(0, 5)
+  const atMatch = content.match(/@([^@ \n]*)$/);
+  const mentionMatches = atMatch
+    ? members.filter(m => m.name.toLowerCase().includes(atMatch[1].toLowerCase())).slice(0, 5)
     : [];
 
-  function handleContentChange(value: string) {
-    setContent(value);
-    const match = value.match(/@([^@ \n]*)$/);
-    setMentionQuery(match ? match[1] : null);
-  }
-
   function selectMention(member: Member) {
-    const replaced = content.replace(/@([^@ \n]*)$/, `@${member.name.split(" ")[0]} `);
-    setContent(replaced);
+    setContent(c => c.replace(/@([^@ \n]*)$/, `@${member.name.split(" ")[0]} `));
     setMentionIds(ids => ids.includes(member.id) ? ids : [...ids, member.id]);
-    setMentionQuery(null);
   }
 
   async function submit() {
@@ -273,7 +256,7 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
       )}
       <textarea
         value={content}
-        onChange={e => handleContentChange(e.target.value)}
+        onChange={e => setContent(e.target.value)}
         placeholder="Opiši problem, zadatak ili obavijest... (@ za označi)"
         rows={3}
         className="w-full text-base border border-[#EDEDE9] rounded-xl px-3 py-2.5 outline-none focus:border-[#0F2F61] resize-none bg-[#F7F7F5]"
