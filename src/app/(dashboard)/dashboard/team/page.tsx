@@ -44,20 +44,17 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
   const [expanded, setExpanded] = useState(false);
   const [comment, setComment] = useState("");
   const [commentMentionIds, setCommentMentionIds] = useState<string[]>([]);
+  const [showPicker, setShowPicker] = useState(false);
   const [posting, setPosting] = useState(false);
 
   const mentionedNames = task.mentionIds
     .map(id => members.find(m => m.id === id)?.name)
     .filter(Boolean);
 
-  const atMatch = comment.match(/@([^@ \n]*)$/);
-  const mentionMatches = atMatch
-    ? members.filter(m => m.name.toLowerCase().includes(atMatch[1].toLowerCase())).slice(0, 5)
-    : [];
-
-  function selectMention(member: Member) {
-    setComment(c => c.replace(/@([^@ \n]*)$/, `@${member.name.split(" ")[0]} `));
+  function pickMention(member: Member) {
+    setComment(c => c.trimEnd() + (c.length > 0 ? " " : "") + `@${member.name.split(" ")[0]} `);
     setCommentMentionIds(ids => ids.includes(member.id) ? ids : [...ids, member.id]);
+    setShowPicker(false);
   }
 
   async function toggleStatus() {
@@ -160,12 +157,12 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
           ))}
 
           <div className="mt-3">
-            {mentionMatches.length > 0 && (
+            {showPicker && members.length > 0 && (
               <div className="mb-2 border border-[#EDEDE9] rounded-xl overflow-hidden bg-white shadow-sm">
-                {mentionMatches.map(m => (
+                {members.map(m => (
                   <button
                     key={m.id}
-                    onMouseDown={e => { e.preventDefault(); selectMention(m); }}
+                    onMouseDown={e => { e.preventDefault(); pickMention(m); }}
                     className="w-full text-left px-3 py-2 text-sm hover:bg-[#F7F7F5] flex items-center gap-2 transition-colors border-b border-[#F7F7F5] last:border-0"
                   >
                     <AtSign className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
@@ -175,11 +172,20 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
               </div>
             )}
             <div className="flex gap-2">
+              {members.length > 0 && (
+                <button
+                  onClick={() => setShowPicker(p => !p)}
+                  className={`p-2 rounded-xl border transition-colors ${showPicker ? "bg-[#FF6700] border-[#FF6700] text-white" : "border-[#EDEDE9] text-[#6B6B6B] hover:border-[#0F2F61]"}`}
+                  title="Označi kolegu"
+                >
+                  <AtSign className="w-4 h-4" />
+                </button>
+              )}
               <input
                 value={comment}
                 onChange={e => setComment(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addComment(); } }}
-                placeholder="Dodaj komentar... (@ za označi)"
+                placeholder="Dodaj komentar..."
                 className="flex-1 text-base border border-[#EDEDE9] rounded-xl px-3 py-2 outline-none focus:border-[#0F2F61] bg-[#F7F7F5]"
               />
               <button
@@ -206,16 +212,13 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
   const [content, setContent] = useState("");
   const [propertyId, setPropertyId] = useState("");
   const [mentionIds, setMentionIds] = useState<string[]>([]);
+  const [showPicker, setShowPicker] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const atMatch = content.match(/@([^@ \n]*)$/);
-  const mentionMatches = atMatch
-    ? members.filter(m => m.name.toLowerCase().includes(atMatch[1].toLowerCase())).slice(0, 5)
-    : [];
-
-  function selectMention(member: Member) {
-    setContent(c => c.replace(/@([^@ \n]*)$/, `@${member.name.split(" ")[0]} `));
+  function pickMention(member: Member) {
+    setContent(c => c.trimEnd() + (c.length > 0 ? " " : "") + `@${member.name.split(" ")[0]} `);
     setMentionIds(ids => ids.includes(member.id) ? ids : [...ids, member.id]);
+    setShowPicker(false);
   }
 
   async function submit() {
@@ -240,12 +243,12 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
         <button onClick={onClose} className="text-[#6B6B6B] hover:text-[#262626]"><X className="w-4 h-4" /></button>
       </div>
 
-      {mentionMatches.length > 0 && (
+      {showPicker && members.length > 0 && (
         <div className="mb-2 border border-[#EDEDE9] rounded-xl overflow-hidden bg-white shadow-sm">
-          {mentionMatches.map(m => (
+          {members.map(m => (
             <button
               key={m.id}
-              onMouseDown={e => { e.preventDefault(); selectMention(m); }}
+              onMouseDown={e => { e.preventDefault(); pickMention(m); }}
               className="w-full text-left px-3 py-2 text-sm hover:bg-[#F7F7F5] flex items-center gap-2 transition-colors border-b border-[#F7F7F5] last:border-0"
             >
               <AtSign className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
@@ -254,14 +257,26 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
           ))}
         </div>
       )}
-      <textarea
-        value={content}
-        onChange={e => setContent(e.target.value)}
-        placeholder="Opiši problem, zadatak ili obavijest... (@ za označi)"
-        rows={3}
-        className="w-full text-base border border-[#EDEDE9] rounded-xl px-3 py-2.5 outline-none focus:border-[#0F2F61] resize-none bg-[#F7F7F5]"
-        autoFocus
-      />
+      <div className="relative">
+        <textarea
+          value={content}
+          onChange={e => setContent(e.target.value)}
+          placeholder="Opiši problem, zadatak ili obavijest..."
+          rows={3}
+          className="w-full text-base border border-[#EDEDE9] rounded-xl px-3 py-2.5 pr-10 outline-none focus:border-[#0F2F61] resize-none bg-[#F7F7F5]"
+          autoFocus
+        />
+        {members.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowPicker(p => !p)}
+            className={`absolute right-2 top-2 p-1.5 rounded-lg transition-colors ${showPicker ? "bg-[#FF6700] text-white" : "text-[#6B6B6B] hover:text-[#0F2F61]"}`}
+            title="Označi kolegu"
+          >
+            <AtSign className="w-4 h-4" />
+          </button>
+        )}
+      </div>
 
       <select
         value={propertyId}
