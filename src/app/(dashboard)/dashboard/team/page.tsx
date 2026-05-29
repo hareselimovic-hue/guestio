@@ -317,11 +317,10 @@ export default function TeamPage() {
       fetch("/api/properties").then(r => r.json()),
     ]).then(([t, ws, props]) => {
       setTasks(t);
-      const allMembers: Member[] = [
-        ...(ws?.owner ? [ws.owner] : []),
-        ...(ws?.members?.map((m: { user: Member }) => m.user) ?? []),
-      ];
-      setMembers(allMembers.filter((m, i, a) => a.findIndex(x => x.id === m.id) === i));
+      const allMembers: Member[] = (ws?.workspace?.members ?? [])
+        .map((m: { user: Member }) => m.user)
+        .filter((m: Member, i: number, a: Member[]) => a.findIndex(x => x.id === m.id) === i);
+      setMembers(allMembers);
       setProperties(props.map((p: Property & Record<string, unknown>) => ({ id: p.id, name: p.name })));
       setLoading(false);
     });
