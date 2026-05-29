@@ -117,6 +117,8 @@ export const auth = betterAuth({
     "https://app.smartstay.ba",
     "smartstay://",
     "exp://",
+    "http://localhost:8081",
+    "http://192.168.0.28:8081",
   ],
 });
 
