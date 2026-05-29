@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Brain, MessageCircle, Globe, Lock, Lightbulb, LayoutGrid, Link2, BarChart2, Plug, ChevronRight, Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
+import { Brain, MessageCircle, Globe, Lock, Lightbulb, LayoutGrid, Link2, BarChart2, Plug, ChevronRight, Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 type Tab = "ai" | "sections" | "links" | "analytics" | "rentlio";
 
@@ -21,7 +22,16 @@ export default function HelpClient() {
 
       {/* Header */}
       <div className="bg-[#0F2F61] text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-8 py-10">
+        <div className="max-w-4xl mx-auto px-4 sm:px-8 pt-6 pb-0">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-1.5 text-[#8ba3c7] hover:text-white text-sm font-medium transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Nazad na Dashboard
+          </Link>
+        </div>
+        <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8">
           <p className="text-[#8ba3c7] text-sm font-medium uppercase tracking-wide mb-2">Pomoć i upute</p>
           <h1 className="text-3xl sm:text-4xl font-bold">Kako koristiti SmartStay</h1>
         </div>

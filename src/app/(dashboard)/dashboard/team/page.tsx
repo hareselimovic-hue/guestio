@@ -344,17 +344,17 @@ export default function TeamPage() {
         <select
           value={filterProperty}
           onChange={e => setFilterProperty(e.target.value)}
-          className={`flex-1 text-xs border rounded-xl px-3 py-2 outline-none bg-white transition-colors ${filterProperty ? "border-[#0F2F61] text-[#0F2F61] font-medium" : "border-[#EDEDE9] text-[#6B6B6B]"}`}
+          className={`w-1/2 min-w-0 text-xs border rounded-xl px-3 py-2 outline-none bg-white transition-colors ${filterProperty ? "border-[#0F2F61] text-[#0F2F61] font-medium" : "border-[#EDEDE9] text-[#6B6B6B]"}`}
         >
-          <option value="">🏠 Sve nekretnine</option>
+          <option value="">🏠 Nekretnine</option>
           {properties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
         <select
           value={filterMember}
           onChange={e => setFilterMember(e.target.value)}
-          className={`flex-1 text-xs border rounded-xl px-3 py-2 outline-none bg-white transition-colors ${filterMember ? "border-[#0F2F61] text-[#0F2F61] font-medium" : "border-[#EDEDE9] text-[#6B6B6B]"}`}
+          className={`w-1/2 min-w-0 text-xs border rounded-xl px-3 py-2 outline-none bg-white transition-colors ${filterMember ? "border-[#0F2F61] text-[#0F2F61] font-medium" : "border-[#EDEDE9] text-[#6B6B6B]"}`}
         >
-          <option value="">👤 Svi članovi</option>
+          <option value="">👤 Članovi</option>
           {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
       </div>
