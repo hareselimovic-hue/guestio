@@ -43,11 +43,16 @@ function StatusBadge({ status }: { status: Task["status"] }) {
 function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; onUpdate: (t: Task) => void }) {
   const [expanded, setExpanded] = useState(false);
   const [comment, setComment] = useState("");
+  const [commentMentionIds, setCommentMentionIds] = useState<string[]>([]);
   const [posting, setPosting] = useState(false);
 
   const mentionedNames = task.mentionIds
     .map(id => members.find(m => m.id === id)?.name)
     .filter(Boolean);
+
+  function toggleCommentMention(id: string) {
+    setCommentMentionIds(ids => ids.includes(id) ? ids.filter(i => i !== id) : [...ids, id]);
+  }
 
   async function toggleStatus() {
     const next = task.status === "IN_PROGRESS" ? "DONE" : "IN_PROGRESS";
@@ -65,12 +70,13 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
     const res = await fetch(`/api/tasks/${task.id}/comments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: comment.trim() }),
+      body: JSON.stringify({ content: comment.trim(), mentionIds: commentMentionIds }),
     });
     if (res.ok) {
       const newComment = await res.json();
       onUpdate({ ...task, comments: [...task.comments, newComment] });
       setComment("");
+      setCommentMentionIds([]);
     }
     setPosting(false);
   }
@@ -147,13 +153,31 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
             </div>
           ))}
 
-          <div className="flex gap-2 mt-3">
+          {members.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              {members.map(m => (
+                <button
+                  key={m.id}
+                  onClick={() => toggleCommentMention(m.id)}
+                  className={`text-xs px-2.5 py-1 rounded-full border font-medium transition-colors ${
+                    commentMentionIds.includes(m.id)
+                      ? "bg-[#FF6700] border-[#FF6700] text-white"
+                      : "border-[#EDEDE9] text-[#6B6B6B] hover:border-[#0F2F61]"
+                  }`}
+                >
+                  @{m.name.split(" ")[0]}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="flex gap-2 mt-2">
             <input
               value={comment}
               onChange={e => setComment(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addComment(); } }}
               placeholder="Dodaj komentar..."
-              className="flex-1 text-sm border border-[#EDEDE9] rounded-xl px-3 py-2 outline-none focus:border-[#0F2F61] bg-[#F7F7F5]"
+              className="flex-1 text-base border border-[#EDEDE9] rounded-xl px-3 py-2 outline-none focus:border-[#0F2F61] bg-[#F7F7F5]"
             />
             <button
               onClick={addComment}
@@ -211,7 +235,7 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
         onChange={e => setContent(e.target.value)}
         placeholder="Opiši problem, zadatak ili obavijest..."
         rows={3}
-        className="w-full text-sm border border-[#EDEDE9] rounded-xl px-3 py-2.5 outline-none focus:border-[#0F2F61] resize-none bg-[#F7F7F5]"
+        className="w-full text-base border border-[#EDEDE9] rounded-xl px-3 py-2.5 outline-none focus:border-[#0F2F61] resize-none bg-[#F7F7F5]"
         autoFocus
       />
 
