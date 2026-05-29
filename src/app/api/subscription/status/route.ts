@@ -25,6 +25,7 @@ export async function GET() {
     });
   }
   const expired = sub.validUntil < new Date();
+  const daysLeft = Math.ceil((sub.validUntil.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
-  return NextResponse.json({ expired, isAdmin: false });
+  return NextResponse.json({ expired, isAdmin: false, daysLeft, validUntil: sub.validUntil.toISOString() });
 }
