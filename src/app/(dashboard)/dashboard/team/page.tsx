@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { CheckCircle2, Clock, Home, ChevronDown, ChevronUp, Send, Plus, X, AtSign } from "lucide-react";
+import { CheckCircle2, Clock, Home, ChevronDown, ChevronUp, Send, Plus, X, AtSign, Trash2 } from "lucide-react";
 
 interface Author { id: string; name: string; email?: string; image?: string | null; }
 interface Property { id: string; name: string; }
@@ -40,12 +40,13 @@ function StatusBadge({ status }: { status: Task["status"] }) {
   );
 }
 
-function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; onUpdate: (t: Task) => void }) {
+function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: Task; members: Member[]; currentUserId: string | null; onUpdate: (t: Task) => void; onDelete: (id: string) => void }) {
   const [expanded, setExpanded] = useState(false);
   const [comment, setComment] = useState("");
   const [commentMentionIds, setCommentMentionIds] = useState<string[]>([]);
   const [showPicker, setShowPicker] = useState(false);
   const [posting, setPosting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const mentionedNames = task.mentionIds
     .map(id => members.find(m => m.id === id)?.name)
@@ -65,6 +66,14 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
       body: JSON.stringify({ status: next }),
     });
     if (res.ok) onUpdate(await res.json());
+  }
+
+  async function deleteTask() {
+    if (!confirm("Obrisati ovu poruku?")) return;
+    setDeleting(true);
+    const res = await fetch(`/api/tasks/${task.id}`, { method: "DELETE" });
+    if (res.ok) onDelete(task.id);
+    else setDeleting(false);
   }
 
   async function addComment() {
@@ -124,9 +133,19 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
             className="flex items-center gap-1.5 text-xs text-[#6B6B6B] hover:text-[#262626] transition-colors"
           >
             {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            {task.comments.length === 0 ? "Add comment" : `${task.comments.length} comment${task.comments.length !== 1 ? "s" : ""}`}
+            {task.comments.length === 0 ? "Komentar" : `${task.comments.length} komentar${task.comments.length !== 1 ? "a" : ""}`}
           </button>
           <div className="flex-1" />
+          {currentUserId === task.author.id && (
+            <button
+              onClick={deleteTask}
+              disabled={deleting}
+              className="p-1 text-[#BABAB5] hover:text-red-500 transition-colors disabled:opacity-40"
+              title="Obriši poruku"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
           <button
             onClick={toggleStatus}
             className={`text-xs font-medium px-3 py-1 rounded-lg border transition-colors ${
@@ -159,6 +178,13 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
           <div className="mt-3">
             {showPicker && members.length > 0 && (
               <div className="mb-2 border border-[#EDEDE9] rounded-xl overflow-hidden bg-white shadow-sm">
+                <button
+                  onMouseDown={e => { e.preventDefault(); members.forEach(m => pickMention(m)); setShowPicker(false); }}
+                  className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-[#FFF4EE] flex items-center gap-2 transition-colors border-b border-[#EDEDE9] text-[#FF6700]"
+                >
+                  <AtSign className="w-3.5 h-3.5 shrink-0" />
+                  Tag All
+                </button>
                 {members.map(m => (
                   <button
                     key={m.id}
@@ -245,6 +271,13 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
 
       {showPicker && members.length > 0 && (
         <div className="mb-2 border border-[#EDEDE9] rounded-xl overflow-hidden bg-white shadow-sm">
+          <button
+            onMouseDown={e => { e.preventDefault(); members.forEach(m => pickMention(m)); setShowPicker(false); }}
+            className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-[#FFF4EE] flex items-center gap-2 transition-colors border-b border-[#EDEDE9] text-[#FF6700]"
+          >
+            <AtSign className="w-3.5 h-3.5 shrink-0" />
+            Tag All
+          </button>
           {members.map(m => (
             <button
               key={m.id}
@@ -304,6 +337,7 @@ export default function TeamPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState<"ALL" | "IN_PROGRESS" | "DONE">("ALL");
@@ -315,8 +349,10 @@ export default function TeamPage() {
       fetch("/api/tasks").then(r => r.json()),
       fetch("/api/workspace").then(r => r.json()),
       fetch("/api/properties").then(r => r.json()),
-    ]).then(([t, ws, props]) => {
+      fetch("/api/auth/get-session").then(r => r.json()),
+    ]).then(([t, ws, props, session]) => {
       setTasks(t);
+      setCurrentUserId(session?.user?.id ?? null);
       const allMembers: Member[] = (ws?.workspace?.members ?? [])
         .map((m: { user: Member }) => m.user)
         .filter((m: Member, i: number, a: Member[]) => a.findIndex(x => x.id === m.id) === i);
@@ -414,7 +450,9 @@ export default function TeamPage() {
               key={task.id}
               task={task}
               members={members}
+              currentUserId={currentUserId}
               onUpdate={updated => setTasks(all => all.map(t => t.id === updated.id ? updated : t))}
+              onDelete={id => setTasks(all => all.filter(t => t.id !== id))}
             />
           ))}
         </div>
