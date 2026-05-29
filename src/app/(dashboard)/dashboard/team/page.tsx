@@ -269,6 +269,8 @@ export default function TeamPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState<"ALL" | "IN_PROGRESS" | "DONE">("ALL");
+  const [filterProperty, setFilterProperty] = useState("");
+  const [filterMember, setFilterMember] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -287,7 +289,12 @@ export default function TeamPage() {
     });
   }, []);
 
-  const filtered = tasks.filter(t => filter === "ALL" || t.status === filter);
+  const filtered = tasks.filter(t => {
+    if (filter !== "ALL" && t.status !== filter) return false;
+    if (filterProperty && t.property?.id !== filterProperty) return false;
+    if (filterMember && t.author.id !== filterMember && !t.mentionIds.includes(filterMember)) return false;
+    return true;
+  });
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -317,8 +324,8 @@ export default function TeamPage() {
         </div>
       )}
 
-      {/* Filter tabs */}
-      <div className="flex gap-1 mb-5 bg-[#F7F7F5] rounded-xl p-1">
+      {/* Filter tabs — status */}
+      <div className="flex gap-1 mb-3 bg-[#F7F7F5] rounded-xl p-1">
         {(["ALL", "IN_PROGRESS", "DONE"] as const).map(f => (
           <button
             key={f}
@@ -330,6 +337,26 @@ export default function TeamPage() {
             {f === "ALL" ? "Sve" : f === "IN_PROGRESS" ? "U toku" : "Završeno"}
           </button>
         ))}
+      </div>
+
+      {/* Filter dropdowns — property + member */}
+      <div className="flex gap-2 mb-5">
+        <select
+          value={filterProperty}
+          onChange={e => setFilterProperty(e.target.value)}
+          className={`flex-1 text-xs border rounded-xl px-3 py-2 outline-none bg-white transition-colors ${filterProperty ? "border-[#0F2F61] text-[#0F2F61] font-medium" : "border-[#EDEDE9] text-[#6B6B6B]"}`}
+        >
+          <option value="">🏠 Sve nekretnine</option>
+          {properties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+        </select>
+        <select
+          value={filterMember}
+          onChange={e => setFilterMember(e.target.value)}
+          className={`flex-1 text-xs border rounded-xl px-3 py-2 outline-none bg-white transition-colors ${filterMember ? "border-[#0F2F61] text-[#0F2F61] font-medium" : "border-[#EDEDE9] text-[#6B6B6B]"}`}
+        >
+          <option value="">👤 Svi članovi</option>
+          {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+        </select>
       </div>
 
       {/* Tasks feed */}
