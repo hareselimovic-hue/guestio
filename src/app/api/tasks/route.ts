@@ -72,7 +72,7 @@ async function sendMentionEmails(
   mentionIds: string[]
 ) {
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const from = process.env.RESEND_FROM_EMAIL ?? "noreply@smartstay.ba";
+  const from = process.env.RESEND_FROM_EMAIL ?? "info@smartstay.ba";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.smartstay.ba";
 
   const users = await prisma.user.findMany({

@@ -53,7 +53,6 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
     .filter(Boolean);
 
   function pickMention(member: Member) {
-    setComment(c => c.trimEnd() + (c.length > 0 ? " " : "") + `@${member.name.split(" ")[0]} `);
     setCommentMentionIds(ids => ids.includes(member.id) ? ids : [...ids, member.id]);
     setShowPicker(false);
   }
@@ -176,10 +175,27 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
           ))}
 
           <div className="mt-3">
+            {commentMentionIds.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-2">
+                {commentMentionIds.map(id => {
+                  const m = members.find(x => x.id === id);
+                  if (!m) return null;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => setCommentMentionIds(ids => ids.filter(i => i !== id))}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs bg-[#FFF4EE] text-[#FF6700] border border-[#FFE4D0] hover:bg-[#FFE4D0] transition-colors"
+                    >
+                      <AtSign className="w-3 h-3" />{m.name.split(" ")[0]} <X className="w-3 h-3" />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
             {showPicker && members.length > 0 && (
               <div className="mb-2 border border-[#EDEDE9] rounded-xl overflow-hidden bg-white shadow-sm">
                 <button
-                  onMouseDown={e => { e.preventDefault(); members.forEach(m => pickMention(m)); setShowPicker(false); }}
+                  onMouseDown={e => { e.preventDefault(); setCommentMentionIds(members.map(m => m.id)); setShowPicker(false); }}
                   className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-[#FFF4EE] flex items-center gap-2 transition-colors border-b border-[#EDEDE9] text-[#FF6700]"
                 >
                   <AtSign className="w-3.5 h-3.5 shrink-0" />
@@ -242,7 +258,6 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
   const [submitting, setSubmitting] = useState(false);
 
   function pickMention(member: Member) {
-    setContent(c => c.trimEnd() + (c.length > 0 ? " " : "") + `@${member.name.split(" ")[0]} `);
     setMentionIds(ids => ids.includes(member.id) ? ids : [...ids, member.id]);
     setShowPicker(false);
   }
@@ -269,10 +284,27 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
         <button onClick={onClose} className="text-[#6B6B6B] hover:text-[#262626]"><X className="w-4 h-4" /></button>
       </div>
 
+      {mentionIds.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-2">
+          {mentionIds.map(id => {
+            const m = members.find(x => x.id === id);
+            if (!m) return null;
+            return (
+              <button
+                key={id}
+                onClick={() => setMentionIds(ids => ids.filter(i => i !== id))}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs bg-[#FFF4EE] text-[#FF6700] border border-[#FFE4D0] hover:bg-[#FFE4D0] transition-colors"
+              >
+                <AtSign className="w-3 h-3" />{m.name.split(" ")[0]} <X className="w-3 h-3" />
+              </button>
+            );
+          })}
+        </div>
+      )}
       {showPicker && members.length > 0 && (
         <div className="mb-2 border border-[#EDEDE9] rounded-xl overflow-hidden bg-white shadow-sm">
           <button
-            onMouseDown={e => { e.preventDefault(); members.forEach(m => pickMention(m)); setShowPicker(false); }}
+            onMouseDown={e => { e.preventDefault(); setMentionIds(members.map(m => m.id)); setShowPicker(false); }}
             className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-[#FFF4EE] flex items-center gap-2 transition-colors border-b border-[#EDEDE9] text-[#FF6700]"
           >
             <AtSign className="w-3.5 h-3.5 shrink-0" />
