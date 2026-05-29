@@ -44,14 +44,28 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
   const [expanded, setExpanded] = useState(false);
   const [comment, setComment] = useState("");
   const [commentMentionIds, setCommentMentionIds] = useState<string[]>([]);
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const [posting, setPosting] = useState(false);
 
   const mentionedNames = task.mentionIds
     .map(id => members.find(m => m.id === id)?.name)
     .filter(Boolean);
 
-  function toggleCommentMention(id: string) {
-    setCommentMentionIds(ids => ids.includes(id) ? ids.filter(i => i !== id) : [...ids, id]);
+  const mentionMatches = mentionQuery !== null
+    ? members.filter(m => m.name.toLowerCase().includes(mentionQuery.toLowerCase())).slice(0, 5)
+    : [];
+
+  function handleCommentChange(value: string) {
+    setComment(value);
+    const match = value.match(/@([^@ \n]*)$/);
+    setMentionQuery(match ? match[1] : null);
+  }
+
+  function selectMention(member: Member) {
+    const replaced = comment.replace(/@([^@ \n]*)$/, `@${member.name.split(" ")[0]} `);
+    setComment(replaced);
+    setCommentMentionIds(ids => ids.includes(member.id) ? ids : [...ids, member.id]);
+    setMentionQuery(null);
   }
 
   async function toggleStatus() {
@@ -77,6 +91,7 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
       onUpdate({ ...task, comments: [...task.comments, newComment] });
       setComment("");
       setCommentMentionIds([]);
+      setMentionQuery(null);
     }
     setPosting(false);
   }
@@ -153,39 +168,37 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
             </div>
           ))}
 
-          {members.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-3">
-              {members.map(m => (
-                <button
-                  key={m.id}
-                  onClick={() => toggleCommentMention(m.id)}
-                  className={`text-xs px-2.5 py-1 rounded-full border font-medium transition-colors ${
-                    commentMentionIds.includes(m.id)
-                      ? "bg-[#FF6700] border-[#FF6700] text-white"
-                      : "border-[#EDEDE9] text-[#6B6B6B] hover:border-[#0F2F61]"
-                  }`}
-                >
-                  @{m.name.split(" ")[0]}
-                </button>
-              ))}
+          <div className="relative mt-3">
+            {mentionMatches.length > 0 && (
+              <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-[#EDEDE9] rounded-xl shadow-lg z-10 overflow-hidden">
+                {mentionMatches.map(m => (
+                  <button
+                    key={m.id}
+                    onMouseDown={e => { e.preventDefault(); selectMention(m); }}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-[#F7F7F5] flex items-center gap-2 transition-colors"
+                  >
+                    <AtSign className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
+                    <span className="text-[#262626]">{m.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <input
+                value={comment}
+                onChange={e => handleCommentChange(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addComment(); } }}
+                placeholder="Dodaj komentar... (@ za označi)"
+                className="flex-1 text-base border border-[#EDEDE9] rounded-xl px-3 py-2 outline-none focus:border-[#0F2F61] bg-[#F7F7F5]"
+              />
+              <button
+                onClick={addComment}
+                disabled={posting || !comment.trim()}
+                className="p-2 rounded-xl bg-[#0F2F61] text-white disabled:opacity-40 hover:bg-[#1a3d75] transition-colors"
+              >
+                <Send className="w-4 h-4" />
+              </button>
             </div>
-          )}
-
-          <div className="flex gap-2 mt-2">
-            <input
-              value={comment}
-              onChange={e => setComment(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addComment(); } }}
-              placeholder="Dodaj komentar..."
-              className="flex-1 text-base border border-[#EDEDE9] rounded-xl px-3 py-2 outline-none focus:border-[#0F2F61] bg-[#F7F7F5]"
-            />
-            <button
-              onClick={addComment}
-              disabled={posting || !comment.trim()}
-              className="p-2 rounded-xl bg-[#0F2F61] text-white disabled:opacity-40 hover:bg-[#1a3d75] transition-colors"
-            >
-              <Send className="w-4 h-4" />
-            </button>
           </div>
         </div>
       )}
@@ -202,10 +215,24 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
   const [content, setContent] = useState("");
   const [propertyId, setPropertyId] = useState("");
   const [mentionIds, setMentionIds] = useState<string[]>([]);
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  function toggleMention(id: string) {
-    setMentionIds(ids => ids.includes(id) ? ids.filter(i => i !== id) : [...ids, id]);
+  const mentionMatches = mentionQuery !== null
+    ? members.filter(m => m.name.toLowerCase().includes(mentionQuery.toLowerCase())).slice(0, 5)
+    : [];
+
+  function handleContentChange(value: string) {
+    setContent(value);
+    const match = value.match(/@([^@ \n]*)$/);
+    setMentionQuery(match ? match[1] : null);
+  }
+
+  function selectMention(member: Member) {
+    const replaced = content.replace(/@([^@ \n]*)$/, `@${member.name.split(" ")[0]} `);
+    setContent(replaced);
+    setMentionIds(ids => ids.includes(member.id) ? ids : [...ids, member.id]);
+    setMentionQuery(null);
   }
 
   async function submit() {
@@ -230,48 +257,39 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
         <button onClick={onClose} className="text-[#6B6B6B] hover:text-[#262626]"><X className="w-4 h-4" /></button>
       </div>
 
-      <textarea
-        value={content}
-        onChange={e => setContent(e.target.value)}
-        placeholder="Opiši problem, zadatak ili obavijest..."
-        rows={3}
-        className="w-full text-base border border-[#EDEDE9] rounded-xl px-3 py-2.5 outline-none focus:border-[#0F2F61] resize-none bg-[#F7F7F5]"
-        autoFocus
-      />
-
-      <div className="flex gap-3 mt-3">
-        {/* Property picker */}
-        <select
-          value={propertyId}
-          onChange={e => setPropertyId(e.target.value)}
-          className="flex-1 text-sm border border-[#EDEDE9] rounded-xl px-3 py-2 outline-none focus:border-[#0F2F61] bg-[#F7F7F5] text-[#262626]"
-        >
-          <option value="">Nekretnina (opcionalno)</option>
-          {properties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-        </select>
-      </div>
-
-      {/* Mention members */}
-      {members.length > 0 && (
-        <div className="mt-3">
-          <p className="text-xs text-[#6B6B6B] mb-1.5 flex items-center gap-1"><AtSign className="w-3 h-3" /> Označi kolegu</p>
-          <div className="flex flex-wrap gap-2">
-            {members.map(m => (
+      <div className="relative">
+        {mentionMatches.length > 0 && (
+          <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-[#EDEDE9] rounded-xl shadow-lg z-10 overflow-hidden">
+            {mentionMatches.map(m => (
               <button
                 key={m.id}
-                onClick={() => toggleMention(m.id)}
-                className={`text-xs px-3 py-1 rounded-full border font-medium transition-colors ${
-                  mentionIds.includes(m.id)
-                    ? "bg-[#FF6700] border-[#FF6700] text-white"
-                    : "border-[#EDEDE9] text-[#262626] hover:border-[#0F2F61]"
-                }`}
+                onMouseDown={e => { e.preventDefault(); selectMention(m); }}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-[#F7F7F5] flex items-center gap-2 transition-colors"
               >
-                {m.name}
+                <AtSign className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
+                <span className="text-[#262626]">{m.name}</span>
               </button>
             ))}
           </div>
-        </div>
-      )}
+        )}
+        <textarea
+          value={content}
+          onChange={e => handleContentChange(e.target.value)}
+          placeholder="Opiši problem, zadatak ili obavijest... (@ za označi)"
+          rows={3}
+          className="w-full text-base border border-[#EDEDE9] rounded-xl px-3 py-2.5 outline-none focus:border-[#0F2F61] resize-none bg-[#F7F7F5]"
+          autoFocus
+        />
+      </div>
+
+      <select
+        value={propertyId}
+        onChange={e => setPropertyId(e.target.value)}
+        className="w-full mt-3 text-sm border border-[#EDEDE9] rounded-xl px-3 py-2 outline-none focus:border-[#0F2F61] bg-[#F7F7F5] text-[#262626]"
+      >
+        <option value="">Nekretnina (opcionalno)</option>
+        {properties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+      </select>
 
       <div className="flex justify-end mt-4">
         <button
