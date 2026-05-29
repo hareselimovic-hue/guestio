@@ -7,8 +7,33 @@ import { NextRequest, NextResponse } from "next/server";
 const SUBSCRIPTION_PAGE = "/dashboard/subscription";
 const ADMIN_EMAIL = "hareselimovic@gmail.com";
 
+const MOBILE_ORIGINS = new Set([
+  "http://localhost:8081",
+  "http://192.168.0.28:8081",
+]);
+
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
+  const origin = req.headers.get("origin") ?? "";
+
+  // Handle CORS preflight for /api/auth/* from mobile dev origins
+  if (pathname.startsWith("/api/auth/") && MOBILE_ORIGINS.has(origin)) {
+    if (req.method === "OPTIONS") {
+      return new NextResponse(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": origin,
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Cookie, Authorization",
+          "Access-Control-Allow-Credentials": "true",
+        },
+      });
+    }
+    const res = NextResponse.next();
+    res.headers.set("Access-Control-Allow-Origin", origin);
+    res.headers.set("Access-Control-Allow-Credentials", "true");
+    return res;
+  }
 
   // Only guard dashboard routes (except the subscription page itself)
   if (
@@ -45,5 +70,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/api/auth/:path*"],
 };
