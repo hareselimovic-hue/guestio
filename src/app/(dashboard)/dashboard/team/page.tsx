@@ -168,14 +168,14 @@ function TaskCard({ task, members, onUpdate }: { task: Task; members: Member[]; 
             </div>
           ))}
 
-          <div className="relative mt-3">
+          <div className="mt-3">
             {mentionMatches.length > 0 && (
-              <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-[#EDEDE9] rounded-xl shadow-lg z-10 overflow-hidden">
+              <div className="mb-2 border border-[#EDEDE9] rounded-xl overflow-hidden bg-white shadow-sm">
                 {mentionMatches.map(m => (
                   <button
                     key={m.id}
                     onMouseDown={e => { e.preventDefault(); selectMention(m); }}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-[#F7F7F5] flex items-center gap-2 transition-colors"
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-[#F7F7F5] flex items-center gap-2 transition-colors border-b border-[#F7F7F5] last:border-0"
                   >
                     <AtSign className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
                     <span className="text-[#262626]">{m.name}</span>
@@ -257,30 +257,28 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
         <button onClick={onClose} className="text-[#6B6B6B] hover:text-[#262626]"><X className="w-4 h-4" /></button>
       </div>
 
-      <div className="relative">
-        {mentionMatches.length > 0 && (
-          <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-[#EDEDE9] rounded-xl shadow-lg z-10 overflow-hidden">
-            {mentionMatches.map(m => (
-              <button
-                key={m.id}
-                onMouseDown={e => { e.preventDefault(); selectMention(m); }}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-[#F7F7F5] flex items-center gap-2 transition-colors"
-              >
-                <AtSign className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
-                <span className="text-[#262626]">{m.name}</span>
-              </button>
-            ))}
-          </div>
-        )}
-        <textarea
-          value={content}
-          onChange={e => handleContentChange(e.target.value)}
-          placeholder="Opiši problem, zadatak ili obavijest... (@ za označi)"
-          rows={3}
-          className="w-full text-base border border-[#EDEDE9] rounded-xl px-3 py-2.5 outline-none focus:border-[#0F2F61] resize-none bg-[#F7F7F5]"
-          autoFocus
-        />
-      </div>
+      {mentionMatches.length > 0 && (
+        <div className="mb-2 border border-[#EDEDE9] rounded-xl overflow-hidden bg-white shadow-sm">
+          {mentionMatches.map(m => (
+            <button
+              key={m.id}
+              onMouseDown={e => { e.preventDefault(); selectMention(m); }}
+              className="w-full text-left px-3 py-2 text-sm hover:bg-[#F7F7F5] flex items-center gap-2 transition-colors border-b border-[#F7F7F5] last:border-0"
+            >
+              <AtSign className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
+              <span className="text-[#262626]">{m.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      <textarea
+        value={content}
+        onChange={e => handleContentChange(e.target.value)}
+        placeholder="Opiši problem, zadatak ili obavijest... (@ za označi)"
+        rows={3}
+        className="w-full text-base border border-[#EDEDE9] rounded-xl px-3 py-2.5 outline-none focus:border-[#0F2F61] resize-none bg-[#F7F7F5]"
+        autoFocus
+      />
 
       <select
         value={propertyId}
