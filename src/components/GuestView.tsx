@@ -1,12 +1,41 @@
 "use client";
 
-import { useRef } from "react";
+import React, { useRef } from "react";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
-  Copy, Check, ChevronDown, Phone, ParkingSquare
+  Copy, Check, ChevronDown, Phone, ParkingSquare, X
 } from "lucide-react";
 import { useState } from "react";
 import GuestChat from "./GuestChat";
+
+function ClickableImg({ src, alt, className, style }: { src: string; alt: string; className?: string; style?: React.CSSProperties }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <img
+        src={src}
+        alt={alt}
+        className={`${className ?? ""} cursor-pointer active:opacity-90`}
+        style={style}
+        onClick={() => setOpen(true)}
+      />
+      {open && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setOpen(false)}
+        >
+          <button
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white"
+            onClick={() => setOpen(false)}
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <img src={src} alt={alt} className="max-w-full max-h-full object-contain rounded-xl" />
+        </div>
+      )}
+    </>
+  );
+}
 
 const SECTION_META: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
   WELCOME:     { icon: <Heart className="w-5 h-5" />,           color: "text-pink-600",   bg: "bg-pink-50" },
@@ -449,7 +478,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
             <div className={photos.length > 1 ? "grid grid-cols-2 gap-2" : ""}>
               {photos.map((url, i) => (
                 <div key={i} className="rounded-xl overflow-hidden">
-                  <img src={url} alt={`Check-in photo ${i + 1}`} className="w-full object-cover rounded-xl" style={{ maxHeight: 240 }} />
+                  <ClickableImg src={url} alt={`Check-in photo ${i + 1}`} className="w-full object-cover rounded-xl" style={{ maxHeight: 240 }} />
                 </div>
               ))}
             </div>
@@ -677,7 +706,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
             <div className={images.length > 1 ? "grid grid-cols-2 gap-2" : ""}>
               {images.map((url, i) => (
                 <div key={i} className="rounded-xl overflow-hidden">
-                  <img src={url} alt={`photo ${i + 1}`} className="w-full object-cover rounded-xl" style={{ maxHeight: 240 }} />
+                  <ClickableImg src={url} alt={`photo ${i + 1}`} className="w-full object-cover rounded-xl" style={{ maxHeight: 240 }} />
                 </div>
               ))}
             </div>
