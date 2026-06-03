@@ -68,11 +68,11 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
   }
 
   async function deleteTask() {
-    if (!confirm("Obrisati ovu poruku?")) return;
+    if (!confirm("Delete this message?")) return;
     setDeleting(true);
     const res = await fetch(`/api/tasks/${task.id}`, { method: "DELETE" });
     if (res.ok) onDelete(task.id);
-    else setDeleting(false);
+    else { setDeleting(false); }
   }
 
   async function addComment() {
@@ -132,7 +132,7 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
             className="flex items-center gap-1.5 text-xs text-[#6B6B6B] hover:text-[#262626] transition-colors"
           >
             {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            {task.comments.length === 0 ? "Komentar" : `${task.comments.length} komentar${task.comments.length !== 1 ? "a" : ""}`}
+            {task.comments.length === 0 ? "Comment" : `${task.comments.length} comment${task.comments.length !== 1 ? "s" : ""}`}
           </button>
           <div className="flex-1" />
           {currentUserId === task.author.id && (
@@ -218,7 +218,7 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
                 <button
                   onClick={() => setShowPicker(p => !p)}
                   className={`p-2 rounded-xl border transition-colors ${showPicker ? "bg-[#FF6700] border-[#FF6700] text-white" : "border-[#EDEDE9] text-[#6B6B6B] hover:border-[#0F2F61]"}`}
-                  title="Označi kolegu"
+                  title="Mention a teammate"
                 >
                   <AtSign className="w-4 h-4" />
                 </button>
@@ -227,7 +227,7 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
                 value={comment}
                 onChange={e => setComment(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addComment(); } }}
-                placeholder="Dodaj komentar..."
+                placeholder="Add a comment..."
                 className="flex-1 text-base border border-[#EDEDE9] rounded-xl px-3 py-2 outline-none focus:border-[#0F2F61] bg-[#F7F7F5]"
               />
               <button
@@ -280,7 +280,7 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
   return (
     <div className="bg-white rounded-2xl border border-[#0F2F61] p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-[#262626]">Nova poruka</h3>
+        <h3 className="text-sm font-semibold text-[#262626]">New message</h3>
         <button onClick={onClose} className="text-[#6B6B6B] hover:text-[#262626]"><X className="w-4 h-4" /></button>
       </div>
 
@@ -326,7 +326,7 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
         <textarea
           value={content}
           onChange={e => setContent(e.target.value)}
-          placeholder="Opiši problem, zadatak ili obavijest..."
+          placeholder="Describe the issue, task or announcement..."
           rows={3}
           className="w-full text-base border border-[#EDEDE9] rounded-xl px-3 py-2.5 pr-10 outline-none focus:border-[#0F2F61] resize-none bg-[#F7F7F5]"
           autoFocus
@@ -336,7 +336,7 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
             type="button"
             onClick={() => setShowPicker(p => !p)}
             className={`absolute right-2 top-2 p-1.5 rounded-lg transition-colors ${showPicker ? "bg-[#FF6700] text-white" : "text-[#6B6B6B] hover:text-[#0F2F61]"}`}
-            title="Označi kolegu"
+            title="Mention a teammate"
           >
             <AtSign className="w-4 h-4" />
           </button>
@@ -348,7 +348,7 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
         onChange={e => setPropertyId(e.target.value)}
         className="w-full mt-3 text-sm border border-[#EDEDE9] rounded-xl px-3 py-2 outline-none focus:border-[#0F2F61] bg-[#F7F7F5] text-[#262626]"
       >
-        <option value="">Nekretnina (opcionalno)</option>
+        <option value="">Property (optional)</option>
         {properties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
       </select>
 
@@ -358,7 +358,7 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
           disabled={submitting || !content.trim()}
           className="px-5 py-2 bg-[#0F2F61] text-white text-sm font-medium rounded-xl hover:bg-[#1a3d75] disabled:opacity-40 transition-colors"
         >
-          {submitting ? "Šaljem..." : "Objavi"}
+          {submitting ? "Posting..." : "Post"}
         </button>
       </div>
     </div>
@@ -407,13 +407,13 @@ export default function TeamPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[#262626]">Team Channel</h1>
-          <p className="text-sm text-[#6B6B6B] mt-0.5">Interna komunikacija tima</p>
+          <p className="text-sm text-[#6B6B6B] mt-0.5">Internal team communication</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
           className="flex items-center gap-2 px-4 py-2 bg-[#0F2F61] text-white text-sm font-medium rounded-xl hover:bg-[#1a3d75] transition-colors"
         >
-          <Plus className="w-4 h-4" /> Nova poruka
+          <Plus className="w-4 h-4" /> New message
         </button>
       </div>
 
@@ -439,7 +439,7 @@ export default function TeamPage() {
               filter === f ? "bg-white text-[#0F2F61] shadow-sm" : "text-[#6B6B6B]"
             }`}
           >
-            {f === "ALL" ? "Sve" : f === "IN_PROGRESS" ? "U toku" : "Završeno"}
+            {f === "ALL" ? "All" : f === "IN_PROGRESS" ? "In Progress" : "Done"}
           </button>
         ))}
       </div>
@@ -451,7 +451,7 @@ export default function TeamPage() {
           onChange={e => setFilterProperty(e.target.value)}
           className={`w-1/2 min-w-0 text-xs border rounded-xl px-3 py-2 outline-none bg-white transition-colors ${filterProperty ? "border-[#0F2F61] text-[#0F2F61] font-medium" : "border-[#EDEDE9] text-[#6B6B6B]"}`}
         >
-          <option value="">🏠 Nekretnine</option>
+          <option value="">🏠 Properties</option>
           {properties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
         <select
@@ -459,7 +459,7 @@ export default function TeamPage() {
           onChange={e => setFilterMember(e.target.value)}
           className={`w-1/2 min-w-0 text-xs border rounded-xl px-3 py-2 outline-none bg-white transition-colors ${filterMember ? "border-[#0F2F61] text-[#0F2F61] font-medium" : "border-[#EDEDE9] text-[#6B6B6B]"}`}
         >
-          <option value="">👤 Članovi</option>
+          <option value="">👤 Members</option>
           {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
       </div>
@@ -472,8 +472,8 @@ export default function TeamPage() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-[#6B6B6B]">
           <p className="text-4xl mb-3">💬</p>
-          <p className="font-medium text-[#262626]">Nema poruka</p>
-          <p className="text-sm mt-1">Klikni "Nova poruka" da kreiraš prvu</p>
+          <p className="font-medium text-[#262626]">No messages</p>
+          <p className="text-sm mt-1">Click "New message" to create the first one</p>
         </div>
       ) : (
         <div className="space-y-3">
