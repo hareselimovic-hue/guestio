@@ -293,7 +293,7 @@ function TabLinks() {
           Link koji šaljete gostima
         </SectionHeading>
         <p className="text-[#6B6B6B] text-sm leading-relaxed mb-4">
-          Svaki apartman ima <strong className="text-[#262626]">preview link</strong> — to je link koji šaljete gostima.
+          Svaki apartman ima <strong className="text-[#262626]">guest link</strong> — to je link koji šaljete gostima.
           Sadrži kompletan guidebook: WiFi, check-in, pravila, preporuke i sve ostalo što ste unijeli.
         </p>
         <div className="bg-[#F7F7F5] rounded-xl border border-[#EDEDE9] p-4 font-mono text-xs text-[#6B6B6B] break-all">
@@ -309,7 +309,7 @@ function TabLinks() {
           {[
             "Otvorite apartman iz dashboarda.",
             "Na vrhu stranice kliknite dugme Share (ikona dijeljenja).",
-            "Kopirajte preview link i pošaljite gostu — WhatsApp, email, SMS.",
+            "Kopirajte guest link i pošaljite gostu — WhatsApp, email, SMS.",
             "Opciono: preuzmite QR kod koji gost može skenirati.",
           ].map((text, i) => (
             <li key={i} className="flex items-start gap-4 list-none">

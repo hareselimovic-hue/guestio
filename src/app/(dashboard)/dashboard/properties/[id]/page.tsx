@@ -349,14 +349,14 @@ export default function PropertyEditorPage() {
             QR
           </button>
 
-          {/* Preview */}
+          {/* Guest link */}
           <a
             href={`/g/${property.slug}/preview`}
             target="_blank"
             className="flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] border border-[#EDEDE9] px-3 py-1.5 rounded-lg transition-colors"
           >
             <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-            Preview
+            Guest link
           </a>
 
           {/* Delete */}
@@ -440,7 +440,7 @@ export default function PropertyEditorPage() {
                className="flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] border border-[#EDEDE9] px-3 py-1.5 rounded-lg transition-colors"
              >
                <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-               Preview
+               Guest link
              </a>
              <button
                onClick={() => setConfirmDelete(true)}
