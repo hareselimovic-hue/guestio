@@ -30,7 +30,8 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   if (!await checkAdmin()) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const { email } = await req.json();
-  await prisma.whitelistEmail.delete({ where: { email } });
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+  await prisma.whitelistEmail.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }

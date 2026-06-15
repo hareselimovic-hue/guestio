@@ -372,7 +372,7 @@ export default function TeamPage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [filter, setFilter] = useState<"ALL" | "IN_PROGRESS" | "DONE">("ALL");
+  const [filter, setFilter] = useState<"ALL" | "IN_PROGRESS" | "DONE">("IN_PROGRESS");
   const [filterProperty, setFilterProperty] = useState("");
   const [filterMember, setFilterMember] = useState("");
 
