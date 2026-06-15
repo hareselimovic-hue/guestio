@@ -431,7 +431,7 @@ export default function TeamPage() {
 
       {/* Filter tabs — status */}
       <div className="flex gap-1 mb-3 bg-[#F7F7F5] rounded-xl p-1">
-        {(["ALL", "IN_PROGRESS", "DONE"] as const).map(f => (
+        {(["IN_PROGRESS", "DONE", "ALL"] as const).map(f => (
           <button
             key={f}
             onClick={() => setFilter(f)}
