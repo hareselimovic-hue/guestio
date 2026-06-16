@@ -68,11 +68,15 @@ export async function POST(req: NextRequest) {
               <tr><td style="padding:8px 0;font-size:14px;color:#262626;"><span style="color:#22c55e;font-weight:700;">✓</span>&nbsp; Rentlio sync</td></tr>
               <tr><td style="padding:8px 0;font-size:14px;color:#262626;"><span style="color:#22c55e;font-weight:700;">✓</span>&nbsp; Otkaz kad god, bez obaveze</td></tr>
             </table>
-            <a href="https://app.smartstay.ba/register"
-               style="display:block;background:#FF6700;color:#fff;font-size:16px;font-weight:700;
-                      padding:15px 28px;border-radius:12px;text-decoration:none;text-align:center;">
-              Počnite besplatni trial →
-            </a>
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 4px;">
+              <tr><td align="center">
+                <a href="https://app.smartstay.ba/register"
+                   style="display:inline-block;background:#FF6700;color:#fff;font-size:16px;font-weight:700;
+                          padding:15px 36px;border-radius:12px;text-decoration:none;text-align:center;">
+                  Počnite besplatni trial →
+                </a>
+              </td></tr>
+            </table>
             <p style="margin:20px 0 0;font-size:12px;color:#BABAB5;text-align:center;">
               Ako niste vi ostavili ovaj email, slobodno ignorirajte ovu poruku.
             </p>
