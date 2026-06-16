@@ -365,6 +365,68 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
   );
 }
 
+function CreateWorkspaceModal({ onCreated, onClose }: { onCreated: () => void; onClose: () => void }) {
+  const [name, setName] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleCreate() {
+    if (!name.trim()) return;
+    setCreating(true);
+    setError("");
+    const res = await fetch("/api/workspace", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name.trim() }),
+    });
+    if (res.ok) {
+      onCreated();
+    } else {
+      const d = await res.json();
+      setError(d.error ?? "Could not create workspace.");
+      setCreating(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40">
+      <div className="bg-white rounded-2xl border border-[#EDEDE9] shadow-xl p-6 w-full max-w-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-[#262626]">Create a workspace</h2>
+          <button onClick={onClose} className="text-[#6B6B6B] hover:text-[#262626]"><X className="w-4 h-4" /></button>
+        </div>
+        <p className="text-sm text-[#6B6B6B] mb-4 leading-relaxed">
+          To use Team Channel, you need a workspace. Give it a name to get started.
+        </p>
+        <input
+          value={name}
+          onChange={e => setName(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter") handleCreate(); }}
+          placeholder="e.g. My Property Team"
+          autoFocus
+          className="w-full text-sm border border-[#EDEDE9] rounded-xl px-3 py-2.5 outline-none focus:border-[#0F2F61] bg-[#F7F7F5] mb-3"
+        />
+        {error && <p className="text-xs text-red-500 mb-3">{error}</p>}
+        <div className="flex gap-2">
+          <button
+            onClick={onClose}
+            className="flex-1 text-sm font-medium px-4 py-2 border border-[#EDEDE9] rounded-xl text-[#6B6B6B] hover:bg-[#F7F7F5] transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleCreate}
+            disabled={creating || !name.trim()}
+            className="flex-1 text-sm font-medium px-4 py-2 bg-[#0F2F61] text-white rounded-xl hover:bg-[#1a3d75] disabled:opacity-40 transition-colors"
+          >
+            {creating ? "Creating..." : "Create workspace"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function TeamPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
@@ -372,6 +434,8 @@ export default function TeamPage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [hasWorkspace, setHasWorkspace] = useState(false);
+  const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
   const [filter, setFilter] = useState<"ALL" | "IN_PROGRESS" | "DONE">("IN_PROGRESS");
   const [filterProperty, setFilterProperty] = useState("");
   const [filterMember, setFilterMember] = useState("");
@@ -385,6 +449,7 @@ export default function TeamPage() {
     ]).then(([t, ws, props, session]) => {
       setTasks(t);
       setCurrentUserId(session?.user?.id ?? null);
+      setHasWorkspace(!!ws?.workspace);
       const allMembers: Member[] = (ws?.workspace?.members ?? [])
         .map((m: { user: Member }) => m.user)
         .filter((m: Member, i: number, a: Member[]) => a.findIndex(x => x.id === m.id) === i);
@@ -403,6 +468,13 @@ export default function TeamPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
+      {showWorkspaceModal && (
+        <CreateWorkspaceModal
+          onCreated={() => { setHasWorkspace(true); setShowWorkspaceModal(false); setShowForm(true); }}
+          onClose={() => setShowWorkspaceModal(false)}
+        />
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -410,7 +482,7 @@ export default function TeamPage() {
           <p className="text-sm text-[#6B6B6B] mt-0.5">Internal team communication</p>
         </div>
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => hasWorkspace ? setShowForm(true) : setShowWorkspaceModal(true)}
           className="flex items-center gap-2 px-4 py-2 bg-[#0F2F61] text-white text-sm font-medium rounded-xl hover:bg-[#1a3d75] transition-colors"
         >
           <Plus className="w-4 h-4" /> New message
