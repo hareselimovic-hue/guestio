@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 import {
-  encryptGuests, formatDateBs, getRegistrationWorkspace, isValidDate, parseGuest,
+  encryptGuests, formatDateBs, getRegistrationRecipients, isValidDate, parseGuest,
 } from "@/lib/guest-registration";
 
 export const dynamic = "force-dynamic";
@@ -36,8 +36,7 @@ export async function POST(req: NextRequest) {
     where: { slug },
     select: { id: true, name: true, userId: true, workspaceId: true, guestRegistrationEnabled: true },
   });
-  const workspace = property?.guestRegistrationEnabled ? await getRegistrationWorkspace(property) : null;
-  if (!property || !workspace?.guestRegistrationEnabled) {
+  if (!property?.guestRegistrationEnabled) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
@@ -53,10 +52,9 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Notify the workspace's registration emails (Settings), falling back to the owner.
   // Failure must not fail the guest's submission.
-  const recipients = workspace.registrationEmails.length > 0 ? workspace.registrationEmails : [workspace.owner.email];
   try {
+    const recipients = await getRegistrationRecipients(property);
     const resend = new Resend(process.env.RESEND_API_KEY);
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.smartstay.ba";
     await resend.emails.send({

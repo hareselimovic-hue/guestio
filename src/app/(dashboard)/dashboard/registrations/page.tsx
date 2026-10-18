@@ -1,8 +1,7 @@
 import { headers } from "next/headers";
-import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getUserWorkspace, getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
+import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
 import { countryName, decryptGuests, formatDateBs, type RegisteredGuest } from "@/lib/guest-registration";
 import DeleteRegistrationButton from "@/components/DeleteRegistrationButton";
 import { ClipboardList, Users, ChevronDown } from "lucide-react";
@@ -24,9 +23,6 @@ export default async function RegistrationsPage({
   searchParams: Promise<{ property?: string; period?: string }>;
 }) {
   const session = await auth.api.getSession({ headers: await headers() });
-  const ws = await getUserWorkspace(session!.user.id);
-  if (!ws?.workspace.guestRegistrationEnabled) notFound();
-
   const { property: propertyFilter, period = "upcoming" } = await searchParams;
 
   const [wsIds, memberUserIds] = await Promise.all([
@@ -71,7 +67,9 @@ export default async function RegistrationsPage({
           <ClipboardList className="w-6 h-6 text-[#0F2F61]" />
           Guest registrations
         </h1>
-        <p className="text-[#6B6B6B] mt-1 text-sm">Guest details submitted through the guide link (beta)</p>
+        <p className="text-[#6B6B6B] mt-1 text-sm">
+          Guest details submitted through the guide link. Turn the form on per property on the property page.
+        </p>
       </div>
 
       {/* Filters */}

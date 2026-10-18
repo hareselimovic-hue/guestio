@@ -8,7 +8,6 @@ import { signOut } from "@/lib/auth-client";
 
 interface BottomNavProps {
   user: { id: string; name?: string | null; email: string };
-  showRegistrations?: boolean;
 }
 
 const ADMIN_EMAIL = "hareselimovic@gmail.com";
@@ -20,7 +19,7 @@ const mainItems = [
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
-export default function BottomNav({ user, showRegistrations = false }: BottomNavProps) {
+export default function BottomNav({ user }: BottomNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [showMore, setShowMore] = useState(false);
@@ -80,16 +79,14 @@ export default function BottomNav({ user, showRegistrations = false }: BottomNav
 
             {/* Extra nav items */}
             <div className="px-3 py-2">
-              {showRegistrations && (
-                <Link
-                  href="/dashboard/registrations"
-                  onClick={() => setShowMore(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#262626] hover:bg-[#F7F7F5] transition-colors"
-                >
-                  <ClipboardList className="w-5 h-5 text-[#6B6B6B]" />
-                  Guest registrations
-                </Link>
-              )}
+              <Link
+                href="/dashboard/registrations"
+                onClick={() => setShowMore(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#262626] hover:bg-[#F7F7F5] transition-colors"
+              >
+                <ClipboardList className="w-5 h-5 text-[#6B6B6B]" />
+                Guest registrations
+              </Link>
 
               <Link
                 href="/dashboard/subscription"

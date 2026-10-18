@@ -8,7 +8,6 @@ import { Home, LogOut, ChevronRight, Settings, ShieldCheck, CreditCard, BarChart
 interface SidebarProps {
   user: { id: string; name?: string | null; email: string };
   workspaceName: string | null;
-  showRegistrations?: boolean;
 }
 
 const ADMIN_EMAIL = "hareselimovic@gmail.com";
@@ -16,12 +15,13 @@ const ADMIN_EMAIL = "hareselimovic@gmail.com";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart2 },
+  { href: "/dashboard/registrations", label: "Guest registrations", icon: ClipboardList },
   { href: "/dashboard/team", label: "Team Channel", icon: MessageSquare },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
   { href: "/dashboard/subscription", label: "Subscription", icon: CreditCard },
 ];
 
-export default function Sidebar({ user, workspaceName, showRegistrations = false }: SidebarProps) {
+export default function Sidebar({ user, workspaceName }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -34,11 +34,7 @@ export default function Sidebar({ user, workspaceName, showRegistrations = false
     <>
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {[
-          ...navItems.slice(0, 2),
-          ...(showRegistrations ? [{ href: "/dashboard/registrations", label: "Guest registrations", icon: ClipboardList }] : []),
-          ...navItems.slice(2),
-          ...(user.email === ADMIN_EMAIL ? [{ href: "/dashboard/admin", label: "Admin", icon: ShieldCheck }] : [])].map(({ href, label, icon: Icon }) => {
+        {[...navItems, ...(user.email === ADMIN_EMAIL ? [{ href: "/dashboard/admin", label: "Admin", icon: ShieldCheck }] : [])].map(({ href, label, icon: Icon }) => {
           const isActive = href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
           return (
             <Link

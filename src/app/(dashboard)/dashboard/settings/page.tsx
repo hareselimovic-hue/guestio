@@ -13,7 +13,7 @@ interface Member {
 }
 
 interface WorkspaceData {
-  workspace: { id: string; name: string; ownerId: string; guestRegistrationEnabled?: boolean; registrationEmails?: string[] };
+  workspace: { id: string; name: string; ownerId: string; registrationEmails?: string[] };
   isOwner: boolean;
 }
 
@@ -86,9 +86,7 @@ export default function SettingsPage() {
         setNewName(d.workspace.name);
         setMembers(d.workspace.members?.map((m: { user: Member }) => m.user) ?? []);
         setRegEmails((d.workspace.registrationEmails ?? []).join(", "));
-        if (d.workspace.guestRegistrationEnabled) {
-          fetch("/api/registrations/properties").then((r) => r.json()).then(setRegProperties);
-        }
+        fetch("/api/registrations/properties").then((r) => r.json()).then(setRegProperties);
       }
       if (inv?.token) {
         setInviteLink(`${window.location.origin}/invite/${inv.token}`);
@@ -356,7 +354,7 @@ export default function SettingsPage() {
           </div>
 
           {/* ── Guest registrations ── */}
-          {data.workspace.guestRegistrationEnabled && (() => {
+          {(() => {
             const ownerEmail = members.find((m) => m.id === data.workspace.ownerId)?.email ?? "the workspace owner";
             return (
               <div className="bg-white border border-[#EDEDE9] rounded-xl p-5">
@@ -431,7 +429,7 @@ export default function SettingsPage() {
                       </label>
                     ))}
                   </div>
-                  <p className="text-xs text-[#6B6B6B] mt-2">New properties have the form switched off until you tick them here.</p>
+                  <p className="text-xs text-[#6B6B6B] mt-2">New properties have the form switched off. You can also switch it on the property page.</p>
                 </div>
               </div>
             );

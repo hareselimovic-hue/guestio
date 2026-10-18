@@ -1,21 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Brain, MessageCircle, Globe, Lock, Lightbulb, LayoutGrid, Link2, BarChart2, Plug, ChevronRight, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Brain, MessageCircle, Globe, Lock, Lightbulb, LayoutGrid, Link2, BarChart2, Plug, ChevronRight, Eye, EyeOff, ArrowLeft, ClipboardList, Mail, ShieldCheck } from "lucide-react";
 
-type Tab = "ai" | "sections" | "links" | "analytics" | "rentlio";
+type Tab = "ai" | "sections" | "links" | "registrations" | "analytics" | "rentlio";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
-  { id: "ai",        label: "AI Asistent",    icon: <MessageCircle className="w-4 h-4" /> },
-  { id: "sections",  label: "Sekcije",        icon: <LayoutGrid className="w-4 h-4" /> },
-  { id: "links",     label: "Guest linkovi",  icon: <Link2 className="w-4 h-4" /> },
-  { id: "analytics", label: "Analytics",      icon: <BarChart2 className="w-4 h-4" /> },
-  { id: "rentlio",   label: "Rentlio",        icon: <Plug className="w-4 h-4" /> },
+  { id: "ai",            label: "AI Asistent",     icon: <MessageCircle className="w-4 h-4" /> },
+  { id: "sections",      label: "Sekcije",         icon: <LayoutGrid className="w-4 h-4" /> },
+  { id: "links",         label: "Guest linkovi",   icon: <Link2 className="w-4 h-4" /> },
+  { id: "registrations", label: "Prijava gostiju", icon: <ClipboardList className="w-4 h-4" /> },
+  { id: "analytics",     label: "Analytics",       icon: <BarChart2 className="w-4 h-4" /> },
+  { id: "rentlio",       label: "Rentlio",         icon: <Plug className="w-4 h-4" /> },
 ];
 
 export default function HelpClient() {
   const [active, setActive] = useState<Tab>("ai");
+
+  // Deep link to a tab, e.g. /help#registrations
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (TABS.some((t) => t.id === hash)) setActive(hash as Tab);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F7F7F5]" style={{ fontFamily: "var(--font-inter), Inter, sans-serif" }}>
@@ -62,6 +69,7 @@ export default function HelpClient() {
         {active === "ai"        && <TabAI />}
         {active === "sections"  && <TabSections />}
         {active === "links"     && <TabLinks />}
+        {active === "registrations" && <TabRegistrations />}
         {active === "analytics" && <TabAnalytics />}
         {active === "rentlio"   && <TabRentlio />}
       </div>
@@ -308,9 +316,9 @@ function TabLinks() {
         <ol className="space-y-4">
           {[
             "Otvorite apartman iz dashboarda.",
-            "Na vrhu stranice kliknite dugme Share (ikona dijeljenja).",
-            "Kopirajte guest link i pošaljite gostu — WhatsApp, email, SMS.",
-            "Opciono: preuzmite QR kod koji gost može skenirati.",
+            "Na vrhu stranice kliknite dugme Share i izaberite WhatsApp ili Viber. Na mobitelu link kopirate jednim dodirom na karticu Guest link.",
+            "Pošaljite link gostu — WhatsApp, Viber, email, SMS ili automatskom porukom na Bookingu i Airbnbu.",
+            "Opciono: dugme QR otvara QR kod koji možete preuzeti i odštampati.",
           ].map((text, i) => (
             <li key={i} className="flex items-start gap-4 list-none">
               <span className="w-7 h-7 rounded-full bg-[#0F2F61] text-white text-sm font-bold flex items-center justify-center shrink-0 mt-0.5">
@@ -332,6 +340,116 @@ function TabLinks() {
             "QR kod možete odštampati i ostaviti u apartmanu za buduće goste.",
             "Link je uvijek ažuran — ako izmijenite sadržaj, gost odmah vidi novu verziju.",
             "Isti link možete koristiti za sve goste u tom apartmanu.",
+          ].map((item) => (
+            <li key={item} className="flex items-start gap-2 text-sm text-[#6B6B6B] list-none">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 mt-1.5" />{item}
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </>
+  );
+}
+
+/* ─── TAB: PRIJAVA GOSTIJU ─────────────────────────────────────────────────── */
+function TabRegistrations() {
+  return (
+    <>
+      <Card>
+        <SectionHeading icon={<ClipboardList className="w-5 h-5" />} color="bg-[#FF6700]">
+          Šta je prijava gostiju?
+        </SectionHeading>
+        <p className="text-[#6B6B6B] text-sm leading-relaxed mb-3">
+          Gosti vam podatke za prijavu boravka šalju <strong className="text-[#262626]">direktno kroz guest link</strong> —
+          bez slikanja pasoša i dopisivanja. Vi dobijete email obavijest, a sve prijave su na jednom mjestu u
+          SmartStayu, spremne za prepisivanje u sistem za prijavu turista.
+        </p>
+        <p className="text-[#6B6B6B] text-sm leading-relaxed">
+          Gosti se ne prijavljuju sami — samo vam šalju podatke, a prijavu radite vi kao i do sada.
+        </p>
+      </Card>
+
+      <Card>
+        <SectionHeading icon={<ChevronRight className="w-5 h-5" />} color="bg-[#0F2F61]">
+          Kako uključiti?
+        </SectionHeading>
+        <ol className="space-y-4">
+          {[
+            { title: "Uključite formular na apartmanu", desc: "Otvorite apartman iz dashboarda i uključite prekidač Guest registration form. Formular je po defaultu isključen na svim apartmanima." },
+            { title: "Više apartmana odjednom (workspace)", desc: "Ako imate workspace: Settings → Guest registrations → označite apartmane ili kliknite All." },
+            { title: "Podesite ko prima email", desc: "U Settings → Guest registrations upišite jednu ili više email adresa (odvojene zarezom). Ako je polje prazno, email ide vlasniku workspacea. Bez workspacea, email ide na email vašeg naloga." },
+            { title: "Pošaljite gostima link", desc: "Gostima šaljete isti guest link kao i do sada. Na vrhu vodiča pojavit će im se dugme i kartica Guest registration." },
+          ].map(({ title, desc }, i) => (
+            <li key={title} className="flex items-start gap-4 list-none">
+              <span className="w-7 h-7 rounded-full bg-[#0F2F61] text-white text-sm font-bold flex items-center justify-center shrink-0 mt-0.5">
+                {i + 1}
+              </span>
+              <div>
+                <p className="font-semibold text-sm text-[#262626]">{title}</p>
+                <p className="text-xs text-[#6B6B6B] mt-0.5 leading-relaxed">{desc}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </Card>
+
+      <Card>
+        <SectionHeading icon={<LayoutGrid className="w-5 h-5" />} color="bg-green-600">
+          Šta gost unosi?
+        </SectionHeading>
+        <p className="text-[#6B6B6B] text-sm leading-relaxed">
+          Datum dolaska i odlaska jednom za cijeli boravak, a zatim za svaku osobu (dugme <em>Add another guest</em>):
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {["Ime", "Prezime", "Datum rođenja", "Spol", "Državljanstvo", "Mjesto rođenja", "Vrsta putne isprave", "Broj putne isprave", "Rok važenja isprave"].map((f) => (
+            <div key={f} className="bg-[#F7F7F5] rounded-lg border border-[#EDEDE9] px-3 py-2 text-sm text-[#262626]">{f}</div>
+          ))}
+        </div>
+        <p className="text-xs text-[#9B9B9B]">
+          Formular je na engleskom i bosanskom. Prijava se veže za apartman preko linka, a za boravak preko datuma koje gost unese.
+        </p>
+      </Card>
+
+      <Card>
+        <SectionHeading icon={<Mail className="w-5 h-5" />} color="bg-violet-500">
+          Gdje vidim prijave?
+        </SectionHeading>
+        <div className="space-y-3">
+          {[
+            { label: "Email obavijest", desc: "Čim gost pošalje podatke stiže email s apartmanom, datumima i imenima gostiju. Brojevi isprava namjerno nisu u emailu." },
+            { label: "Guest registrations stranica", desc: "U meniju dashboarda. Filtrirate po apartmanu i periodu (tekući i budući / prošli / svi boravci), a klikom otvarate tabelu sa svim podacima." },
+            { label: "Brisanje", desc: "Prijavu koju ste obradili ili vam više ne treba obrišite dugmetom Delete — brisanje je trajno." },
+          ].map(({ label, desc }) => (
+            <div key={label} className="flex items-start gap-3 p-3 bg-[#F7F7F5] rounded-xl border border-[#EDEDE9]">
+              <span className="w-2.5 h-2.5 rounded-full bg-violet-500 shrink-0 mt-1.5" />
+              <div>
+                <p className="font-semibold text-sm text-[#262626]">{label}</p>
+                <p className="text-xs text-[#6B6B6B] mt-0.5 leading-relaxed">{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card>
+        <SectionHeading icon={<ShieldCheck className="w-5 h-5" />} color="bg-slate-500">
+          Sigurnost podataka
+        </SectionHeading>
+        <p className="text-[#6B6B6B] text-sm leading-relaxed">
+          Podaci gostiju čuvaju se <strong className="text-[#262626]">šifrovano</strong> i vidljivi su samo vama i članovima
+          vašeg workspacea. Gost može samo poslati podatke — niko preko guest linka ne može vidjeti tuđe prijave.
+        </p>
+      </Card>
+
+      <Card>
+        <SectionHeading icon={<Lightbulb className="w-5 h-5" />} color="bg-amber-500">
+          Savjeti
+        </SectionHeading>
+        <ul className="space-y-2.5">
+          {[
+            "U automatske poruke na Bookingu i Airbnbu možete staviti i direktan link na formular: app.smartstay.ba/g/naziv-apartmana/registration",
+            "Ako neka prijava ima pogrešne datume, provjerite ime gosta i rezervaciju u tom apartmanu.",
+            "Redovno brišite obrađene prijave — ne čuvajte lične podatke duže nego što morate.",
           ].map((item) => (
             <li key={item} className="flex items-start gap-2 text-sm text-[#6B6B6B] list-none">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 mt-1.5" />{item}

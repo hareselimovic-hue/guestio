@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Share2, ExternalLink, Check, Building2, Pencil, QrCode, X, Download, MessageCircle, ChevronDown, Copy, Loader2, Trash2 } from "lucide-react";
+import { ArrowLeft, Share2, ExternalLink, Check, Building2, Pencil, QrCode, X, Download, MessageCircle, ChevronDown, Copy, Loader2, Trash2, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +30,7 @@ interface Property {
   ownerEmail: string | null;
   ownerPhone: string | null;
   bankAccount: string | null;
+  guestRegistrationEnabled: boolean;
   sections: Section[];
 }
 
@@ -121,6 +122,18 @@ export default function PropertyEditorPage() {
   const [markDirtyIds, setMarkDirtyIds] = useState<string[]>([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  async function toggleRegistration() {
+    if (!property) return;
+    const enabled = !property.guestRegistrationEnabled;
+    setProperty({ ...property, guestRegistrationEnabled: enabled });
+    const res = await fetch("/api/registrations/properties", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: [property.id], enabled }),
+    });
+    if (!res.ok) setProperty({ ...property, guestRegistrationEnabled: !enabled });
+  }
 
   async function deleteProperty() {
     setDeleting(true);
@@ -511,6 +524,30 @@ export default function PropertyEditorPage() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Guest registration switch */}
+      <div className="flex items-center gap-3 bg-white border border-[#EDEDE9] rounded-xl px-4 py-3 mb-6">
+        <div className="w-9 h-9 rounded-lg bg-orange-50 text-[#FF6700] flex items-center justify-center shrink-0">
+          <ClipboardList className="w-4 h-4" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-[#262626]">Guest registration form</p>
+          <p className="text-xs text-[#6B6B6B]">
+            {property.guestRegistrationEnabled
+              ? <>Guests can send their travel document details. <Link href={`/dashboard/registrations?property=${property.id}`} className="text-[#0F2F61] hover:underline">View registrations</Link></>
+              : "Off — guests don't see the form in this guide."}
+          </p>
+        </div>
+        <button
+          role="switch"
+          aria-checked={property.guestRegistrationEnabled}
+          aria-label="Guest registration form"
+          onClick={toggleRegistration}
+          className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${property.guestRegistrationEnabled ? "bg-[#FF6700]" : "bg-[#D5D5CF]"}`}
+        >
+          <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${property.guestRegistrationEnabled ? "translate-x-5" : ""}`} />
+        </button>
       </div>
 
       {/* Tabs + Copy button */}

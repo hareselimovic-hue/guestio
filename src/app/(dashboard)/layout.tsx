@@ -19,17 +19,10 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  const [workspace, registrationWorkspace, subscription] = await Promise.all([
+  const [workspace, subscription] = await Promise.all([
     prisma.workspace.findFirst({
       where: { ownerId: session.user.id },
       select: { name: true },
-    }),
-    prisma.workspace.findFirst({
-      where: {
-        guestRegistrationEnabled: true,
-        OR: [{ ownerId: session.user.id }, { members: { some: { userId: session.user.id } } }],
-      },
-      select: { id: true },
     }),
     session.user.email !== ADMIN_EMAIL
       ? prisma.subscription.findUnique({ where: { userId: session.user.id } })
@@ -42,11 +35,11 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex h-screen bg-[#F7F7F5]">
-      <Sidebar user={session.user} workspaceName={workspace?.name ?? null} showRegistrations={!!registrationWorkspace} />
+      <Sidebar user={session.user} workspaceName={workspace?.name ?? null} />
       <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
         {children}
       </main>
-      <BottomNav user={session.user} showRegistrations={!!registrationWorkspace} />
+      <BottomNav user={session.user} />
       {daysLeft > 0 && daysLeft <= 5 && (
         <SubscriptionExpiryPopup daysLeft={daysLeft} />
       )}

@@ -39,25 +39,20 @@ export function decryptGuests(payload: string): RegisteredGuest[] {
   return JSON.parse(json);
 }
 
-// ─── Feature flag ─────────────────────────────────────────────────────────────
-// Enabled per workspace (Workspace.guestRegistrationEnabled). Properties without
-// workspaceId fall back to the workspace their owner belongs to.
+// ─── Notification recipients ──────────────────────────────────────────────────
+// Workspace setting (Settings → Guest registrations) → workspace owner → property account.
+// Properties without workspaceId fall back to the workspace their owner belongs to.
 
-export function getRegistrationWorkspace(property: { workspaceId: string | null; userId: string }) {
-  return prisma.workspace.findFirst({
+export async function getRegistrationRecipients(property: { workspaceId: string | null; userId: string }) {
+  const ws = await prisma.workspace.findFirst({
     where: property.workspaceId
       ? { id: property.workspaceId }
       : { OR: [{ ownerId: property.userId }, { members: { some: { userId: property.userId } } }] },
-    select: { guestRegistrationEnabled: true, registrationEmails: true, owner: { select: { email: true } } },
+    select: { registrationEmails: true, owner: { select: { email: true } } },
   });
-}
-
-export async function isRegistrationEnabledForProperty(property: {
-  workspaceId: string | null; userId: string; guestRegistrationEnabled: boolean;
-}) {
-  if (!property.guestRegistrationEnabled) return false;
-  const ws = await getRegistrationWorkspace(property);
-  return ws?.guestRegistrationEnabled ?? false;
+  if (ws) return ws.registrationEmails.length > 0 ? ws.registrationEmails : [ws.owner.email];
+  const user = await prisma.user.findUnique({ where: { id: property.userId }, select: { email: true } });
+  return user ? [user.email] : [];
 }
 
 const EMAIL_RE = /^[^\s@,]+@[^\s@,]+\.[^\s@,]+$/;

@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import GuestView from "@/components/GuestView";
-import { isRegistrationEnabledForProperty } from "@/lib/guest-registration";
 export const dynamic = "force-dynamic";
 
 export default async function GuestPage({
@@ -46,13 +45,11 @@ export default async function GuestPage({
     ]);
   }
 
-  const registrationEnabled = await isRegistrationEnabledForProperty(property);
-
   return (
     <GuestView
       property={property}
       sections={property.sections}
-      registrationEnabled={registrationEnabled}
+      registrationEnabled={property.guestRegistrationEnabled}
       guestName={guestLink?.guestName ?? null}
       checkIn={guestLink?.checkIn?.toISOString() ?? null}
       checkOut={guestLink?.checkOut?.toISOString() ?? null}

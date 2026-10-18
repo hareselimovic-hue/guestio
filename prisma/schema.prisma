@@ -147,6 +147,7 @@ model Workspace {
   tasks              Task[]
   rentlioApiKey      String?
   rentlioConnectedAt DateTime?
+  // Unused since guest registration is opt-in per property; kept so db push doesn't drop the column
   guestRegistrationEnabled Boolean     @default(false)
   // Who gets guest registration emails; empty = workspace owner
   registrationEmails String[]          @default([])

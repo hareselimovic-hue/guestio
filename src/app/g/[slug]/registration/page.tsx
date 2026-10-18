@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { isRegistrationEnabledForProperty } from "@/lib/guest-registration";
 import GuestRegistrationForm from "@/components/GuestRegistrationForm";
 
 export const dynamic = "force-dynamic";
@@ -17,9 +16,9 @@ export default async function GuestRegistrationPage({
 
   const property = await prisma.property.findUnique({
     where: { slug },
-    select: { name: true, slug: true, userId: true, workspaceId: true, guestRegistrationEnabled: true },
+    select: { name: true, slug: true, guestRegistrationEnabled: true },
   });
-  if (!property || !(await isRegistrationEnabledForProperty(property))) notFound();
+  if (!property?.guestRegistrationEnabled) notFound();
 
   // "from" is the guide token the guest came from (shared links use "preview")
   const backToken = from && /^[a-z0-9]+$/i.test(from) ? from : "preview";
