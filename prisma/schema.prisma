@@ -87,7 +87,7 @@ model Property {
   bankAccount  String?
   rentlioPropertyId Int?     @unique
   // Per-property switch; only applies when the workspace has guest registration enabled
-  guestRegistrationEnabled Boolean @default(true)
+  guestRegistrationEnabled Boolean @default(false)
   previewViewCount  Int      @default(0)
   chatCount         Int      @default(0)
   sections     Section[]

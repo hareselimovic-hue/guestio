@@ -294,7 +294,7 @@ export default function PropertyEditorPage() {
               {slugError && <span className="text-xs text-red-500">{slugError}</span>}
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 mt-1">
+            <div className="hidden sm:flex items-center gap-1.5 mt-1">
               <span className="text-xs text-[#6B6B6B]">/g/{property.slug}/preview</span>
               <button onClick={() => setEditingSlug(true)} className="text-[#6B6B6B] hover:text-[#0F2F61] transition-colors">
                 <Pencil className="w-3 h-3" />
@@ -387,35 +387,52 @@ export default function PropertyEditorPage() {
 
        </div>{/* end flex items-start */}
 
-       {/* Mobile buttons — shown below name, hidden on desktop */}
-       <div className="flex sm:hidden items-center gap-2 mt-3 pl-8">
-         {confirmDelete ? (
-           <>
-             <span className="text-sm text-red-500 whitespace-nowrap">Delete?</span>
+       {/* Mobile guest link card — hidden on desktop */}
+       <div className="sm:hidden mt-4 bg-white border border-[#EDEDE9] rounded-xl p-3">
+         <div className="flex items-center justify-between mb-2">
+           <span className="text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Guest link</span>
+           {!editingSlug && (
              <button
-               onClick={deleteProperty}
-               disabled={deleting}
-               className="text-xs font-medium text-white bg-red-500 hover:bg-red-600 px-2.5 py-1.5 rounded-lg shrink-0 disabled:opacity-50 transition-colors"
+               onClick={() => setEditingSlug(true)}
+               className="flex items-center gap-1 text-xs text-[#6B6B6B] hover:text-[#0F2F61] transition-colors"
              >
-               {deleting ? "Deleting..." : "Yes, delete"}
+               <Pencil className="w-3 h-3" />
+               Edit
              </button>
-             <button onClick={() => setConfirmDelete(false)} className="text-xs text-[#6B6B6B] hover:text-[#262626] transition-colors">
-               Cancel
+           )}
+         </div>
+         <button
+           onClick={copyLink}
+           className="w-full flex items-center gap-2 bg-[#F7F7F5] rounded-lg px-3 py-2.5 text-left"
+         >
+           <span className="text-xs text-[#262626] font-mono truncate flex-1">
+             {window.location.host}/g/{property.slug}/preview
+           </span>
+           {linkCopied ? (
+             <span className="flex items-center gap-1 text-xs font-medium text-green-600 shrink-0"><Check className="w-3.5 h-3.5" /> Copied</span>
+           ) : (
+             <Copy className="w-3.5 h-3.5 text-[#6B6B6B] shrink-0" />
+           )}
+         </button>
+         <div className="grid grid-cols-3 gap-2 mt-2">
+           <a
+             href={`/g/${property.slug}/preview`}
+             target="_blank"
+             className="flex flex-col items-center justify-center gap-1 py-2.5 text-xs font-medium text-[#262626] border border-[#EDEDE9] rounded-lg active:bg-[#F7F7F5] transition-colors"
+           >
+             <ExternalLink className="w-4 h-4 text-[#0F2F61]" />
+             Open
+           </a>
+           <div className="relative" ref={shareRefMobile}>
+             <button
+               onClick={(e) => { e.stopPropagation(); setShowShare((v) => !v); }}
+               className="w-full flex flex-col items-center justify-center gap-1 py-2.5 text-xs font-medium text-[#262626] border border-[#EDEDE9] rounded-lg active:bg-[#F7F7F5] transition-colors"
+             >
+               <MessageCircle className="w-4 h-4 text-[#0F2F61]" />
+               Share
              </button>
-           </>
-         ) : (
-           <>
-             <div className="relative" ref={shareRefMobile}>
-               <button
-                 onClick={(e) => { e.stopPropagation(); setShowShare((v) => !v); }}
-                 className="flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] border border-[#EDEDE9] px-3 py-1.5 rounded-lg transition-colors"
-               >
-                 <MessageCircle className="w-3.5 h-3.5 shrink-0" />
-                 Share
-                 <ChevronDown className="w-3 h-3" />
-               </button>
-               {showShare && (
-                 <div className="absolute left-0 top-full mt-1 bg-white border border-[#EDEDE9] rounded-xl shadow-lg z-50 overflow-hidden min-w-[160px]">
+             {showShare && (
+                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-white border border-[#EDEDE9] rounded-xl shadow-lg z-50 overflow-hidden min-w-[160px]">
                    <a href={shareHref("whatsapp")} target="_blank" rel="noopener noreferrer" onClick={() => setShowShare(false)} className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-[#262626] hover:bg-[#F7F7F5] transition-colors">
                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                      WhatsApp
@@ -425,30 +442,42 @@ export default function PropertyEditorPage() {
                      Viber
                    </a>
                  </div>
-               )}
-             </div>
+             )}
+           </div>
+           <button
+             onClick={() => setShowQr(true)}
+             className="flex flex-col items-center justify-center gap-1 py-2.5 text-xs font-medium text-[#262626] border border-[#EDEDE9] rounded-lg active:bg-[#F7F7F5] transition-colors"
+           >
+             <QrCode className="w-4 h-4 text-[#0F2F61]" />
+             QR code
+           </button>
+         </div>
+       </div>
+
+       {/* Mobile delete — kept away from the main actions */}
+       <div className="sm:hidden flex justify-end items-center gap-3 mt-2">
+         {confirmDelete ? (
+           <>
+             <span className="text-xs text-red-500">Delete this property?</span>
              <button
-               onClick={() => setShowQr(true)}
-               className="flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] border border-[#EDEDE9] px-3 py-1.5 rounded-lg transition-colors"
+               onClick={deleteProperty}
+               disabled={deleting}
+               className="text-xs font-medium text-white bg-red-500 hover:bg-red-600 px-2.5 py-1.5 rounded-lg disabled:opacity-50 transition-colors"
              >
-               <QrCode className="w-3.5 h-3.5 shrink-0" />
-               QR
+               {deleting ? "Deleting..." : "Yes, delete"}
              </button>
-             <a
-               href={`/g/${property.slug}/preview`}
-               target="_blank"
-               className="flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] border border-[#EDEDE9] px-3 py-1.5 rounded-lg transition-colors"
-             >
-               <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-               Guest link
-             </a>
-             <button
-               onClick={() => setConfirmDelete(true)}
-               className="flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-red-500 border border-[#EDEDE9] hover:border-red-200 px-3 py-1.5 rounded-lg transition-colors"
-             >
-               <Trash2 className="w-3.5 h-3.5 shrink-0" />
+             <button onClick={() => setConfirmDelete(false)} className="text-xs text-[#6B6B6B]">
+               Cancel
              </button>
            </>
+         ) : (
+           <button
+             onClick={() => setConfirmDelete(true)}
+             className="flex items-center gap-1 text-xs text-[#BABAB5] hover:text-red-500 transition-colors"
+           >
+             <Trash2 className="w-3 h-3" />
+             Delete property
+           </button>
          )}
        </div>
 

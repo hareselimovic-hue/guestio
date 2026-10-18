@@ -431,7 +431,7 @@ export default function SettingsPage() {
                       </label>
                     ))}
                   </div>
-                  <p className="text-xs text-[#6B6B6B] mt-2">New properties have the form switched on by default.</p>
+                  <p className="text-xs text-[#6B6B6B] mt-2">New properties have the form switched off until you tick them here.</p>
                 </div>
               </div>
             );
