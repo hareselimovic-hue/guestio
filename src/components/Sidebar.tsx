@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
-import { Home, LogOut, ChevronRight, Settings, ShieldCheck, CreditCard, BarChart2, HelpCircle, MessageSquare } from "lucide-react";
+import { Home, LogOut, ChevronRight, Settings, ShieldCheck, CreditCard, BarChart2, HelpCircle, MessageSquare, ClipboardList } from "lucide-react";
 
 interface SidebarProps {
   user: { id: string; name?: string | null; email: string };
   workspaceName: string | null;
+  showRegistrations?: boolean;
 }
 
 const ADMIN_EMAIL = "hareselimovic@gmail.com";
@@ -20,7 +21,7 @@ const navItems = [
   { href: "/dashboard/subscription", label: "Subscription", icon: CreditCard },
 ];
 
-export default function Sidebar({ user, workspaceName }: SidebarProps) {
+export default function Sidebar({ user, workspaceName, showRegistrations = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -33,7 +34,11 @@ export default function Sidebar({ user, workspaceName }: SidebarProps) {
     <>
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {[...navItems, ...(user.email === ADMIN_EMAIL ? [{ href: "/dashboard/admin", label: "Admin", icon: ShieldCheck }] : [])].map(({ href, label, icon: Icon }) => {
+        {[
+          ...navItems.slice(0, 2),
+          ...(showRegistrations ? [{ href: "/dashboard/registrations", label: "Guest registrations", icon: ClipboardList }] : []),
+          ...navItems.slice(2),
+          ...(user.email === ADMIN_EMAIL ? [{ href: "/dashboard/admin", label: "Admin", icon: ShieldCheck }] : [])].map(({ href, label, icon: Icon }) => {
           const isActive = href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
           return (
             <Link

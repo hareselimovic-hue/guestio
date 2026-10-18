@@ -24,6 +24,7 @@ model User {
   ownedWorkspace   Workspace?        @relation("WorkspaceOwner")
   workspaceMember  WorkspaceMember[]
   subscription     Subscription?
+  payments         Payment[]
   tasks            Task[]            @relation("TaskAuthor")
   taskComments     TaskComment[]     @relation("TaskCommentAuthor")
 }
@@ -89,6 +90,7 @@ model Property {
   chatCount         Int      @default(0)
   sections     Section[]
   guests       GuestLink[]
+  registrations GuestRegistration[]
   tasks        Task[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
@@ -143,6 +145,7 @@ model Workspace {
   tasks              Task[]
   rentlioApiKey      String?
   rentlioConnectedAt DateTime?
+  guestRegistrationEnabled Boolean     @default(false)
   createdAt          DateTime          @default(now())
 }
 
@@ -173,12 +176,39 @@ model WhitelistEmail {
 }
 
 model Subscription {
-  id         String   @id @default(cuid())
-  userId     String   @unique
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  validUntil DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  validUntil        DateTime
+  expiryEmailSentAt DateTime?
+  billingName       String?
+  billingAddress    String?
+  billingCity       String?
+  billingPostcode   String?
+  billingCountry    String    @default("BA")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Payment {
+  id                    String        @id @default(cuid())
+  userId                String
+  user                  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  merchantTransactionId String        @unique
+  bankartUuid           String?
+  propertyCount         Int
+  amount                Float
+  currency              String        @default("BAM")
+  status                PaymentStatus @default(PENDING)
+  createdAt             DateTime      @default(now())
+  paidAt                DateTime?
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  CANCELED
 }
 
 model GuestLink {
@@ -202,6 +232,23 @@ model GuestLinkView {
 
   @@index([guestLinkId])
   @@index([viewedAt])
+}
+
+// ─── Guest registration (prijava gostiju) ─────────────────────────────────────
+
+model GuestRegistration {
+  id            String   @id @default(cuid())
+  propertyId    String
+  property      Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  checkIn       DateTime @db.Date
+  checkOut      DateTime @db.Date
+  guestCount    Int
+  leadGuestName String
+  // AES-256-GCM encrypted JSON array of guest details (see src/lib/guest-registration.ts)
+  guestsEnc     String
+  createdAt     DateTime @default(now())
+
+  @@index([propertyId, checkIn])
 }
 
 // ─── Team Channel ─────────────────────────────────────────────────────────────

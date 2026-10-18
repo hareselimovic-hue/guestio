@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
-  Copy, Check, ChevronDown, Phone, ParkingSquare, X
+  Copy, Check, ChevronDown, Phone, ParkingSquare, X, ClipboardList, CheckCircle2
 } from "lucide-react";
 import { useState } from "react";
 import GuestChat from "./GuestChat";
+import { REGISTRATION_SENT_KEY } from "./GuestRegistrationForm";
 
 function ClickableImg({ src, alt, className, style }: { src: string; alt: string; className?: string; style?: React.CSSProperties }) {
   const [open, setOpen] = useState(false);
@@ -53,6 +54,7 @@ const UI_STRINGS: Record<string, {
   welcome: string; exploreGuide: string; guideSoon: string; guideSoonSub: string;
   trueLocalTitle: string; trueLocalBody: string; trueLocalCta: string;
   rentCarTitle: string; rentCarBody: string; callUs: string;
+  regTitle: string; regBody: string; regCta: string; regDone: string; regDoneBody: string;
   sections: Record<string, { label: string; subtitle?: string }>;
 }> = {
   EN: {
@@ -66,6 +68,11 @@ const UI_STRINGS: Record<string, {
     rentCarTitle: "Rent-a-car",
     rentCarBody: "Need a car during your stay? We offer reliable and affordable car rental — contact us and we'll arrange everything for you.",
     callUs: "Call us",
+    regTitle: "Guest registration",
+    regBody: "Please register all guests before arrival. It is required by local regulations and takes about 2 minutes.",
+    regCta: "Register guests",
+    regDone: "Registration sent",
+    regDoneBody: "Thank you! Your host has received your details.",
     sections: {
       WIFI:        { label: "WiFi",               subtitle: "Internet & WiFi" },
       CHECKIN:     { label: "Check-in & Check-out", subtitle: "Arrival & departure info" },
@@ -87,6 +94,11 @@ const UI_STRINGS: Record<string, {
     rentCarTitle: "Mietwagen",
     rentCarBody: "Benötigen Sie ein Auto während Ihres Aufenthalts? Wir bieten zuverlässige und erschwingliche Mietwagen — kontaktieren Sie uns.",
     callUs: "Anrufen",
+    regTitle: "Gästeanmeldung",
+    regBody: "Bitte melden Sie alle Gäste vor der Anreise an. Dies ist gesetzlich vorgeschrieben und dauert etwa 2 Minuten.",
+    regCta: "Gäste anmelden",
+    regDone: "Anmeldung gesendet",
+    regDoneBody: "Vielen Dank! Ihr Gastgeber hat Ihre Daten erhalten.",
     sections: {
       WIFI:        { label: "WLAN",               subtitle: "Internet & WLAN" },
       CHECKIN:     { label: "Check-in & Check-out", subtitle: "Anreise & Abreise" },
@@ -108,6 +120,11 @@ const UI_STRINGS: Record<string, {
     rentCarTitle: "Araç Kiralama",
     rentCarBody: "Konaklama sürenizde araç mı gerekiyor? Güvenilir ve uygun fiyatlı araç kiralama sunuyoruz — bizimle iletişime geçin.",
     callUs: "Ara",
+    regTitle: "Misafir kaydı",
+    regBody: "Lütfen varıştan önce tüm misafirleri kaydedin. Yerel mevzuat gereği zorunludur ve yaklaşık 2 dakika sürer.",
+    regCta: "Misafirleri kaydet",
+    regDone: "Kayıt gönderildi",
+    regDoneBody: "Teşekkürler! Ev sahibiniz bilgilerinizi aldı.",
     sections: {
       WIFI:        { label: "WiFi",               subtitle: "İnternet & WiFi" },
       CHECKIN:     { label: "Giriş & Çıkış",      subtitle: "Varış & Ayrılış bilgisi" },
@@ -129,6 +146,11 @@ const UI_STRINGS: Record<string, {
     rentCarTitle: "Noleggio auto",
     rentCarBody: "Hai bisogno di un'auto durante il soggiorno? Offriamo noleggio affidabile e conveniente — contattaci e organizziamo tutto.",
     callUs: "Chiama",
+    regTitle: "Registrazione ospiti",
+    regBody: "Si prega di registrare tutti gli ospiti prima dell'arrivo. È obbligatorio per legge e richiede circa 2 minuti.",
+    regCta: "Registra gli ospiti",
+    regDone: "Registrazione inviata",
+    regDoneBody: "Grazie! Il tuo host ha ricevuto i tuoi dati.",
     sections: {
       WIFI:        { label: "WiFi",               subtitle: "Internet & WiFi" },
       CHECKIN:     { label: "Check-in & Check-out", subtitle: "Info arrivo & partenza" },
@@ -161,6 +183,7 @@ interface Props {
   checkIn: string | null;
   checkOut: string | null;
   token: string;
+  registrationEnabled?: boolean;
 }
 
 const LANGUAGES = [
@@ -176,9 +199,20 @@ function getContent(section: Section, lang: string): Record<string, unknown> {
   return (t?.content ?? section.content) as Record<string, unknown>;
 }
 
-export default function GuestView({ property, sections, guestName, checkIn, checkOut, token }: Props) {
+export default function GuestView({ property, sections, guestName, checkIn, checkOut, token, registrationEnabled = false }: Props) {
   const sectionsRef = useRef<HTMLDivElement>(null);
   const [lang, setLang] = useState("EN");
+  const registrationHref = `/g/${property.slug}/registration?from=${token}`;
+  const [registrationSent, setRegistrationSent] = useState(false);
+
+  // Sent flag is stored per device with the departure date, so it clears after the stay
+  useEffect(() => {
+    if (!registrationEnabled) return;
+    try {
+      const sentUntil = localStorage.getItem(REGISTRATION_SENT_KEY(property.slug));
+      if (sentUntil && sentUntil >= new Date().toISOString().slice(0, 10)) setRegistrationSent(true);
+    } catch {}
+  }, [registrationEnabled, property.slug]);
   // Only show language switcher if at least one section has any translation
   const hasTranslations = sections.some((s) => s.translations && s.translations.length > 0);
 
@@ -265,6 +299,19 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
               <ChevronDown className="w-4 h-4" />
             </button>
           )}
+
+          {registrationEnabled && (
+            <div className="mt-3">
+              <a
+                href={registrationHref}
+                className="inline-flex items-center gap-2 border-2 border-white/80 hover:bg-white/15 text-white font-semibold px-6 py-2.5 rounded-full transition-all backdrop-blur-sm"
+                style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
+              >
+                {registrationSent ? <CheckCircle2 className="w-4 h-4" /> : <ClipboardList className="w-4 h-4" />}
+                {registrationSent ? ui.regDone : ui.regTitle}
+              </a>
+            </div>
+          )}
         </div>
 
         {/* Scroll indicator */}
@@ -298,6 +345,42 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 
       {/* ── SECTION CARDS ── */}
       <div ref={sectionsRef} className="max-w-2xl mx-auto px-4 py-10 space-y-4">
+
+        {registrationEnabled && (
+          registrationSent ? (
+            <div className="bg-white rounded-2xl shadow-sm border border-green-200 px-5 py-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-green-50 text-green-600">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="font-bold text-[#262626] text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+                  {ui.regDone}
+                </h2>
+                <p className="text-sm text-[#6B6B6B]">{ui.regDoneBody}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl shadow-sm border-2 border-[#FF6700] overflow-hidden">
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-orange-50 text-[#FF6700]">
+                  <ClipboardList className="w-5 h-5" />
+                </div>
+                <h2 className="font-bold text-[#262626] text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+                  {ui.regTitle}
+                </h2>
+              </div>
+              <div className="px-5 py-4 space-y-3">
+                <p className="text-sm text-[#262626] leading-relaxed">{ui.regBody}</p>
+                <a
+                  href={registrationHref}
+                  className="inline-flex items-center gap-2 bg-[#FF6700] hover:bg-[#e05c00] text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+                >
+                  {ui.regCta} →
+                </a>
+              </div>
+            </div>
+          )
+        )}
 
         {otherSections.map((section) => (
           <SectionCard key={section.id} section={section} content={getContent(section, lang)} ui={ui} />
