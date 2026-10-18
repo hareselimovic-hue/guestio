@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Settings, Users, Link2, Copy, Check, Trash2, Plus, Plug, Loader2, CheckCircle2, RefreshCw } from "lucide-react";
+import { Settings, Users, Link2, Copy, Check, Trash2, Plus, Plug, Loader2, CheckCircle2, RefreshCw, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +13,7 @@ interface Member {
 }
 
 interface WorkspaceData {
-  workspace: { id: string; name: string; ownerId: string };
+  workspace: { id: string; name: string; ownerId: string; guestRegistrationEnabled?: boolean; registrationEmails?: string[] };
   isOwner: boolean;
 }
 
@@ -64,6 +64,12 @@ export default function SettingsPage() {
   const [newName, setNewName] = useState("");
   const [savingName, setSavingName] = useState(false);
 
+  // Guest registration emails
+  const [regEmails, setRegEmails] = useState("");
+  const [savingRegEmails, setSavingRegEmails] = useState(false);
+  const [regEmailsMsg, setRegEmailsMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [regProperties, setRegProperties] = useState<{ id: string; name: string; guestRegistrationEnabled: boolean }[]>([]);
+
   // Invite
   const [inviteLink, setInviteLink] = useState("");
   const [generatingInvite, setGeneratingInvite] = useState(false);
@@ -79,6 +85,10 @@ export default function SettingsPage() {
       if (d) {
         setNewName(d.workspace.name);
         setMembers(d.workspace.members?.map((m: { user: Member }) => m.user) ?? []);
+        setRegEmails((d.workspace.registrationEmails ?? []).join(", "));
+        if (d.workspace.guestRegistrationEnabled) {
+          fetch("/api/registrations/properties").then((r) => r.json()).then(setRegProperties);
+        }
       }
       if (inv?.token) {
         setInviteLink(`${window.location.origin}/invite/${inv.token}`);
@@ -115,6 +125,35 @@ export default function SettingsPage() {
     setData((prev) => prev ? { ...prev, workspace: { ...prev.workspace, name: newName } } : prev);
     setEditingName(false);
     setSavingName(false);
+  }
+
+  async function saveRegEmails() {
+    setSavingRegEmails(true);
+    setRegEmailsMsg(null);
+    const res = await fetch("/api/workspace", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ registrationEmails: regEmails }),
+    });
+    const d = await res.json();
+    if (res.ok) {
+      setRegEmails(d.registrationEmails.join(", "));
+      setRegEmailsMsg({ ok: true, text: "Saved." });
+    } else {
+      setRegEmailsMsg({ ok: false, text: d.error ?? "Error" });
+    }
+    setSavingRegEmails(false);
+  }
+
+  async function setRegistrationFor(ids: string[], enabled: boolean) {
+    const prev = regProperties;
+    setRegProperties((list) => list.map((p) => (ids.includes(p.id) ? { ...p, guestRegistrationEnabled: enabled } : p)));
+    const res = await fetch("/api/registrations/properties", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids, enabled }),
+    });
+    if (!res.ok) setRegProperties(prev);
   }
 
   async function generateInvite() {
@@ -315,6 +354,88 @@ export default function SettingsPage() {
               ))}
             </div>
           </div>
+
+          {/* ── Guest registrations ── */}
+          {data.workspace.guestRegistrationEnabled && (() => {
+            const ownerEmail = members.find((m) => m.id === data.workspace.ownerId)?.email ?? "the workspace owner";
+            return (
+              <div className="bg-white border border-[#EDEDE9] rounded-xl p-5">
+                <div className="flex items-center gap-2 mb-1">
+                  <ClipboardList className="w-4 h-4 text-[#6B6B6B]" />
+                  <h2 className="font-semibold text-[#262626]">Guest registrations</h2>
+                </div>
+                <p className="text-sm text-[#6B6B6B] mb-4">
+                  Who gets an email when a guest sends their details. Separate multiple addresses with commas.
+                </p>
+                {data.isOwner ? (
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium text-[#6B6B6B]">Notification email</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="text"
+                        value={regEmails}
+                        onChange={(e) => { setRegEmails(e.target.value); setRegEmailsMsg(null); }}
+                        placeholder={ownerEmail}
+                        className="h-9 text-sm border-[#EDEDE9] flex-1"
+                      />
+                      <Button
+                        onClick={saveRegEmails}
+                        disabled={savingRegEmails}
+                        className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm shrink-0"
+                      >
+                        {savingRegEmails ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
+                      </Button>
+                    </div>
+                    {regEmailsMsg && (
+                      <p className={`text-xs ${regEmailsMsg.ok ? "text-green-600" : "text-red-500"}`}>{regEmailsMsg.text}</p>
+                    )}
+                    <p className="text-xs text-[#6B6B6B]">If empty, emails go to {ownerEmail}.</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-[#262626]">
+                    {(data.workspace.registrationEmails?.length ? data.workspace.registrationEmails.join(", ") : ownerEmail)}
+                  </p>
+                )}
+
+                {/* Per-property switch */}
+                <div className="mt-5 pt-4 border-t border-[#F0F0EE]">
+                  <div className="flex items-center justify-between mb-2">
+                    <Label className="text-xs font-medium text-[#6B6B6B]">
+                      Show registration form on ({regProperties.filter((p) => p.guestRegistrationEnabled).length}/{regProperties.length})
+                    </Label>
+                    <div className="flex gap-3 text-xs">
+                      <button
+                        onClick={() => setRegistrationFor(regProperties.map((p) => p.id), true)}
+                        className="text-[#0F2F61] hover:underline"
+                      >
+                        All
+                      </button>
+                      <button
+                        onClick={() => setRegistrationFor(regProperties.map((p) => p.id), false)}
+                        className="text-[#6B6B6B] hover:underline"
+                      >
+                        None
+                      </button>
+                    </div>
+                  </div>
+                  <div className="max-h-72 overflow-y-auto border border-[#EDEDE9] rounded-lg divide-y divide-[#F0F0EE]">
+                    {regProperties.map((p) => (
+                      <label key={p.id} className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-[#F7F7F5]">
+                        <input
+                          type="checkbox"
+                          checked={p.guestRegistrationEnabled}
+                          onChange={(e) => setRegistrationFor([p.id], e.target.checked)}
+                          className="w-4 h-4 accent-[#FF6700]"
+                        />
+                        <span className="text-sm text-[#262626]">{p.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <p className="text-xs text-[#6B6B6B] mt-2">New properties have the form switched on by default.</p>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* ── Rentlio integration ── */}
           <div className="bg-white border border-[#EDEDE9] rounded-xl p-5">

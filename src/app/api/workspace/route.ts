@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getUserWorkspace } from "@/lib/workspace";
+import { parseEmailList } from "@/lib/guest-registration";
 
 export const dynamic = "force-dynamic";
 
@@ -47,15 +48,25 @@ export async function PATCH(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name } = await req.json();
-  if (!name?.trim()) return NextResponse.json({ error: "Name is required" }, { status: 400 });
+  const { name, registrationEmails } = await req.json();
+  const data: { name?: string; registrationEmails?: string[] } = {};
+
+  if (name !== undefined) {
+    if (!name?.trim()) return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    data.name = name.trim();
+  }
+  if (registrationEmails !== undefined) {
+    const emails = typeof registrationEmails === "string" ? parseEmailList(registrationEmails) : null;
+    if (!emails) return NextResponse.json({ error: "Please enter valid email addresses, separated by commas." }, { status: 400 });
+    data.registrationEmails = emails;
+  }
 
   const workspace = await prisma.workspace.findFirst({ where: { ownerId: session.user.id } });
   if (!workspace) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const updated = await prisma.workspace.update({
     where: { id: workspace.id },
-    data: { name: name.trim() },
+    data,
   });
 
   return NextResponse.json(updated);

@@ -43,14 +43,29 @@ export function decryptGuests(payload: string): RegisteredGuest[] {
 // Enabled per workspace (Workspace.guestRegistrationEnabled). Properties without
 // workspaceId fall back to the workspace their owner belongs to.
 
-export async function isRegistrationEnabledForProperty(property: { workspaceId: string | null; userId: string }) {
-  const ws = await prisma.workspace.findFirst({
+export function getRegistrationWorkspace(property: { workspaceId: string | null; userId: string }) {
+  return prisma.workspace.findFirst({
     where: property.workspaceId
       ? { id: property.workspaceId }
       : { OR: [{ ownerId: property.userId }, { members: { some: { userId: property.userId } } }] },
-    select: { guestRegistrationEnabled: true },
+    select: { guestRegistrationEnabled: true, registrationEmails: true, owner: { select: { email: true } } },
   });
+}
+
+export async function isRegistrationEnabledForProperty(property: {
+  workspaceId: string | null; userId: string; guestRegistrationEnabled: boolean;
+}) {
+  if (!property.guestRegistrationEnabled) return false;
+  const ws = await getRegistrationWorkspace(property);
   return ws?.guestRegistrationEnabled ?? false;
+}
+
+const EMAIL_RE = /^[^\s@,]+@[^\s@,]+\.[^\s@,]+$/;
+
+/** Parses a comma/whitespace separated list; returns null if any entry is invalid. */
+export function parseEmailList(input: string): string[] | null {
+  const emails = [...new Set(input.split(/[\s,;]+/).map((e) => e.trim().toLowerCase()).filter(Boolean))];
+  return emails.every((e) => EMAIL_RE.test(e)) && emails.length <= 10 ? emails : null;
 }
 
 // ─── Validation ───────────────────────────────────────────────────────────────

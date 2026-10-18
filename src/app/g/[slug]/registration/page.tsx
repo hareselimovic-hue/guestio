@@ -17,7 +17,7 @@ export default async function GuestRegistrationPage({
 
   const property = await prisma.property.findUnique({
     where: { slug },
-    select: { name: true, slug: true, userId: true, workspaceId: true },
+    select: { name: true, slug: true, userId: true, workspaceId: true, guestRegistrationEnabled: true },
   });
   if (!property || !(await isRegistrationEnabledForProperty(property))) notFound();
 
