@@ -31,7 +31,20 @@ interface AdminPanelProps {
   subUsers: SubUser[];
 }
 
-export default function AdminPanel({ users, whitelist: initialWhitelist, subUsers: initialSubUsers }: AdminPanelProps) {
+const ADMIN_EMAIL = "hareselimovic@gmail.com";
+
+interface DeletePreview {
+  user: User;
+  workspaceProperties: number;
+  personalProperties: number;
+  hasWorkspace: boolean;
+}
+
+export default function AdminPanel({ users: initialUsers, whitelist: initialWhitelist, subUsers: initialSubUsers }: AdminPanelProps) {
+  const [users, setUsers] = useState(initialUsers);
+  const [deletePreview, setDeletePreview] = useState<DeletePreview | null>(null);
+  const [deleteError, setDeleteError] = useState("");
+  const [deletingUser, setDeletingUser] = useState(false);
   const [whitelist, setWhitelist] = useState(initialWhitelist);
   const [newEmail, setNewEmail] = useState("");
   const [adding, setAdding] = useState(false);
@@ -72,6 +85,35 @@ export default function AdminPanel({ users, whitelist: initialWhitelist, subUser
     if (res.ok) setWhitelist((prev) => prev.filter((e) => e.id !== id));
   }
 
+  async function askDeleteUser(user: User) {
+    setDeleteError("");
+    const res = await fetch(`/api/admin/users?id=${user.id}&dryRun=1`, { method: "DELETE" });
+    const d = await res.json();
+    if (!res.ok) {
+      alert(d.error ?? "Greška.");
+      return;
+    }
+    setDeletePreview({ user, ...d });
+  }
+
+  async function confirmDeleteUser() {
+    if (!deletePreview) return;
+    setDeletingUser(true);
+    setDeleteError("");
+    const { user } = deletePreview;
+    const res = await fetch(`/api/admin/users?id=${user.id}`, { method: "DELETE" });
+    const d = await res.json();
+    setDeletingUser(false);
+    if (!res.ok) {
+      setDeleteError(d.error ?? "Greška pri brisanju.");
+      return;
+    }
+    setUsers((prev) => prev.filter((u) => u.id !== user.id));
+    setSubUsers((prev) => prev.filter((u) => u.id !== user.id));
+    setWhitelist((prev) => prev.filter((e) => e.email.toLowerCase() !== user.email.toLowerCase()));
+    setDeletePreview(null);
+  }
+
   async function extendSubscription(userId: string) {
     if (!newDate) return;
     const res = await fetch("/api/admin/subscriptions", {
@@ -108,6 +150,54 @@ export default function AdminPanel({ users, whitelist: initialWhitelist, subUser
 
   return (
     <div className="space-y-10">
+
+      {/* ── Delete user confirmation ── */}
+      {deletePreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => !deletingUser && setDeletePreview(null)}>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-[#262626] mb-1">Obrisati korisnika?</h3>
+            <p className="text-sm text-[#262626] font-medium">{deletePreview.user.name}</p>
+            <p className="text-sm text-[#6B6B6B] mb-4">{deletePreview.user.email}</p>
+
+            <ul className="space-y-2 text-sm text-[#6B6B6B] mb-5">
+              <li>• Nalog, prijave i pretplata se trajno brišu.</li>
+              <li>• Email se uklanja s whitelist-e, pa se ne može ponovo registrovati.</li>
+              {deletePreview.hasWorkspace ? (
+                <li>
+                  • Njegovi apartmani ({deletePreview.workspaceProperties}), zadaci i komentari{" "}
+                  <strong className="text-[#262626]">ostaju u workspaceu</strong> i prelaze na vlasnika workspacea.
+                </li>
+              ) : deletePreview.personalProperties > 0 ? (
+                <li className="text-red-600">
+                  • <strong>{deletePreview.personalProperties} apartman(a)</strong> ovog korisnika, sa svim sekcijama,
+                  linkovima i prijavama gostiju, trajno se briše.
+                </li>
+              ) : (
+                <li>• Korisnik nema apartmana.</li>
+              )}
+            </ul>
+
+            {deleteError && <p className="text-sm text-red-500 mb-3">{deleteError}</p>}
+
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setDeletePreview(null)}
+                disabled={deletingUser}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-[#6B6B6B] border border-[#E0E0E0] hover:bg-[#F7F7F5] disabled:opacity-50"
+              >
+                Odustani
+              </button>
+              <button
+                onClick={confirmDeleteUser}
+                disabled={deletingUser}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-500 hover:bg-red-600 disabled:opacity-50"
+              >
+                {deletingUser ? "Brišem..." : "Da, obriši"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Whitelist ── */}
       <section>
@@ -194,6 +284,7 @@ export default function AdminPanel({ users, whitelist: initialWhitelist, subUser
                   <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium hidden md:table-cell">Registrovan</th>
                   <th className="text-center px-4 py-3 text-[#6B6B6B] font-medium">Prop.</th>
                   <th className="text-center px-4 py-3 text-[#6B6B6B] font-medium hidden sm:table-cell">Verificiran</th>
+                  <th className="px-4 py-3 w-12"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F0F0F0]">
@@ -212,6 +303,17 @@ export default function AdminPanel({ users, whitelist: initialWhitelist, subUser
                         <CheckCircle className="w-4 h-4 text-green-500 inline" />
                       ) : (
                         <XCircle className="w-4 h-4 text-[#CCCCCC] inline" />
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {u.email !== ADMIN_EMAIL && (
+                        <button
+                          onClick={() => askDeleteUser(u)}
+                          title="Obriši korisnika"
+                          className="text-[#6B6B6B] hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       )}
                     </td>
                   </tr>
