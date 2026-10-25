@@ -65,7 +65,7 @@ export default function SubscriptionExpiryPopup({ daysLeft }: Props) {
             onClick={dismiss}
             className="flex-1 bg-[#0F2F61] hover:bg-[#0a2347] text-white text-sm font-semibold px-4 py-2.5 rounded-xl text-center transition-colors"
           >
-            Pogledaj pretplatu
+            Plati karticom
           </Link>
           <button
             onClick={dismiss}

@@ -2,7 +2,9 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
 import { CreditCard, CheckCircle, XCircle, Clock } from "lucide-react";
+import SubscriptionCheckoutCard from "@/components/SubscriptionCheckoutCard";
 
 export default async function SubscriptionPage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -26,6 +28,14 @@ export default async function SubscriptionPage() {
   const daysLeft = sub
     ? Math.ceil((sub.validUntil.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
     : 0;
+
+  const [wsIds, memberUserIds] = await Promise.all([
+    getUserWorkspaceIds(session.user.id),
+    getWorkspaceMemberUserIds(session.user.id),
+  ]);
+  const propertyCount = await prisma.property.count({
+    where: propertyAccessWhere(session.user.id, wsIds, memberUserIds),
+  });
 
   function fmtDate(d: Date) {
     return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -94,15 +104,27 @@ export default async function SubscriptionPage() {
         {/* CTA */}
         <div>
           <p className="text-sm text-[#6B6B6B] mb-3">
-            To renew or upgrade your subscription, get in touch:
+            Ili nas kontaktirajte direktno:
           </p>
           <a
             href="mailto:info@smartstay.ba?subject=SmartStay subscription renewal"
-            className="inline-flex items-center gap-2 bg-[#FF6700] hover:bg-[#e05c00] text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors"
+            className="inline-flex items-center gap-2 text-[#6B6B6B] hover:text-[#262626] font-medium text-sm underline"
           >
-            Contact us →
+            info@smartstay.ba
           </a>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <SubscriptionCheckoutCard
+          propertyCount={propertyCount}
+          billing={{
+            billingName: sub.billingName,
+            billingAddress: sub.billingAddress,
+            billingCity: sub.billingCity,
+            billingPostcode: sub.billingPostcode,
+          }}
+        />
       </div>
     </div>
   );
