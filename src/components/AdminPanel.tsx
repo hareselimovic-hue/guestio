@@ -144,6 +144,40 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
     setExtendingId(userId);
   }
 
+  function daysBadge(days: number | null) {
+    if (days === null) return <span className="text-[#CCCCCC]">—</span>;
+    if (days <= 0) return <span className="text-red-500">Istekla</span>;
+    if (days <= 7) return <span className="text-orange-500">{days}d</span>;
+    return <span className="text-green-600">{days}d</span>;
+  }
+
+  // Extend buttons / date editor — shared by the mobile cards and the desktop table
+  function renderSubActions(u: SubUser, align: "start" | "end" = "start") {
+    const justify = align === "end" ? "justify-end" : "justify-start";
+    if (extendingId === u.id) {
+      return (
+        <div className={`flex items-center gap-1.5 flex-wrap ${justify}`}>
+          <input
+            type="date"
+            value={newDate}
+            onChange={(e) => setNewDate(e.target.value)}
+            className="border border-[#E0E0E0] rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#FF6700]"
+          />
+          <button onClick={() => extendSubscription(u.id)} className="bg-[#FF6700] text-white text-xs px-2.5 py-1 rounded-lg hover:bg-[#e05c00] font-medium">Sačuvaj</button>
+          <button onClick={() => { setExtendingId(null); setNewDate(""); }} className="text-[#6B6B6B] text-xs px-2 py-1">Otkaži</button>
+        </div>
+      );
+    }
+    return (
+      <div className={`flex items-center gap-1 flex-wrap ${justify}`}>
+        <button onClick={() => setQuickDate(u.id, 30)} className="text-xs border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#F7F7F5] text-[#262626]">+30d</button>
+        <button onClick={() => setQuickDate(u.id, 365)} className="text-xs border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#F7F7F5] text-[#262626]">+1god</button>
+        <button onClick={() => setQuickDate(u.id, "2030")} className="text-xs border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#F7F7F5] text-[#262626]">2030</button>
+        <button onClick={() => { setExtendingId(u.id); setNewDate(u.subscription ? u.subscription.validUntil.split("T")[0] : ""); }} className="text-xs bg-[#F7F7F5] border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#EDEDE9] text-[#262626]">Datum</button>
+      </div>
+    );
+  }
+
   function fmt(date: Date | string) {
     return new Date(date).toLocaleDateString("bs-BA", { day: "2-digit", month: "2-digit", year: "numeric" });
   }
@@ -275,7 +309,31 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
         {users.length === 0 ? (
           <p className="text-sm text-[#6B6B6B] italic">Nema registrovanih korisnika.</p>
         ) : (
-          <div className="border border-[#E0E0E0] rounded-xl overflow-hidden">
+          <>
+          {/* Mobile: one card per user (the table is wider than the screen) */}
+          <div className="sm:hidden border border-[#E0E0E0] rounded-xl divide-y divide-[#F0F0F0] bg-white">
+            {users.map((u) => (
+              <div key={u.id} className="flex items-start gap-3 px-4 py-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[#262626] truncate">{u.name}</p>
+                  <p className="text-xs text-[#6B6B6B] break-all">{u.email}</p>
+                  <p className="text-xs text-[#9B9B9B] mt-1">
+                    {u._count.properties} {u._count.properties === 1 ? "apartman" : "apartmana"} · registrovan {fmt(u.createdAt)}
+                  </p>
+                </div>
+                {u.email !== ADMIN_EMAIL && (
+                  <button
+                    onClick={() => askDeleteUser(u)}
+                    title="Obriši korisnika"
+                    className="p-1.5 -mr-1.5 text-[#6B6B6B] hover:text-red-500 transition-colors shrink-0"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="hidden sm:block border border-[#E0E0E0] rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-[#F7F7F5]">
                 <tr>
@@ -321,6 +379,7 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
               </tbody>
             </table>
           </div>
+          </>
         )}
       </section>
 
@@ -334,7 +393,26 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
         {subUsers.length === 0 ? (
           <p className="text-sm text-[#6B6B6B] italic">Nema korisnika.</p>
         ) : (
-          <div className="border border-[#E0E0E0] rounded-xl overflow-hidden">
+          <>
+          {/* Mobile: one card per user with the extend buttons underneath */}
+          <div className="sm:hidden border border-[#E0E0E0] rounded-xl divide-y divide-[#F0F0F0] bg-white">
+            {subUsers.map((u) => (
+              <div key={u.id} className="px-4 py-3 space-y-2">
+                <div className="flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-[#262626] truncate">{u.name}</p>
+                    <p className="text-xs text-[#6B6B6B] break-all">{u.email}</p>
+                    <p className="text-xs text-[#9B9B9B] mt-0.5">
+                      Važi do {u.subscription ? fmt(u.subscription.validUntil) : "—"}
+                    </p>
+                  </div>
+                  <span className="text-sm font-semibold shrink-0">{daysBadge(u.subscription?.daysLeft ?? null)}</span>
+                </div>
+                {renderSubActions(u)}
+              </div>
+            ))}
+          </div>
+          <div className="hidden sm:block border border-[#E0E0E0] rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-[#F7F7F5]">
                 <tr>
@@ -347,8 +425,6 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
               <tbody className="divide-y divide-[#F0F0F0]">
                 {subUsers.map((u) => {
                   const days = u.subscription?.daysLeft ?? null;
-                  const expired = days !== null && days <= 0;
-                  const warning = days !== null && days > 0 && days <= 7;
                   return (
                     <tr key={u.id} className="hover:bg-[#FAFAFA]">
                       <td className="px-4 py-3">
@@ -358,44 +434,15 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
                       <td className="px-4 py-3 text-[#6B6B6B] hidden sm:table-cell">
                         {u.subscription ? fmt(u.subscription.validUntil) : "—"}
                       </td>
-                      <td className="px-4 py-3 font-semibold">
-                        {days === null ? (
-                          <span className="text-[#CCCCCC]">—</span>
-                        ) : expired ? (
-                          <span className="text-red-500">Istekla</span>
-                        ) : warning ? (
-                          <span className="text-orange-500">{days}d</span>
-                        ) : (
-                          <span className="text-green-600">{days}d</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        {extendingId === u.id ? (
-                          <div className="flex items-center gap-1.5 justify-end flex-wrap">
-                            <input
-                              type="date"
-                              value={newDate}
-                              onChange={(e) => setNewDate(e.target.value)}
-                              className="border border-[#E0E0E0] rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#FF6700]"
-                            />
-                            <button onClick={() => extendSubscription(u.id)} className="bg-[#FF6700] text-white text-xs px-2.5 py-1 rounded-lg hover:bg-[#e05c00] font-medium">Sačuvaj</button>
-                            <button onClick={() => { setExtendingId(null); setNewDate(""); }} className="text-[#6B6B6B] text-xs px-2 py-1">Otkaži</button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1 justify-end">
-                            <button onClick={() => setQuickDate(u.id, 30)} className="text-xs border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#F7F7F5] text-[#262626]">+30d</button>
-                            <button onClick={() => setQuickDate(u.id, 365)} className="text-xs border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#F7F7F5] text-[#262626]">+1god</button>
-                            <button onClick={() => setQuickDate(u.id, "2030")} className="text-xs border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#F7F7F5] text-[#262626]">2030</button>
-                            <button onClick={() => { setExtendingId(u.id); setNewDate(u.subscription ? u.subscription.validUntil.split("T")[0] : ""); }} className="text-xs bg-[#F7F7F5] border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#EDEDE9] text-[#262626]">Datum</button>
-                          </div>
-                        )}
-                      </td>
+                      <td className="px-4 py-3 font-semibold">{daysBadge(days)}</td>
+                      <td className="px-4 py-3 text-right">{renderSubActions(u, "end")}</td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
+          </>
         )}
       </section>
     </div>
