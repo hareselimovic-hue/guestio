@@ -190,6 +190,10 @@ model Subscription {
   // validUntil value the expiry notice was sent for — resets naturally on renewal
   expiryNotice5dFor    DateTime?
   expiryNoticeTodayFor DateTime?
+  // One-time "30 days free" win-back offer, 5 days after expiry — never offered twice
+  winbackOfferSentAt DateTime?
+  winbackToken       String?   // random 192-bit; indexed below (not @unique, to keep db push non-interactive)
+  winbackAcceptedAt  DateTime?
   billingName       String?
   billingAddress    String?
   billingCity       String?
@@ -198,6 +202,8 @@ model Subscription {
   billingCountry    String    @default("BA")
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+
+  @@index([winbackToken])
 }
 
 model Payment {
