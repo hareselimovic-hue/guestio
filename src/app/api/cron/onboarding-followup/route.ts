@@ -14,8 +14,12 @@ const LAUNCH = new Date("2026-10-26T00:00:00Z");
  * POST /api/cron/onboarding-followup  (Authorization: Bearer CRON_SECRET)
  * Sends a one-time check-in email 5 days after sign-up, or 5 days after a landing-page lead
  * left their email without creating an account. ?dryRun=1 lists recipients without sending.
- * Called daily by .github/workflows/onboarding-followup.yml
+ * Called daily by Vercel Cron (vercel.json), which sends GET with the project's CRON_SECRET.
  */
+export async function GET(req: NextRequest) {
+  return POST(req);
+}
+
 export async function POST(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
   if (!secret || req.headers.get("authorization") !== `Bearer ${secret}`) {
