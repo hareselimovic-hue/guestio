@@ -256,6 +256,15 @@ model GuestRegistration {
   @@index([propertyId, checkIn])
 }
 
+// ─── Onboarding follow-up emails (sent once per address) ──────────────────────
+
+model OnboardingEmail {
+  id     String   @id @default(cuid())
+  email  String   @unique
+  kind   String   // "user" (has account) | "lead" (left email, no account)
+  sentAt DateTime @default(now())
+}
+
 // ─── Team Channel ─────────────────────────────────────────────────────────────
 
 model Task {
