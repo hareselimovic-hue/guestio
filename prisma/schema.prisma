@@ -185,7 +185,10 @@ model Subscription {
   userId            String    @unique
   user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   validUntil        DateTime
-  expiryEmailSentAt DateTime?
+  expiryEmailSentAt DateTime? // legacy, unused
+  // validUntil value the expiry notice was sent for — resets naturally on renewal
+  expiryNotice5dFor    DateTime?
+  expiryNoticeTodayFor DateTime?
   billingName       String?
   billingAddress    String?
   billingCity       String?
