@@ -7,14 +7,16 @@ import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } f
 import { calculateMonthlyPrice } from "@/lib/pricing";
 import { ISSUER } from "@/lib/billing-pdf";
 import {
-  addDays, BANK_TRANSFER_GRACE_DAYS, nextBankTransferReference, notifyAdminOfBankTransferRequest,
+  addDays, BANK_TRANSFER_GRACE_DAYS, bankTransferPeriod, nextBankTransferReference, notifyAdminOfBankTransferRequest, shortPeriod,
 } from "@/lib/billing";
 
 export const dynamic = "force-dynamic";
 
-function toView(p: { id: string; merchantTransactionId: string; amount: number; propertyCount: number; createdAt: Date }) {
+function toView(p: { id: string; merchantTransactionId: string; amount: number; propertyCount: number; createdAt: Date; previousValidUntil: Date | null }) {
   const price = calculateMonthlyPrice(p.propertyCount);
+  const period = bankTransferPeriod(p);
   return {
+    period: shortPeriod(period.from, period.to),
     id: p.id,
     reference: p.merchantTransactionId,
     amount: p.amount,

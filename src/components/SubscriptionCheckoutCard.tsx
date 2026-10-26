@@ -14,6 +14,8 @@ interface BillingInfo {
 
 export interface PendingTransfer {
   id: string;
+  /** e.g. "05.11.–05.12.2026." */
+  period: string;
   reference: string;
   amount: number;
   tierName: string;
@@ -214,7 +216,8 @@ export default function SubscriptionCheckoutCard({
                 <dt className="text-[#6B6B6B]">Banka</dt><dd className="text-[#262626]">{pending.bank}</dd>
                 <dt className="text-[#6B6B6B]">Iznos</dt><dd className="text-[#262626] font-semibold">{km(pending.amount)}</dd>
                 <dt className="text-[#6B6B6B]">Poziv na broj</dt><dd className="text-[#262626] font-mono font-semibold">{pending.reference}</dd>
-                <dt className="text-[#6B6B6B]">Svrha</dt><dd className="text-[#262626]">SmartStay pretplata — {pending.tierName}</dd>
+                <dt className="text-[#6B6B6B]">Svrha</dt><dd className="text-[#262626]">SmartStay pretplata {pending.period}</dd>
+                <dt className="text-[#6B6B6B]">Period</dt><dd className="text-[#262626]">{pending.period} · {pending.tierName}</dd>
               </dl>
               <div className="flex flex-col sm:flex-row gap-2">
                 <a

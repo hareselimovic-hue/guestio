@@ -152,6 +152,24 @@ export async function sendInvoiceEmails(invoiceId: string) {
 
 // ─── Bank transfer (virman) ───────────────────────────────────────────────────
 
+/**
+ * Subscription period a bank transfer pays for: starts where the subscription stood before the
+ * 7-day grace (or at the request, if it had already expired) and lasts RENEWAL_DAYS.
+ * Shown on the payment instructions and used when the admin marks the transfer as paid.
+ */
+export function bankTransferPeriod(p: { previousValidUntil: Date | null; createdAt: Date }) {
+  const before = p.previousValidUntil ?? p.createdAt;
+  const from = before > p.createdAt ? before : p.createdAt;
+  return { from, to: addDays(from, RENEWAL_DAYS) };
+}
+
+/** "05.11.–05.12.2026." (or full dates when the period crosses a year) */
+export function shortPeriod(from: Date, to: Date) {
+  const [fd, fm, fy] = fmtDate(from).replace(/\s/g, "").split(".");
+  const toStr = fmtDate(to).replace(/\s/g, "");
+  return fy === toStr.split(".")[2] ? `${fd}.${fm}.–${toStr}` : `${fmtDate(from).replace(/\s/g, "")}–${toStr}`;
+}
+
 export function billingPartyFromSub(
   sub: { billingName: string | null; billingAddress: string | null; billingCity: string | null; billingPostcode: string | null; billingIdBroj: string | null },
   email: string,
@@ -173,6 +191,7 @@ export async function renderInstructionsPdf(paymentId: string) {
   });
   const price = calculateMonthlyPrice(payment.propertyCount);
   const sub = payment.user.subscription!;
+  const period = bankTransferPeriod(payment);
   const pdf = await buildPaymentInstructionsPdf({
     reference: payment.merchantTransactionId,
     createdAt: payment.createdAt,
@@ -180,13 +199,16 @@ export async function renderInstructionsPdf(paymentId: string) {
     amount: payment.amount,
     propertyCount: payment.propertyCount,
     tierName: price.tierName,
+    periodFrom: period.from,
+    periodTo: period.to,
+    periodShort: shortPeriod(period.from, period.to),
     payer: billingPartyFromSub(sub, payment.user.email),
   });
-  return { payment, pdf: Buffer.from(pdf), tierName: price.tierName };
+  return { payment, pdf: Buffer.from(pdf), tierName: price.tierName, period };
 }
 
 export async function sendInstructionsEmail(paymentId: string) {
-  const { payment, pdf, tierName } = await renderInstructionsPdf(paymentId);
+  const { payment, pdf, period } = await renderInstructionsPdf(paymentId);
   const { error } = await resend().emails.send({
     from: FROM(),
     to: payment.user.email,
@@ -202,7 +224,8 @@ export async function sendInstructionsEmail(paymentId: string) {
         ["Banka", ISSUER.banka],
         ["Iznos", fmtKM(payment.amount)],
         ["Poziv na broj", payment.merchantTransactionId],
-        ["Svrha uplate", `SmartStay pretplata — ${tierName}`],
+        ["Svrha uplate", `SmartStay pretplata ${shortPeriod(period.from, period.to)}`],
+        ["Period pretplate", `${fmtDate(period.from)} – ${fmtDate(period.to)}`],
         ["Rok", fmtDate(addDays(payment.createdAt, BANK_TRANSFER_GRACE_DAYS))],
       ])}
       <p style="${P}"><strong>Obavezno navedite poziv na broj.</strong> Kad uplata bude evidentirana, fakturu dobijate na email.</p>`),
@@ -226,6 +249,7 @@ export async function notifyAdminOfBankTransferRequest(paymentId: string) {
         ["Kupac", payment.user.subscription?.billingName ?? "—"],
         ["Email", payment.user.email],
         ["Poziv na broj", payment.merchantTransactionId],
+        ["Period", (({ from, to }) => `${fmtDate(from)} – ${fmtDate(to)}`)(bankTransferPeriod(payment))],
       ])}
       <p style="${P}">Kad uplata legne na račun, označite je u Admin panelu → <em>Uplate virmanom</em> → <strong>Označi plaćeno</strong>. Tada se pretplata produži i faktura automatski ide kupcu i Nedimu.</p>`),
   });

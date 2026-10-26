@@ -160,6 +160,10 @@ export async function buildPaymentInstructionsPdf(p: {
   amount: number;
   propertyCount: number;
   tierName: string;
+  periodFrom: Date;
+  periodTo: Date;
+  /** e.g. "05.11.–05.12.2026." */
+  periodShort: string;
   payer: BillingParty;
 }): Promise<Uint8Array> {
   const { doc, page, regular, bold } = await setup();
@@ -178,7 +182,8 @@ export async function buildPaymentInstructionsPdf(p: {
     ["Banka", ISSUER.banka],
     ["Iznos", fmtKM(p.amount)],
     ["Poziv na broj", p.reference],
-    ["Svrha uplate", `SmartStay pretplata — ${p.tierName} (${p.propertyCount} obj.)`],
+    ["Svrha uplate", `SmartStay pretplata ${p.periodShort}`],
+    ["Period pretplate", `${fmtDate(p.periodFrom)} – ${fmtDate(p.periodTo)} (${p.tierName}, ${p.propertyCount} obj.)`],
     ["Uplatilac", [p.payer.name, p.payer.city].filter(Boolean).join(", ")],
     ["Rok za uplatu", fmtDate(p.dueDate)],
   ];

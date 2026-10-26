@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { addDays, issueInvoice, RENEWAL_DAYS, sendInvoiceEmails } from "@/lib/billing";
+import { bankTransferPeriod, issueInvoice, sendInvoiceEmails } from "@/lib/billing";
 
 export const dynamic = "force-dynamic";
 
@@ -39,10 +39,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (claimed.count === 0) return null;
 
     const sub = await tx.subscription.findUnique({ where: { userId: payment.userId } });
-    // Paid month starts where the subscription stood before the grace (or at the request, if it had already expired)
-    const before = payment.previousValidUntil ?? payment.createdAt;
-    const from = before > payment.createdAt ? before : payment.createdAt;
-    let to = addDays(from, RENEWAL_DAYS);
+    // Same period as printed on the payment instructions
+    const { from, to: periodTo } = bankTransferPeriod(payment);
+    let to = periodTo;
     if (sub && sub.validUntil > to) to = sub.validUntil; // never shorten (e.g. paid by card meanwhile)
 
     await tx.subscription.update({ where: { userId: payment.userId }, data: { validUntil: to } });

@@ -6,7 +6,7 @@ import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } f
 import { CreditCard, CheckCircle, XCircle, Clock } from "lucide-react";
 import SubscriptionCheckoutCard from "@/components/SubscriptionCheckoutCard";
 import { calculateMonthlyPrice } from "@/lib/pricing";
-import { addDays, BANK_TRANSFER_GRACE_DAYS } from "@/lib/billing";
+import { addDays, BANK_TRANSFER_GRACE_DAYS, bankTransferPeriod, shortPeriod } from "@/lib/billing";
 import { ISSUER } from "@/lib/billing-pdf";
 import { FileText, Download } from "lucide-react";
 
@@ -53,6 +53,7 @@ export default async function SubscriptionPage() {
   const initialPending = pendingTransfer
     ? {
         id: pendingTransfer.id,
+        period: (({ from, to }) => shortPeriod(from, to))(bankTransferPeriod(pendingTransfer)),
         reference: pendingTransfer.merchantTransactionId,
         amount: pendingTransfer.amount,
         tierName: calculateMonthlyPrice(pendingTransfer.propertyCount).tierName,
