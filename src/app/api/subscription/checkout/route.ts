@@ -13,27 +13,22 @@ export async function PUT(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { billingName, billingAddress, billingCity, billingPostcode } = await req.json();
+  const { billingName, billingAddress, billingCity, billingPostcode, billingIdBroj } = await req.json();
   if (!billingName?.trim() || !billingAddress?.trim() || !billingCity?.trim() || !billingPostcode?.trim()) {
-    return NextResponse.json({ error: "Sva polja su obavezna." }, { status: 400 });
+    return NextResponse.json({ error: "Popunite ime/naziv, adresu, grad i poštanski broj." }, { status: 400 });
   }
 
+  const billing = {
+    billingName: billingName.trim(),
+    billingAddress: billingAddress.trim(),
+    billingCity: billingCity.trim(),
+    billingPostcode: billingPostcode.trim(),
+    billingIdBroj: typeof billingIdBroj === "string" && billingIdBroj.trim() ? billingIdBroj.trim() : null,
+  };
   const subscription = await prisma.subscription.upsert({
     where: { userId: session.user.id },
-    update: {
-      billingName: billingName.trim(),
-      billingAddress: billingAddress.trim(),
-      billingCity: billingCity.trim(),
-      billingPostcode: billingPostcode.trim(),
-    },
-    create: {
-      userId: session.user.id,
-      validUntil: new Date(),
-      billingName: billingName.trim(),
-      billingAddress: billingAddress.trim(),
-      billingCity: billingCity.trim(),
-      billingPostcode: billingPostcode.trim(),
-    },
+    update: billing,
+    create: { userId: session.user.id, validUntil: new Date(), ...billing },
   });
 
   return NextResponse.json({ subscription });

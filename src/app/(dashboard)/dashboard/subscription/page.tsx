@@ -5,6 +5,10 @@ import { prisma } from "@/lib/prisma";
 import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
 import { CreditCard, CheckCircle, XCircle, Clock } from "lucide-react";
 import SubscriptionCheckoutCard from "@/components/SubscriptionCheckoutCard";
+import { calculateMonthlyPrice } from "@/lib/pricing";
+import { addDays, BANK_TRANSFER_GRACE_DAYS } from "@/lib/billing";
+import { ISSUER } from "@/lib/billing-pdf";
+import { FileText, Download } from "lucide-react";
 
 export default async function SubscriptionPage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -33,9 +37,31 @@ export default async function SubscriptionPage() {
     getUserWorkspaceIds(session.user.id),
     getWorkspaceMemberUserIds(session.user.id),
   ]);
-  const propertyCount = await prisma.property.count({
-    where: propertyAccessWhere(session.user.id, wsIds, memberUserIds),
-  });
+  const [propertyCount, pendingTransfer, invoices] = await Promise.all([
+    prisma.property.count({ where: propertyAccessWhere(session.user.id, wsIds, memberUserIds) }),
+    prisma.payment.findFirst({
+      where: { userId: session.user.id, method: "BANK_TRANSFER", status: "PENDING" },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.invoice.findMany({
+      where: { userId: session.user.id },
+      orderBy: { issuedAt: "desc" },
+      take: 24,
+    }),
+  ]);
+
+  const initialPending = pendingTransfer
+    ? {
+        id: pendingTransfer.id,
+        reference: pendingTransfer.merchantTransactionId,
+        amount: pendingTransfer.amount,
+        tierName: calculateMonthlyPrice(pendingTransfer.propertyCount).tierName,
+        dueDate: addDays(pendingTransfer.createdAt, BANK_TRANSFER_GRACE_DAYS).toISOString(),
+        recipient: ISSUER.name,
+        account: ISSUER.racun,
+        bank: ISSUER.banka,
+      }
+    : null;
 
   function fmtDate(d: Date) {
     return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -94,7 +120,7 @@ export default async function SubscriptionPage() {
           <div className="rounded-xl px-5 py-4 bg-red-50 border border-red-200">
             <p className="text-sm font-semibold text-red-700 mb-1">Your subscription has expired</p>
             <p className="text-sm text-red-600">
-              To continue using SmartStay, please contact us to renew your subscription.
+              Obnovite pretplatu karticom ili virmanom ispod.
             </p>
           </div>
         )}
@@ -123,9 +149,38 @@ export default async function SubscriptionPage() {
             billingAddress: sub.billingAddress,
             billingCity: sub.billingCity,
             billingPostcode: sub.billingPostcode,
+            billingIdBroj: sub.billingIdBroj,
           }}
+          initialPending={initialPending}
         />
       </div>
+
+      {invoices.length > 0 && (
+        <div className="mt-6 bg-white rounded-2xl border border-[#EDEDE9] p-6 sm:p-8">
+          <div className="flex items-center gap-2 mb-4">
+            <FileText className="w-5 h-5 text-[#0F2F61]" />
+            <h2 className="font-bold text-[#262626]">Fakture</h2>
+          </div>
+          <ul className="divide-y divide-[#F0F0EE]">
+            {invoices.map((inv) => (
+              <li key={inv.id} className="flex items-center gap-3 py-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-[#262626]">{inv.number}</p>
+                  <p className="text-xs text-[#6B6B6B]">
+                    {inv.issuedAt.toLocaleDateString("bs-BA")} · {inv.amount.toFixed(2)} KM · {inv.method === "CARD" ? "kartica" : "virman"}
+                  </p>
+                </div>
+                <a
+                  href={`/api/invoices/${inv.id}/pdf`}
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-[#0F2F61] hover:underline"
+                >
+                  <Download className="w-4 h-4" /> PDF
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

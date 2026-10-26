@@ -25,6 +25,7 @@ model User {
   workspaceMember  WorkspaceMember[]
   subscription     Subscription?
   payments         Payment[]
+  invoices         Invoice[]
   tasks            Task[]            @relation("TaskAuthor")
   taskComments     TaskComment[]     @relation("TaskCommentAuthor")
 }
@@ -193,6 +194,7 @@ model Subscription {
   billingAddress    String?
   billingCity       String?
   billingPostcode   String?
+  billingIdBroj     String?   // company ID (JIB/IDB), optional
   billingCountry    String    @default("BA")
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -208,8 +210,34 @@ model Payment {
   amount                Float
   currency              String        @default("BAM")
   status                PaymentStatus @default(PENDING)
+  // "CARD" (Bankart) | "BANK_TRANSFER" (virman; merchantTransactionId is the poziv na broj)
+  method                String        @default("CARD")
+  // Bank transfer: validUntil before the 7-day grace, so the paid month isn't shortened by it
+  previousValidUntil    DateTime?
+  invoice               Invoice?
   createdAt             DateTime      @default(now())
   paidAt                DateTime?
+}
+
+model Invoice {
+  id              String   @id @default(cuid())
+  number          String   @unique // SS-2026-0001
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paymentId       String   @unique
+  payment         Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  method          String   // CARD | BANK_TRANSFER
+  amount          Float
+  currency        String   @default("BAM")
+  propertyCount   Int
+  billingName     String?
+  billingAddress  String?
+  billingCity     String?
+  billingPostcode String?
+  billingIdBroj   String?
+  periodFrom      DateTime
+  periodTo        DateTime
+  issuedAt        DateTime @default(now())
 }
 
 enum PaymentStatus {
