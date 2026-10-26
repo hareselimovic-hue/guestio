@@ -38,11 +38,15 @@ export default function SubscriptionCheckoutCard({
   propertyCount,
   billing,
   initialPending,
+  collapsedUntil,
 }: {
   propertyCount: number;
   billing: BillingInfo;
   initialPending: PendingTransfer | null;
+  /** Set while renewal isn't due yet: show a one-line note with "Plati unaprijed" instead of the card */
+  collapsedUntil?: string;
 }) {
+  const [expanded, setExpanded] = useState(!collapsedUntil);
   const [form, setForm] = useState({
     billingName: billing.billingName ?? "",
     billingAddress: billing.billingAddress ?? "",
@@ -122,6 +126,23 @@ export default function SubscriptionCheckoutCard({
     } finally {
       setEmailing(false);
     }
+  }
+
+  if (!expanded) {
+    return (
+      <div className="bg-white rounded-2xl border border-[#EDEDE9] px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-3">
+        <p className="flex-1 text-sm text-[#6B6B6B]">
+          Pretplata je aktivna do <strong className="text-[#262626]">{fmtDate(collapsedUntil!)}</strong>. Opcije plaćanja
+          pojavit će se 5 dana prije isteka.
+        </p>
+        <button
+          onClick={() => setExpanded(true)}
+          className="text-sm font-semibold text-[#0F2F61] hover:underline shrink-0 text-left"
+        >
+          Plati unaprijed →
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -208,7 +229,7 @@ export default function SubscriptionCheckoutCard({
             <div className="rounded-xl border-2 border-[#0F2F61] p-5 space-y-4">
               <div>
                 <p className="text-xs font-semibold text-[#0F2F61] uppercase tracking-wide">Uputstvo za uplatu</p>
-                <p className="text-sm text-[#6B6B6B] mt-1">Uplatu izvršite do {fmtDate(pending.dueDate)}. Fakturu šaljemo na email kad uplata stigne.</p>
+                <p className="text-sm text-[#6B6B6B] mt-1">Uplatu izvršite do {fmtDate(pending.dueDate)} Fakturu šaljemo na email kad uplata stigne.</p>
               </div>
               <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
                 <dt className="text-[#6B6B6B]">Primalac</dt><dd className="text-[#262626]">{pending.recipient}</dd>

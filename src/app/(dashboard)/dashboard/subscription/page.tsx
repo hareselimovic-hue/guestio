@@ -10,6 +10,9 @@ import { addDays, BANK_TRANSFER_GRACE_DAYS, bankTransferPeriod, shortPeriod } fr
 import { ISSUER } from "@/lib/billing-pdf";
 import { FileText, Download } from "lucide-react";
 
+const ADMIN_EMAIL = "hareselimovic@gmail.com";
+const RENEWAL_WINDOW_DAYS = 5;
+
 export default async function SubscriptionPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/login");
@@ -49,6 +52,11 @@ export default async function SubscriptionPage() {
       take: 24,
     }),
   ]);
+
+  // Admin doesn't pay; others see the payment options 5 days before expiry, after expiry,
+  // or while a bank transfer is open — otherwise a one-line note with "Plati unaprijed"
+  const isAdmin = session.user.email === ADMIN_EMAIL;
+  const renewalDue = !isActive || daysLeft <= RENEWAL_WINDOW_DAYS || !!pendingTransfer;
 
   const initialPending = pendingTransfer
     ? {
@@ -142,8 +150,10 @@ export default async function SubscriptionPage() {
         </div>
       </div>
 
+      {!isAdmin && (
       <div className="mt-6">
         <SubscriptionCheckoutCard
+          collapsedUntil={renewalDue ? undefined : sub.validUntil.toISOString()}
           propertyCount={propertyCount}
           billing={{
             billingName: sub.billingName,
@@ -155,6 +165,7 @@ export default async function SubscriptionPage() {
           initialPending={initialPending}
         />
       </div>
+      )}
 
       {invoices.length > 0 && (
         <div className="mt-6 bg-white rounded-2xl border border-[#EDEDE9] p-6 sm:p-8">
