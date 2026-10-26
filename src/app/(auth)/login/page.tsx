@@ -29,8 +29,9 @@ function LoginForm() {
       return;
     }
 
+    // Only same-site paths — never an external URL from the query string
     const redirect = searchParams.get("redirect");
-    router.push(redirect ?? "/dashboard");
+    router.push(redirect?.startsWith("/") && !redirect.startsWith("//") ? redirect : "/dashboard");
   }
 
   return (

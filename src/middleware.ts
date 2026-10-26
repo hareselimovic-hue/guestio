@@ -35,20 +35,23 @@ export async function middleware(req: NextRequest) {
     return res;
   }
 
-  // Only guard dashboard routes (except the subscription page itself)
-  if (
-    !pathname.startsWith("/dashboard") ||
-    pathname.startsWith(SUBSCRIPTION_PAGE)
-  ) {
-    return NextResponse.next();
-  }
+  if (!pathname.startsWith("/dashboard")) return NextResponse.next();
 
   // Read session cookie — Better Auth uses "better-auth.session_token"
   const sessionToken =
     req.cookies.get("better-auth.session_token")?.value ??
     req.cookies.get("__Secure-better-auth.session_token")?.value;
 
-  if (!sessionToken) return NextResponse.next(); // layout.tsx handles auth redirect
+  // Not logged in: send to login and come back to the same page afterwards
+  // (e.g. "Obnovi pretplatu" links in emails). Invalid/expired sessions are still handled by layout.tsx.
+  if (!sessionToken) {
+    const loginUrl = new URL("/login", req.url);
+    loginUrl.searchParams.set("redirect", pathname + req.nextUrl.search);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Subscription guard (the subscription page itself stays reachable)
+  if (pathname.startsWith(SUBSCRIPTION_PAGE)) return NextResponse.next();
 
   // Check subscription via internal API call
   const baseUrl = req.nextUrl.origin;
