@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
             </table>
             <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 4px;">
               <tr><td align="center">
-                <a href="https://app.smartstay.ba/register"
+                <a href="https://app.smartstay.ba/register?email=${encodeURIComponent(email)}"
                    style="display:inline-block;background:#FF6700;color:#fff;font-size:16px;font-weight:700;
                           padding:15px 36px;border-radius:12px;text-decoration:none;text-align:center;">
                   Počnite besplatni trial →
