@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
 export async function POST(req: NextRequest) {
-  const { email, source } = await req.json();
+  const body = await req.json();
+  const source = body.source;
+  // Better Auth stores emails lowercased — keep the whitelist in the same form
+  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: "Invalid email" }, { status: 400 });
@@ -16,11 +19,13 @@ export async function POST(req: NextRequest) {
     create: { email },
   });
 
+  // Emails are best-effort: the visitor is already whitelisted and the landing page sends them
+  // straight to registration, so a mail failure must not fail the request.
   if (process.env.RESEND_API_KEY) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const fromEmail = process.env.RESEND_FROM_EMAIL ?? "noreply@resend.dev";
 
-    await Promise.all([
+    await Promise.allSettled([
       // Internal notification
       resend.emails.send({
         from: fromEmail,

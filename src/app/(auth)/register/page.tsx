@@ -12,7 +12,8 @@ function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  // Prefilled when coming from the smartstay.ba landing page ("Kreiraj nalog" after leaving the email)
+  const [email, setEmail] = useState(searchParams.get("email") ?? "");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,7 +23,13 @@ function RegisterForm() {
     setError("");
     setLoading(true);
 
-    const { error } = await signUp.email({ name, email, password });
+    // Only same-site paths — never an external URL from the query string
+    const redirectParam = searchParams.get("redirect");
+    const redirect = redirectParam?.startsWith("/") && !redirectParam.startsWith("//") ? redirectParam : null;
+
+    // callbackURL lets the server recognise workspace invites (/invite/<token>) — invited team members
+    // may register without being on the whitelist
+    const { error } = await signUp.email({ name, email, password, ...(redirect ? { callbackURL: redirect } : {}) });
 
     if (error) {
       setError(error.message ?? "Registration failed. Please try again.");
@@ -30,9 +37,7 @@ function RegisterForm() {
       return;
     }
 
-    // Only same-site paths — never an external URL from the query string
-    const redirect = searchParams.get("redirect");
-    router.push(redirect?.startsWith("/") && !redirect.startsWith("//") ? redirect : "/dashboard");
+    router.push(redirect ?? "/dashboard");
   }
 
   return (
@@ -92,6 +97,12 @@ function RegisterForm() {
         {error && (
           <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-md">
             {error}
+            {error.includes("smartstay.ba") && (
+              <>
+                {" "}
+                <a href="https://smartstay.ba/#kontakt" className="font-semibold underline">Idi na smartstay.ba →</a>
+              </>
+            )}
           </p>
         )}
 

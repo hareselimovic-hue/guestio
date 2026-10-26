@@ -1,9 +1,23 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { APIError } from "better-auth/api";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 
 const ADMIN_EMAIL = "hareselimovic@gmail.com";
+
+function escapeHtml(s: string) {
+  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+}
+
+/** Team members register via /register?redirect=/invite/<token>; the register page sends it as callbackURL. */
+async function hasValidInvite(ctx: unknown): Promise<boolean> {
+  const callbackURL = (ctx as { body?: { callbackURL?: unknown } } | null)?.body?.callbackURL;
+  const token = typeof callbackURL === "string" ? callbackURL.match(/^\/invite\/([\w-]+)/)?.[1] : undefined;
+  if (!token) return false;
+  const invite = await prisma.workspaceInvite.findUnique({ where: { token }, select: { expiresAt: true } });
+  return !!invite && invite.expiresAt > new Date();
+}
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -65,37 +79,54 @@ export const auth = betterAuth({
 </html>`,
       });
     },
-    async beforeCreateUser({ user }: { user: { email: string } }) {
-      if (user.email === ADMIN_EMAIL) return;
-      const allowed = await prisma.whitelistEmail.findUnique({ where: { email: user.email } });
-      if (!allowed) throw new Error("Your email is not on the access list. Contact the administrator.");
-    },
-    async afterCreateUser({ user }: { user: { id: string; email: string; name: string } }) {
-      // Kreira 30-dnevni trial subscription
-      try {
-        const validUntil = new Date();
-        validUntil.setDate(validUntil.getDate() + 30);
-        await prisma.subscription.upsert({
-          where: { userId: user.id },
-          update: {},
-          create: { userId: user.id, validUntil },
-        });
-      } catch (err) {
-        console.error("[afterCreateUser] Failed to create subscription:", err);
-      }
-
-      if (!process.env.RESEND_API_KEY) return;
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      const fromEmail = process.env.RESEND_FROM_EMAIL ?? "noreply@resend.dev";
-      await resend.emails.send({
-        from: fromEmail,
-        to: "info@smartstay.ba",
-        subject: `Novi korisnik: ${user.email}`,
-        html: `<p>Novi korisnik se registrovao na SmartStay.</p>
-<p><strong>Ime:</strong> ${user.name ?? "—"}<br>
-<strong>Email:</strong> ${user.email}<br>
+  },
+  // Registration gate + trial. (Better Auth only runs hooks under databaseHooks —
+  // the old emailAndPassword.beforeCreateUser/afterCreateUser were silently ignored.)
+  databaseHooks: {
+    user: {
+      create: {
+        // Only people on the whitelist (left their email on smartstay.ba / added by admin)
+        // or holding a valid workspace invite may register.
+        async before(user, ctx) {
+          const email = String(user.email ?? "").toLowerCase();
+          if (email === ADMIN_EMAIL) return;
+          const whitelisted = await prisma.whitelistEmail.findFirst({
+            where: { email: { equals: email, mode: "insensitive" } },
+            select: { id: true },
+          });
+          if (whitelisted) return;
+          if (await hasValidInvite(ctx)) return;
+          throw new APIError("FORBIDDEN", {
+            message: "Registracija je moguća nakon što ostavite email na smartstay.ba — tamo odmah dobijate pristup i 30 dana besplatno.",
+          });
+        },
+        async after(user) {
+          // 30-day trial
+          try {
+            await prisma.subscription.upsert({
+              where: { userId: user.id },
+              update: {},
+              create: { userId: user.id, validUntil: new Date(Date.now() + 30 * 86_400_000) },
+            });
+          } catch (err) {
+            console.error("[auth] Failed to create trial subscription:", err);
+          }
+          try {
+            if (!process.env.RESEND_API_KEY) return;
+            await new Resend(process.env.RESEND_API_KEY).emails.send({
+              from: process.env.RESEND_FROM_EMAIL ?? "noreply@smartstay.ba",
+              to: "info@smartstay.ba",
+              subject: `Novi korisnik: ${user.email}`,
+              html: `<p>Novi korisnik se registrovao na SmartStay (30 dana trial).</p>
+<p><strong>Ime:</strong> ${escapeHtml(user.name ?? "—")}<br>
+<strong>Email:</strong> ${escapeHtml(user.email)}<br>
 <strong>Vrijeme:</strong> ${new Date().toLocaleString("bs-BA", { timeZone: "Europe/Sarajevo" })}</p>`,
-      });
+            });
+          } catch (err) {
+            console.error("[auth] New user notification failed:", err);
+          }
+        },
+      },
     },
   },
   session: {
