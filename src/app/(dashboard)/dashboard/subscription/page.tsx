@@ -43,13 +43,15 @@ export default async function SubscriptionPage() {
   const [propertyCount, pendingTransfer, invoices] = await Promise.all([
     prisma.property.count({ where: propertyAccessWhere(session.user.id, wsIds, memberUserIds) }),
     prisma.payment.findFirst({
-      where: { userId: session.user.id, method: "BANK_TRANSFER", status: "PENDING" },
+      // Payments with a pre-issued invoice (billed in arrears) aren't renewal requests
+      where: { userId: session.user.id, method: "BANK_TRANSFER", status: "PENDING", invoice: { is: null } },
       orderBy: { createdAt: "desc" },
     }),
     prisma.invoice.findMany({
       where: { userId: session.user.id },
       orderBy: { issuedAt: "desc" },
       take: 24,
+      include: { payment: { select: { status: true } } },
     }),
   ]);
 
@@ -179,7 +181,7 @@ export default async function SubscriptionPage() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-[#262626]">{inv.number}</p>
                   <p className="text-xs text-[#6B6B6B]">
-                    {inv.issuedAt.toLocaleDateString("bs-BA")} · {inv.amount.toFixed(2)} KM · {inv.method === "CARD" ? "kartica" : "virman"}
+                    {inv.issuedAt.toLocaleDateString("bs-BA")} · {inv.amount.toFixed(2)} KM · {inv.payment.status === "SUCCESS" ? (inv.method === "CARD" ? "kartica" : "virman") : "čeka uplatu"}
                   </p>
                 </div>
                 <a

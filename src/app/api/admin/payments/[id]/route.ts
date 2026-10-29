@@ -34,9 +34,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (action !== "mark-paid") return NextResponse.json({ error: "Unknown action" }, { status: 400 });
 
   const paidAt = new Date();
+  // Invoice issued before payment (customer billed in arrears) → the months are already used up,
+  // so only mark it paid and resend the invoice — the subscription stays as it is
+  const preIssued = await prisma.invoice.findUnique({ where: { paymentId: id } });
   const period = await prisma.$transaction(async (tx) => {
     const claimed = await tx.payment.updateMany({ where: { id, status: "PENDING" }, data: { status: "SUCCESS", paidAt } });
     if (claimed.count === 0) return null;
+    if (preIssued) return { from: preIssued.periodFrom, to: preIssued.periodTo };
 
     const sub = await tx.subscription.findUnique({ where: { userId: payment.userId } });
     // Same period as printed on the payment instructions
@@ -53,7 +57,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   try {
     const invoice = await issueInvoice(id, period);
     await sendInvoiceEmails(invoice.id);
-    return NextResponse.json({ ok: true, invoiceNumber: invoice.number, validUntil: period.to });
+    return NextResponse.json({ ok: true, invoiceNumber: invoice.number, invoiceId: invoice.id, validUntil: period.to });
   } catch (err) {
     console.error("[admin mark-paid] invoice failed:", err);
     return NextResponse.json({ ok: true, warning: "Pretplata produžena, ali faktura nije poslana — provjerite log." });

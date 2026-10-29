@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
-import { calculateMonthlyPrice } from "@/lib/pricing";
+import { calculateMonthlyPrice, PRICING_TIERS } from "@/lib/pricing";
 import { buildInvoicePdf, buildPaymentInstructionsPdf, fmtDate, fmtKM, ISSUER, type BillingParty } from "@/lib/billing-pdf";
 
 /** Accounting copy of every issued invoice */
@@ -10,6 +10,8 @@ export const ACCOUNTING_EMAIL = "nedim.247.neso@gmail.com";
 export const ADMIN_NOTIFY_EMAIL = "info@smartstay.ba";
 export const RENEWAL_DAYS = 30;
 export const BANK_TRANSFER_GRACE_DAYS = 7;
+/** Payment term on invoices issued before payment (manually billed customers, in arrears) */
+export const INVOICE_DUE_DAYS = 8;
 
 const METHOD_LABEL: Record<string, string> = { CARD: "kartično", BANK_TRANSFER: "virmanom" };
 
@@ -78,17 +80,22 @@ export async function issueInvoice(paymentId: string, period: { from: Date; to: 
 export async function renderInvoicePdf(invoiceId: string) {
   const inv = await prisma.invoice.findUniqueOrThrow({
     where: { id: invoiceId },
-    include: { user: { select: { email: true } } },
+    include: { user: { select: { email: true } }, payment: { select: { status: true } } },
   });
   const price = calculateMonthlyPrice(inv.propertyCount);
+  const unitPrice = inv.propertyCount > 0 ? inv.amount / inv.propertyCount : price.pricePerProperty;
+  // Custom-priced customers (e.g. 5,99 regardless of count) get the plan name matching their price
+  const tierName = PRICING_TIERS.find((t) => Math.abs(t.pricePerProperty - unitPrice) < 0.005)?.name ?? price.tierName;
   const pdf = await buildInvoicePdf({
     number: inv.number,
     issuedAt: inv.issuedAt,
     method: inv.method,
     amount: inv.amount,
     propertyCount: inv.propertyCount,
-    pricePerProperty: inv.propertyCount > 0 ? inv.amount / inv.propertyCount : price.pricePerProperty,
-    tierName: price.tierName,
+    pricePerProperty: unitPrice,
+    tierName,
+    // Issued before payment → payment details instead of the "PLAĆENO" stamp
+    dueDate: inv.payment.status === "SUCCESS" ? undefined : addDays(inv.issuedAt, INVOICE_DUE_DAYS),
     periodFrom: inv.periodFrom,
     periodTo: inv.periodTo,
     buyer: {
@@ -116,7 +123,7 @@ export async function sendInvoiceEmails(invoiceId: string) {
       attachments: [attachment],
       html: emailLayout(`
         <p style="${H1}">Hvala na uplati!</p>
-        <p style="${P}">Vaša SmartStay pretplata je produžena. U prilogu je faktura <strong>${inv.number}</strong>.</p>
+        <p style="${P}">Vaša uplata je evidentirana. U prilogu je faktura <strong>${inv.number}</strong>.</p>
         ${summaryTable([
           ["Iznos", fmtKM(inv.amount)],
           ["Način plaćanja", method === "kartično" ? "Kartica" : "Virman"],

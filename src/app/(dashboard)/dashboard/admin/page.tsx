@@ -28,12 +28,15 @@ export default async function AdminPage() {
     prisma.payment.findMany({
       where: { method: "BANK_TRANSFER", status: "PENDING" },
       orderBy: { createdAt: "asc" },
-      include: { user: { select: { email: true, subscription: { select: { billingName: true } } } } },
+      include: {
+        user: { select: { email: true, subscription: { select: { billingName: true } } } },
+        invoice: { select: { number: true } },
+      },
     }),
     prisma.invoice.findMany({
       orderBy: { issuedAt: "desc" },
       take: 50,
-      include: { user: { select: { email: true } } },
+      include: { user: { select: { email: true } }, payment: { select: { status: true } } },
     }),
   ]);
 
@@ -65,6 +68,7 @@ export default async function AdminPage() {
             createdAt: p.createdAt.toISOString(),
             email: p.user.email,
             billingName: p.user.subscription?.billingName ?? null,
+            invoiceNumber: p.invoice?.number ?? null,
           }))}
           invoices={invoices.map((i) => ({
             id: i.id,
@@ -74,6 +78,7 @@ export default async function AdminPage() {
             issuedAt: i.issuedAt.toISOString(),
             billingName: i.billingName,
             email: i.user.email,
+            paid: i.payment.status === "SUCCESS",
           }))}
         />
       </div>

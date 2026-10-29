@@ -99,6 +99,8 @@ export async function buildInvoicePdf(inv: {
   periodFrom: Date;
   periodTo: Date;
   buyer: BillingParty;
+  /** Unpaid invoice (issued manually): payment details + due date instead of the paid stamp */
+  dueDate?: Date;
 }): Promise<Uint8Array> {
   const { doc, page, regular, bold } = await setup();
   const fonts = { regular, bold };
@@ -136,12 +138,27 @@ export async function buildInvoicePdf(inv: {
   const total = fmtKM(inv.amount);
   page.drawText(total, { x: width - 48 - bold.widthOfTextAtSize(total, 14), y: y - 2, size: 14, font: bold, color: NAVY });
 
-  // Paid stamp
   y -= 50;
-  const stamp = inv.method === "CARD" ? "PLAĆENO KARTIČNO" : "PLAĆENO VIRMANOM";
-  const sw = bold.widthOfTextAtSize(stamp, 12);
-  page.drawRectangle({ x: 48, y: y - 8, width: sw + 24, height: 26, borderColor: GREEN, borderWidth: 1.5, color: rgb(240 / 255, 253 / 255, 244 / 255) });
-  page.drawText(stamp, { x: 60, y: y, size: 12, font: bold, color: GREEN });
+  if (inv.dueDate) {
+    const rows: [string, string][] = [
+      ["Račun primaoca", `${ISSUER.racun} (${ISSUER.banka})`],
+      ["Poziv na broj", inv.number],
+      ["Rok plaćanja", fmtDate(inv.dueDate)],
+    ];
+    page.drawText("PODACI ZA UPLATU", { x: 48, y, size: 8, font: bold, color: MUTED });
+    y -= 18;
+    for (const [label, value] of rows) {
+      page.drawText(label, { x: 48, y, size: 10, font: regular, color: MUTED });
+      page.drawText(value, { x: 160, y, size: 10, font: bold, color: TEXT });
+      y -= 16;
+    }
+  } else {
+    // Paid stamp
+    const stamp = inv.method === "CARD" ? "PLAĆENO KARTIČNO" : "PLAĆENO VIRMANOM";
+    const sw = bold.widthOfTextAtSize(stamp, 12);
+    page.drawRectangle({ x: 48, y: y - 8, width: sw + 24, height: 26, borderColor: GREEN, borderWidth: 1.5, color: rgb(240 / 255, 253 / 255, 244 / 255) });
+    page.drawText(stamp, { x: 60, y: y, size: 12, font: bold, color: GREEN });
+  }
 
   footer(page, regular, [
     "Izdavalac nije registrovan kao obveznik PDV-a; iznos ne sadrži PDV.",

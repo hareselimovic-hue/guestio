@@ -10,6 +10,8 @@ export interface AdminTransfer {
   createdAt: string;
   email: string;
   billingName: string | null;
+  /** Set when the invoice was issued before payment (billed in arrears) */
+  invoiceNumber: string | null;
 }
 
 export interface AdminInvoice {
@@ -20,6 +22,7 @@ export interface AdminInvoice {
   issuedAt: string;
   billingName: string | null;
   email: string;
+  paid: boolean;
 }
 
 const km = (n: number) => `${n.toFixed(2).replace(".", ",")} KM`;
@@ -37,8 +40,12 @@ export default function AdminBankTransfers({ transfers: initial, invoices: initi
 
   async function act(t: AdminTransfer, action: "mark-paid" | "cancel") {
     const q = action === "mark-paid"
-      ? `Potvrdi da je uplata ${km(t.amount)} (poziv na broj ${t.reference}) stigla?\n\nPretplata će se produžiti, a faktura poslati kupcu i Nedimu.`
-      : `Otkazati uputstvo ${t.reference}? (npr. kupac je platio karticom ili odustao)`;
+      ? t.invoiceNumber
+        ? `Potvrdi da je uplata ${km(t.amount)} za fakturu ${t.invoiceNumber} stigla?\n\nFaktura će se poslati kupcu i Nedimu s oznakom PLAĆENO VIRMANOM (pretplata se ne mijenja).`
+        : `Potvrdi da je uplata ${km(t.amount)} (poziv na broj ${t.reference}) stigla?\n\nPretplata će se produžiti, a faktura poslati kupcu i Nedimu.`
+      : t.invoiceNumber
+        ? `Ukloniti ${t.invoiceNumber} iz uplata koje čekaju? Faktura ostaje izdata.`
+        : `Otkazati uputstvo ${t.reference}? (npr. kupac je platio karticom ili odustao)`;
     if (!confirm(q)) return;
     setBusy(t.id);
     setMessage("");
@@ -54,7 +61,11 @@ export default function AdminBankTransfers({ transfers: initial, invoices: initi
     if (action === "mark-paid") {
       setMessage(d.warning ?? `Označeno plaćeno. Faktura ${d.invoiceNumber} poslana kupcu i Nedimu.`);
       if (d.invoiceNumber) {
-        setInvoices((prev) => [{ id: "", number: d.invoiceNumber, amount: t.amount, method: "BANK_TRANSFER", issuedAt: new Date().toISOString(), billingName: t.billingName, email: t.email }, ...prev]);
+        setInvoices((prev) =>
+          prev.some((i) => i.number === d.invoiceNumber)
+            ? prev.map((i) => (i.number === d.invoiceNumber ? { ...i, paid: true } : i))
+            : [{ id: d.invoiceId ?? "", number: d.invoiceNumber, amount: t.amount, method: "BANK_TRANSFER", issuedAt: new Date().toISOString(), billingName: t.billingName, email: t.email, paid: true }, ...prev],
+        );
       }
     }
   }
@@ -77,7 +88,9 @@ export default function AdminBankTransfers({ transfers: initial, invoices: initi
               <div key={t.id} className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-[#262626]">{t.billingName ?? t.email} · {km(t.amount)}</p>
-                  <p className="text-xs text-[#6B6B6B]">Poziv na broj <span className="font-mono">{t.reference}</span> · zatraženo {fmt(t.createdAt)} · {t.email}</p>
+                  <p className="text-xs text-[#6B6B6B]">
+                    {t.invoiceNumber ? "Faktura" : "Poziv na broj"} <span className="font-mono">{t.reference}</span> · {t.invoiceNumber ? "izdata" : "zatraženo"} {fmt(t.createdAt)} · {t.email}
+                  </p>
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <button
@@ -117,6 +130,7 @@ export default function AdminBankTransfers({ transfers: initial, invoices: initi
                   <p className="text-sm font-semibold text-[#262626]">{inv.number} · {km(inv.amount)}</p>
                   <p className="text-xs text-[#6B6B6B]">
                     {inv.billingName ?? inv.email} · {fmt(inv.issuedAt)} · {inv.method === "CARD" ? "kartica" : "virman"}
+                    {!inv.paid && <span className="ml-1.5 text-amber-600 font-medium">· čeka uplatu</span>}
                   </p>
                 </div>
                 {inv.id && (

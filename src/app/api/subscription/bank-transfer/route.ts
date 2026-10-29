@@ -35,7 +35,8 @@ export async function GET() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const pending = await prisma.payment.findFirst({
-    where: { userId: session.user.id, method: "BANK_TRANSFER", status: "PENDING" },
+    // Payments with a pre-issued invoice (billed in arrears) aren't renewal requests
+    where: { userId: session.user.id, method: "BANK_TRANSFER", status: "PENDING", invoice: { is: null } },
     orderBy: { createdAt: "desc" },
   });
   return NextResponse.json({ pending: pending ? toView(pending) : null });
@@ -56,7 +57,7 @@ export async function POST() {
   }
 
   const existing = await prisma.payment.findFirst({
-    where: { userId: session.user.id, method: "BANK_TRANSFER", status: "PENDING" },
+    where: { userId: session.user.id, method: "BANK_TRANSFER", status: "PENDING", invoice: { is: null } },
     orderBy: { createdAt: "desc" },
   });
   if (existing) return NextResponse.json({ pending: toView(existing), created: false });
