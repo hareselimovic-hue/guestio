@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Share2, ExternalLink, Check, Building2, Pencil, QrCode, X, Download, MessageCircle, ChevronDown, Copy, Loader2, Trash2, ClipboardList, Hotel, Home, ArrowRight } from "lucide-react";
+import { ArrowLeft, Share2, ExternalLink, Check, Building2, Pencil, QrCode, X, Download, MessageCircle, ChevronDown, Copy, Loader2, Trash2, ClipboardList, Hotel, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +32,6 @@ interface Property {
   bankAccount: string | null;
   guestRegistrationEnabled: boolean;
   kind: string; // APARTMENT | HOTEL
-  canUseHotels?: boolean; // admin / users with hotel access (src/lib/hotel.ts userCanUseHotels)
   sections: Section[];
 }
 
@@ -135,19 +134,6 @@ export default function PropertyEditorPage() {
       body: JSON.stringify({ ids: [property.id], enabled }),
     });
     if (!res.ok) setProperty({ ...property, guestRegistrationEnabled: !enabled });
-  }
-
-  async function setKind(kind: "APARTMENT" | "HOTEL") {
-    if (!property || property.kind === kind) return;
-    const prev = property.kind;
-    setProperty({ ...property, kind });
-    const res = await fetch(`/api/properties/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ kind }),
-    });
-    if (!res.ok) setProperty({ ...property, kind: prev });
-    else router.refresh(); // sidebar shows/hides "Hotel"
   }
 
   async function deleteProperty() {
@@ -541,41 +527,17 @@ export default function PropertyEditorPage() {
         )}
       </div>
 
-      {/* Property type: apartment / hotel */}
-      {(property.canUseHotels || property.kind === "HOTEL") && <div className="bg-white border border-[#EDEDE9] rounded-xl px-4 py-3 mb-3">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-[#262626]">Property type</p>
-            <p className="text-xs text-[#6B6B6B]">
-              {property.kind === "HOTEL"
-                ? "Hotel — room QR codes, reception requests, room service, extras, announcements and guest feedback."
-                : "Apartment — one guide for the whole place."}
-            </p>
-          </div>
-          <div className="flex bg-[#F7F7F5] rounded-lg p-1 shrink-0">
-            {([["APARTMENT", "Apartment", Home], ["HOTEL", "Hotel", Hotel]] as const).map(([k, label, Icon]) => (
-              <button
-                key={k}
-                onClick={() => setKind(k)}
-                className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-md transition-colors ${
-                  property.kind === k ? "bg-white text-[#0F2F61] shadow-sm" : "text-[#6B6B6B] hover:text-[#262626]"
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" /> {label}
-              </button>
-            ))}
-          </div>
-        </div>
-        {property.kind === "HOTEL" && (
-          <Link
-            href={`/dashboard/hotel?property=${property.id}`}
-            className="mt-3 flex items-center justify-between bg-[#0F2F61] hover:bg-[#0a2347] text-white rounded-lg px-4 py-2.5 transition-colors"
-          >
-            <span className="flex items-center gap-2 text-sm font-semibold"><Hotel className="w-4 h-4" /> Open hotel tools</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        )}
-      </div>}
+      {/* Hotels: shortcut to the hotel tools. The type is fixed when the property is created
+          (Hotel page / hotel signup) — no apartment↔hotel switch, so a real apartment can't be flipped by a stray tap. */}
+      {property.kind === "HOTEL" && (
+        <Link
+          href={`/dashboard/hotel?property=${property.id}`}
+          className="mb-3 flex items-center justify-between bg-[#0F2F61] hover:bg-[#0a2347] text-white rounded-xl px-4 py-3 transition-colors"
+        >
+          <span className="flex items-center gap-2 text-sm font-semibold"><Hotel className="w-4 h-4" /> Open hotel tools</span>
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      )}
 
       {/* Guest registration switch */}
       <div className="flex items-center gap-3 bg-white border border-[#EDEDE9] rounded-xl px-4 py-3 mb-6">
