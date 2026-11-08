@@ -38,11 +38,11 @@ export default function BottomNav({ user, showHotel = false, showApartments = tr
   }, []);
 
   const isAdmin = user.email === ADMIN_EMAIL;
-  // Second slot: Hotel for hotels, otherwise Apartments; Analytics (and Apartments, if both) live in "More"
+  // 4 slots: Home · Hotel (or Apartments) · Settings · More. Team, Analytics (and Apartments, if both) live in "More"
   const barItems = [
     mainItems[0],
     showHotel ? { href: "/dashboard/hotel", label: "Hotel", icon: Hotel } : { href: "/dashboard/apartments", label: "Apartments", icon: Building2 },
-    ...mainItems.slice(2),
+    mainItems[3],
   ];
 
   async function handleSignOut() {
@@ -108,6 +108,15 @@ export default function BottomNav({ user, showHotel = false, showApartments = tr
                   Apartments
                 </Link>
               )}
+
+              <Link
+                href="/dashboard/team"
+                onClick={() => setShowMore(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#262626] hover:bg-[#F7F7F5] transition-colors"
+              >
+                <MessageSquare className="w-5 h-5 text-[#6B6B6B]" />
+                Team
+              </Link>
 
               <Link
                 href="/dashboard/analytics"
