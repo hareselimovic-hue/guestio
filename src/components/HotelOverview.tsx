@@ -30,7 +30,7 @@ const TYPE_LABEL: Record<string, string> = {
   WAKEUP: "Wake-up call", OTHER: "Other request", ORDER: "Room service", BOOKING: "Booking / extra",
 };
 
-const km = (n: number) => `${Math.round(n).toLocaleString("de-DE")} KM`;
+const km = (n: number) => `${Math.round(n).toLocaleString("de-DE")} €`;
 function ago(iso: string) {
   const min = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
   if (min < 1) return "just now";
@@ -60,7 +60,7 @@ export default function HotelOverview({ hotel }: { hotel: HotelOverviewData }) {
   const tiles = [
     { icon: BellRing, value: hotel.newRequests, label: "new requests", sub: hotel.inProgress ? `${hotel.inProgress} in progress` : "nothing in progress", href: `${base}&tab=requests`, hot: hotel.newRequests > 0 },
     { icon: DoorOpen, value: hotel.rooms, label: "rooms", sub: hotel.customRooms ? `${hotel.customRooms} with own info` : "all follow the hotel guide", href: `${base}&tab=rooms` },
-    { icon: Eye, value: hotel.opensToday, label: "guide opens today", sub: `${hotel.opens7d} in 7 days (room QR)`, href: "/dashboard/analytics" },
+    { icon: Eye, value: hotel.opensToday, label: "guide opens today", sub: `${hotel.opens7d} in 7 days · room QR links`, href: "/dashboard/analytics" },
     { icon: Wallet, value: km(hotel.ordered7d), label: "ordered", sub: "extras & room service · 7 days", href: `${base}&tab=requests` },
   ];
 
@@ -69,9 +69,6 @@ export default function HotelOverview({ hotel }: { hotel: HotelOverviewData }) {
       <div className="flex items-center justify-between gap-3 mb-3">
         <h2 className="text-lg font-semibold text-[#262626] min-w-0 truncate">{hotel.name}</h2>
         <div className="flex gap-2 shrink-0">
-          <Link href={`${base}&tab=announcements`} className="inline-flex items-center gap-1.5 text-sm font-medium text-white bg-[#FF6700] hover:bg-[#e05c00] px-3 py-1.5 rounded-lg">
-            <Megaphone className="w-4 h-4" /> <span className="hidden sm:inline">New announcement</span><span className="sm:hidden">Announce</span>
-          </Link>
           <Link href={base} className="inline-flex items-center gap-1 text-sm font-medium text-[#0F2F61] border border-[#EDEDE9] bg-white px-3 py-1.5 rounded-lg">
             <span className="hidden sm:inline">Open hotel</span><span className="sm:hidden">Open</span> <ArrowRight className="w-3.5 h-3.5" />
           </Link>
@@ -142,7 +139,7 @@ export default function HotelOverview({ hotel }: { hotel: HotelOverviewData }) {
             <ul className="divide-y divide-[#F5F5F2]">
               {hotel.openRequests.map((r) => (
                 <li key={r.id} className="px-4 py-3 flex items-center gap-3">
-                  <span className="w-12 shrink-0 text-lg font-bold text-[#0F2F61]">{r.roomNumber ?? "—"}</span>
+                  <span className="min-w-12 shrink-0 whitespace-nowrap text-lg font-bold text-[#0F2F61]">{r.roomNumber ?? "—"}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-[#262626] truncate">
                       {TYPE_LABEL[r.type] ?? r.type}

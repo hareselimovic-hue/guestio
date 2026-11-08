@@ -6,7 +6,7 @@ import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 import {
   BellRing, DoorOpen, UtensilsCrossed, Megaphone, Star, Loader2, Trash2, Download, Printer,
-  ExternalLink, RefreshCw, Eye, EyeOff, Copy, Check, BookOpen, QrCode, X, AlertTriangle,
+  ExternalLink, RefreshCw, Eye, EyeOff, Copy, Check, BookOpen, QrCode, X, AlertTriangle, Share2,
 } from "lucide-react";
 import SectionEditor, { SectionForm } from "@/components/SectionEditor";
 
@@ -48,7 +48,7 @@ const TYPE_TONE: Record<string, string> = {
 };
 const STATUS_LABEL: Record<string, string> = { NEW: "New", IN_PROGRESS: "In progress", DONE: "Done", DECLINED: "Declined" };
 
-const km = (n: number) => `${n.toFixed(2).replace(".", ",")} KM`;
+const km = (n: number) => `${n.toFixed(2).replace(".", ",")} €`;
 const pad = (n: number) => String(n).padStart(2, "0");
 const fmtDateTime = (iso: string) => {
   const d = new Date(iso);
@@ -100,7 +100,7 @@ export default function HotelDashboard({ hotels, current, initialTab }: { hotels
         </div>
       </div>
 
-      <div className="flex gap-1 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 mb-6 border-b border-[#EDEDE9]">
+      <div className="flex gap-1 overflow-x-auto overflow-y-hidden overscroll-contain touch-pan-x [scrollbar-width:none] -mx-4 px-4 sm:mx-0 sm:px-0 mb-6 border-b border-[#EDEDE9]">
         {TABS.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -362,8 +362,8 @@ function RoomsTab({ hotel }: { hotel: HotelRef }) {
                   <span className="w-14 shrink-0 text-lg font-bold text-[#0F2F61]">{r.roomNumber}</span>
                   <span className="min-w-0">
                     {r.customSections > 0
-                      ? <span className="text-xs font-semibold text-[#FF6700] bg-orange-50 px-2 py-0.5 rounded-full">{r.customSections} custom section{r.customSections === 1 ? "" : "s"}</span>
-                      : <span className="text-xs text-[#9B9B9B]">Same as hotel guide</span>}
+                      ? <span className="inline-block whitespace-nowrap text-xs font-semibold text-[#FF6700] bg-orange-50 px-2 py-0.5 rounded-full">{r.customSections} custom</span>
+                      : <span className="block text-xs text-[#9B9B9B] whitespace-nowrap">Follows hotel</span>}
                     <span className="block text-[11px] text-[#BABAB5] mt-0.5">{r.viewCount} opens</span>
                   </span>
                 </button>
@@ -382,35 +382,86 @@ function RoomsTab({ hotel }: { hotel: HotelRef }) {
   );
 }
 
+/** Draws the same card as the print sheet (9.2 × 12.8 cm) into a PNG, so it can be saved or sent */
+function drawRoomCard(hotelName: string, roomNumber: string, qr: HTMLCanvasElement) {
+  const W = 920, H = 1280;
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const g = c.getContext("2d")!;
+  const font = (w: number, px: number) => `${w} ${px}px "Plus Jakarta Sans Variable", Inter, system-ui, sans-serif`;
+  const fit = (text: string, w: number, px: number, max: number) => {
+    let size = px;
+    g.font = font(w, size);
+    while (g.measureText(text).width > max && size > 20) { size -= 2; g.font = font(w, size); }
+  };
+  g.fillStyle = "#FFFFFF"; g.fillRect(0, 0, W, H);
+  g.textAlign = "center";
+  // header
+  g.fillStyle = "#0F2F61"; g.fillRect(0, 0, W, 190);
+  g.fillStyle = "rgba(255,255,255,0.7)"; g.font = font(600, 24); g.fillText("W E L C O M E   T O", W / 2, 72);
+  g.fillStyle = "#FFFFFF"; fit(hotelName, 700, 52, W - 80); g.fillText(hotelName, W / 2, 140);
+  // room
+  g.fillStyle = "#9B9B9B"; g.font = font(600, 26); g.fillText("R O O M", W / 2, 268);
+  g.fillStyle = "#0F2F61"; fit(roomNumber, 700, 120, W - 120); g.fillText(roomNumber, W / 2, 385);
+  g.fillStyle = "#262626"; g.font = font(700, 42); g.fillText("Your digital room guide", W / 2, 470);
+  g.fillStyle = "#6B6B6B"; g.font = font(400, 27); g.fillText("Scan with your phone camera — no app needed", W / 2, 515);
+  // QR with orange frame
+  const size = 440, x = (W - size) / 2, y = 565;
+  g.strokeStyle = "#FF6700"; g.lineWidth = 6;
+  g.beginPath(); g.roundRect(x - 22, y - 22, size + 44, size + 44, 24); g.stroke();
+  g.drawImage(qr, x, y, size, size);
+  g.fillStyle = "#262626"; g.font = font(600, 28); g.fillText("Wi-Fi  ·  Reception  ·  Room service  ·  Local tips", W / 2, 1120);
+  g.fillStyle = "#9B9B9B"; g.font = font(400, 22); g.fillText("Zimmer-Guide · Oda rehberi · Guida della camera · Vodič za sobu", W / 2, 1170);
+  g.fillStyle = "#BABAB5"; g.font = font(400, 20); g.fillText("Powered by SmartStay", W / 2, 1245);
+  return c;
+}
+
 function QrModal({ hotel, room, onClose }: { hotel: HotelRef; room: Room; onClose: () => void }) {
   const [copied, setCopied] = useState(false);
+  const [png, setPng] = useState<string | null>(null);
   const url = `${window.location.origin}/g/${hotel.slug}/${room.token}`;
-  function download() {
-    const canvas = document.getElementById(`qr-${room.id}`) as HTMLCanvasElement | null;
-    if (!canvas) return;
+  const fileName = `QR-${hotel.name}-room-${room.roomNumber}.png`.replace(/[^\w.-]+/g, "-");
+
+  useEffect(() => {
+    const qr = document.getElementById(`qr-${room.id}`) as HTMLCanvasElement | null;
+    if (qr) setPng(drawRoomCard(hotel.name, room.roomNumber, qr).toDataURL("image/png"));
+  }, [hotel.name, room.id, room.roomNumber]);
+
+  function save() {
+    if (!png) return;
     const a = document.createElement("a");
-    a.href = canvas.toDataURL("image/png");
-    a.download = `QR-room-${room.roomNumber}.png`;
-    a.click();
+    a.href = png; a.download = fileName; a.click();
   }
+  async function share() {
+    if (!png) return;
+    const blob = await (await fetch(png)).blob();
+    const file = new File([blob], fileName, { type: "image/png" });
+    const data = { files: [file], title: `${hotel.name} · Room ${room.roomNumber}`, text: url };
+    if (navigator.canShare?.(data)) {
+      try { await navigator.share(data); } catch { /* cancelled */ }
+    } else save();
+  }
+
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl p-6 flex flex-col items-center gap-3 shadow-xl max-w-xs w-full" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl p-5 flex flex-col items-center gap-3 shadow-xl max-w-sm w-full max-h-[95vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between w-full">
           <p className="font-bold text-[#262626]">Room {room.roomNumber}</p>
           <button onClick={onClose} className="text-[#6B6B6B] hover:text-[#262626]"><X className="w-5 h-5" /></button>
         </div>
-        <QRCodeCanvas id={`qr-${room.id}`} value={url} size={200} fgColor="#0F2F61" level="M" marginSize={2} />
-        <a href={`/print/rooms?property=${hotel.id}&room=${room.id}`} target="_blank" className={`${btnPrimary} w-full`}>
-          <Printer className="w-4 h-4" /> Print QR card
-        </a>
+        <div className="hidden"><QRCodeCanvas id={`qr-${room.id}`} value={url} size={440} fgColor="#0F2F61" level="M" marginSize={0} /></div>
+        {png
+          ? <img src={png} alt={`QR card room ${room.roomNumber}`} className="w-full max-w-[260px] rounded-lg border border-dashed border-[#CFCFCA]" />
+          : <div className="w-full max-w-[260px] aspect-[92/128] rounded-lg bg-[#F7F7F5]" />}
         <div className="grid grid-cols-2 gap-2 w-full">
-          <button onClick={download} className="flex items-center justify-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] rounded-lg py-2"><Download className="w-4 h-4" /> PNG</button>
+          <button onClick={share} className={btnPrimary}><Share2 className="w-4 h-4" /> Send</button>
+          <a href={`/print/rooms?property=${hotel.id}&room=${room.id}`} target="_blank" className="flex items-center justify-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] rounded-lg py-2"><Printer className="w-4 h-4" /> Print</a>
+          <button onClick={save} className="flex items-center justify-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] rounded-lg py-2"><Download className="w-4 h-4" /> Save image</button>
           <button
             onClick={async () => { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
             className="flex items-center justify-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] rounded-lg py-2"
           >
-            {copied ? <><Check className="w-4 h-4 text-green-600" /> Copied</> : <><Copy className="w-4 h-4" /> Link</>}
+            {copied ? <><Check className="w-4 h-4 text-green-600" /> Copied</> : <><Copy className="w-4 h-4" /> Copy link</>}
           </button>
         </div>
       </div>
@@ -650,7 +701,7 @@ function ServicesTab({ propertyId }: { propertyId: string }) {
           </select>
           <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name, e.g. Airport transfer" className={`${input} sm:col-span-4`} />
           <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Short description (optional)" className={`${input} sm:col-span-6`} />
-          <input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Price KM (empty = on request, 0 = free)" inputMode="decimal" className={`${input} sm:col-span-3`} />
+          <input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Price € (empty = on request, 0 = free)" inputMode="decimal" className={`${input} sm:col-span-3`} />
           <input value={form.priceNote} onChange={(e) => setForm({ ...form, priceNote: e.target.value })} placeholder="Price note, e.g. per person" className={`${input} sm:col-span-3`} />
         </div>
         {how && <p className="text-xs text-[#6B6B6B] mt-2">{how}</p>}

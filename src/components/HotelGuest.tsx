@@ -233,7 +233,7 @@ function readIds(slug: string): string[] {
 function rememberRequest(slug: string, id: string) {
   try { localStorage.setItem(requestsKey(slug), JSON.stringify([id, ...readIds(slug)].slice(0, 30))); } catch {}
 }
-const km = (n: number) => `${n.toFixed(2).replace(".", ",")} KM`;
+const km = (n: number) => `${n.toFixed(2).replace(".", ",")} €`;
 const HEADING = { fontFamily: "Plus Jakarta Sans Variable, sans-serif" };
 
 async function postJSON(url: string, body: unknown) {

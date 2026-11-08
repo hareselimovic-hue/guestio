@@ -23,7 +23,7 @@ export default function RoomQrSheet({ hotelName, rooms }: { hotelName: string; r
         <div className="flex items-center justify-between mb-5 print:hidden">
           <div>
             <p className="font-semibold text-[#262626]">{hotelName} · QR cards</p>
-            <p className="text-sm text-[#6B6B6B]">{rooms.length} {rooms.length === 1 ? "card" : "cards"} · 2 per row on A4 · cut along the dashed lines</p>
+            <p className="text-sm text-[#6B6B6B]">{rooms.length} {rooms.length === 1 ? "card" : "cards"} · 2 per row on A4 · each card 9.2 × 12.8 cm · cut along the dashed lines</p>
           </div>
           <button onClick={() => window.print()} className="bg-[#0F2F61] text-white text-sm font-semibold px-5 py-2.5 rounded-lg">Print</button>
         </div>
@@ -34,16 +34,16 @@ export default function RoomQrSheet({ hotelName, rooms }: { hotelName: string; r
               <div
                 key={r.id}
                 className="bg-white border border-dashed border-[#CFCFCA] rounded-[4mm] overflow-hidden flex flex-col items-center text-center break-inside-avoid"
-                style={{ minHeight: "125mm" }}
+                style={{ height: "128mm" }}
               >
                 <div className="w-full bg-[#0F2F61] text-white py-[4mm] px-[4mm]">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">Welcome to</p>
-                  <p className="text-lg font-bold leading-tight" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{hotelName}</p>
+                  <p className="text-lg font-bold leading-tight truncate" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{hotelName}</p>
                 </div>
 
                 <div className="flex-1 flex flex-col items-center px-[5mm] py-[4mm]">
                   <p className="text-[11px] font-semibold uppercase tracking-widest text-[#9B9B9B]">Room</p>
-                  <p className="text-4xl font-bold text-[#0F2F61] leading-none mb-[3mm]">{r.roomNumber}</p>
+                  <p className={`${r.roomNumber.length <= 5 ? "text-4xl" : r.roomNumber.length <= 9 ? "text-3xl" : "text-2xl"} font-bold text-[#0F2F61] leading-none mb-[3mm] whitespace-nowrap max-w-full overflow-hidden text-ellipsis`}>{r.roomNumber}</p>
 
                   <p className="text-base font-bold text-[#262626] leading-snug" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>Your digital room guide</p>
                   <p className="text-[11px] text-[#6B6B6B] mb-[3mm]">Scan with your phone camera — no app needed</p>

@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     ["Soba", roomNumber],
     ["Zahtjev", REQUEST_LABEL[type] ?? type],
     ...(items ? [["Stavke", items.map((i) => `${i.qty} × ${i.name}`).join("\n")] as [string, string]] : []),
-    ...(total > 0 ? [["Ukupno", `${total.toFixed(2).replace(".", ",")} KM`] as [string, string]] : []),
+    ...(total > 0 ? [["Ukupno", `${total.toFixed(2).replace(".", ",")} €`] as [string, string]] : []),
     ...(request.scheduledFor ? [["Termin", request.scheduledFor] as [string, string]] : []),
     ...(request.guests ? [["Osoba", String(request.guests)] as [string, string]] : []),
     ...(request.note ? [["Napomena", request.note] as [string, string]] : []),
