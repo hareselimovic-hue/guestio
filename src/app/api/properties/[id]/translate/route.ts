@@ -105,7 +105,7 @@ ${JSON.stringify(Object.fromEntries(sectionsToTranslate), null, 2)}`;
   try {
     const response = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 4000,
+      max_tokens: 16000, // many sections × 3 languages — 4000 cut the JSON off
       messages: [{ role: "user", content: prompt }],
     });
 
