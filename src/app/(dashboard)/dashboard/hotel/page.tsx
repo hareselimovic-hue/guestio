@@ -4,8 +4,7 @@ import Link from "next/link";
 import { Hotel } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getManagedHotelIds } from "@/lib/hotel";
-import { canUseHotels } from "@/lib/features";
+import { getManagedHotelIds, userCanUseHotels } from "@/lib/hotel";
 import HotelDashboard from "@/components/HotelDashboard";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +22,7 @@ export default async function HotelPage({ searchParams }: { searchParams: Promis
   const { property, tab } = await searchParams;
 
   if (hotels.length === 0) {
-    if (!canUseHotels(session.user.email)) redirect("/dashboard");
+    if (!(await userCanUseHotels(session.user))) redirect("/dashboard");
     return (
       <div className="p-4 sm:p-8 max-w-2xl">
         <h1 className="text-2xl font-bold text-[#262626] mb-2">Hotel</h1>

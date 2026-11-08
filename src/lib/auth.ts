@@ -101,6 +101,18 @@ export const auth = betterAuth({
           });
         },
         async after(user) {
+          // Signed up after leaving the email on smartstay.ba/hoteli/ → hotel mode
+          try {
+            const wl = await prisma.whitelistEmail.findFirst({
+              where: { email: { equals: String(user.email).toLowerCase(), mode: "insensitive" } },
+              select: { hotel: true },
+            });
+            if (wl?.hotel) {
+              await prisma.user.update({ where: { id: user.id }, data: { hotelAccess: true, accountType: "HOTEL" } });
+            }
+          } catch (err) {
+            console.error("[auth] Failed to apply hotel access:", err);
+          }
           // 30-day trial
           try {
             await prisma.subscription.upsert({

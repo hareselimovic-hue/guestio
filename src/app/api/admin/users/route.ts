@@ -19,6 +19,21 @@ export async function GET() {
   return NextResponse.json({ users });
 }
 
+/** PATCH { id, hotelAccess } — switch hotel mode on/off for a user */
+export async function PATCH(req: NextRequest) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session || session.user.email !== ADMIN_EMAIL) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const { id, hotelAccess } = await req.json();
+  if (typeof id !== "string" || typeof hotelAccess !== "boolean") {
+    return NextResponse.json({ error: "Bad request" }, { status: 400 });
+  }
+  const user = await prisma.user.update({ where: { id }, data: { hotelAccess }, select: { id: true, hotelAccess: true } }).catch(() => null);
+  if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  return NextResponse.json(user);
+}
+
 /**
  * DELETE /api/admin/users?id=<userId>[&dryRun=1]
  * For workspace members, their properties, tasks and comments move to the workspace owner so the

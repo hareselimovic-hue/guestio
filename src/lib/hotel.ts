@@ -3,6 +3,14 @@ import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
 import { getRegistrationRecipients } from "@/lib/guest-registration";
+import { ADMIN_EMAIL, HOTELS_PUBLIC } from "@/lib/features";
+
+/** Hotel mode: public flag, the admin, or users with hotel access */
+export async function userCanUseHotels(user: { id: string; email: string }) {
+  if (HOTELS_PUBLIC || user.email === ADMIN_EMAIL) return true;
+  const u = await prisma.user.findUnique({ where: { id: user.id }, select: { hotelAccess: true } });
+  return !!u?.hotelAccess;
+}
 
 export const SERVICE_KINDS = ["SERVICE", "MENU", "FACILITY"] as const;
 export const REQUEST_TYPES = ["HOUSEKEEPING", "TOWELS", "ISSUE", "WAKEUP", "OTHER", "ORDER", "BOOKING"] as const;

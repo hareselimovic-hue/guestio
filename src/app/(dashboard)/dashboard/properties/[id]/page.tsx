@@ -32,7 +32,7 @@ interface Property {
   bankAccount: string | null;
   guestRegistrationEnabled: boolean;
   kind: string; // APARTMENT | HOTEL
-  canUseHotels?: boolean; // hotel mode is admin-only for now (src/lib/features.ts)
+  canUseHotels?: boolean; // admin / users with hotel access (src/lib/hotel.ts userCanUseHotels)
   sections: Section[];
 }
 

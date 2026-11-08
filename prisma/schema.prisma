@@ -17,6 +17,8 @@ model User {
   image         String?
   // "APARTMENT" | "HOTEL" — chosen at signup; default kind for new properties
   accountType   String    @default("APARTMENT")
+  // Hotel mode for this user (from the hotels page signup, or switched on in Admin)
+  hotelAccess   Boolean   @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -205,6 +207,8 @@ model WorkspaceInvite {
 model WhitelistEmail {
   id        String   @id @default(cuid())
   email     String   @unique
+  // Left the email on smartstay.ba/hoteli/ — gets hotel access on signup
+  hotel     Boolean  @default(false)
   createdAt DateTime @default(now())
 }
 

@@ -17,10 +17,11 @@ export async function POST(req: NextRequest) {
 
   // Auto-whitelist email so they can register immediately
   const { prisma } = await import("@/lib/prisma");
+  // Hotels page leads are marked so their signup gets hotel mode
   await prisma.whitelistEmail.upsert({
     where: { email },
-    update: {},
-    create: { email },
+    update: isHotel ? { hotel: true } : {},
+    create: { email, hotel: isHotel },
   });
 
   // Emails are best-effort: the visitor is already whitelisted and the landing page sends them

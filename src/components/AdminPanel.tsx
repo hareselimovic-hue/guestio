@@ -9,6 +9,7 @@ interface User {
   email: string;
   createdAt: Date | string;
   emailVerified: boolean;
+  hotelAccess: boolean;
   _count: { properties: number };
 }
 
@@ -83,6 +84,33 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
   async function removeEmail(id: string) {
     const res = await fetch(`/api/admin/whitelist?id=${id}`, { method: "DELETE" });
     if (res.ok) setWhitelist((prev) => prev.filter((e) => e.id !== id));
+  }
+
+  // Hotel mode per user (hotels page signups get it automatically)
+  async function toggleHotel(u: User) {
+    const hotelAccess = !u.hotelAccess;
+    setUsers((prev) => prev.map((x) => (x.id === u.id ? { ...x, hotelAccess } : x)));
+    const res = await fetch("/api/admin/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: u.id, hotelAccess }),
+    });
+    if (!res.ok) setUsers((prev) => prev.map((x) => (x.id === u.id ? { ...x, hotelAccess: !hotelAccess } : x)));
+  }
+
+  function hotelPill(u: User) {
+    if (u.email === ADMIN_EMAIL) return null;
+    return (
+      <button
+        onClick={() => toggleHotel(u)}
+        title={u.hotelAccess ? "Isključi hotelski dio" : "Uključi hotelski dio"}
+        className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border transition-colors ${
+          u.hotelAccess ? "bg-[#0F2F61] border-[#0F2F61] text-white" : "border-[#E0E0E0] text-[#9B9B9B] hover:text-[#0F2F61]"
+        }`}
+      >
+        Hotel {u.hotelAccess ? "✓" : "+"}
+      </button>
+    );
   }
 
   async function askDeleteUser(user: User) {
@@ -320,6 +348,7 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
                   <p className="text-xs text-[#9B9B9B] mt-1">
                     {u._count.properties} {u._count.properties === 1 ? "apartman" : "apartmana"} · registrovan {fmt(u.createdAt)}
                   </p>
+                  <div className="mt-1.5">{hotelPill(u)}</div>
                 </div>
                 {u.email !== ADMIN_EMAIL && (
                   <button
@@ -342,6 +371,7 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
                   <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium hidden md:table-cell">Registrovan</th>
                   <th className="text-center px-4 py-3 text-[#6B6B6B] font-medium">Prop.</th>
                   <th className="text-center px-4 py-3 text-[#6B6B6B] font-medium hidden sm:table-cell">Verificiran</th>
+                  <th className="text-center px-4 py-3 text-[#6B6B6B] font-medium">Hotel</th>
                   <th className="px-4 py-3 w-12"></th>
                 </tr>
               </thead>
@@ -363,6 +393,7 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
                         <XCircle className="w-4 h-4 text-[#CCCCCC] inline" />
                       )}
                     </td>
+                    <td className="px-4 py-3 text-center">{hotelPill(u)}</td>
                     <td className="px-4 py-3 text-right">
                       {u.email !== ADMIN_EMAIL && (
                         <button

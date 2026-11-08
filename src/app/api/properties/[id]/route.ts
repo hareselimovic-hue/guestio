@@ -3,8 +3,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
-import { EMAIL_RE } from "@/lib/hotel";
-import { canUseHotels } from "@/lib/features";
+import { EMAIL_RE, userCanUseHotels } from "@/lib/hotel";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +46,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     property.sections.push(parking);
   }
 
-  return NextResponse.json({ ...property, canUseHotels: canUseHotels(session.user.email) });
+  return NextResponse.json({ ...property, canUseHotels: await userCanUseHotels(session.user) });
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -75,7 +74,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(data.ownerAddress !== undefined && { ownerAddress: data.ownerAddress }),
       ...(data.bankAccount !== undefined && { bankAccount: data.bankAccount }),
       ...(data.slug && { slug: data.slug }),
-      ...((data.kind === "APARTMENT" || (data.kind === "HOTEL" && canUseHotels(session.user.email))) && { kind: data.kind }),
+      ...((data.kind === "APARTMENT" || (data.kind === "HOTEL" && (await userCanUseHotels(session.user)))) && { kind: data.kind }),
       ...(data.receptionEmail !== undefined && {
         receptionEmail: typeof data.receptionEmail === "string" && EMAIL_RE.test(data.receptionEmail.trim())
           ? data.receptionEmail.trim().toLowerCase()

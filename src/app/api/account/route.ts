@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { canUseHotels } from "@/lib/features";
+import { userCanUseHotels } from "@/lib/hotel";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +15,7 @@ export async function PATCH(req: NextRequest) {
   if (accountType !== "APARTMENT" && accountType !== "HOTEL") {
     return NextResponse.json({ error: "Invalid account type" }, { status: 400 });
   }
-  if (accountType === "HOTEL" && !canUseHotels(session.user.email)) {
+  if (accountType === "HOTEL" && !(await userCanUseHotels(session.user))) {
     return NextResponse.json({ error: "Not available" }, { status: 403 });
   }
   await prisma.user.update({ where: { id: session.user.id }, data: { accountType } });

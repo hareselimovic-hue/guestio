@@ -20,9 +20,10 @@ function RegisterForm() {
   const [hotelName, setHotelName] = useState("");
   // Invited team members join an existing workspace — no apartment/hotel choice for them
   const isInvite = searchParams.get("redirect")?.startsWith("/invite/") ?? false;
-  // Apartment/Hotel choice only once hotel mode is public
+  // Apartment/Hotel choice only once hotel mode is public; until then the hotels page
+  // links here with ?type=hotel (the server only grants hotel mode to hotel-page leads)
   const showTypeChoice = HOTELS_PUBLIC && !isInvite;
-  const isHotel = showTypeChoice && accountType === "HOTEL";
+  const isHotel = showTypeChoice ? accountType === "HOTEL" : !isInvite && searchParams.get("type") === "hotel";
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -49,11 +50,12 @@ function RegisterForm() {
     // Best-effort: if anything fails, the dashboard's "Create your hotel" step picks it up.
     if (isHotel) {
       try {
-        await fetch("/api/account", {
+        const acc = await fetch("/api/account", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ accountType: "HOTEL" }),
         });
+        if (!acc.ok) throw new Error("no hotel access");
         const res = await fetch("/api/properties", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -73,8 +75,10 @@ function RegisterForm() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#262626] mb-1">Create an account</h1>
-        <p className="text-[#6B6B6B] text-sm">Start creating digital guides for your guests</p>
+        <h1 className="text-2xl font-bold text-[#262626] mb-1">{isHotel && !showTypeChoice ? "Create your hotel account" : "Create an account"}</h1>
+        <p className="text-[#6B6B6B] text-sm">
+          {isHotel && !showTypeChoice ? "Hotel guide, room QR codes and reception requests — 30 days free" : "Start creating digital guides for your guests"}
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">

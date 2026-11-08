@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
-import { canUseHotels } from "@/lib/features";
+import { userCanUseHotels } from "@/lib/hotel";
 
 export const dynamic = "force-dynamic";
 
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
   ]);
   const workspaceId = wsIds.length > 0 ? wsIds[0] : null;
   const wanted = requestedKind === "HOTEL" || requestedKind === "APARTMENT" ? requestedKind : user?.accountType === "HOTEL" ? "HOTEL" : "APARTMENT";
-  const kind = wanted === "HOTEL" && !canUseHotels(session.user.email) ? "APARTMENT" : wanted;
+  const kind = wanted === "HOTEL" && !(await userCanUseHotels(session.user)) ? "APARTMENT" : wanted;
   // Hotels check in at a reception, with typical hotel times
   const checkin = kind === "HOTEL"
     ? { checkInType: "PERSONAL", checkIn: "14:00", checkOut: "12:00", instructions: "" }

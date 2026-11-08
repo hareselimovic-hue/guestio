@@ -15,7 +15,7 @@ export default async function AdminPage() {
   const [users, whitelist, subData, pendingTransfers, invoices] = await Promise.all([
     prisma.user.findMany({
       select: {
-        id: true, name: true, email: true, createdAt: true, emailVerified: true,
+        id: true, name: true, email: true, createdAt: true, emailVerified: true, hotelAccess: true,
         _count: { select: { properties: true } },
       },
       orderBy: { createdAt: "desc" },

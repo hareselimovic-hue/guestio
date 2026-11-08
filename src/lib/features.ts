@@ -1,10 +1,9 @@
-// Feature flags
+// Feature flags (client-safe — no server imports here)
 
-const ADMIN_EMAIL = "hareselimovic@gmail.com";
+export const ADMIN_EMAIL = "hareselimovic@gmail.com";
 
-/** Hotel mode (hotel properties, rooms, reception requests…). Admin-only until it's opened to everyone. */
+/**
+ * Hotel mode for everyone. While false, only the admin and users with hotel access
+ * (signed up via smartstay.ba/hoteli/, or switched on in Admin) get it — see userCanUseHotels().
+ */
 export const HOTELS_PUBLIC = false;
-
-export function canUseHotels(email: string | null | undefined) {
-  return HOTELS_PUBLIC || email === ADMIN_EMAIL;
-}
