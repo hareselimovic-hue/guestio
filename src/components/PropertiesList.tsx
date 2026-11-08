@@ -62,7 +62,7 @@ export default function PropertiesList({ properties }: { properties: Property[] 
             </div>
           )}
           <Link
-            href="/dashboard/properties/new"
+            href="/dashboard/properties/new?kind=apartment"
             className="flex items-center gap-1.5 text-sm font-medium text-[#FF6700] hover:text-[#e05c00] transition-colors shrink-0"
           >
             <Plus className="w-4 h-4" />
@@ -81,7 +81,7 @@ export default function PropertiesList({ properties }: { properties: Property[] 
             Create your first property and start sharing guides with guests
           </p>
           <Link
-            href="/dashboard/properties/new"
+            href="/dashboard/properties/new?kind=apartment"
             className="inline-flex items-center gap-2 bg-[#0F2F61] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#0a2347] transition-colors"
           >
             <Plus className="w-4 h-4" />

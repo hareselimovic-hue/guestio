@@ -73,6 +73,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ dryRun: true, today, notices: notices.map(({ email, kind, daysLeft }) => ({ email, kind, daysLeft })) });
   }
 
+  // Housekeeping (rides on this daily cron — Vercel Hobby allows only 2):
+  // hotel guests' emails are kept only for status updates, so drop them after 30 days
+  await prisma.guestRequest.updateMany({
+    where: { guestEmail: { not: null }, createdAt: { lt: new Date(Date.now() - 30 * 86_400_000) } },
+    data: { guestEmail: null },
+  }).catch((err) => console.error("[cron] guest email cleanup failed:", err));
+
   const resend = new Resend(process.env.RESEND_API_KEY);
   const from = process.env.RESEND_FROM_EMAIL ?? "noreply@smartstay.ba";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.smartstay.ba";

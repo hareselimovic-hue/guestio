@@ -15,6 +15,8 @@ model User {
   email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
+  // "APARTMENT" | "HOTEL" — chosen at signup; default kind for new properties
+  accountType   String    @default("APARTMENT")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -89,12 +91,22 @@ model Property {
   rentlioPropertyId Int?     @unique
   // Per-property switch; only applies when the workspace has guest registration enabled
   guestRegistrationEnabled Boolean @default(false)
+  // "APARTMENT" | "HOTEL" — hotels get rooms, reception requests, services, announcements, feedback
+  kind              String   @default("APARTMENT")
+  // Hotel: Google review link shown to guests as a "Rate us on Google" card
+  reviewUrl         String?
+  // Hotel: where guest requests are emailed (empty = account / registration recipients)
+  receptionEmail    String?
   previewViewCount  Int      @default(0)
   chatCount         Int      @default(0)
   sections     Section[]
   guests       GuestLink[]
   registrations GuestRegistration[]
   tasks        Task[]
+  hotelServices  HotelService[]
+  guestRequests  GuestRequest[]
+  announcements  Announcement[]
+  feedback       GuestFeedback[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 }
@@ -111,6 +123,21 @@ model Section {
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
   translations SectionTranslation[]
+  roomOverrides RoomSectionOverride[]
+}
+
+// Hotel room: a section that differs from the hotel guide (everything else follows the hotel)
+model RoomSectionOverride {
+  id           String    @id @default(cuid())
+  guestLinkId  String
+  guestLink    GuestLink @relation(fields: [guestLinkId], references: [id], onDelete: Cascade)
+  sectionId    String
+  section      Section   @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  content      Json
+  translations Json?     // { DE: {...}, TR: {...}, IT: {...} }
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([guestLinkId, sectionId])
 }
 
 model SectionTranslation {
@@ -259,10 +286,13 @@ model GuestLink {
   property   Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   token      String          @unique @default(cuid())
   guestName  String?
+  // Hotel room link (QR on the room door/desk); null for regular guest links
+  roomNumber String?
   checkIn    DateTime?
   checkOut   DateTime?
   viewCount  Int             @default(0)
   views      GuestLinkView[]
+  sectionOverrides RoomSectionOverride[]
   createdAt  DateTime        @default(now())
 }
 
@@ -291,6 +321,80 @@ model GuestRegistration {
   createdAt     DateTime @default(now())
 
   @@index([propertyId, checkIn])
+}
+
+// ─── Hotel ────────────────────────────────────────────────────────────────────
+
+model HotelService {
+  id          String   @id @default(cuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  // "SERVICE" (extras: breakfast, late checkout, transfer) | "MENU" (room service) | "FACILITY" (spa, restaurant table)
+  kind        String
+  category    String?  // menu grouping, e.g. "Breakfast", "Drinks"
+  name        String
+  description String?
+  price       Float?
+  priceNote   String?  // e.g. "per person"
+  active      Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([propertyId, kind])
+}
+
+model GuestRequest {
+  id           String   @id @default(cuid())
+  propertyId   String
+  property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  guestLinkId  String?
+  roomNumber   String?
+  // HOUSEKEEPING | TOWELS | ISSUE | WAKEUP | OTHER | ORDER | BOOKING
+  type         String
+  items        Json?    // ORDER: [{ name, qty, price }]; BOOKING/SERVICE: [{ name }]
+  note         String?
+  scheduledFor String?  // free text from the guest ("tomorrow 7:00")
+  guests       Int?
+  lang         String?
+  // NEW | IN_PROGRESS | DONE | DECLINED
+  status       String   @default("NEW")
+  // Optional, only for status updates on this request; cleared after 30 days
+  guestEmail   String?
+  // Last status the guest was emailed about (avoids duplicate mails)
+  notifiedStatus String?
+  // Short note from the reception, plus its translation into the guest's language
+  staffReply   String?
+  staffReplyTranslated String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([propertyId, createdAt(sort: Desc)])
+}
+
+model Announcement {
+  id           String    @id @default(cuid())
+  propertyId   String
+  property     Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  message      String
+  translations Json?     // { EN, DE, TR, IT } — filled automatically
+  active       Boolean   @default(true)
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([propertyId, active])
+}
+
+model GuestFeedback {
+  id          String   @id @default(cuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  guestLinkId String?
+  roomNumber  String?
+  rating      Int      // 1–5
+  comment     String?
+  createdAt   DateTime @default(now())
+
+  @@index([propertyId, createdAt(sort: Desc)])
 }
 
 // ─── Onboarding follow-up emails (sent once per address) ──────────────────────

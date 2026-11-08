@@ -8,6 +8,10 @@ import {
 import { useState } from "react";
 import GuestChat from "./GuestChat";
 import { REGISTRATION_SENT_KEY } from "./GuestRegistrationForm";
+import {
+  GoogleReviewCard, HotelAnnouncements, HotelServicesPanel, HotelTabBar, roomLabel,
+  type HotelAnnouncementItem, type HotelServiceItem, type HotelTab,
+} from "./HotelGuest";
 
 function ClickableImg({ src, alt, className, style }: { src: string; alt: string; className?: string; style?: React.CSSProperties }) {
   const [open, setOpen] = useState(false);
@@ -184,6 +188,8 @@ interface Props {
   checkOut: string | null;
   token: string;
   registrationEnabled?: boolean;
+  /** Only for properties of kind HOTEL */
+  hotel?: { roomNumber: string | null; reviewUrl: string | null; announcements: HotelAnnouncementItem[]; services: HotelServiceItem[] } | null;
 }
 
 const LANGUAGES = [
@@ -199,7 +205,7 @@ function getContent(section: Section, lang: string): Record<string, unknown> {
   return (t?.content ?? section.content) as Record<string, unknown>;
 }
 
-export default function GuestView({ property, sections, guestName, checkIn, checkOut, token, registrationEnabled = false }: Props) {
+export default function GuestView({ property, sections, guestName, checkIn, checkOut, token, registrationEnabled = false, hotel = null }: Props) {
   const sectionsRef = useRef<HTMLDivElement>(null);
   const [lang, setLang] = useState("EN");
   const registrationHref = `/g/${property.slug}/registration?from=${token}`;
@@ -214,7 +220,8 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
     } catch {}
   }, [registrationEnabled, property.slug]);
   // Only show language switcher if at least one section has any translation
-  const hasTranslations = sections.some((s) => s.translations && s.translations.length > 0);
+  // (hotel blocks and announcements are always translated)
+  const hasTranslations = !!hotel || sections.some((s) => s.translations && s.translations.length > 0);
 
   const welcomeSection = sections.find((s) => s.type === "WELCOME");
   const otherSections = sections.filter((s) => s.type !== "WELCOME" && s.type !== "AI_CONTEXT");
@@ -235,9 +242,60 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
     sectionsRef.current?.scrollIntoView({ behavior: "smooth" });
   }
 
-  return (
-    <div className="min-h-screen bg-[#F7F7F5]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+  const hotelCtx = hotel ? { slug: property.slug, token, lang, roomNumber: hotel.roomNumber } : null;
+  // Hotels: bottom tab bar — Guide / Reception / Extras
+  const [hotelTab, setHotelTab] = useState<HotelTab>("guide");
+  function changeHotelTab(next: HotelTab) {
+    setHotelTab(next);
+    window.scrollTo({ top: 0 });
+  }
+  const showGuide = !hotel || hotelTab === "guide";
 
+  const langSelect = hasTranslations && (
+    <select
+      value={lang}
+      onChange={(e) => setLang(e.target.value)}
+      className="bg-white/20 backdrop-blur-sm text-white text-sm font-medium px-3 py-1.5 rounded-full border border-white/30 outline-none cursor-pointer appearance-none pr-7"
+      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 8px center" }}
+    >
+      {LANGUAGES.map((l) => (
+        <option key={l.code} value={l.code} style={{ color: "#262626", background: "#fff" }}>
+          {l.flag} {l.label}
+        </option>
+      ))}
+    </select>
+  );
+
+  return (
+    <div
+      className={`min-h-screen bg-[#F7F7F5] ${hotel ? "pb-20 [&_.bottom-6]:bottom-24" : ""}`}
+      style={{ fontFamily: "Inter, system-ui, sans-serif" }}
+    >
+
+      {/* ── HOTEL ANNOUNCEMENTS ── */}
+      {hotel && <HotelAnnouncements items={hotel.announcements} lang={lang} />}
+
+      {/* ── HOTEL: compact header on Reception / Extras ── */}
+      {hotel && !showGuide && (
+        <div className="bg-[#0F2F61] text-white">
+          <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-lg leading-tight truncate" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{property.name}</p>
+              {hotel.roomNumber && <p className="text-xs text-white/70">{roomLabel(lang)} {hotel.roomNumber}</p>}
+            </div>
+            {langSelect}
+          </div>
+        </div>
+      )}
+
+      {/* Reception / Extras stay mounted (hidden on Guide) so the room-service cart survives tab switches */}
+      {hotelCtx && hotel && (
+        <div className={showGuide ? "hidden" : "max-w-2xl mx-auto px-4 py-4 space-y-4"}>
+          <HotelServicesPanel ctx={hotelCtx} services={hotel.services} view={hotelTab === "extras" ? "extras" : "reception"} />
+        </div>
+      )}
+
+      {showGuide && <>
       {/* ── HERO ── */}
       <div
         className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
@@ -255,6 +313,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
           {/* Property badge */}
           <div className="inline-block bg-white/20 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full mb-6 tracking-wide">
             {property.name}
+            {hotel?.roomNumber && <span className="text-white/70"> · {roomLabel(lang)} {hotel.roomNumber}</span>}
           </div>
 
           {/* Welcome message */}
@@ -326,20 +385,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 
         {/* Language dropdown — top right */}
         {hasTranslations && (
-          <div className="absolute top-4 right-4 z-20">
-            <select
-              value={lang}
-              onChange={(e) => setLang(e.target.value)}
-              className="bg-white/20 backdrop-blur-sm text-white text-sm font-medium px-3 py-1.5 rounded-full border border-white/30 outline-none cursor-pointer appearance-none pr-7"
-              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 8px center" }}
-            >
-              {LANGUAGES.map((l) => (
-                <option key={l.code} value={l.code} style={{ color: "#262626", background: "#fff" }}>
-                  {l.flag} {l.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <div className="absolute top-4 right-4 z-20">{langSelect}</div>
         )}
       </div>
 
@@ -386,6 +432,8 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
           <SectionCard key={section.id} section={section} content={getContent(section, lang)} ui={ui} />
         ))}
 
+        {hotel?.reviewUrl && <GoogleReviewCard lang={lang} url={hotel.reviewUrl} />}
+
         {otherSections.length === 0 && (
           <div className="text-center py-16 text-[#6B6B6B]">
             <p className="text-lg font-medium">{ui.guideSoon}</p>
@@ -426,8 +474,8 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
           </div>
         </div>
 
-        {/* Rent-a-car */}
-        <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
+        {/* Rent-a-car — not for hotels (they run their own extras) */}
+        {!hotel && <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
           <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-blue-50 text-blue-600">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -461,7 +509,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
               </a>
             </div>
           </div>
-        </div>
+        </div>}
       </div>
 
       {/* Footer */}
@@ -473,9 +521,12 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
           </span>
         </p>
       </div>
+      </>}
 
       {/* AI Chat */}
       <GuestChat propertySlug={property.slug} token={token} lang={lang} />
+
+      {hotel && <HotelTabBar tab={hotelTab} onChange={changeHotelTab} lang={lang} />}
 
     </div>
   );

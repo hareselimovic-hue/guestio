@@ -5,6 +5,7 @@ import { Settings, Users, Link2, Copy, Check, Trash2, Plus, Plug, Loader2, Check
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import HotelSettingsCard from "@/components/ReceptionEmail";
 
 interface Member {
   id: string;
@@ -248,6 +249,8 @@ export default function SettingsPage() {
           <p className="text-sm text-[#6B6B6B]">Manage your team and access</p>
         </div>
       </div>
+
+      <HotelSettingsCard />
 
       {!data ? (
         /* ── Create workspace ── */

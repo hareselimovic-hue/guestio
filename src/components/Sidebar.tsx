@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
-import { Home, LogOut, ChevronRight, Settings, ShieldCheck, CreditCard, BarChart2, HelpCircle, MessageSquare, ClipboardList } from "lucide-react";
+import { Home, LogOut, ChevronRight, Settings, ShieldCheck, CreditCard, BarChart2, HelpCircle, MessageSquare, ClipboardList, Hotel, Building2 } from "lucide-react";
 
 interface SidebarProps {
   user: { id: string; name?: string | null; email: string };
   workspaceName: string | null;
+  showHotel?: boolean;
+  showApartments?: boolean;
 }
 
 const ADMIN_EMAIL = "hareselimovic@gmail.com";
@@ -21,7 +23,7 @@ const navItems = [
   { href: "/dashboard/subscription", label: "Subscription", icon: CreditCard },
 ];
 
-export default function Sidebar({ user, workspaceName }: SidebarProps) {
+export default function Sidebar({ user, workspaceName, showHotel = false, showApartments = true }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -34,7 +36,13 @@ export default function Sidebar({ user, workspaceName }: SidebarProps) {
     <>
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {[...navItems, ...(user.email === ADMIN_EMAIL ? [{ href: "/dashboard/admin", label: "Admin", icon: ShieldCheck }] : [])].map(({ href, label, icon: Icon }) => {
+        {[
+          navItems[0],
+          ...(showApartments ? [{ href: "/dashboard/apartments", label: "Apartments", icon: Building2 }] : []),
+          ...(showHotel ? [{ href: "/dashboard/hotel", label: "Hotel", icon: Hotel }] : []),
+          ...navItems.slice(1),
+          ...(user.email === ADMIN_EMAIL ? [{ href: "/dashboard/admin", label: "Admin", icon: ShieldCheck }] : []),
+        ].map(({ href, label, icon: Icon }) => {
           const isActive = href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
           return (
             <Link

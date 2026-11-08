@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signUp } from "@/lib/auth-client";
+import { HOTELS_PUBLIC } from "@/lib/features";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,13 @@ function RegisterForm() {
   // Prefilled when coming from the smartstay.ba landing page ("Kreiraj nalog" after leaving the email)
   const [email, setEmail] = useState(searchParams.get("email") ?? "");
   const [password, setPassword] = useState("");
+  const [accountType, setAccountType] = useState<"APARTMENT" | "HOTEL">(searchParams.get("type") === "hotel" ? "HOTEL" : "APARTMENT");
+  const [hotelName, setHotelName] = useState("");
+  // Invited team members join an existing workspace — no apartment/hotel choice for them
+  const isInvite = searchParams.get("redirect")?.startsWith("/invite/") ?? false;
+  // Apartment/Hotel choice only once hotel mode is public
+  const showTypeChoice = HOTELS_PUBLIC && !isInvite;
+  const isHotel = showTypeChoice && accountType === "HOTEL";
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -37,6 +45,28 @@ function RegisterForm() {
       return;
     }
 
+    // Signed in right after signup — hotels: remember the type, create the hotel and open its guide.
+    // Best-effort: if anything fails, the dashboard's "Create your hotel" step picks it up.
+    if (isHotel) {
+      try {
+        await fetch("/api/account", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ accountType: "HOTEL" }),
+        });
+        const res = await fetch("/api/properties", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: hotelName.trim(), kind: "HOTEL" }),
+        });
+        if (res.ok) {
+          const hotel = await res.json();
+          router.push(`/dashboard/hotel?property=${hotel.id}&tab=guide`);
+          return;
+        }
+      } catch {}
+    }
+
     router.push(redirect ?? "/dashboard");
   }
 
@@ -48,6 +78,45 @@ function RegisterForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
+        {showTypeChoice && <div className="space-y-1.5">
+          <Label className="text-[#262626] font-medium text-sm">I manage</Label>
+          <div className="grid grid-cols-2 gap-2">
+            {([
+              ["APARTMENT", "Apartments", "Holiday rentals, one guide per place"],
+              ["HOTEL", "Hotel", "Rooms, reception requests, room service"],
+            ] as const).map(([value, title, sub]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setAccountType(value)}
+                className={`text-left rounded-xl border-2 px-3 py-2.5 transition-colors ${
+                  accountType === value ? "border-[#FF6700] bg-orange-50/60" : "border-[#EDEDE9] hover:border-[#D5D5CF]"
+                }`}
+              >
+                <p className="text-sm font-semibold text-[#262626]">{title}</p>
+                <p className="text-xs text-[#6B6B6B] leading-snug mt-0.5">{sub}</p>
+              </button>
+            ))}
+          </div>
+        </div>}
+
+        {isHotel && (
+          <div className="space-y-1.5">
+            <Label htmlFor="hotelName" className="text-[#262626] font-medium text-sm">
+              Hotel name
+            </Label>
+            <Input
+              id="hotelName"
+              type="text"
+              placeholder="Hotel Sarajevo"
+              value={hotelName}
+              onChange={(e) => setHotelName(e.target.value)}
+              required
+              className="border-[#EDEDE9] focus:border-[#0F2F61] h-11"
+            />
+          </div>
+        )}
+
         <div className="space-y-1.5">
           <Label htmlFor="name" className="text-[#262626] font-medium text-sm">
             Full name

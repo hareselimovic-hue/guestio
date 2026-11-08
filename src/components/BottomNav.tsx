@@ -3,11 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, BarChart2, Settings, MoreHorizontal, CreditCard, ShieldCheck, X, HelpCircle, MessageSquare, ClipboardList } from "lucide-react";
+import { Home, BarChart2, Settings, MoreHorizontal, CreditCard, ShieldCheck, X, HelpCircle, MessageSquare, ClipboardList, Hotel, Building2 } from "lucide-react";
 import { signOut } from "@/lib/auth-client";
 
 interface BottomNavProps {
   user: { id: string; name?: string | null; email: string };
+  showHotel?: boolean;
+  showApartments?: boolean;
 }
 
 const ADMIN_EMAIL = "hareselimovic@gmail.com";
@@ -19,12 +21,18 @@ const mainItems = [
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
-export default function BottomNav({ user }: BottomNavProps) {
+export default function BottomNav({ user, showHotel = false, showApartments = true }: BottomNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [showMore, setShowMore] = useState(false);
 
   const isAdmin = user.email === ADMIN_EMAIL;
+  // Second slot: Hotel for hotels, otherwise Apartments; Analytics (and Apartments, if both) live in "More"
+  const barItems = [
+    mainItems[0],
+    showHotel ? { href: "/dashboard/hotel", label: "Hotel", icon: Hotel } : { href: "/dashboard/apartments", label: "Apartments", icon: Building2 },
+    ...mainItems.slice(2),
+  ];
 
   async function handleSignOut() {
     await signOut();
@@ -35,7 +43,7 @@ export default function BottomNav({ user }: BottomNavProps) {
     <>
       {/* Bottom nav bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0F2F61] border-t border-[#1a3d75] flex items-stretch h-16">
-        {mainItems.map(({ href, label, icon: Icon }) => {
+        {barItems.map(({ href, label, icon: Icon }) => {
           const isActive = href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
           return (
             <Link
@@ -79,6 +87,26 @@ export default function BottomNav({ user }: BottomNavProps) {
 
             {/* Extra nav items */}
             <div className="px-3 py-2">
+              {showHotel && showApartments && (
+                <Link
+                  href="/dashboard/apartments"
+                  onClick={() => setShowMore(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#262626] hover:bg-[#F7F7F5] transition-colors"
+                >
+                  <Building2 className="w-5 h-5 text-[#6B6B6B]" />
+                  Apartments
+                </Link>
+              )}
+
+              <Link
+                href="/dashboard/analytics"
+                onClick={() => setShowMore(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#262626] hover:bg-[#F7F7F5] transition-colors"
+              >
+                <BarChart2 className="w-5 h-5 text-[#6B6B6B]" />
+                Analytics
+              </Link>
+
               <Link
                 href="/dashboard/registrations"
                 onClick={() => setShowMore(false)}

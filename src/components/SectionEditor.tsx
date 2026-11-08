@@ -254,7 +254,7 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
   );
 }
 
-function SectionForm({
+export function SectionForm({
   section,
   onChange,
 }: {

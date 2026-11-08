@@ -45,10 +45,47 @@ export default async function GuestPage({
     ]);
   }
 
+  // Hotel extras: active announcements + the hotel's services/menu/facilities
+  const isHotel = property.kind === "HOTEL";
+
+  // Hotel room link: sections the room has its own version of replace the hotel guide's
+  if (isHotel && guestLink?.roomNumber) {
+    const overrides = await prisma.roomSectionOverride.findMany({ where: { guestLinkId: guestLink.id } });
+    for (const o of overrides) {
+      const section = property.sections.find((s) => s.id === o.sectionId);
+      if (!section) continue;
+      const tr = (o.translations ?? {}) as Record<string, unknown>;
+      section.content = o.content as typeof section.content;
+      section.translations = Object.entries(tr).map(([language, content], i) => ({
+        id: `${o.id}-${i}`, sectionId: section.id, language, content: content as typeof section.content, updatedAt: o.updatedAt,
+      }));
+    }
+  }
+  const [announcements, services] = isHotel
+    ? await Promise.all([
+        prisma.announcement.findMany({
+          where: { propertyId: property.id, active: true, OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
+          orderBy: { createdAt: "desc" },
+          select: { id: true, message: true, translations: true },
+        }),
+        prisma.hotelService.findMany({
+          where: { propertyId: property.id, active: true },
+          orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+          select: { id: true, kind: true, category: true, name: true, description: true, price: true, priceNote: true },
+        }),
+      ])
+    : [[], []];
+
   return (
     <GuestView
       property={property}
       sections={property.sections}
+      hotel={isHotel ? {
+        roomNumber: guestLink?.roomNumber ?? null,
+        reviewUrl: property.reviewUrl,
+        announcements: announcements.map((a) => ({ ...a, translations: a.translations as Record<string, string> | null })),
+        services,
+      } : null}
       registrationEnabled={property.guestRegistrationEnabled}
       guestName={guestLink?.guestName ?? null}
       checkIn={guestLink?.checkIn?.toISOString() ?? null}

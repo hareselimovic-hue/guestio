@@ -11,6 +11,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email" }, { status: 400 });
   }
 
+  // Leads from smartstay.ba/hoteli/ land on signup with "Hotel" preselected
+  const isHotel = source === "hotel_page";
+  const registerUrl = `https://app.smartstay.ba/register?${isHotel ? "type=hotel&" : ""}email=${encodeURIComponent(email)}`;
+
   // Auto-whitelist email so they can register immediately
   const { prisma } = await import("@/lib/prisma");
   await prisma.whitelistEmail.upsert({
@@ -33,7 +37,7 @@ export async function POST(req: NextRequest) {
         subject: `Novi lead sa smartstay.ba: ${email}`,
         html: `<p>Neko je ostavio email na landing pageu SmartStay.</p>
 <p><strong>Email:</strong> ${email}<br>
-<strong>Izvor:</strong> ${source === "trial_popup" ? "Trial popup" : "Kontakt forma"}<br>
+<strong>Izvor:</strong> ${isHotel ? "Stranica za hotele" : source === "trial_popup" ? "Trial popup" : "Kontakt forma"}<br>
 <strong>Vrijeme:</strong> ${new Date().toLocaleString("bs-BA", { timeZone: "Europe/Sarajevo" })}</p>`,
       }),
       // Confirmation to visitor — isti email bez obzira na izvor
@@ -75,7 +79,7 @@ export async function POST(req: NextRequest) {
             </table>
             <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 4px;">
               <tr><td align="center">
-                <a href="https://app.smartstay.ba/register?email=${encodeURIComponent(email)}"
+                <a href="${registerUrl}"
                    style="display:inline-block;background:#FF6700;color:#fff;font-size:16px;font-weight:700;
                           padding:15px 36px;border-radius:12px;text-decoration:none;text-align:center;">
                   Počnite besplatni trial →

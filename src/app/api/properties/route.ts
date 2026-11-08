@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
+import { canUseHotels } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, internalName, address, customSlug } = await req.json();
+  const { name, internalName, address, customSlug, kind: requestedKind } = await req.json();
   if (!name?.trim()) return NextResponse.json({ error: "Name is required" }, { status: 400 });
 
   const slug = customSlug?.trim() ? toSlug(customSlug.trim()) : slugify(name.trim());
@@ -50,20 +51,30 @@ export async function POST(req: NextRequest) {
   if (existing) return NextResponse.json({ error: "This URL is already taken, choose another." }, { status: 409 });
 
   // Auto-assign to workspace if user belongs to one
-  const wsIds = await getUserWorkspaceIds(session.user.id);
+  const [wsIds, user] = await Promise.all([
+    getUserWorkspaceIds(session.user.id),
+    prisma.user.findUnique({ where: { id: session.user.id }, select: { accountType: true } }),
+  ]);
   const workspaceId = wsIds.length > 0 ? wsIds[0] : null;
+  const wanted = requestedKind === "HOTEL" || requestedKind === "APARTMENT" ? requestedKind : user?.accountType === "HOTEL" ? "HOTEL" : "APARTMENT";
+  const kind = wanted === "HOTEL" && !canUseHotels(session.user.email) ? "APARTMENT" : wanted;
+  // Hotels check in at a reception, with typical hotel times
+  const checkin = kind === "HOTEL"
+    ? { checkInType: "PERSONAL", checkIn: "14:00", checkOut: "12:00", instructions: "" }
+    : { checkIn: "15:00", checkOut: "11:00", instructions: "" };
 
   const property = await prisma.property.create({
     data: {
       userId: session.user.id,
       workspaceId,
+      kind,
       name: name.trim(),
       internalName: internalName?.trim() || null,
       slug,
       address: address?.trim() || null,
       sections: {
         create: [
-          { type: "CHECKIN", title: "Check-in & Check-out", content: { checkIn: "15:00", checkOut: "11:00", instructions: "" }, order: 0 },
+          { type: "CHECKIN", title: "Check-in & Check-out", content: checkin, order: 0 },
           { type: "WELCOME", title: "Welcome", content: { message: "" }, order: 1 },
           { type: "WIFI", title: "WiFi", content: { network: "", password: "" }, order: 2 },
           { type: "HOUSE_RULES", title: "House Rules", content: { rules: [] }, order: 3 },

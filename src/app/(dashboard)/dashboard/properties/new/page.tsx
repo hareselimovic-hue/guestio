@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { ArrowLeft, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,11 +20,14 @@ export default function NewPropertyPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    // ?kind=apartment|hotel from the Apartments / Hotel pages (default: the account type)
+    const kindParam = new URLSearchParams(window.location.search).get("kind");
+    const kind = kindParam === "hotel" ? "HOTEL" : kindParam === "apartment" ? "APARTMENT" : undefined;
 
     const res = await fetch("/api/properties", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, internalName: internalName.trim() || undefined, address, customSlug: customSlug.trim() || undefined }),
+      body: JSON.stringify({ name, internalName: internalName.trim() || undefined, address, customSlug: customSlug.trim() || undefined, kind }),
     });
 
     if (!res.ok) {
@@ -41,13 +43,14 @@ export default function NewPropertyPage() {
 
   return (
     <div className="p-4 sm:p-8 max-w-xl">
-      <Link
-        href="/dashboard"
+      <button
+        type="button"
+        onClick={() => router.back()}
         className="inline-flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back
-      </Link>
+      </button>
 
       <div className="flex items-center gap-3 mb-8">
         <div className="w-10 h-10 bg-[#0F2F61]/10 rounded-xl flex items-center justify-center">
