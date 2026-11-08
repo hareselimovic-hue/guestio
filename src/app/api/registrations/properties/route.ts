@@ -20,7 +20,7 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const properties = await prisma.property.findMany({
-    where: await accessWhere(session.user.id),
+    where: { AND: [await accessWhere(session.user.id), { kind: { not: "HOTEL" } }] }, // hotels: switched in the hotel panel
     select: { id: true, name: true, guestRegistrationEnabled: true },
     orderBy: { name: "asc" },
   });

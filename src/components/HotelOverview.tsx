@@ -117,7 +117,7 @@ export default function HotelOverview({ hotel }: { hotel: HotelOverviewData }) {
               </Link></li>
             )}
             {!hotel.hasReviewUrl && (
-              <li><Link href={`${base}&tab=review`} className="flex items-center gap-3 px-4 py-3 hover:bg-[#FAFAF8]">
+              <li><Link href={`${base}&tab=settings`} className="flex items-center gap-3 px-4 py-3 hover:bg-[#FAFAF8]">
                 <span className="w-4 text-center text-sm shrink-0">★</span>
                 <span className="flex-1 text-sm text-[#262626]">Add your Google review link <span className="text-[#9B9B9B]">— guests see “Rate us on Google”</span></span>
                 <span className="text-xs font-semibold text-[#0F2F61] shrink-0">Add →</span>

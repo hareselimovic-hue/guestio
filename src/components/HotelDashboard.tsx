@@ -6,11 +6,12 @@ import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 import {
   BellRing, DoorOpen, UtensilsCrossed, Megaphone, Star, Loader2, Trash2, Download, Printer,
-  ExternalLink, RefreshCw, Eye, EyeOff, Copy, Check, BookOpen, QrCode, X, AlertTriangle, Share2,
+  ExternalLink, RefreshCw, Eye, EyeOff, Copy, Check, BookOpen, QrCode, X, AlertTriangle, Share2, Settings, ClipboardList,
 } from "lucide-react";
 import SectionEditor, { SectionForm } from "@/components/SectionEditor";
+import { ReceptionEmailForm } from "@/components/ReceptionEmail";
 
-interface HotelRef { id: string; name: string; slug: string; reviewUrl: string | null }
+interface HotelRef { id: string; name: string; slug: string; reviewUrl: string | null; receptionEmail: string | null; guestRegistrationEnabled: boolean }
 
 interface GuestRequest {
   id: string; roomNumber: string | null; type: string; status: string; note: string | null;
@@ -35,7 +36,7 @@ const TABS = [
   { key: "rooms", label: "Rooms", icon: DoorOpen },
   { key: "services", label: "Services", icon: UtensilsCrossed },
   { key: "announcements", label: "Announcements", icon: Megaphone },
-  { key: "review", label: "Google review", icon: Star },
+  { key: "settings", label: "Settings", icon: Settings },
 ] as const;
 
 const TYPE_LABEL: Record<string, string> = {
@@ -94,9 +95,6 @@ export default function HotelDashboard({ hotels, current, initialTab }: { hotels
           <a href={`/g/${current.slug}`} target="_blank" title="The general hotel link: guide only — requests and orders work from the room QR codes" className="inline-flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] border border-[#EDEDE9] bg-white px-3 py-1.5 rounded-lg">
             <ExternalLink className="w-3.5 h-3.5" /> Open general hotel link
           </a>
-          <Link href={`/dashboard/properties/${current.id}`} className="inline-flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] border border-[#EDEDE9] bg-white px-3 py-1.5 rounded-lg">
-            Property settings
-          </Link>
         </div>
       </div>
 
@@ -119,7 +117,7 @@ export default function HotelDashboard({ hotels, current, initialTab }: { hotels
       {tab === "rooms" && <RoomsTab hotel={current} />}
       {tab === "services" && <ServicesTab propertyId={current.id} />}
       {tab === "announcements" && <AnnouncementsTab propertyId={current.id} slug={current.slug} />}
-      {tab === "review" && <ReviewTab hotel={current} />}
+      {tab === "settings" && <SettingsTab key={current.id} hotel={current} />}
     </div>
   );
 }
@@ -857,36 +855,128 @@ function AnnouncementsTab({ propertyId, slug }: { propertyId: string; slug: stri
 
 // ─── Feedback ────────────────────────────────────────────────────────────────
 
-function ReviewTab({ hotel }: { hotel: HotelRef }) {
+function SettingsTab({ hotel }: { hotel: HotelRef }) {
+  const router = useRouter();
+  const [name, setName] = useState(hotel.name);
+  const [nameSaved, setNameSaved] = useState(false);
   const [reviewUrl, setReviewUrl] = useState(hotel.reviewUrl ?? "");
-  const [saved, setSaved] = useState(false);
-  const [error, setError] = useState("");
+  const [reviewSaved, setReviewSaved] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const [registration, setRegistration] = useState(hotel.guestRegistrationEnabled);
+  const [copied, setCopied] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [url, setUrl] = useState("");
+  useEffect(() => setUrl(`${window.location.origin}/g/${hotel.slug}`), [hotel.slug]);
 
-  async function saveUrl() {
-    const url = reviewUrl.trim();
-    if (url && !/^https?:\/\//.test(url)) { setError("Paste the full link, starting with https://"); return; }
-    setError("");
-    await fetch(`/api/properties/${hotel.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reviewUrl: url }) });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  async function patch(data: Record<string, unknown>) {
+    const res = await fetch(`/api/properties/${hotel.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+    return res.ok;
+  }
+  async function saveName() {
+    if (!name.trim() || name.trim() === hotel.name) return;
+    if (await patch({ name: name.trim() })) { setNameSaved(true); setTimeout(() => setNameSaved(false), 2000); router.refresh(); }
+  }
+  async function saveReview() {
+    const v = reviewUrl.trim();
+    if (v && !/^https?:\/\//.test(v)) { setReviewError("Paste the full link, starting with https://"); return; }
+    setReviewError("");
+    if (await patch({ reviewUrl: v })) { setReviewSaved(true); setTimeout(() => setReviewSaved(false), 2000); router.refresh(); }
+  }
+  async function toggleRegistration() {
+    const enabled = !registration;
+    setRegistration(enabled);
+    const res = await fetch("/api/registrations/properties", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [hotel.id], enabled }) });
+    if (!res.ok) setRegistration(!enabled); else router.refresh();
+  }
+  function saveQr() {
+    const canvas = document.getElementById("qr-general") as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = `QR-${hotel.name}.png`.replace(/[^\w.-]+/g, "-");
+    a.click();
+  }
+  async function deleteHotel() {
+    const typed = prompt(`This deletes ${hotel.name} with all rooms, requests and the guide. Type the hotel name to confirm:`);
+    if (typed?.trim() !== hotel.name) return;
+    setDeleting(true);
+    const res = await fetch(`/api/properties/${hotel.id}`, { method: "DELETE" });
+    if (res.ok) { router.push("/dashboard"); router.refresh(); } else setDeleting(false);
   }
 
+  const label = "font-semibold text-[#262626]";
+  const help = "text-sm text-[#6B6B6B] mt-0.5 mb-3";
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className={`${card} p-5`}>
-        <p className="font-semibold text-[#262626]">Google review link</p>
-        <p className="text-sm text-[#6B6B6B] mt-0.5 mb-3">
-          Guests see a <strong>“Rate us on Google”</strong> card at the bottom of the guide — like the review cards at a reception desk.
-          Without a link the card is hidden.
-        </p>
+        <p className={label}>Hotel name</p>
+        <p className={help}>Shown at the top of the guide and on the QR cards.</p>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input value={name} onChange={(e) => setName(e.target.value)} className={input} />
+          <button onClick={saveName} disabled={!name.trim() || name.trim() === hotel.name} className={btnPrimary}>{nameSaved ? <><Check className="w-4 h-4" /> Saved</> : "Save"}</button>
+        </div>
+      </div>
+
+      <div className={`${card} p-5`}>
+        <p className={label}>Reception email</p>
+        <p className={help}>Guest requests and orders are emailed here. They always appear under <strong>Requests</strong> too.</p>
+        <ReceptionEmailForm hotelId={hotel.id} initial={hotel.receptionEmail} />
+      </div>
+
+      <div className={`${card} p-5`}>
+        <p className={label}>Google review link</p>
+        <p className={help}>Guests see a <strong>“Rate us on Google”</strong> card at the bottom of the guide. Without a link the card is hidden.</p>
         <div className="flex flex-col sm:flex-row gap-2">
           <input value={reviewUrl} onChange={(e) => setReviewUrl(e.target.value)} placeholder="https://g.page/r/…/review" className={input} />
-          <button onClick={saveUrl} className={btnPrimary}>{saved ? <><Check className="w-4 h-4" /> Saved</> : "Save"}</button>
+          <button onClick={saveReview} className={btnPrimary}>{reviewSaved ? <><Check className="w-4 h-4" /> Saved</> : "Save"}</button>
         </div>
-        {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
-        <p className="text-xs text-[#9B9B9B] mt-3">
-          Where to find it: Google Business Profile → <em>Ask for reviews</em> (or <em>Get more reviews</em>) → copy the link.
+        {reviewError && <p className="text-sm text-red-600 mt-2">{reviewError}</p>}
+        <p className="text-xs text-[#9B9B9B] mt-3">Where to find it: Google Business Profile → <em>Ask for reviews</em> (or <em>Get more reviews</em>) → copy the link.</p>
+      </div>
+
+      <div className={`${card} p-5 flex items-center gap-3`}>
+        <div className="w-9 h-9 rounded-lg bg-orange-50 text-[#FF6700] flex items-center justify-center shrink-0"><ClipboardList className="w-4 h-4" /></div>
+        <div className="flex-1 min-w-0">
+          <p className={label}>Online guest registration</p>
+          <p className="text-sm text-[#6B6B6B] mt-0.5">
+            {registration
+              ? <>Guests can send their travel document details from the guide. <Link href={`/dashboard/registrations?property=${hotel.id}`} className="text-[#0F2F61] hover:underline">View registrations</Link></>
+              : "Off — guests don't see the registration form."}
+          </p>
+        </div>
+        <button role="switch" aria-checked={registration} onClick={toggleRegistration}
+          className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${registration ? "bg-[#FF6700]" : "bg-[#D5D5CF]"}`}>
+          <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${registration ? "translate-x-5" : ""}`} />
+        </button>
+      </div>
+
+      <div className={`${card} p-5`}>
+        <p className={label}>General hotel link</p>
+        <p className={help}>
+          For Booking.com messages, your website or the lobby. It shows the hotel guide only — guests send requests and orders from the QR code in their room.
         </p>
+        {url && (
+          <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
+            <QRCodeCanvas id="qr-general" value={url} size={130} fgColor="#0F2F61" level="M" marginSize={2} className="rounded-lg border border-[#EDEDE9] self-start" />
+            <div className="flex-1 min-w-0 space-y-2">
+              <p className="text-sm text-[#0F2F61] break-all">{url}</p>
+              <div className="flex flex-wrap gap-2">
+                <button onClick={async () => { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
+                  className="inline-flex items-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] rounded-lg px-3 py-1.5">
+                  {copied ? <><Check className="w-4 h-4 text-green-600" /> Copied</> : <><Copy className="w-4 h-4" /> Copy link</>}
+                </button>
+                <button onClick={saveQr} className="inline-flex items-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] rounded-lg px-3 py-1.5"><Download className="w-4 h-4" /> Save QR</button>
+                <a href={url} target="_blank" className="inline-flex items-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] rounded-lg px-3 py-1.5"><ExternalLink className="w-4 h-4" /> Open</a>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="pt-2">
+        <button onClick={deleteHotel} disabled={deleting} className="inline-flex items-center gap-1.5 text-sm text-red-600 hover:underline">
+          {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />} Delete hotel
+        </button>
       </div>
     </div>
   );

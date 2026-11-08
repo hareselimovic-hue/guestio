@@ -162,6 +162,8 @@ export default function PropertyEditorPage() {
 
   useEffect(() => {
     fetch(`/api/properties/${id}`).then((r) => r.json()).then((prop) => {
+      // Hotels are managed in the hotel panel (guide, rooms, settings)
+      if (prop?.kind === "HOTEL") { router.replace(`/dashboard/hotel?property=${prop.id}&tab=settings`); return; }
       setProperty(prop);
       setOwnerName(prop.ownerName ?? "");
       setOwnerAddress(prop.ownerAddress ?? "");

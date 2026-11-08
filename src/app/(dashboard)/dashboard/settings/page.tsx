@@ -5,7 +5,6 @@ import { Settings, Users, Link2, Copy, Check, Trash2, Plus, Plug, Loader2, Check
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import HotelSettingsCard from "@/components/ReceptionEmail";
 
 interface Member {
   id: string;
@@ -250,7 +249,6 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <HotelSettingsCard />
 
       {!data ? (
         /* ── Create workspace ── */

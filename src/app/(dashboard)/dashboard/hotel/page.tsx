@@ -16,7 +16,7 @@ export default async function HotelPage({ searchParams }: { searchParams: Promis
   const ids = await getManagedHotelIds(session.user.id);
   const hotels = await prisma.property.findMany({
     where: { id: { in: ids } },
-    select: { id: true, name: true, slug: true, reviewUrl: true },
+    select: { id: true, name: true, slug: true, reviewUrl: true, receptionEmail: true, guestRegistrationEnabled: true },
     orderBy: { createdAt: "asc" },
   });
   const { property, tab } = await searchParams;
@@ -31,7 +31,7 @@ export default async function HotelPage({ searchParams }: { searchParams: Promis
           <p className="font-semibold text-[#262626]">You don&apos;t have a hotel yet</p>
           <p className="text-sm text-[#6B6B6B] mt-1">
             Create your hotel to get the hotel guide, room QR codes, reception requests, room service, extras,
-            announcements and guest feedback. An existing property can also be switched to <strong>Hotel</strong> in its settings.
+            announcements and guest feedback.
           </p>
           <Link href="/dashboard/properties/new?kind=hotel" className="inline-block mt-4 text-sm font-semibold text-white bg-[#0F2F61] px-4 py-2 rounded-lg">
             Create your hotel
@@ -42,5 +42,5 @@ export default async function HotelPage({ searchParams }: { searchParams: Promis
   }
 
   const current = hotels.find((h) => h.id === property) ?? hotels[0];
-  return <HotelDashboard hotels={hotels} current={current} initialTab={tab ?? "requests"} />;
+  return <HotelDashboard hotels={hotels} current={current} initialTab={tab === "review" ? "settings" : tab ?? "requests"} />;
 }
