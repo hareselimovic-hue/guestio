@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Home, BarChart2, Settings, MoreHorizontal, CreditCard, ShieldCheck, X, HelpCircle, MessageSquare, ClipboardList, Hotel, Building2 } from "lucide-react";
@@ -25,6 +25,17 @@ export default function BottomNav({ user, showHotel = false, showApartments = tr
   const pathname = usePathname();
   const router = useRouter();
   const [showMore, setShowMore] = useState(false);
+  // Hidden while typing: on phones the keyboard is open and the bar would sit on top of the field
+  const [typing, setTyping] = useState(false);
+  useEffect(() => {
+    const isField = (el: EventTarget | null) =>
+      el instanceof HTMLElement && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || el.isContentEditable);
+    const onIn = (e: FocusEvent) => { if (isField(e.target)) setTyping(true); };
+    const onOut = () => setTimeout(() => setTyping(isField(document.activeElement)), 0);
+    document.addEventListener("focusin", onIn);
+    document.addEventListener("focusout", onOut);
+    return () => { document.removeEventListener("focusin", onIn); document.removeEventListener("focusout", onOut); };
+  }, []);
 
   const isAdmin = user.email === ADMIN_EMAIL;
   // Second slot: Hotel for hotels, otherwise Apartments; Analytics (and Apartments, if both) live in "More"
@@ -42,7 +53,7 @@ export default function BottomNav({ user, showHotel = false, showApartments = tr
   return (
     <>
       {/* Bottom nav bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0F2F61] border-t border-[#1a3d75] flex items-stretch h-16">
+      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0F2F61] border-t border-[#1a3d75] items-stretch h-16 ${typing ? "hidden" : "flex"}`}>
         {barItems.map(({ href, label, icon: Icon }) => {
           const isActive = href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
           return (

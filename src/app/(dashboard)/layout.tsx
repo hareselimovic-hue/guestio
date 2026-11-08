@@ -47,9 +47,11 @@ export default async function DashboardLayout({
     : 0;
 
   return (
-    <div className="flex h-screen bg-[#F7F7F5]">
+    // Phones: the whole document scrolls (an inner scroll box makes iOS misplace the caret
+    // when the keyboard opens). Desktop: fixed-height layout, only <main> scrolls next to the sidebar.
+    <div className="flex min-h-dvh md:h-screen bg-[#F7F7F5]">
       <Sidebar user={session.user} workspaceName={workspace?.name ?? null} showHotel={showHotel} showApartments={showApartments} />
-      <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
+      <main className="flex-1 min-w-0 pb-16 md:pb-0 md:overflow-y-auto">
         {children}
       </main>
       <BottomNav user={session.user} showHotel={showHotel} showApartments={showApartments} />
