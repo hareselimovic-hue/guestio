@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getManagedProperty } from "@/lib/hotel";
+import { cleanRoomName, getManagedProperty, roomToken } from "@/lib/hotel";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,8 @@ function parseRooms(input: string): string[] {
       const [a, b] = [Number(range[1]), Number(range[2])];
       for (let n = Math.min(a, b); n <= Math.max(a, b) && out.length < 300; n++) out.push(String(n));
     } else {
-      out.push(part.slice(0, 30));
+      const name = cleanRoomName(part);
+      if (name) out.push(name);
     }
     if (out.length >= 300) break;
   }
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   const have = new Set(existing.map((e) => e.roomNumber));
   const toCreate = wanted.filter((r) => !have.has(r));
   if (toCreate.length > 0) {
-    await prisma.guestLink.createMany({ data: toCreate.map((roomNumber) => ({ propertyId, roomNumber })) });
+    await prisma.guestLink.createMany({ data: toCreate.map((roomNumber) => ({ propertyId, roomNumber, token: roomToken(roomNumber) })) });
   }
   return NextResponse.json({ created: toCreate.length, skipped: wanted.length - toCreate.length });
 }

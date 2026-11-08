@@ -20,9 +20,10 @@ export async function POST(req: NextRequest) {
   const type = REQUEST_TYPES.includes(body.type) ? (body.type as string) : null;
   if (!type) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
 
-  // Room links know their room; the shared link asks the guest
-  const roomNumber = guestLink?.roomNumber ?? cleanText(body.roomNumber, 20);
-  if (!roomNumber) return NextResponse.json({ error: "Room number is required" }, { status: 400 });
+  // Only room links (QR in the room) can send requests — the general hotel link is public
+  // (Booking messages, websites) and read-only, so nobody can order for a room they're not in
+  const roomNumber = guestLink?.roomNumber;
+  if (!roomNumber) return NextResponse.json({ error: "Scan the QR code in your room to send requests." }, { status: 403 });
 
   let items: { name: string; qty: number; price: number | null }[] | null = null;
   if (type === "ORDER" || type === "BOOKING") {

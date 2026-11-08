@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Megaphone, BellRing, Sparkles, Bath, Wrench, AlarmClock, MessageSquarePlus, UtensilsCrossed,
-  CalendarCheck, Gift, Star, X, Minus, Plus, CheckCircle2, Loader2, ExternalLink, BookOpen, ShoppingBag, BedDouble, Car, MapPin,
+  CalendarCheck, Gift, Star, X, Minus, Plus, CheckCircle2, Loader2, ExternalLink, BookOpen, ShoppingBag, BedDouble, Car, MapPin, QrCode,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -39,7 +39,9 @@ const EN = {
   room: "Room",
   cat: { FOOD: "Food & drink", STAY: "Your stay", TRANSPORT: "Transport", WELLNESS: "Wellness & bookings", TOURS: "Tours & experiences", OCCASIONS: "Special occasions", OTHER: "Other" } as Record<string, string>,
   emailLabel: "Email for updates (optional)",
-  emailHint: "We'll email you when it's on its way. Used only for this request.",
+  emailHint: "We'll only use this email to let you know the status of your request.",
+  scanTitle: "Requests & orders from your room",
+  scanBody: "Scan the QR code in your room to send requests to the reception and order extras — we'll know your room number automatically.",
   myRequests: "My requests",
   status: { NEW: "Received", IN_PROGRESS: "In progress", DONE: "Done", DECLINED: "Not possible" } as Record<string, string>,
   replyFrom: "Reception",
@@ -90,7 +92,9 @@ const STRINGS: Record<string, Strings> = {
     room: "Zimmer",
     cat: { FOOD: "Essen & Getränke", STAY: "Ihr Aufenthalt", TRANSPORT: "Transport", WELLNESS: "Wellness & Reservierungen", TOURS: "Touren & Erlebnisse", OCCASIONS: "Besondere Anlässe", OTHER: "Sonstiges" } as Record<string, string>,
     emailLabel: "E-Mail für Updates (optional)",
-    emailHint: "Wir schreiben Ihnen, sobald es unterwegs ist. Nur für diesen Wunsch verwendet.",
+    emailHint: "Wir verwenden diese E-Mail nur, um Sie über den Status Ihres Wunsches zu informieren.",
+    scanTitle: "Wünsche & Bestellungen aus Ihrem Zimmer",
+    scanBody: "Scannen Sie den QR-Code in Ihrem Zimmer, um Wünsche an die Rezeption zu senden und Extras zu bestellen — Ihre Zimmernummer erkennen wir automatisch.",
     myRequests: "Meine Wünsche",
     status: { NEW: "Erhalten", IN_PROGRESS: "In Bearbeitung", DONE: "Erledigt", DECLINED: "Nicht möglich" } as Record<string, string>,
     replyFrom: "Rezeption",
@@ -132,7 +136,9 @@ const STRINGS: Record<string, Strings> = {
     room: "Oda",
     cat: { FOOD: "Yiyecek & içecek", STAY: "Konaklamanız", TRANSPORT: "Ulaşım", WELLNESS: "Wellness & rezervasyon", TOURS: "Turlar & deneyimler", OCCASIONS: "Özel günler", OTHER: "Diğer" } as Record<string, string>,
     emailLabel: "Güncellemeler için e-posta (isteğe bağlı)",
-    emailHint: "Yola çıktığında size e-posta göndeririz. Yalnızca bu istek için kullanılır.",
+    emailHint: "Bu e-postayı yalnızca isteğinizin durumunu bildirmek için kullanacağız.",
+    scanTitle: "Odanızdan istekler ve siparişler",
+    scanBody: "Resepsiyona istek göndermek ve ekstra sipariş vermek için odanızdaki QR kodu okutun — oda numaranızı otomatik olarak alırız.",
     myRequests: "İsteklerim",
     status: { NEW: "Alındı", IN_PROGRESS: "İşleniyor", DONE: "Tamamlandı", DECLINED: "Mümkün değil" } as Record<string, string>,
     replyFrom: "Resepsiyon",
@@ -174,7 +180,9 @@ const STRINGS: Record<string, Strings> = {
     room: "Camera",
     cat: { FOOD: "Cibo & bevande", STAY: "Il tuo soggiorno", TRANSPORT: "Trasporti", WELLNESS: "Benessere & prenotazioni", TOURS: "Tour & esperienze", OCCASIONS: "Occasioni speciali", OTHER: "Altro" } as Record<string, string>,
     emailLabel: "Email per aggiornamenti (facoltativa)",
-    emailHint: "Ti scriveremo quando è in arrivo. Usata solo per questa richiesta.",
+    emailHint: "Useremo questa email solo per informarti sullo stato della tua richiesta.",
+    scanTitle: "Richieste e ordini dalla tua camera",
+    scanBody: "Scansiona il codice QR nella tua camera per inviare richieste alla reception e ordinare extra — riconosciamo automaticamente il numero della camera.",
     myRequests: "Le mie richieste",
     status: { NEW: "Ricevuta", IN_PROGRESS: "In corso", DONE: "Fatto", DECLINED: "Non possibile" } as Record<string, string>,
     replyFrom: "Reception",
@@ -312,6 +320,8 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
   const [toast, setToast] = useState("");
   const [chip, setChip] = useState("__all");
   const [sentCount, setSentCount] = useState(0); // bumps "My requests" after each send
+  // The general hotel link is read-only; requests and orders only from a room link (QR in the room)
+  const canOrder = !!ctx.roomNumber;
 
   // Food & drink is ordered with a cart; every other category is one request per item
   const menu = services.filter((x) => x.kind === "FOOD");
@@ -336,7 +346,17 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
 
   return (
     <>
-      {view === "reception" && (
+      {view === "reception" && !canOrder && (
+        <div className="bg-white rounded-2xl shadow-sm border-2 border-dashed border-[#0F2F61]/30 px-5 py-5 flex gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#0F2F61]/10 text-[#0F2F61]"><QrCode className="w-5 h-5" /></div>
+          <div>
+            <h2 className="font-bold text-[#262626] text-base leading-tight" style={HEADING}>{s.scanTitle}</h2>
+            <p className="text-sm text-[#6B6B6B] mt-1 leading-relaxed">{s.scanBody}</p>
+          </div>
+        </div>
+      )}
+
+      {view === "reception" && canOrder && (
         <div className="bg-white rounded-2xl shadow-sm border-2 border-[#0F2F61] overflow-hidden">
           <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#0F2F61]/10 text-[#0F2F61]">
@@ -362,7 +382,7 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
         </div>
       )}
 
-      {view === "reception" && <MyRequests ctx={ctx} refreshKey={sentCount} />}
+      {view === "reception" && canOrder && <MyRequests ctx={ctx} refreshKey={sentCount} />}
 
       {view === "extras" && (
         <>
@@ -386,6 +406,16 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
 
           {chips.length === 1 && <p className="text-center text-sm text-[#6B6B6B] py-10">{s.noExtras}</p>}
 
+          {!canOrder && chips.length > 1 && (
+            <div className="bg-white rounded-2xl shadow-sm border-2 border-dashed border-[#0F2F61]/30 px-5 py-5 flex gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#0F2F61]/10 text-[#0F2F61]"><QrCode className="w-5 h-5" /></div>
+              <div>
+                <h2 className="font-bold text-[#262626] text-base leading-tight" style={HEADING}>{s.scanTitle}</h2>
+                <p className="text-sm text-[#6B6B6B] mt-1 leading-relaxed">{s.scanBody}</p>
+              </div>
+            </div>
+          )}
+
           {/* Room service */}
           {menu.length > 0 && show("FOOD") && (
             <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
@@ -407,7 +437,7 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
                           {m.description && <p className="text-xs text-[#6B6B6B] leading-snug mt-0.5">{m.description}</p>}
                           {m.price !== null && <p className="text-xs font-semibold text-[#0F2F61] mt-1">{km(m.price)}</p>}
                         </div>
-                        {cart[m.id] ? (
+                        {!canOrder ? null : cart[m.id] ? (
                           <div className="flex items-center gap-2 shrink-0">
                             <button aria-label="−" onClick={() => setCart((c) => ({ ...c, [m.id]: c[m.id] - 1 }))} className="w-8 h-8 rounded-full border border-[#EDEDE9] flex items-center justify-center text-[#0F2F61]"><Minus className="w-3.5 h-3.5" /></button>
                             <span className="w-4 text-center text-sm font-bold text-[#262626]">{cart[m.id]}</span>
@@ -438,7 +468,7 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
                 items={services.filter((x) => x.kind === c)}
                 action={ASKS_GUESTS.has(c) ? s.book : s.request}
                 s={s}
-                onPick={(item) => setPending({ kind: "item", item })}
+                onPick={canOrder ? (item) => setPending({ kind: "item", item }) : undefined}
               />
             );
           })}
@@ -567,7 +597,7 @@ export function HotelTabBar({ tab, onChange, lang }: { tab: HotelTab; onChange: 
 }
 
 function ServiceListCard({ title, icon, tone, items, action, onPick, s }: {
-  s: Strings; title: string; icon: React.ReactNode; tone: string; items: HotelServiceItem[]; action: string; onPick: (i: HotelServiceItem) => void;
+  s: Strings; title: string; icon: React.ReactNode; tone: string; items: HotelServiceItem[]; action: string; onPick?: (i: HotelServiceItem) => void;
 }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
@@ -587,9 +617,11 @@ function ServiceListCard({ title, icon, tone, items, action, onPick, s }: {
                 </p>
               )}
             </div>
-            <button onClick={() => onPick(it)} className="shrink-0 text-xs font-semibold text-white bg-[#0F2F61] hover:bg-[#0a2347] rounded-full px-3.5 py-1.5">
-              {action}
-            </button>
+            {onPick && (
+              <button onClick={() => onPick(it)} className="shrink-0 text-xs font-semibold text-white bg-[#0F2F61] hover:bg-[#0a2347] rounded-full px-3.5 py-1.5">
+                {action}
+              </button>
+            )}
           </div>
         ))}
       </div>

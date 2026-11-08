@@ -6,7 +6,7 @@ import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 import {
   BellRing, DoorOpen, UtensilsCrossed, Megaphone, Star, Loader2, Trash2, Download, Printer,
-  ExternalLink, RefreshCw, Eye, EyeOff, Copy, Check, BookOpen, QrCode, X,
+  ExternalLink, RefreshCw, Eye, EyeOff, Copy, Check, BookOpen, QrCode, X, AlertTriangle,
 } from "lucide-react";
 import SectionEditor, { SectionForm } from "@/components/SectionEditor";
 
@@ -91,8 +91,8 @@ export default function HotelDashboard({ hotels, current, initialTab }: { hotels
           )}
         </div>
         <div className="flex gap-2">
-          <a href={`/g/${current.slug}/preview`} target="_blank" className="inline-flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] border border-[#EDEDE9] bg-white px-3 py-1.5 rounded-lg">
-            <ExternalLink className="w-3.5 h-3.5" /> Guest view
+          <a href={`/g/${current.slug}`} target="_blank" title="The general hotel link: guide only — requests and orders work from the room QR codes" className="inline-flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] border border-[#EDEDE9] bg-white px-3 py-1.5 rounded-lg">
+            <ExternalLink className="w-3.5 h-3.5" /> Open general hotel link
           </a>
           <Link href={`/dashboard/properties/${current.id}`} className="inline-flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] border border-[#EDEDE9] bg-white px-3 py-1.5 rounded-lg">
             Property settings
@@ -243,9 +243,24 @@ type GuideSection = { id: string; type: string; title: string; content: Record<s
 
 function GuideTab({ propertyId }: { propertyId: string }) {
   const [sections, setSections] = useState<GuideSection[] | null>(null);
+  const [overrides, setOverrides] = useState<Record<string, string[]>>({});
+  const [resetting, setResetting] = useState<string | null>(null);
   useEffect(() => {
     fetch(`/api/properties/${propertyId}`).then((r) => r.json()).then((p) => setSections(p.sections ?? []));
   }, [propertyId]);
+  const loadOverrides = useCallback(() => {
+    fetch(`/api/hotel/${propertyId}/overrides`).then((r) => (r.ok ? r.json() : {})).then(setOverrides);
+  }, [propertyId]);
+  useEffect(() => { loadOverrides(); }, [loadOverrides]);
+
+  async function followHotel(sectionId: string, title: string) {
+    if (!confirm(`All rooms will show the hotel version of “${title}” again. Their own version will be deleted. Continue?`)) return;
+    setResetting(sectionId);
+    await fetch(`/api/hotel/${propertyId}/overrides?sectionId=${sectionId}`, { method: "DELETE" });
+    setResetting(null);
+    loadOverrides();
+  }
+  const custom = (sections ?? []).filter((sec) => overrides[sec.id]?.length);
 
   if (!sections) return <Spinner />;
   return (
@@ -254,6 +269,26 @@ function GuideTab({ propertyId }: { propertyId: string }) {
         The general guide for the whole hotel: check-in, Wi-Fi, location, house rules, recommendations… Every room shows this, unless you change a section for a specific room under Rooms.
         For check-in choose <strong>Personal welcome</strong> (reception).
       </p>
+      {custom.length > 0 && (
+        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+          <p className="flex items-center gap-2 text-sm font-semibold text-amber-900">
+            <AlertTriangle className="w-4 h-4 shrink-0" /> Some rooms have their own version — changes here won’t reach them
+          </p>
+          <ul className="mt-2 space-y-1.5">
+            {custom.map((sec) => {
+              const rooms = overrides[sec.id];
+              return (
+                <li key={sec.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-amber-900">
+                  <span><strong>{sec.title}</strong> — {rooms.length === 1 ? "room" : "rooms"} {rooms.join(", ")}</span>
+                  <button onClick={() => followHotel(sec.id, sec.title)} disabled={resetting === sec.id} className="text-xs font-medium text-[#0F2F61] border border-[#0F2F61]/30 bg-white rounded-lg px-2.5 py-1 inline-flex items-center gap-1">
+                    {resetting === sec.id && <Loader2 className="w-3 h-3 animate-spin" />} Make {rooms.length === 1 ? "it" : "them"} follow the hotel
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
       <SectionEditor sections={sections} propertyId={propertyId} onUpdate={setSections} />
     </div>
   );
@@ -760,7 +795,7 @@ function AnnouncementsTab({ propertyId, slug }: { propertyId: string; slug: stri
               </div>
             );
           })}
-          <a href={`/g/${slug}/preview`} target="_blank" className="inline-flex items-center gap-1.5 text-sm text-[#0F2F61] hover:underline mt-1">
+          <a href={`/g/${slug}`} target="_blank" className="inline-flex items-center gap-1.5 text-sm text-[#0F2F61] hover:underline mt-1">
             <ExternalLink className="w-3.5 h-3.5" /> See it as a guest
           </a>
         </div>

@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import Anthropic from "@anthropic-ai/sdk";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
@@ -28,6 +29,21 @@ export const REQUEST_LABEL: Record<string, string> = {
   ORDER: "Narudžba",
   BOOKING: "Rezervacija",
 };
+
+/** "Room 101" / "Soba 101" → "101" (the guide already says "Room") */
+export function cleanRoomName(raw: string) {
+  return raw.trim().replace(/^(room|soba|zimmer|camera|oda)\s*/i, "").trim().slice(0, 30);
+}
+
+/**
+ * Room link token: readable room number + short random suffix, e.g. "101-k7x2".
+ * The suffix keeps links unguessable — a room link is what lets a guest send requests for that room.
+ */
+export function roomToken(room: string) {
+  const base = room.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 20) || "room";
+  const suffix = randomBytes(6).toString("base64url").replace(/[^a-zA-Z0-9]/g, "").slice(0, 4).toLowerCase();
+  return `${base}-${suffix}`;
+}
 
 /** A property the signed-in user may manage (same rule as the property editor) */
 export async function getManagedProperty(userId: string, propertyId: string) {
