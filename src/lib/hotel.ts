@@ -12,7 +12,8 @@ export async function userCanUseHotels(user: { id: string; email: string }) {
   return !!u?.hotelAccess;
 }
 
-export const SERVICE_KINDS = ["SERVICE", "MENU", "FACILITY"] as const;
+/** Fixed service categories (Food & drink is ordered with a cart; the others are one request per item) */
+export const SERVICE_KINDS = ["FOOD", "STAY", "TRANSPORT", "WELLNESS", "TOURS", "OCCASIONS", "OTHER"] as const;
 export const REQUEST_TYPES = ["HOUSEKEEPING", "TOWELS", "ISSUE", "WAKEUP", "OTHER", "ORDER", "BOOKING"] as const;
 export const REQUEST_STATUSES = ["NEW", "IN_PROGRESS", "DONE", "DECLINED"] as const;
 export const GUEST_LANGS = ["EN", "DE", "TR", "IT"] as const;

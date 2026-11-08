@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Megaphone, BellRing, Sparkles, Bath, Wrench, AlarmClock, MessageSquarePlus, UtensilsCrossed,
-  CalendarCheck, Gift, Star, X, Minus, Plus, CheckCircle2, Loader2, ExternalLink, BookOpen, ShoppingBag,
+  CalendarCheck, Gift, Star, X, Minus, Plus, CheckCircle2, Loader2, ExternalLink, BookOpen, ShoppingBag, BedDouble, Car, MapPin,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -37,6 +37,7 @@ type Strings = typeof EN;
 
 const EN = {
   room: "Room",
+  cat: { FOOD: "Food & drink", STAY: "Your stay", TRANSPORT: "Transport", WELLNESS: "Wellness & bookings", TOURS: "Tours & experiences", OCCASIONS: "Special occasions", OTHER: "Other" } as Record<string, string>,
   emailLabel: "Email for updates (optional)",
   emailHint: "We'll email you when it's on its way. Used only for this request.",
   myRequests: "My requests",
@@ -87,6 +88,7 @@ const STRINGS: Record<string, Strings> = {
   EN,
   DE: {
     room: "Zimmer",
+    cat: { FOOD: "Essen & Getränke", STAY: "Ihr Aufenthalt", TRANSPORT: "Transport", WELLNESS: "Wellness & Reservierungen", TOURS: "Touren & Erlebnisse", OCCASIONS: "Besondere Anlässe", OTHER: "Sonstiges" } as Record<string, string>,
     emailLabel: "E-Mail für Updates (optional)",
     emailHint: "Wir schreiben Ihnen, sobald es unterwegs ist. Nur für diesen Wunsch verwendet.",
     myRequests: "Meine Wünsche",
@@ -128,6 +130,7 @@ const STRINGS: Record<string, Strings> = {
   },
   TR: {
     room: "Oda",
+    cat: { FOOD: "Yiyecek & içecek", STAY: "Konaklamanız", TRANSPORT: "Ulaşım", WELLNESS: "Wellness & rezervasyon", TOURS: "Turlar & deneyimler", OCCASIONS: "Özel günler", OTHER: "Diğer" } as Record<string, string>,
     emailLabel: "Güncellemeler için e-posta (isteğe bağlı)",
     emailHint: "Yola çıktığında size e-posta göndeririz. Yalnızca bu istek için kullanılır.",
     myRequests: "İsteklerim",
@@ -169,6 +172,7 @@ const STRINGS: Record<string, Strings> = {
   },
   IT: {
     room: "Camera",
+    cat: { FOOD: "Cibo & bevande", STAY: "Il tuo soggiorno", TRANSPORT: "Trasporti", WELLNESS: "Benessere & prenotazioni", TOURS: "Tour & esperienze", OCCASIONS: "Occasioni speciali", OTHER: "Altro" } as Record<string, string>,
     emailLabel: "Email per aggiornamenti (facoltativa)",
     emailHint: "Ti scriveremo quando è in arrivo. Usata solo per questa richiesta.",
     myRequests: "Le mie richieste",
@@ -273,9 +277,23 @@ const inputCls = "w-full border border-[#EDEDE9] rounded-xl px-3.5 py-3 text-sm 
 
 type Pending =
   | { kind: "quick"; type: string }
-  | { kind: "service"; item: HotelServiceItem }
-  | { kind: "facility"; item: HotelServiceItem }
+  | { kind: "item"; item: HotelServiceItem }
   | { kind: "order" };
+
+// Fixed service categories — the category decides how a guest orders
+const CATEGORY_ORDER = ["FOOD", "STAY", "TRANSPORT", "WELLNESS", "TOURS", "OCCASIONS", "OTHER"];
+const CATEGORY_LOOK: Record<string, { icon: typeof Gift; tone: string }> = {
+  FOOD: { icon: UtensilsCrossed, tone: "bg-rose-50 text-rose-600" },
+  STAY: { icon: BedDouble, tone: "bg-sky-50 text-sky-600" },
+  TRANSPORT: { icon: Car, tone: "bg-slate-100 text-slate-600" },
+  WELLNESS: { icon: CalendarCheck, tone: "bg-emerald-50 text-emerald-600" },
+  TOURS: { icon: MapPin, tone: "bg-orange-50 text-orange-600" },
+  OCCASIONS: { icon: Gift, tone: "bg-pink-50 text-pink-600" },
+  OTHER: { icon: Gift, tone: "bg-amber-50 text-amber-600" },
+};
+/** Asks for a date/time (and number of guests) when booking items of these categories */
+const ASKS_WHEN = new Set(["TRANSPORT", "WELLNESS", "TOURS"]);
+const ASKS_GUESTS = new Set(["WELLNESS", "TOURS"]);
 
 const QUICK = [
   { type: "HOUSEKEEPING", icon: Sparkles },
@@ -295,21 +313,18 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
   const [chip, setChip] = useState("__all");
   const [sentCount, setSentCount] = useState(0); // bumps "My requests" after each send
 
-  const menu = services.filter((x) => x.kind === "MENU");
-  const extras = services.filter((x) => x.kind === "SERVICE");
-  const facilities = services.filter((x) => x.kind === "FACILITY");
-  const menuGroups = [...new Set(menu.map((m) => m.category ?? ""))];
-  const extraGroups = [...new Set(extras.map((x) => x.category ?? ""))];
+  // Food & drink is ordered with a cart; every other category is one request per item
+  const menu = services.filter((x) => x.kind === "FOOD");
+  const groups = CATEGORY_ORDER.filter((c) => c !== "FOOD" && services.some((x) => x.kind === c));
   const cartItems = menu.filter((m) => cart[m.id]);
   const cartCount = cartItems.reduce((n, m) => n + cart[m.id], 0);
   const cartTotal = cartItems.reduce((sum, m) => sum + (m.price ?? 0) * cart[m.id], 0);
 
-  // Extras tab: category chips (room service, the hotel's own categories, bookings)
+  // Extras tab: one chip per category the hotel actually offers
   const chips = [
     { key: "__all", label: s.all },
-    ...(menu.length ? [{ key: "__menu", label: s.menuTitle }] : []),
-    ...extraGroups.map((g) => ({ key: `svc:${g}`, label: g || s.extrasShort })),
-    ...(facilities.length ? [{ key: "__book", label: s.facilitiesTitle }] : []),
+    ...(menu.length ? [{ key: "FOOD", label: s.cat.FOOD }] : []),
+    ...groups.map((c) => ({ key: c, label: s.cat[c] })),
   ];
   const show = (key: string) => chip === "__all" || chip === key;
 
@@ -372,22 +387,20 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
           {chips.length === 1 && <p className="text-center text-sm text-[#6B6B6B] py-10">{s.noExtras}</p>}
 
           {/* Room service */}
-          {menu.length > 0 && show("__menu") && (
+          {menu.length > 0 && show("FOOD") && (
             <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
               <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-rose-50 text-rose-600">
                   <UtensilsCrossed className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-[#262626] text-base leading-tight" style={HEADING}>{s.menuTitle}</h2>
+                  <h2 className="font-bold text-[#262626] text-base leading-tight" style={HEADING}>{s.cat.FOOD}</h2>
                   <p className="text-xs text-[#9B9B9B] mt-0.5">{s.menuSub}</p>
                 </div>
               </div>
               <div className="px-5 py-3">
-                {menuGroups.map((group) => (
-                  <div key={group} className="py-2">
-                    {group && <p className="text-xs font-bold uppercase tracking-wide text-[#9B9B9B] mb-1">{group}</p>}
-                    {menu.filter((m) => (m.category ?? "") === group).map((m) => (
+                <div className="py-2">
+                    {menu.map((m) => (
                       <div key={m.id} className="flex items-center gap-3 py-2.5 border-b border-[#F5F5F2] last:border-b-0">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-[#262626]">{m.name}</p>
@@ -407,38 +420,28 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
                         )}
                       </div>
                     ))}
-                  </div>
-                ))}
+                </div>
               </div>
             </div>
           )}
 
-          {/* Extras, grouped by the hotel's own categories */}
-          {extraGroups.filter((g) => show(`svc:${g}`)).map((g) => (
-            <ServiceListCard
-              key={g}
-              title={g || s.extrasTitle}
-              icon={<Gift className="w-5 h-5" />}
-              tone="bg-amber-50 text-amber-600"
-              items={extras.filter((x) => (x.category ?? "") === g)}
-              action={s.request}
-              s={s}
-              onPick={(item) => setPending({ kind: "service", item })}
-            />
-          ))}
-
-          {/* Facilities */}
-          {facilities.length > 0 && show("__book") && (
-            <ServiceListCard
-              title={s.facilitiesTitle}
-              icon={<CalendarCheck className="w-5 h-5" />}
-              tone="bg-emerald-50 text-emerald-600"
-              items={facilities}
-              action={s.book}
-              s={s}
-              onPick={(item) => setPending({ kind: "facility", item })}
-            />
-          )}
+          {/* Every other category: one card each */}
+          {groups.filter((c) => show(c)).map((c) => {
+            const look = CATEGORY_LOOK[c];
+            const Icon = look.icon;
+            return (
+              <ServiceListCard
+                key={c}
+                title={s.cat[c]}
+                icon={<Icon className="w-5 h-5" />}
+                tone={look.tone}
+                items={services.filter((x) => x.kind === c)}
+                action={ASKS_GUESTS.has(c) ? s.book : s.request}
+                s={s}
+                onPick={(item) => setPending({ kind: "item", item })}
+              />
+            );
+          })}
 
           {/* Floating cart above the tab bar */}
           {cartCount > 0 && !pending && (
@@ -616,8 +619,8 @@ function RequestSheet({ ctx, pending, cartItems, cartTotal, onClose, onDone }: {
     pending.kind === "quick" ? s.quick[pending.type]
     : pending.kind === "order" ? s.orderToRoom
     : pending.item.name;
-  const askWhen = (pending.kind === "quick" && pending.type === "WAKEUP") || pending.kind === "facility" || pending.kind === "service";
-  const askGuests = pending.kind === "facility";
+  const askWhen = (pending.kind === "quick" && pending.type === "WAKEUP") || (pending.kind === "item" && ASKS_WHEN.has(pending.item.kind));
+  const askGuests = pending.kind === "item" && ASKS_GUESTS.has(pending.item.kind);
 
   async function submit() {
     if (!room.trim()) { setError(s.yourRoom); return; }
@@ -658,7 +661,7 @@ function RequestSheet({ ctx, pending, cartItems, cartTotal, onClose, onDone }: {
             </div>
           </div>
         )}
-        {(pending.kind === "service" || pending.kind === "facility") && pending.item.description && (
+        {pending.kind === "item" && pending.item.description && (
           <p className="text-sm text-[#6B6B6B]">{pending.item.description}</p>
         )}
 

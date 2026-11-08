@@ -6,7 +6,7 @@ import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 import {
   BellRing, DoorOpen, UtensilsCrossed, Megaphone, Star, Loader2, Trash2, Download, Printer,
-  ExternalLink, RefreshCw, Gift, CalendarCheck, Eye, EyeOff, Copy, Check, BookOpen, QrCode, X,
+  ExternalLink, RefreshCw, Eye, EyeOff, Copy, Check, BookOpen, QrCode, X,
 } from "lucide-react";
 import SectionEditor, { SectionForm } from "@/components/SectionEditor";
 
@@ -33,7 +33,7 @@ const TABS = [
   { key: "requests", label: "Requests", icon: BellRing },
   { key: "guide", label: "Hotel guide", icon: BookOpen },
   { key: "rooms", label: "Rooms", icon: DoorOpen },
-  { key: "services", label: "Services & menu", icon: UtensilsCrossed },
+  { key: "services", label: "Services", icon: UtensilsCrossed },
   { key: "announcements", label: "Announcements", icon: Megaphone },
   { key: "review", label: "Google review", icon: Star },
 ] as const;
@@ -554,102 +554,102 @@ function ApplyModal({ hotelId, roomId, sectionId, sectionTitle, rooms, onClose }
   );
 }
 
-// ─── Services & menu ─────────────────────────────────────────────────────────
+// ─── Services ────────────────────────────────────────────────────────────────
 
-const KIND_META: Record<string, { title: string; hint: string; icon: typeof Gift; action: string }> = {
-  SERVICE: { title: "Extras", hint: "Breakfast, late check-out, airport transfer, tours… Group them with categories (Transport, Food & drink, Wellness) — guests browse them as tabs under Extras.", icon: Gift, action: "extra" },
-  MENU: { title: "Room service menu", hint: "Guests add items to an order that goes to the reception. Use categories to group (Breakfast, Drinks…).", icon: UtensilsCrossed, action: "menu item" },
-  FACILITY: { title: "Bookings", hint: "Spa, sauna, restaurant table, meeting room… Guests pick a date/time and number of guests.", icon: CalendarCheck, action: "facility" },
-};
+// Fixed categories; the category decides how guests order (see HotelGuest.tsx)
+const CATEGORIES: { key: string; label: string; how: string }[] = [
+  { key: "FOOD", label: "Food & drink", how: "Guests add items to a cart and order to the room — breakfast, meals, drinks." },
+  { key: "STAY", label: "Your stay", how: "One tap + note — late check-out, early check-in, extra bed, baby cot." },
+  { key: "TRANSPORT", label: "Transport", how: "Guest picks date & time — airport transfer, parking, car rental." },
+  { key: "WELLNESS", label: "Wellness & bookings", how: "Guest picks date, time and number of guests — spa, sauna, restaurant table." },
+  { key: "TOURS", label: "Tours & experiences", how: "Guest picks date and number of guests — city tour, day trips." },
+  { key: "OCCASIONS", label: "Special occasions", how: "One tap + note — flowers, cake, sparkling wine in the room." },
+  { key: "OTHER", label: "Other", how: "One tap + note." },
+];
+const CATEGORY_LABEL = Object.fromEntries(CATEGORIES.map((c) => [c.key, c.label]));
 
 function ServicesTab({ propertyId }: { propertyId: string }) {
   const [items, setItems] = useState<Service[] | null>(null);
+  const [form, setForm] = useState({ kind: "FOOD", name: "", description: "", price: "", priceNote: "" });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
   const load = useCallback(async () => {
     const res = await fetch(`/api/hotel/${propertyId}/services`);
     if (res.ok) setItems(await res.json());
   }, [propertyId]);
   useEffect(() => { load(); }, [load]);
 
-  if (!items) return <Spinner />;
-  return (
-    <div className="space-y-6">
-      <p className="text-sm text-[#6B6B6B]">Guests see these exactly as written — write names and descriptions in English.</p>
-      {(["SERVICE", "MENU", "FACILITY"] as const).map((kind) => (
-        <ServiceGroup key={kind} kind={kind} propertyId={propertyId} items={items.filter((i) => i.kind === kind)} reload={load} />
-      ))}
-    </div>
-  );
-}
-
-function ServiceGroup({ kind, propertyId, items, reload }: { kind: string; propertyId: string; items: Service[]; reload: () => void }) {
-  const meta = KIND_META[kind];
-  const [form, setForm] = useState({ name: "", description: "", price: "", priceNote: "", category: "" });
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const Icon = meta.icon;
-
   async function add() {
     setBusy(true); setError("");
-    const res = await fetch(`/api/hotel/${propertyId}/services`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, ...form }) });
+    const res = await fetch(`/api/hotel/${propertyId}/services`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
     setBusy(false);
     if (!res.ok) { setError((await res.json()).error ?? "Error"); return; }
-    setForm({ name: "", description: "", price: "", priceNote: "", category: kind === "FACILITY" ? "" : form.category });
-    reload();
+    setForm({ ...form, name: "", description: "", price: "", priceNote: "" }); // keep the category for the next item
+    load();
   }
   async function toggle(s: Service) {
     await fetch(`/api/hotel/${propertyId}/services`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: s.id, active: !s.active }) });
-    reload();
+    load();
   }
   async function remove(s: Service) {
     if (!confirm(`Delete “${s.name}”?`)) return;
     await fetch(`/api/hotel/${propertyId}/services?id=${s.id}`, { method: "DELETE" });
-    reload();
+    load();
   }
 
+  if (!items) return <Spinner />;
+  const how = CATEGORIES.find((c) => c.key === form.kind)?.how;
+  const used = CATEGORIES.filter((c) => items.some((i) => i.kind === c.key));
+
   return (
-    <div className={`${card} overflow-hidden`}>
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
-        <Icon className="w-5 h-5 text-[#0F2F61]" />
-        <div>
-          <p className="font-semibold text-[#262626]">{meta.title}</p>
-          <p className="text-xs text-[#6B6B6B]">{meta.hint}</p>
-        </div>
-      </div>
-      {items.length > 0 && (
-        <ul className="divide-y divide-[#F5F5F2]">
-          {items.map((s) => (
-            <li key={s.id} className={`flex items-center gap-3 px-5 py-3 ${s.active ? "" : "opacity-50"}`}>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-[#262626]">
-                  {s.category && <span className="text-[#9B9B9B] font-normal">{s.category} · </span>}{s.name}
-                </p>
-                {s.description && <p className="text-xs text-[#6B6B6B] truncate">{s.description}</p>}
-              </div>
-              <p className="text-sm text-[#0F2F61] font-medium shrink-0">
-                {s.price === null ? "—" : s.price === 0 ? "Free" : km(s.price)}
-                {s.priceNote && <span className="text-xs text-[#9B9B9B] font-normal"> {s.priceNote}</span>}
-              </p>
-              <button onClick={() => toggle(s)} title={s.active ? "Hide from guests" : "Show to guests"} className="text-[#6B6B6B] hover:text-[#0F2F61]">
-                {s.active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-              </button>
-              <button onClick={() => remove(s)} title="Delete" className="text-[#6B6B6B] hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
-            </li>
-          ))}
-        </ul>
-      )}
-      <div className="px-5 py-4 bg-[#FAFAF8] border-t border-[#F0F0EE]">
+    <div className="space-y-6">
+      <div className={`${card} p-5`}>
+        <p className="font-semibold text-[#262626]">Add a service</p>
+        <p className="text-sm text-[#6B6B6B] mt-0.5 mb-3">
+          Everything guests can order or book. Guests see it under <strong>Extras</strong>, one tab per category. Write names and descriptions in English.
+        </p>
         <div className="grid grid-cols-1 sm:grid-cols-6 gap-2">
-          {kind !== "FACILITY" && <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder={kind === "MENU" ? "Category, e.g. Breakfast" : "Category, e.g. Transport"} className={`${input} sm:col-span-2`} />}
-          <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" className={`${input} ${kind !== "FACILITY" ? "sm:col-span-4" : "sm:col-span-6"}`} />
+          <select value={form.kind} onChange={(e) => setForm({ ...form, kind: e.target.value })} className={`${input} sm:col-span-2`}>
+            {CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
+          </select>
+          <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name, e.g. Airport transfer" className={`${input} sm:col-span-4`} />
           <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Short description (optional)" className={`${input} sm:col-span-6`} />
           <input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Price KM (empty = on request, 0 = free)" inputMode="decimal" className={`${input} sm:col-span-3`} />
           <input value={form.priceNote} onChange={(e) => setForm({ ...form, priceNote: e.target.value })} placeholder="Price note, e.g. per person" className={`${input} sm:col-span-3`} />
         </div>
+        {how && <p className="text-xs text-[#6B6B6B] mt-2">{how}</p>}
         {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
         <button onClick={add} disabled={busy || !form.name.trim()} className={`${btnPrimary} mt-3`}>
-          {busy && <Loader2 className="w-4 h-4 animate-spin" />} Add {meta.action}
+          {busy && <Loader2 className="w-4 h-4 animate-spin" />} Add service
         </button>
       </div>
+
+      {items.length === 0 ? (
+        <div className={`${card} p-8 text-center text-sm text-[#6B6B6B]`}>No services yet. Start with breakfast or an airport transfer.</div>
+      ) : used.map((c) => (
+        <div key={c.key} className={`${card} overflow-hidden`}>
+          <p className="px-5 py-3 border-b border-[#F0F0EE] font-semibold text-[#262626]">{c.label}</p>
+          <ul className="divide-y divide-[#F5F5F2]">
+            {items.filter((i) => i.kind === c.key).map((s) => (
+              <li key={s.id} className={`flex items-center gap-3 px-5 py-3 ${s.active ? "" : "opacity-50"}`}>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-[#262626]">{s.name}</p>
+                  {s.description && <p className="text-xs text-[#6B6B6B] truncate">{s.description}</p>}
+                </div>
+                <p className="text-sm text-[#0F2F61] font-medium shrink-0">
+                  {s.price === null ? "—" : s.price === 0 ? "Free" : km(s.price)}
+                  {s.priceNote && <span className="text-xs text-[#9B9B9B] font-normal"> {s.priceNote}</span>}
+                </p>
+                <button onClick={() => toggle(s)} title={s.active ? "Hide from guests" : "Show to guests"} className="text-[#6B6B6B] hover:text-[#0F2F61]">
+                  {s.active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                </button>
+                <button onClick={() => remove(s)} title="Delete" className="text-[#6B6B6B] hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
   );
 }

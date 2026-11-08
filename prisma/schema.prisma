@@ -333,9 +333,9 @@ model HotelService {
   id          String   @id @default(cuid())
   propertyId  String
   property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  // "SERVICE" (extras: breakfast, late checkout, transfer) | "MENU" (room service) | "FACILITY" (spa, restaurant table)
+  // Category: FOOD | STAY | TRANSPORT | WELLNESS | TOURS | OCCASIONS | OTHER (see SERVICE_KINDS in lib/hotel.ts)
   kind        String
-  category    String?  // menu grouping, e.g. "Breakfast", "Drinks"
+  category    String?  // unused since the fixed categories (kept so db push doesn't drop data)
   name        String
   description String?
   price       Float?
