@@ -6,7 +6,7 @@ import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 import {
   BellRing, DoorOpen, UtensilsCrossed, Megaphone, Star, Loader2, Trash2, Download, Printer,
-  ExternalLink, RefreshCw, Eye, EyeOff, Copy, Check, BookOpen, QrCode, X, AlertTriangle, Share2, Settings, ClipboardList,
+  ExternalLink, RefreshCw, Eye, EyeOff, Copy, Check, BookOpen, QrCode, X, AlertTriangle, Share2, Settings, ClipboardList, Clock,
 } from "lucide-react";
 import SectionEditor, { SectionForm } from "@/components/SectionEditor";
 import { ReceptionEmailForm } from "@/components/ReceptionEmail";
@@ -63,6 +63,15 @@ function ago(iso: string) {
   return fmtDateTime(iso);
 }
 
+function when(local: string) {
+  const [d, t] = local.split("T");
+  const day = new Date(`${d}T00:00:00`);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const diff = Math.round((day.getTime() - today.getTime()) / 86400000);
+  const label = diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : day.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  return t ? `${label} ${t.slice(0, 5)}` : label;
+}
+
 const card = "bg-white border border-[#EDEDE9] rounded-2xl";
 const input = "w-full border border-[#EDEDE9] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#0F2F61] bg-white";
 const btnPrimary = "inline-flex items-center justify-center gap-1.5 bg-[#0F2F61] hover:bg-[#0a2347] disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors";
@@ -70,6 +79,17 @@ const btnPrimary = "inline-flex items-center justify-center gap-1.5 bg-[#0F2F61]
 export default function HotelDashboard({ hotels, current, initialTab }: { hotels: HotelRef[]; current: HotelRef; initialTab: string }) {
   const router = useRouter();
   const [tab, setTab] = useState(TABS.some((t) => t.key === initialTab) ? initialTab : "requests");
+  // New-requests badge on the Requests tab (visible from any tab)
+  const [newCount, setNewCount] = useState(0);
+  useEffect(() => {
+    const load = () => fetch(`/api/hotel/requests?propertyId=${current.id}&open=1`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((list: { status: string }[]) => setNewCount(list.filter((x) => x.status === "NEW").length))
+      .catch(() => {});
+    load();
+    const t = setInterval(load, 15000);
+    return () => clearInterval(t);
+  }, [current.id, tab]);
 
   function go(next: { property?: string; tab?: string }) {
     const p = next.property ?? current.id;
@@ -98,16 +118,22 @@ export default function HotelDashboard({ hotels, current, initialTab }: { hotels
         </div>
       </div>
 
-      <div className="flex gap-1 overflow-x-auto overflow-y-hidden overscroll-contain touch-pan-x [scrollbar-width:none] -mx-4 px-4 sm:mx-0 sm:px-0 mb-6 border-b border-[#EDEDE9]">
+      {/* Phones: all 6 tabs visible as a 3×2 grid. From sm up: classic underline tabs */}
+      <div className="grid grid-cols-3 gap-1.5 mb-6 sm:flex sm:gap-1 sm:border-b sm:border-[#EDEDE9]">
         {TABS.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => go({ tab: key })}
-            className={`flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 -mb-px transition-colors ${
-              tab === key ? "border-[#FF6700] text-[#262626]" : "border-transparent text-[#6B6B6B] hover:text-[#262626]"
+            className={`relative flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap rounded-xl sm:rounded-none border sm:border-0 sm:border-b-2 sm:-mb-px transition-colors ${
+              tab === key
+                ? "bg-[#0F2F61] text-white border-[#0F2F61] sm:bg-transparent sm:text-[#262626] sm:border-[#FF6700]"
+                : "bg-white text-[#6B6B6B] border-[#EDEDE9] sm:bg-transparent sm:border-transparent hover:text-[#262626]"
             }`}
           >
             <Icon className="w-4 h-4" /> {label}
+            {key === "requests" && newCount > 0 && (
+              <span className="absolute top-1 right-1 sm:static min-w-5 h-5 px-1.5 rounded-full bg-[#FF6700] text-white text-[11px] font-bold leading-5 text-center">{newCount}</span>
+            )}
           </button>
         ))}
       </div>
@@ -200,7 +226,7 @@ function RequestsTab({ propertyId }: { propertyId: string }) {
                   )}
                   {(r.scheduledFor || r.guests) && (
                     <p className="text-sm text-[#262626] mt-1">
-                      {r.scheduledFor && <>🕐 {r.scheduledFor.replace("T", " ")}</>}{r.scheduledFor && r.guests ? " · " : ""}{r.guests ? `${r.guests} guests` : ""}
+                      {r.scheduledFor && <><Clock className="w-3.5 h-3.5 inline -mt-0.5 mr-1 text-[#6B6B6B]" />{when(r.scheduledFor)}</>}{r.scheduledFor && r.guests ? " · " : ""}{r.guests ? `${r.guests} ${r.guests === 1 ? "guest" : "guests"}` : ""}
                     </p>
                   )}
                   {r.note && <p className="text-sm text-[#262626] mt-1 bg-[#F7F7F5] rounded-lg px-2.5 py-1.5 whitespace-pre-wrap">“{r.note}”</p>}
@@ -216,14 +242,23 @@ function RequestsTab({ propertyId }: { propertyId: string }) {
                     />
                   )}
                   {!finished && (
-                    <div className="flex gap-2 mt-3 flex-wrap">
-                      {r.status === "NEW" && (
-                        <button disabled={busy === r.id} onClick={() => setStatus(r.id, "IN_PROGRESS")} className="text-xs font-semibold bg-[#0F2F61] text-white px-3 py-1.5 rounded-lg disabled:opacity-50">Take it</button>
-                      )}
-                      <button disabled={busy === r.id} onClick={() => setStatus(r.id, "DONE")} className="text-xs font-semibold bg-green-600 text-white px-3 py-1.5 rounded-lg disabled:opacity-50">Done</button>
-                      <button disabled={busy === r.id} onClick={() => setStatus(r.id, "DECLINED")} className="text-xs text-[#6B6B6B] hover:text-red-500 px-2">Decline</button>
-                      {r.status === "IN_PROGRESS" && <span className="text-xs text-amber-600 font-medium self-center">In progress</span>}
-                    </div>
+                    <>
+                      {r.status === "IN_PROGRESS" && <p className="text-xs text-amber-600 font-semibold mt-3">In progress</p>}
+                      <div className={`grid gap-2 mt-3 ${r.status === "NEW" ? "grid-cols-[1fr_1fr_44px]" : "grid-cols-[1fr_44px]"} sm:flex sm:flex-wrap`}>
+                        {r.status === "NEW" && (
+                          <button disabled={busy === r.id} onClick={() => setStatus(r.id, "IN_PROGRESS")} className="h-11 sm:h-9 text-sm font-semibold bg-[#0F2F61] text-white px-4 rounded-xl disabled:opacity-50">Take it</button>
+                        )}
+                        <button disabled={busy === r.id} onClick={() => setStatus(r.id, "DONE")} className="h-11 sm:h-9 text-sm font-semibold bg-green-600 text-white px-4 rounded-xl disabled:opacity-50">Done</button>
+                        <button
+                          disabled={busy === r.id}
+                          onClick={() => { if (confirm("Decline this request? The guest will see it was declined.")) setStatus(r.id, "DECLINED"); }}
+                          title="Decline" aria-label="Decline"
+                          className="h-11 sm:h-9 w-11 sm:w-9 flex items-center justify-center rounded-xl border border-[#EDEDE9] text-[#6B6B6B] hover:text-red-500 hover:border-red-200 disabled:opacity-50"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>

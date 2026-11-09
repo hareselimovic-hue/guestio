@@ -3,7 +3,9 @@
 import React, { useEffect, useRef } from "react";
 import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
-  Copy, Check, ChevronDown, Phone, ParkingSquare, X, ClipboardList, CheckCircle2
+  Copy, Check, ChevronDown, Phone, ParkingSquare, X, ClipboardList, CheckCircle2,
+  Coffee, Sparkles, UtensilsCrossed, Car, PawPrint, Waves, BookOpen, Dumbbell, Baby, Bike,
+  ShoppingBag, Thermometer, Tv, WashingMachine, Trash2, Info, Bus, Luggage, MessageCircle,
 } from "lucide-react";
 import { useState } from "react";
 import GuestChat from "./GuestChat";
@@ -53,6 +55,47 @@ const SECTION_META: Record<string, { icon: React.ReactNode; color: string; bg: s
   PARKING:     { icon: <ParkingSquare className="w-5 h-5" />,   color: "text-slate-600",  bg: "bg-slate-50" },
   CUSTOM:      { icon: <Plus className="w-5 h-5" />,            color: "text-gray-600",   bg: "bg-gray-50" },
 };
+
+// Custom sections get an icon from their title (bs/en/de keywords); fallback: book
+const CUSTOM_ICONS: [RegExp, React.ReactNode, string, string][] = [
+  [/breakfast|doru[čc]ak|fr[üu]hst|restaurant|restoran/i, <Coffee className="w-5 h-5" key="i" />, "text-amber-700", "bg-amber-50"],
+  [/spa|sauna|wellness|massage|masa[žz]/i, <Sparkles className="w-5 h-5" key="i" />, "text-fuchsia-600", "bg-fuchsia-50"],
+  [/pool|bazen|swim/i, <Waves className="w-5 h-5" key="i" />, "text-sky-600", "bg-sky-50"],
+  [/gym|fitness|teretana/i, <Dumbbell className="w-5 h-5" key="i" />, "text-slate-700", "bg-slate-100"],
+  [/facilit|sadr[žz]aj|amenit|ausstattung/i, <Sparkles className="w-5 h-5" key="i" />, "text-indigo-600", "bg-indigo-50"],
+  [/food|hrana|meal|kitchen|kuhinj|dinner|ve[čc]er/i, <UtensilsCrossed className="w-5 h-5" key="i" />, "text-red-600", "bg-red-50"],
+  [/taxi|transfer|airport|aerodrom|car|auto|rent/i, <Car className="w-5 h-5" key="i" />, "text-slate-700", "bg-slate-100"],
+  [/bus|tram|public transport|prevoz/i, <Bus className="w-5 h-5" key="i" />, "text-slate-700", "bg-slate-100"],
+  [/pet|ljubim|dog|pas\b/i, <PawPrint className="w-5 h-5" key="i" />, "text-amber-700", "bg-amber-50"],
+  [/baby|beb|kid|djec|child/i, <Baby className="w-5 h-5" key="i" />, "text-pink-600", "bg-pink-50"],
+  [/bike|bicik/i, <Bike className="w-5 h-5" key="i" />, "text-green-700", "bg-green-50"],
+  [/shop|kupov|market|prodavn/i, <ShoppingBag className="w-5 h-5" key="i" />, "text-orange-600", "bg-orange-50"],
+  [/heat|grija|klima|air ?con|a\/c/i, <Thermometer className="w-5 h-5" key="i" />, "text-red-600", "bg-red-50"],
+  [/tv|television|netflix/i, <Tv className="w-5 h-5" key="i" />, "text-slate-700", "bg-slate-100"],
+  [/wash|ve[šs]|laundry|pranje/i, <WashingMachine className="w-5 h-5" key="i" />, "text-sky-600", "bg-sky-50"],
+  [/trash|garbage|sme[ćc]|otpad/i, <Trash2 className="w-5 h-5" key="i" />, "text-green-700", "bg-green-50"],
+  [/luggage|prtljag|gep[äa]ck/i, <Luggage className="w-5 h-5" key="i" />, "text-slate-700", "bg-slate-100"],
+  [/faq|question|pitanj|info/i, <Info className="w-5 h-5" key="i" />, "text-blue-600", "bg-blue-50"],
+];
+function sectionMeta(type: string, title: string) {
+  if (type !== "CUSTOM") return SECTION_META[type] ?? SECTION_META.CUSTOM;
+  const hit = CUSTOM_ICONS.find(([re]) => re.test(title));
+  return hit
+    ? { icon: hit[1], color: hit[2], bg: hit[3] }
+    : { icon: <BookOpen className="w-5 h-5" />, color: "text-[#0F2F61]", bg: "bg-[#0F2F61]/5" };
+}
+/** Real data under the title when we have it (Wi-Fi name, times, address, phone); else the generic subtitle */
+function sectionSubtitle(type: string, content: Record<string, unknown>, fallback?: string) {
+  const str = (k: string) => (typeof content[k] === "string" ? (content[k] as string).trim() : "");
+  if (type === "WIFI" && str("network")) return str("network");
+  if (type === "CHECKIN" && (str("checkIn") || str("checkOut")))
+    return [str("checkIn") && `Check-in ${str("checkIn")}`, str("checkOut") && `Check-out ${str("checkOut")}`].filter(Boolean).join(" · ");
+  if (type === "LOCATION" && str("address")) return str("address");
+  if (type === "CONTACT" && str("phone")) return str("phone");
+  return fallback;
+}
+
+const ASK_LABEL: Record<string, string> = { EN: "Ask", DE: "Fragen", TR: "Sor", IT: "Chiedi" };
 
 const UI_STRINGS: Record<string, {
   welcome: string; exploreGuide: string; guideSoon: string; guideSoonSub: string;
@@ -251,6 +294,17 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   }
   const showGuide = !hotel || hotelTab === "guide";
 
+  // Hotels: the chat opens from a small "Ask" pill in the header, so no round button covers content above the tab bar
+  const [chatOpen, setChatOpen] = useState(false);
+  const askButton = hotel ? (
+    <button
+      onClick={() => setChatOpen(true)}
+      className="inline-flex items-center gap-1.5 bg-[#FF6700] hover:bg-[#e05c00] text-white text-sm font-semibold px-3 py-1.5 rounded-full shadow-sm"
+    >
+      <MessageCircle className="w-4 h-4" /> {ASK_LABEL[lang] ?? ASK_LABEL.EN}
+    </button>
+  ) : null;
+
   const langSelect = hasTranslations && (
     <select
       value={lang}
@@ -268,7 +322,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 
   return (
     <div
-      className={`min-h-screen bg-[#F7F7F5] ${hotel ? "pb-20 [&_.bottom-6]:bottom-24" : ""}`}
+      className={`min-h-screen bg-[#F7F7F5] ${hotel ? "pb-20" : "pb-24"}`}
       style={{ fontFamily: "Inter, system-ui, sans-serif" }}
     >
 
@@ -283,6 +337,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
               <p className="font-bold text-lg leading-tight truncate" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{property.name}</p>
               {hotel.roomNumber && <p className="text-xs text-white/70">{roomLabel(lang)} {hotel.roomNumber}</p>}
             </div>
+            {askButton}
             {langSelect}
           </div>
         </div>
@@ -385,7 +440,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 
         {/* Language dropdown — top right */}
         {hasTranslations && (
-          <div className="absolute top-4 right-4 z-20">{langSelect}</div>
+          <div className="absolute top-4 right-4 z-20 flex items-center gap-2">{askButton}{langSelect}</div>
         )}
       </div>
 
@@ -524,7 +579,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       </>}
 
       {/* AI Chat */}
-      <GuestChat propertySlug={property.slug} token={token} lang={lang} />
+      <GuestChat propertySlug={property.slug} token={token} lang={lang} hideLauncher={!!hotel} open={chatOpen} onOpenChange={setChatOpen} />
 
       {hotel && <HotelTabBar tab={hotelTab} onChange={changeHotelTab} lang={lang} />}
 
@@ -534,8 +589,9 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 
 function SectionCard({ section, content, ui }: { section: Section; content: Record<string, unknown>; ui: typeof UI_STRINGS["EN"] }) {
   const [open, setOpen] = useState(false);
-  const meta = SECTION_META[section.type] ?? SECTION_META.CUSTOM;
+  const meta = sectionMeta(section.type, section.title);
   const sectionStrings = ui.sections[section.type];
+  const subtitle = sectionSubtitle(section.type, content, sectionStrings?.subtitle);
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
@@ -555,8 +611,8 @@ function SectionCard({ section, content, ui }: { section: Section; content: Reco
             >
               {section.type === "CUSTOM" ? section.title : (sectionStrings?.label ?? section.title)}
             </h2>
-            {sectionStrings?.subtitle && (
-              <p className="text-xs text-[#9B9B9B] font-normal mt-0.5">{sectionStrings.subtitle}</p>
+            {subtitle && (
+              <p className="text-xs text-[#9B9B9B] font-normal mt-0.5 line-clamp-1">{subtitle}</p>
             )}
           </div>
         </div>

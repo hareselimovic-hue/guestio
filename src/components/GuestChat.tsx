@@ -19,10 +19,16 @@ interface Props {
   propertySlug: string;
   token: string;
   lang: string;
+  /** Hotels open the chat from an "Ask" pill in the header instead of the round button */
+  hideLauncher?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export default function GuestChat({ propertySlug, token, lang }: Props) {
-  const [open, setOpen] = useState(false);
+export default function GuestChat({ propertySlug, token, lang, hideLauncher, open: openProp, onOpenChange }: Props) {
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = (o: boolean) => { setOpenState(o); onOpenChange?.(o); };
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -111,7 +117,7 @@ export default function GuestChat({ propertySlug, token, lang }: Props) {
   return (
     <>
       {/* Floating bubble */}
-      {!open && (
+      {!open && !hideLauncher && (
         <button
           onClick={() => setOpen(true)}
           className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#FF6700] hover:bg-[#e05c00] text-white rounded-full shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95"
