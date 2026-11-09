@@ -353,7 +353,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       {showGuide && <>
       {/* ── HERO ── */}
       <div
-        className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+        className={`relative ${hotel ? "min-h-[46svh]" : "min-h-[60svh]"} pt-16 pb-12 flex flex-col items-center justify-center overflow-hidden`}
         style={{
           background: heroImage
             ? `url(${heroImage}) center/cover no-repeat`
@@ -432,20 +432,22 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
         {otherSections.length > 0 && (
           <button
             onClick={scrollToSections}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 hover:text-white/80 transition-colors animate-bounce"
+            className="hidden"
           >
             <ChevronDown className="w-6 h-6" />
           </button>
         )}
 
         {/* Language dropdown — top right */}
-        {hasTranslations && (
+        {(hasTranslations || askButton) && (
           <div className="absolute top-4 right-4 z-20 flex items-center gap-2">{askButton}{langSelect}</div>
         )}
       </div>
 
       {/* ── SECTION CARDS ── */}
-      <div ref={sectionsRef} className="max-w-2xl mx-auto px-4 py-10 space-y-4">
+      <div ref={sectionsRef} className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+
+        <QuickCards sections={sections} lang={lang} isHotel={!!hotel} />
 
         {registrationEnabled && (
           registrationSent ? (
@@ -955,6 +957,64 @@ function TimeBox({ label, value }: { label: string; value: string }) {
       <p className="text-3xl font-bold text-[#0F2F61]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
         {value}
       </p>
+    </div>
+  );
+}
+
+// ─── Quick cards under the hero: only data every guide has; a card is hidden when its data is missing ───
+const QUICK_STRINGS: Record<string, { wifi: string; copyPw: string; copied: string; checkout: string; callReception: string; callHost: string }> = {
+  EN: { wifi: "Wi-Fi", copyPw: "Copy password", copied: "Copied", checkout: "Check-out", callReception: "Call reception", callHost: "Call your host" },
+  DE: { wifi: "WLAN", copyPw: "Passwort kopieren", copied: "Kopiert", checkout: "Check-out", callReception: "Rezeption anrufen", callHost: "Gastgeber anrufen" },
+  TR: { wifi: "WiFi", copyPw: "Şifreyi kopyala", copied: "Kopyalandı", checkout: "Çıkış", callReception: "Resepsiyonu ara", callHost: "Ev sahibini ara" },
+  IT: { wifi: "Wi-Fi", copyPw: "Copia password", copied: "Copiata", checkout: "Check-out", callReception: "Chiama la reception", callHost: "Chiama l'host" },
+};
+
+function QuickCards({ sections, lang, isHotel }: { sections: Section[]; lang: string; isHotel: boolean }) {
+  const t = QUICK_STRINGS[lang] ?? QUICK_STRINGS.EN;
+  const [copied, setCopied] = useState(false);
+  const c = (type: string) => (sections.find((x) => x.type === type)?.content ?? {}) as Record<string, unknown>;
+  const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+  const network = str(c("WIFI").network), password = str(c("WIFI").password);
+  const checkOut = str(c("CHECKIN").checkOut);
+  const phone = str(c("CONTACT").phone);
+  if (!network && !checkOut && !phone) return null;
+
+  const tile = "bg-white rounded-2xl shadow-sm border border-[#EDEDE9] px-3.5 py-3 flex items-center gap-3 min-w-0 text-left active:scale-[0.98] transition";
+  const icon = "w-9 h-9 rounded-xl flex items-center justify-center shrink-0";
+  return (
+    <div className="grid grid-cols-2 gap-2.5">
+      {network && (
+        <button
+          className={`${tile} col-span-2`}
+          onClick={async () => { if (!password) return; await navigator.clipboard.writeText(password); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+        >
+          <span className={`${icon} bg-blue-50 text-blue-600`}><Wifi className="w-5 h-5" /></span>
+          <span className="flex-1 min-w-0">
+            <span className="block text-xs text-[#9B9B9B]">{t.wifi}</span>
+            <span className="block text-sm font-bold text-[#262626] truncate">{network}</span>
+          </span>
+          {password && (
+            <span className={`shrink-0 inline-flex items-center gap-1 text-xs font-semibold rounded-full px-2.5 py-1.5 ${copied ? "bg-green-50 text-green-700" : "bg-[#0F2F61]/5 text-[#0F2F61]"}`}>
+              {copied ? <><Check className="w-3.5 h-3.5" /> {t.copied}</> : <><Copy className="w-3.5 h-3.5" /> {t.copyPw}</>}
+            </span>
+          )}
+        </button>
+      )}
+      {checkOut && (
+        <div className={`${tile} ${phone ? "" : "col-span-2"}`}>
+          <span className={`${icon} bg-amber-50 text-amber-600`}><Key className="w-5 h-5" /></span>
+          <span className="min-w-0">
+            <span className="block text-xs text-[#9B9B9B]">{t.checkout}</span>
+            <span className="block text-sm font-bold text-[#262626]">{checkOut}</span>
+          </span>
+        </div>
+      )}
+      {phone && (
+        <a href={`tel:${phone.replace(/[^+\d]/g, "")}`} className={`${tile} ${checkOut ? "" : "col-span-2"}`}>
+          <span className={`${icon} bg-teal-50 text-teal-600`}><Phone className="w-5 h-5" /></span>
+          <span className="min-w-0 text-sm font-bold text-[#262626] leading-tight">{isHotel ? t.callReception : t.callHost}</span>
+        </a>
+      )}
     </div>
   );
 }
