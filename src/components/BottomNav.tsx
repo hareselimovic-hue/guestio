@@ -53,17 +53,19 @@ export default function BottomNav({ user, showHotel = false, showApartments = tr
   return (
     <>
       {/* Bottom nav bar */}
-      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0F2F61] border-t border-[#1a3d75] items-stretch h-16 ${typing ? "hidden" : "flex"}`}>
+      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#EDEDE9] shadow-[0_-4px_20px_rgba(15,47,97,0.06)] items-stretch h-16 pb-[env(safe-area-inset-bottom)] box-content ${typing ? "hidden" : "flex"}`}>
         {barItems.map(({ href, label, icon: Icon }) => {
           const isActive = href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
           return (
             <Link
               key={href}
               href={href}
-              className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors
-                ${isActive ? "text-[#FF6700]" : "text-[#8ba3c7]"}`}
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors
+                ${isActive ? "text-[#0F2F61]" : "text-[#0F2F61]/55"}`}
             >
-              <Icon className="w-5 h-5" />
+              <span className={`flex items-center justify-center w-14 h-7 rounded-full transition-colors ${isActive ? "bg-[#E7EDF7]" : ""}`}>
+                <Icon className="w-5 h-5" />
+              </span>
               <span>{label}</span>
             </Link>
           );
@@ -72,10 +74,12 @@ export default function BottomNav({ user, showHotel = false, showApartments = tr
         {/* More button */}
         <button
           onClick={() => setShowMore(true)}
-          className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors
-            ${showMore ? "text-[#FF6700]" : "text-[#8ba3c7]"}`}
+          className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors
+            ${showMore ? "text-[#0F2F61]" : "text-[#0F2F61]/55"}`}
         >
-          <MoreHorizontal className="w-5 h-5" />
+          <span className={`flex items-center justify-center w-14 h-7 rounded-full transition-colors ${showMore ? "bg-[#E7EDF7]" : ""}`}>
+            <MoreHorizontal className="w-5 h-5" />
+          </span>
           <span>More</span>
         </button>
       </nav>

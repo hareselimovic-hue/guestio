@@ -63,6 +63,14 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
   const [addingAiContext, setAddingAiContext] = useState(false);
   const [translating, setTranslating] = useState(false);
 
+  // Warn before leaving the page with unsaved changes
+  useEffect(() => {
+    if (dirtyIds.size === 0) return;
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirtyIds.size]);
+
   useEffect(() => {
     if (markDirtyIds && markDirtyIds.length > 0) {
       setDirtyIds((prev) => {
@@ -226,8 +234,11 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
         </>
       )}
 
-      {/* Single save button */}
-      <div className="pt-2 flex items-center justify-end gap-3">
+      {/* Single save button — sticks above the bottom nav while there are unsaved changes */}
+      <div className={`pt-2 flex items-center justify-end gap-3 ${dirtyIds.size > 0 || saving ? "sticky bottom-[76px] md:bottom-4 z-30 bg-white/95 backdrop-blur-sm border border-[#EDEDE9] shadow-lg rounded-2xl px-4 py-3 mt-3" : ""}`}>
+        {dirtyIds.size > 0 && !saving && (
+          <span className="mr-auto text-sm font-medium text-[#FF6700]">Unsaved changes</span>
+        )}
         {translating && (
           <span className="text-xs text-[#6B6B6B] flex items-center gap-1.5">
             <Loader2 className="w-3 h-3 animate-spin" />

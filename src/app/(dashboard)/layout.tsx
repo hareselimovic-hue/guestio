@@ -51,7 +51,7 @@ export default async function DashboardLayout({
     // when the keyboard opens). Desktop: fixed-height layout, only <main> scrolls next to the sidebar.
     <div className="flex min-h-dvh md:h-screen bg-[#F7F7F5]">
       <Sidebar user={session.user} workspaceName={workspace?.name ?? null} showHotel={showHotel} showApartments={showApartments} />
-      <main className="flex-1 min-w-0 pb-16 md:pb-0 md:overflow-y-auto">
+      <main className="flex-1 min-w-0 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0 md:overflow-y-auto">
         {children}
       </main>
       <BottomNav user={session.user} showHotel={showHotel} showApartments={showApartments} />

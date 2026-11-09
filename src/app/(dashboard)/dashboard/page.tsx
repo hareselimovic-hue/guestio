@@ -162,6 +162,11 @@ export default async function DashboardPage() {
     { icon: ClipboardList, value: registrations7d, label: "guest registrations", sub: "last 7 days", href: "/dashboard/registrations" },
   ];
 
+  const issueGroups = [...attention.reduce((m, p) => {
+    for (const issue of p.issues) m.set(issue, [...(m.get(issue) ?? []), { id: p.id, name: p.name }]);
+    return m;
+  }, new Map<string, { id: string; name: string }[]>())].sort((a, b) => b[1].length - a[1].length);
+
   return (
     <div className="p-4 sm:p-8 max-w-6xl">
       <div className="mb-6">
@@ -176,11 +181,11 @@ export default async function DashboardPage() {
           {hotels.length > 0 && <h2 className="text-lg font-semibold text-[#262626] mb-3">Apartments</h2>}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
             {tiles.map(({ icon: Icon, value, label, sub, href }) => (
-              <Link key={label} href={href} className="bg-white rounded-xl p-4 border border-[#EDEDE9] hover:border-[#0F2F61]/40 transition-colors">
+              <Link key={label} href={href} className="bg-white rounded-xl p-4 border border-[#EDEDE9] hover:border-[#0F2F61]/40 active:scale-[0.98] transition">
                 <Icon className="w-4 h-4 mb-2 text-[#0F2F61]" />
                 <p className="text-2xl font-bold text-[#262626] leading-none">{value}</p>
                 <p className="text-sm text-[#262626] mt-1">{label}</p>
-                {sub && <p className="text-xs text-[#9B9B9B] mt-0.5">{sub}</p>}
+                {sub && <p className="text-xs text-[#9B9B9B] mt-0.5 line-clamp-1">{sub}</p>}
               </Link>
             ))}
           </div>
@@ -211,17 +216,26 @@ export default async function DashboardPage() {
                       <ArrowRight className="w-4 h-4 text-[#BABAB5]" />
                     </Link></li>
                   )}
-                  {attention.slice(0, 6).map((p) => (
-                    <li key={p.id}><Link href={`/dashboard/properties/${p.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-[#FAFAF8]">
-                      <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
-                      <span className="flex-1 min-w-0 text-sm">
-                        <span className="font-medium text-[#262626]">{p.name}</span>
-                        <span className="text-[#6B6B6B]"> — {p.issues.join(", ")}</span>
-                      </span>
-                      <span className="text-xs font-semibold text-[#0F2F61] shrink-0">Fix →</span>
-                    </Link></li>
+                  {/* One row per problem, with the apartments that have it */}
+                  {issueGroups.map(([issue, list]) => (
+                    <li key={issue} className="flex gap-3 px-4 py-3">
+                      <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-[#262626]">
+                          <span className="font-medium">{issue.charAt(0).toUpperCase() + issue.slice(1)}</span>
+                          <span className="text-[#9B9B9B]"> · {list.length} {list.length === 1 ? "apartment" : "apartments"}</span>
+                        </p>
+                        <div className="flex flex-wrap gap-1.5 mt-1.5">
+                          {list.slice(0, 5).map((p) => (
+                            <Link key={p.id} href={`/dashboard/properties/${p.id}`} className="text-xs font-medium text-[#0F2F61] bg-[#0F2F61]/5 hover:bg-[#0F2F61]/10 rounded-full px-2.5 py-1 max-w-[180px] truncate">
+                              {p.name} →
+                            </Link>
+                          ))}
+                          {list.length > 5 && <Link href="/dashboard/apartments" className="text-xs text-[#6B6B6B] px-1 py-1">+{list.length - 5} more</Link>}
+                        </div>
+                      </div>
+                    </li>
                   ))}
-                  {attention.length > 6 && <li className="px-4 py-2.5 text-xs text-[#9B9B9B]">+ {attention.length - 6} more — see Apartments</li>}
                 </ul>
               )}
             </div>

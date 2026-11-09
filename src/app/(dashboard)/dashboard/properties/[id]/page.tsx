@@ -470,33 +470,6 @@ export default function PropertyEditorPage() {
          </div>
        </div>
 
-       {/* Mobile delete — kept away from the main actions */}
-       <div className="sm:hidden flex justify-end items-center gap-3 mt-2">
-         {confirmDelete ? (
-           <>
-             <span className="text-xs text-red-500">Delete this property?</span>
-             <button
-               onClick={deleteProperty}
-               disabled={deleting}
-               className="text-xs font-medium text-white bg-red-500 hover:bg-red-600 px-2.5 py-1.5 rounded-lg disabled:opacity-50 transition-colors"
-             >
-               {deleting ? "Deleting..." : "Yes, delete"}
-             </button>
-             <button onClick={() => setConfirmDelete(false)} className="text-xs text-[#6B6B6B]">
-               Cancel
-             </button>
-           </>
-         ) : (
-           <button
-             onClick={() => setConfirmDelete(true)}
-             className="flex items-center gap-1 text-xs text-[#BABAB5] hover:text-red-500 transition-colors"
-           >
-             <Trash2 className="w-3 h-3" />
-             Delete property
-           </button>
-         )}
-       </div>
-
         {/* QR Modal */}
         {showQr && (
           <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowQr(false)}>
@@ -781,6 +754,24 @@ export default function PropertyEditorPage() {
           </Button>
         </div>
       )}
+
+      {/* Phones: delete lives in its own zone at the very bottom, away from everyday actions */}
+      <div className="sm:hidden mt-10 mb-4 border border-red-100 bg-red-50/40 rounded-2xl p-4">
+        <p className="text-sm font-semibold text-red-600">Danger zone</p>
+        <p className="text-xs text-[#6B6B6B] mt-0.5 mb-3">Deleting removes the guide, links and statistics of this property. This can&apos;t be undone.</p>
+        {confirmDelete ? (
+          <div className="flex items-center gap-3">
+            <button onClick={deleteProperty} disabled={deleting} className="h-10 text-sm font-semibold text-white bg-red-500 px-4 rounded-xl disabled:opacity-50">
+              {deleting ? "Deleting..." : "Yes, delete"}
+            </button>
+            <button onClick={() => setConfirmDelete(false)} className="text-sm text-[#6B6B6B]">Cancel</button>
+          </div>
+        ) : (
+          <button onClick={() => setConfirmDelete(true)} className="h-10 inline-flex items-center gap-1.5 text-sm font-medium text-red-600 border border-red-200 bg-white px-4 rounded-xl">
+            <Trash2 className="w-4 h-4" /> Delete property
+          </button>
+        )}
+      </div>
 
     </div>
   );

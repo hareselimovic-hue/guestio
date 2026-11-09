@@ -439,13 +439,14 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
                         </div>
                         {!canOrder ? null : cart[m.id] ? (
                           <div className="flex items-center gap-2 shrink-0">
-                            <button aria-label="−" onClick={() => setCart((c) => ({ ...c, [m.id]: c[m.id] - 1 }))} className="w-8 h-8 rounded-full border border-[#EDEDE9] flex items-center justify-center text-[#0F2F61]"><Minus className="w-3.5 h-3.5" /></button>
+                            <button aria-label="−" onClick={() => setCart((c) => ({ ...c, [m.id]: c[m.id] - 1 }))} className="w-9 h-9 rounded-full border border-[#0F2F61]/30 bg-white flex items-center justify-center text-[#0F2F61] active:scale-95 transition-transform"><Minus className="w-4 h-4" /></button>
                             <span className="w-4 text-center text-sm font-bold text-[#262626]">{cart[m.id]}</span>
-                            <button aria-label="+" onClick={() => setCart((c) => ({ ...c, [m.id]: Math.min(c[m.id] + 1, 20) }))} className="w-8 h-8 rounded-full bg-[#0F2F61] flex items-center justify-center text-white"><Plus className="w-3.5 h-3.5" /></button>
+                            <button aria-label="+" onClick={() => setCart((c) => ({ ...c, [m.id]: Math.min(c[m.id] + 1, 20) }))} className="w-9 h-9 rounded-full bg-[#0F2F61] flex items-center justify-center text-white active:scale-95 transition-transform"><Plus className="w-4 h-4" /></button>
                           </div>
                         ) : (
-                          <button onClick={() => setCart((c) => ({ ...c, [m.id]: 1 }))} className="shrink-0 text-xs font-semibold text-[#0F2F61] border border-[#0F2F61]/30 rounded-full px-3 py-1.5">
-                            {s.addToOrder}
+                          <button onClick={() => setCart((c) => ({ ...c, [m.id]: 1 }))} aria-label={s.addToOrder} title={s.addToOrder}
+                            className="shrink-0 w-9 h-9 rounded-full border border-[#0F2F61]/30 bg-white flex items-center justify-center text-[#0F2F61] hover:bg-[#0F2F61]/5 active:scale-95 transition-transform">
+                            <Plus className="w-4 h-4" />
                           </button>
                         )}
                       </div>
@@ -618,7 +619,7 @@ function ServiceListCard({ title, icon, tone, items, action, onPick, s }: {
               )}
             </div>
             {onPick && (
-              <button onClick={() => onPick(it)} className="shrink-0 text-xs font-semibold text-white bg-[#0F2F61] hover:bg-[#0a2347] rounded-full px-3.5 py-1.5">
+              <button onClick={() => onPick(it)} className="shrink-0 h-9 text-xs font-semibold text-[#0F2F61] bg-white border border-[#0F2F61]/30 hover:bg-[#0F2F61]/5 rounded-full px-3.5 active:scale-95 transition-transform">
                 {action}
               </button>
             )}

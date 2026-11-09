@@ -58,9 +58,9 @@ export default function HotelOverview({ hotel }: { hotel: HotelOverviewData }) {
   }
 
   const tiles = [
-    { icon: BellRing, value: hotel.newRequests, label: "new requests", sub: hotel.inProgress ? `${hotel.inProgress} in progress` : "nothing in progress", href: `${base}&tab=requests`, hot: hotel.newRequests > 0 },
-    { icon: DoorOpen, value: hotel.rooms, label: "rooms", sub: hotel.customRooms ? `${hotel.customRooms} with own info` : "all follow the hotel guide", href: `${base}&tab=rooms` },
-    { icon: Eye, value: hotel.opensToday, label: "guide opens today", sub: `${hotel.opens7d} in 7 days · room QR links`, href: "/dashboard/analytics" },
+    { icon: BellRing, value: hotel.newRequests, label: hotel.newRequests === 1 ? "new request" : "new requests", sub: hotel.inProgress ? `${hotel.inProgress} in progress` : "nothing in progress", href: `${base}&tab=requests`, hot: hotel.newRequests > 0 },
+    { icon: DoorOpen, value: hotel.rooms, label: hotel.rooms === 1 ? "room" : "rooms", sub: hotel.customRooms ? `${hotel.customRooms} with own info` : "all follow the hotel guide", href: `${base}&tab=rooms` },
+    { icon: Eye, value: hotel.opensToday, label: hotel.opensToday === 1 ? "guide open today" : "guide opens today", sub: `${hotel.opens7d} in 7 days · room QR links`, href: "/dashboard/analytics" },
     { icon: Wallet, value: km(hotel.ordered7d), label: "ordered", sub: "extras & room service · 7 days", href: `${base}&tab=requests` },
   ];
 
@@ -77,11 +77,11 @@ export default function HotelOverview({ hotel }: { hotel: HotelOverviewData }) {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         {tiles.map(({ icon: Icon, value, label, sub, href, hot }) => (
-          <Link key={label} href={href} className={`bg-white rounded-xl p-4 border hover:border-[#0F2F61]/40 transition-colors ${hot ? "border-[#FF6700] border-2" : "border-[#EDEDE9]"}`}>
+          <Link key={label} href={href} className={`bg-white rounded-xl p-4 border hover:border-[#0F2F61]/40 active:scale-[0.98] transition ${hot ? "border-[#FF6700] border-2" : "border-[#EDEDE9]"}`}>
             <Icon className={`w-4 h-4 mb-2 ${hot ? "text-[#FF6700]" : "text-[#0F2F61]"}`} />
             <p className="text-2xl font-bold text-[#262626] leading-none">{value}</p>
             <p className="text-sm text-[#262626] mt-1">{label}</p>
-            <p className="text-xs text-[#9B9B9B] mt-0.5">{sub}</p>
+            <p className="text-xs text-[#9B9B9B] mt-0.5 line-clamp-1">{sub}</p>
           </Link>
         ))}
       </div>
