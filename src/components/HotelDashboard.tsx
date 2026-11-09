@@ -330,9 +330,9 @@ function GuideTab({ propertyId }: { propertyId: string }) {
 
 // ─── Rooms ───────────────────────────────────────────────────────────────────
 
-/** Phones: add forms open in a bottom sheet (list first). From sm up the form stays inline, as before. */
+/** Add forms open from a "+ Add" button (list first): bottom sheet on phones, dialog on desktop. */
 function AddSheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
-  // Open (phones only — the + button is hidden from sm up): render on top of everything, incl. the bottom nav
+  // Open: bottom sheet on phones, centered dialog from sm up — on top of everything, incl. the bottom nav
   if (open && typeof document !== "undefined") {
     return createPortal(
       <div className="fixed inset-0 z-[70] bg-black/40 flex items-end sm:items-center sm:justify-center" onClick={onClose}>
@@ -348,17 +348,26 @@ function AddSheet({ open, onClose, title, children }: { open: boolean; onClose: 
     );
   }
   // Closed: hidden on phones, inline form from sm up
-  return <div className="hidden sm:block">{children}</div>;
+  return null;
 }
 
 function AddFab({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <button
-      onClick={onClick}
-      className="sm:hidden fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 inline-flex items-center gap-1.5 bg-[#FF6700] active:scale-95 transition text-white text-sm font-semibold pl-4 pr-5 h-12 rounded-full shadow-lg"
-    >
-      <Plus className="w-5 h-5" /> {label}
-    </button>
+    <>
+      {/* Phones: floating button above the bottom nav */}
+      <button
+        onClick={onClick}
+        className="sm:hidden fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 inline-flex items-center gap-1.5 bg-[#FF6700] active:scale-95 transition text-white text-sm font-semibold pl-4 pr-5 h-12 rounded-full shadow-lg"
+      >
+        <Plus className="w-5 h-5" /> {label}
+      </button>
+      {/* Desktop: button at the top right of the list */}
+      <div className="hidden sm:flex justify-end">
+        <button onClick={onClick} className="inline-flex items-center gap-1.5 bg-[#FF6700] hover:bg-[#e05c00] transition text-white text-sm font-semibold px-4 h-10 rounded-xl shadow-sm">
+          <Plus className="w-4 h-4" /> {label}
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -407,7 +416,7 @@ function RoomsTab({ hotel }: { hotel: HotelRef }) {
       <AddFab label="Add rooms" onClick={() => setAdding(true)} />
       <AddSheet open={adding} onClose={() => setAdding(false)} title="Add rooms">
       <div className={`${card} p-5`}>
-        <p className="font-semibold text-[#262626] hidden sm:block">Add rooms</p>
+        <p className="font-semibold text-[#262626] hidden">Add rooms</p>
         <p className="text-sm text-[#6B6B6B] mt-0.5 mb-3">
           A new room automatically shows everything from the <strong>Hotel guide</strong>. Open a room only to change what&apos;s different there (e.g. Wi-Fi or parking).
         </p>
@@ -421,7 +430,7 @@ function RoomsTab({ hotel }: { hotel: HotelRef }) {
       </div>
       </AddSheet>
 
-      {rooms && rooms.length === 0 && <div className="sm:hidden"><EmptyCard text="No rooms yet. Tap “Add rooms” — e.g. 101-110." /></div>}
+      {rooms && rooms.length === 0 && <EmptyCard text="No rooms yet. Click “Add rooms” — e.g. 101-110." />}
       {!rooms ? <Spinner /> : rooms.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-3">
@@ -770,7 +779,7 @@ function ServicesTab({ propertyId }: { propertyId: string }) {
       <AddFab label="Add service" onClick={() => setAdding(true)} />
       <AddSheet open={adding} onClose={() => setAdding(false)} title="Add a service">
       <div className={`${card} p-5`}>
-        <p className="font-semibold text-[#262626] hidden sm:block">Add a service</p>
+        <p className="font-semibold text-[#262626] hidden">Add a service</p>
         <p className="text-sm text-[#6B6B6B] mt-0.5 mb-3">
           Everything guests can order or book. Guests see it under <strong>Extras</strong>, one tab per category. Write names and descriptions in English.
         </p>
@@ -870,7 +879,7 @@ function AnnouncementsTab({ propertyId, slug }: { propertyId: string; slug: stri
       <AddFab label="New announcement" onClick={() => setAdding(true)} />
       <AddSheet open={adding} onClose={() => setAdding(false)} title="New announcement">
       <div className={`${card} p-5`}>
-        <p className="font-semibold text-[#262626] hidden sm:block">New announcement</p>
+        <p className="font-semibold text-[#262626] hidden">New announcement</p>
         <p className="text-sm text-[#6B6B6B] mt-0.5 mb-3">
           Shown as an orange bar at the top of the guide for every guest. Write it in Bosnian or English — it&apos;s translated automatically to EN, DE, TR and IT.
         </p>
@@ -893,7 +902,7 @@ function AnnouncementsTab({ propertyId, slug }: { propertyId: string; slug: stri
       </div>
       </AddSheet>
 
-      {items && items.length === 0 && <div className="sm:hidden"><EmptyCard text="No announcements. Tap “New announcement” — guests see it as an orange bar at the top of the guide." /></div>}
+      {items && items.length === 0 && <EmptyCard text="No announcements. Click “New announcement” — guests see it as an orange bar at the top of the guide." />}
 
       {!items ? <Spinner /> : items.length > 0 && (
         <div className="space-y-2">

@@ -375,30 +375,6 @@ export default function PropertyEditorPage() {
             Guest link
           </a>
 
-          {/* Delete */}
-          {!confirmDelete ? (
-            <button
-              onClick={() => setConfirmDelete(true)}
-              className="flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-red-500 border border-[#EDEDE9] hover:border-red-200 px-3 py-1.5 rounded-lg transition-colors"
-            >
-              <Trash2 className="w-3.5 h-3.5 shrink-0" />
-              Delete
-            </button>
-          ) : (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-red-500 whitespace-nowrap">Delete property?</span>
-              <button
-                onClick={deleteProperty}
-                disabled={deleting}
-                className="text-xs font-medium text-white bg-red-500 hover:bg-red-600 px-2.5 py-1.5 rounded-lg shrink-0 disabled:opacity-50 transition-colors"
-              >
-                {deleting ? "Deleting..." : "Yes, delete"}
-              </button>
-              <button onClick={() => setConfirmDelete(false)} className="text-xs text-[#6B6B6B] hover:text-[#262626] transition-colors">
-                Cancel
-              </button>
-            </div>
-          )}
         </div>
 
        </div>{/* end flex items-start */}
@@ -755,8 +731,8 @@ export default function PropertyEditorPage() {
         </div>
       )}
 
-      {/* Phones: delete lives in its own zone at the very bottom, away from everyday actions */}
-      <div className="sm:hidden mt-10 mb-4 border border-red-100 bg-red-50/40 rounded-2xl p-4">
+      {/* Delete lives in its own zone at the very bottom, away from everyday actions */}
+      <div className="mt-10 mb-4 border border-red-100 bg-red-50/40 rounded-2xl p-4">
         <p className="text-sm font-semibold text-red-600">Danger zone</p>
         <p className="text-xs text-[#6B6B6B] mt-0.5 mb-3">Deleting removes the guide, links and statistics of this property. This can&apos;t be undone.</p>
         {confirmDelete ? (
