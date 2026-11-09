@@ -88,8 +88,7 @@ function sectionMeta(type: string, title: string) {
 function sectionSubtitle(type: string, content: Record<string, unknown>, fallback?: string) {
   const str = (k: string) => (typeof content[k] === "string" ? (content[k] as string).trim() : "");
   if (type === "WIFI" && str("network")) return str("network");
-  if (type === "CHECKIN" && (str("checkIn") || str("checkOut")))
-    return [str("checkIn") && `Check-in ${str("checkIn")}`, str("checkOut") && `Check-out ${str("checkOut")}`].filter(Boolean).join(" · ");
+  // CHECKIN: times are already in the bar under the hero
   if (type === "LOCATION" && str("address")) return str("address");
   if (type === "CONTACT" && str("phone")) return str("phone");
   return fallback;
@@ -961,60 +960,22 @@ function TimeBox({ label, value }: { label: string; value: string }) {
   );
 }
 
-// ─── Quick cards under the hero: only data every guide has; a card is hidden when its data is missing ───
-const QUICK_STRINGS: Record<string, { wifi: string; copyPw: string; copied: string; checkout: string; callReception: string; callHost: string }> = {
-  EN: { wifi: "Wi-Fi", copyPw: "Copy password", copied: "Copied", checkout: "Check-out", callReception: "Call reception", callHost: "Call your host" },
-  DE: { wifi: "WLAN", copyPw: "Passwort kopieren", copied: "Kopiert", checkout: "Check-out", callReception: "Rezeption anrufen", callHost: "Gastgeber anrufen" },
-  TR: { wifi: "WiFi", copyPw: "Şifreyi kopyala", copied: "Kopyalandı", checkout: "Çıkış", callReception: "Resepsiyonu ara", callHost: "Ev sahibini ara" },
-  IT: { wifi: "Wi-Fi", copyPw: "Copia password", copied: "Copiata", checkout: "Check-out", callReception: "Chiama la reception", callHost: "Chiama l'host" },
-};
-
-function QuickCards({ sections, lang, isHotel }: { sections: Section[]; lang: string; isHotel: boolean }) {
-  const t = QUICK_STRINGS[lang] ?? QUICK_STRINGS.EN;
-  const [copied, setCopied] = useState(false);
-  const c = (type: string) => (sections.find((x) => x.type === type)?.content ?? {}) as Record<string, unknown>;
+// ─── Under the hero: check-in / check-out times at a glance (hidden when not filled in) ───
+function QuickCards({ sections }: { sections: Section[]; lang: string; isHotel: boolean }) {
+  const c = (sections.find((x) => x.type === "CHECKIN")?.content ?? {}) as Record<string, unknown>;
   const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
-  const network = str(c("WIFI").network), password = str(c("WIFI").password);
-  const checkOut = str(c("CHECKIN").checkOut);
-  const phone = str(c("CONTACT").phone);
-  if (!network && !checkOut && !phone) return null;
-
-  const tile = "bg-white rounded-2xl shadow-sm border border-[#EDEDE9] px-3.5 py-3 flex items-center gap-3 min-w-0 text-left active:scale-[0.98] transition";
-  const icon = "w-9 h-9 rounded-xl flex items-center justify-center shrink-0";
+  const checkIn = str(c.checkIn), checkOut = str(c.checkOut);
+  if (!checkIn && !checkOut) return null;
+  const cell = (label: string, value: string) => (
+    <div className="flex-1 flex items-center justify-center gap-2.5 py-3.5">
+      <span className="text-xs font-semibold uppercase tracking-wide text-[#9B9B9B]">{label}</span>
+      <span className="text-lg font-bold text-[#0F2F61]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{value}</span>
+    </div>
+  );
   return (
-    <div className="grid grid-cols-2 gap-2.5">
-      {network && (
-        <button
-          className={`${tile} col-span-2`}
-          onClick={async () => { if (!password) return; await navigator.clipboard.writeText(password); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-        >
-          <span className={`${icon} bg-blue-50 text-blue-600`}><Wifi className="w-5 h-5" /></span>
-          <span className="flex-1 min-w-0">
-            <span className="block text-xs text-[#9B9B9B]">{t.wifi}</span>
-            <span className="block text-sm font-bold text-[#262626] truncate">{network}</span>
-          </span>
-          {password && (
-            <span className={`shrink-0 inline-flex items-center gap-1 text-xs font-semibold rounded-full px-2.5 py-1.5 ${copied ? "bg-green-50 text-green-700" : "bg-[#0F2F61]/5 text-[#0F2F61]"}`}>
-              {copied ? <><Check className="w-3.5 h-3.5" /> {t.copied}</> : <><Copy className="w-3.5 h-3.5" /> {t.copyPw}</>}
-            </span>
-          )}
-        </button>
-      )}
-      {checkOut && (
-        <div className={`${tile} ${phone ? "" : "col-span-2"}`}>
-          <span className={`${icon} bg-amber-50 text-amber-600`}><Key className="w-5 h-5" /></span>
-          <span className="min-w-0">
-            <span className="block text-xs text-[#9B9B9B]">{t.checkout}</span>
-            <span className="block text-sm font-bold text-[#262626]">{checkOut}</span>
-          </span>
-        </div>
-      )}
-      {phone && (
-        <a href={`tel:${phone.replace(/[^+\d]/g, "")}`} className={`${tile} ${checkOut ? "" : "col-span-2"}`}>
-          <span className={`${icon} bg-teal-50 text-teal-600`}><Phone className="w-5 h-5" /></span>
-          <span className="min-w-0 text-sm font-bold text-[#262626] leading-tight">{isHotel ? t.callReception : t.callHost}</span>
-        </a>
-      )}
+    <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] flex divide-x divide-[#F0F0EE]">
+      {checkIn && cell("Check-in", checkIn)}
+      {checkOut && cell("Check-out", checkOut)}
     </div>
   );
 }
