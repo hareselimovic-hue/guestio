@@ -5,7 +5,7 @@ import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
   Copy, Check, ChevronDown, Phone, ParkingSquare, X, ClipboardList, CheckCircle2,
   Coffee, Sparkles, UtensilsCrossed, Car, PawPrint, Waves, BookOpen, Dumbbell, Baby, Bike,
-  ShoppingBag, Thermometer, Tv, WashingMachine, Trash2, Info, Bus, Luggage, MessageCircle,
+  ShoppingBag, Thermometer, Tv, WashingMachine, Trash2, Info, Bus, Luggage,
 } from "lucide-react";
 import { useState } from "react";
 import GuestChat from "./GuestChat";
@@ -93,8 +93,6 @@ function sectionSubtitle(type: string, content: Record<string, unknown>, fallbac
   if (type === "CONTACT" && str("phone")) return str("phone");
   return fallback;
 }
-
-const ASK_LABEL: Record<string, string> = { EN: "Ask", DE: "Fragen", TR: "Sor", IT: "Chiedi" };
 
 const UI_STRINGS: Record<string, {
   welcome: string; exploreGuide: string; guideSoon: string; guideSoonSub: string;
@@ -293,17 +291,6 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   }
   const showGuide = !hotel || hotelTab === "guide";
 
-  // Hotels: the chat opens from a small "Ask" pill in the header, so no round button covers content above the tab bar
-  const [chatOpen, setChatOpen] = useState(false);
-  const askButton = hotel ? (
-    <button
-      onClick={() => setChatOpen(true)}
-      className="inline-flex items-center gap-1.5 bg-[#FF6700] hover:bg-[#e05c00] text-white text-sm font-semibold px-3 py-1.5 rounded-full shadow-sm"
-    >
-      <MessageCircle className="w-4 h-4" /> {ASK_LABEL[lang] ?? ASK_LABEL.EN}
-    </button>
-  ) : null;
-
   const langSelect = hasTranslations && (
     <select
       value={lang}
@@ -321,7 +308,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 
   return (
     <div
-      className={`min-h-screen bg-[#F7F7F5] ${hotel ? "pb-20" : "pb-24"}`}
+      className={`min-h-screen bg-[#F7F7F5] ${hotel ? "pb-20 [&_.bottom-6]:bottom-24" : "pb-24"}`}
       style={{ fontFamily: "Inter, system-ui, sans-serif" }}
     >
 
@@ -336,7 +323,6 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
               <p className="font-bold text-lg leading-tight truncate" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{property.name}</p>
               {hotel.roomNumber && <p className="text-xs text-white/70">{roomLabel(lang)} {hotel.roomNumber}</p>}
             </div>
-            {askButton}
             {langSelect}
           </div>
         </div>
@@ -438,8 +424,8 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
         )}
 
         {/* Language dropdown — top right */}
-        {(hasTranslations || askButton) && (
-          <div className="absolute top-4 right-4 z-20 flex items-center gap-2">{askButton}{langSelect}</div>
+        {hasTranslations && (
+          <div className="absolute top-4 right-4 z-20">{langSelect}</div>
         )}
       </div>
 
@@ -580,7 +566,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       </>}
 
       {/* AI Chat */}
-      <GuestChat propertySlug={property.slug} token={token} lang={lang} hideLauncher={!!hotel} open={chatOpen} onOpenChange={setChatOpen} />
+      <GuestChat propertySlug={property.slug} token={token} lang={lang} />
 
       {hotel && <HotelTabBar tab={hotelTab} onChange={changeHotelTab} lang={lang} />}
 

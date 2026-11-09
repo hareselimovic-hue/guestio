@@ -483,7 +483,7 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
 
           {/* Floating cart above the tab bar */}
           {cartCount > 0 && !pending && (
-            <div className="fixed left-4 right-4 bottom-[96px] z-40 flex justify-center">
+            <div className="fixed left-4 right-[92px] bottom-[96px] z-40 flex justify-center">
               <button
                 onClick={() => setPending({ kind: "order" })}
                 className="w-full max-w-xl flex items-center justify-between gap-2 bg-[#FF6700] hover:bg-[#e05c00] text-white text-sm font-semibold px-4 py-3.5 rounded-2xl shadow-lg transition-colors"
