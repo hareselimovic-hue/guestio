@@ -43,6 +43,7 @@ const EN = {
   scanTitle: "Requests & orders from your room",
   scanBody: "Scan the QR code in your room to send requests to the reception and order extras — we'll know your room number automatically.",
   myRequests: "My requests",
+  noRequests: "Your requests will show up here, with their status.",
   status: { NEW: "Received", IN_PROGRESS: "In progress", DONE: "Done", DECLINED: "Not possible" } as Record<string, string>,
   replyFrom: "Reception",
   tabGuide: "Guide",
@@ -96,6 +97,7 @@ const STRINGS: Record<string, Strings> = {
     scanTitle: "Wünsche & Bestellungen aus Ihrem Zimmer",
     scanBody: "Scannen Sie den QR-Code in Ihrem Zimmer, um Wünsche an die Rezeption zu senden und Extras zu bestellen — Ihre Zimmernummer erkennen wir automatisch.",
     myRequests: "Meine Wünsche",
+    noRequests: "Ihre Wünsche erscheinen hier, mit ihrem Status.",
     status: { NEW: "Erhalten", IN_PROGRESS: "In Bearbeitung", DONE: "Erledigt", DECLINED: "Nicht möglich" } as Record<string, string>,
     replyFrom: "Rezeption",
     tabGuide: "Guide",
@@ -140,6 +142,7 @@ const STRINGS: Record<string, Strings> = {
     scanTitle: "Odanızdan istekler ve siparişler",
     scanBody: "Resepsiyona istek göndermek ve ekstra sipariş vermek için odanızdaki QR kodu okutun — oda numaranızı otomatik olarak alırız.",
     myRequests: "İsteklerim",
+    noRequests: "İstekleriniz durumlarıyla birlikte burada görünecek.",
     status: { NEW: "Alındı", IN_PROGRESS: "İşleniyor", DONE: "Tamamlandı", DECLINED: "Mümkün değil" } as Record<string, string>,
     replyFrom: "Resepsiyon",
     tabGuide: "Rehber",
@@ -184,6 +187,7 @@ const STRINGS: Record<string, Strings> = {
     scanTitle: "Richieste e ordini dalla tua camera",
     scanBody: "Scansiona il codice QR nella tua camera per inviare richieste alla reception e ordinare extra — riconosciamo automaticamente il numero della camera.",
     myRequests: "Le mie richieste",
+    noRequests: "Le tue richieste appariranno qui, con il loro stato.",
     status: { NEW: "Ricevuta", IN_PROGRESS: "In corso", DONE: "Fatto", DECLINED: "Non possibile" } as Record<string, string>,
     replyFrom: "Reception",
     tabGuide: "Guida",
@@ -304,11 +308,11 @@ const ASKS_WHEN = new Set(["TRANSPORT", "WELLNESS", "TOURS"]);
 const ASKS_GUESTS = new Set(["WELLNESS", "TOURS"]);
 
 const QUICK = [
-  { type: "HOUSEKEEPING", icon: Sparkles },
-  { type: "TOWELS", icon: Bath },
-  { type: "ISSUE", icon: Wrench },
-  { type: "WAKEUP", icon: AlarmClock },
-  { type: "OTHER", icon: MessageSquarePlus },
+  { type: "HOUSEKEEPING", icon: Sparkles, tone: "bg-violet-50 text-violet-600" },
+  { type: "TOWELS", icon: Bath, tone: "bg-sky-50 text-sky-600" },
+  { type: "ISSUE", icon: Wrench, tone: "bg-amber-50 text-amber-600" },
+  { type: "WAKEUP", icon: AlarmClock, tone: "bg-rose-50 text-rose-600" },
+  { type: "OTHER", icon: MessageSquarePlus, tone: "bg-[#0F2F61]/5 text-[#0F2F61]" },
 ];
 
 export type HotelView = "reception" | "extras";
@@ -357,7 +361,7 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
       )}
 
       {view === "reception" && canOrder && (
-        <div className="bg-white rounded-2xl shadow-sm border-2 border-[#0F2F61] overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
           <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#0F2F61]/10 text-[#0F2F61]">
               <BellRing className="w-5 h-5" />
@@ -367,17 +371,20 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
               <p className="text-xs text-[#9B9B9B] mt-0.5">{s.receptionSub}</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2 p-4">
-            {QUICK.map(({ type, icon: Icon }, i) => (
-              <button
-                key={type}
-                onClick={() => setPending({ kind: "quick", type })}
-                className={`flex items-center gap-2.5 bg-[#F7F7F5] hover:bg-[#EFEFEB] active:scale-[0.98] transition rounded-xl px-3 py-3 text-left ${i === QUICK.length - 1 ? "col-span-2" : ""}`}
-              >
-                <Icon className="w-4 h-4 text-[#0F2F61] shrink-0" />
-                <span className="text-sm font-medium text-[#262626] leading-tight">{s.quick[type]}</span>
-              </button>
-            ))}
+          <div className="grid grid-cols-2 gap-2.5 p-4">
+            {QUICK.map(({ type, icon: Icon, tone }, i) => {
+              const wide = i === QUICK.length - 1;
+              return (
+                <button
+                  key={type}
+                  onClick={() => setPending({ kind: "quick", type })}
+                  className={`min-h-[76px] flex ${wide ? "col-span-2 flex-row items-center gap-3" : "flex-col items-start justify-between gap-2"} bg-white border border-[#EDEDE9] hover:border-[#0F2F61]/30 active:scale-[0.98] transition rounded-2xl p-3 text-left shadow-[0_1px_2px_rgba(0,0,0,0.03)]`}
+                >
+                  <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${tone}`}><Icon className="w-[18px] h-[18px]" /></span>
+                  <span className="text-sm font-semibold text-[#262626] leading-tight">{s.quick[type]}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -542,7 +549,12 @@ function MyRequests({ ctx, refreshKey }: { ctx: GuestCtx; refreshKey: number }) 
     return () => { alive = false; clearInterval(timer); };
   }, [ctx.slug, refreshKey]);
 
-  if (items.length === 0) return null;
+  if (items.length === 0) return (
+    <div className="rounded-2xl border border-dashed border-[#DADAD5] px-5 py-5 text-center">
+      <p className="font-bold text-[#262626] text-sm" style={HEADING}>{s.myRequests}</p>
+      <p className="text-xs text-[#9B9B9B] mt-1">{s.noRequests}</p>
+    </div>
+  );
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
       <p className="px-5 py-3.5 border-b border-[#F0F0EE] font-bold text-[#262626] text-base" style={HEADING}>{s.myRequests}</p>

@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
 import PropertiesList from "@/components/PropertiesList";
+import { guideIssues, guideThumb } from "@/lib/guide-issues";
 
 export const dynamic = "force-dynamic";
 
@@ -17,9 +18,14 @@ export default async function ApartmentsPage() {
 
   const properties = await prisma.property.findMany({
     where: { kind: "APARTMENT", ...propertyAccessWhere(session!.user.id, wsIds, memberUserIds) },
-    include: { _count: { select: { guests: true, sections: true } } },
+    select: {
+      id: true, name: true, internalName: true, coverImage: true,
+      sections: { select: { type: true, content: true, isVisible: true, _count: { select: { translations: true } } } },
+      _count: { select: { guests: true, sections: true } },
+    },
     orderBy: { createdAt: "desc" },
   });
+  const list = properties.map(({ sections, coverImage, ...p }) => ({ ...p, thumb: guideThumb(coverImage, sections), issues: guideIssues(sections) }));
 
   return (
     <div className="p-4 sm:p-8">
@@ -27,7 +33,7 @@ export default async function ApartmentsPage() {
         <h1 className="text-2xl font-bold text-[#262626]">Apartments</h1>
         <p className="text-[#6B6B6B] mt-1">{properties.length} {properties.length === 1 ? "apartment" : "apartments"}</p>
       </div>
-      <PropertiesList properties={properties} />
+      <PropertiesList properties={list} />
     </div>
   );
 }

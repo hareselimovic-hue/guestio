@@ -2,19 +2,23 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Plus, ArrowRight, Building2, Search, Check } from "lucide-react";
+import { Plus, ArrowRight, Building2, Search, Check, AlertTriangle } from "lucide-react";
 
 interface Property {
   id: string;
   name: string;
   internalName: string | null;
   _count: { sections: number; guests: number };
+  thumb?: string | null;
+  issues?: string[];
 }
 
 const LS_KEY = "smartstay_linked_properties";
 
 export default function PropertiesList({ properties }: { properties: Property[] }) {
   const [query, setQuery] = useState("");
+  const [onlyIssues, setOnlyIssues] = useState(false);
+  const withIssues = properties.filter((p) => (p.issues?.length ?? 0) > 0).length;
   const [linked, setLinked] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -36,13 +40,14 @@ export default function PropertiesList({ properties }: { properties: Property[] 
     });
   }
 
-  const filtered = query.trim()
+  const filtered = (query.trim()
     ? properties.filter(
         (p) =>
           p.name.toLowerCase().includes(query.toLowerCase()) ||
           (p.internalName ?? "").toLowerCase().includes(query.toLowerCase())
       )
-    : properties;
+    : properties
+  ).filter((p) => !onlyIssues || (p.issues?.length ?? 0) > 0);
 
   return (
     <div className="bg-white rounded-xl border border-[#EDEDE9]">
@@ -70,6 +75,22 @@ export default function PropertiesList({ properties }: { properties: Property[] 
           </Link>
         </div>
       </div>
+
+      {withIssues > 0 && (
+        <div className="flex gap-2 px-4 sm:px-6 py-3 border-b border-[#EDEDE9]">
+          {[{ v: false, label: `All · ${properties.length}` }, { v: true, label: `Needs attention · ${withIssues}` }].map((c) => (
+            <button
+              key={String(c.v)}
+              onClick={() => setOnlyIssues(c.v)}
+              className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+                onlyIssues === c.v ? "bg-[#0F2F61] border-[#0F2F61] text-white" : "bg-white border-[#EDEDE9] text-[#262626]"
+              }`}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {properties.length === 0 ? (
         <div className="px-6 py-12 text-center">
@@ -101,7 +122,7 @@ export default function PropertiesList({ properties }: { properties: Property[] 
                 <button
                   onClick={(e) => toggleLinked(p.id, e)}
                   title={isLinked ? "Linked on all platforms" : "Mark as linked"}
-                  className="ml-4 shrink-0 flex items-center justify-center"
+                  className="pl-3 sm:pl-4 shrink-0 flex items-center justify-center h-full"
                 >
                   <span
                     className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
@@ -115,20 +136,28 @@ export default function PropertiesList({ properties }: { properties: Property[] 
                 </button>
                 <Link
                   href={`/dashboard/properties/${p.id}`}
-                  className="flex flex-1 items-center justify-between px-4 py-4 hover:bg-[#F7F7F5] transition-colors group"
+                  className="flex flex-1 min-w-0 items-center gap-3 px-3 sm:px-4 py-3 hover:bg-[#F7F7F5] active:bg-[#F7F7F5] transition-colors group"
                 >
-                  <div>
-                    <p className={`font-medium transition-colors group-hover:text-[#0F2F61] ${isLinked ? "text-[#6B6B6B]" : "text-[#262626]"}`}>
-                      {p.name}
+                  {p.thumb ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={p.thumb} alt="" loading="lazy" className="w-12 h-12 rounded-xl object-cover shrink-0 bg-[#EDEDE9]" />
+                  ) : (
+                    <span className="w-12 h-12 rounded-xl bg-[#0F2F61]/5 text-[#0F2F61] flex items-center justify-center shrink-0"><Building2 className="w-5 h-5" /></span>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold truncate transition-colors group-hover:text-[#0F2F61] ${isLinked ? "text-[#6B6B6B]" : "text-[#262626]"}`}>
+                      {p.internalName || p.name}
                     </p>
-                    {p.internalName && (
-                      <p className="text-xs text-[#6B6B6B] mt-0.5 italic">{p.internalName}</p>
+                    {p.internalName && <p className="text-xs text-[#9B9B9B] truncate mt-0.5">{p.name}</p>}
+                    {p.issues && p.issues.length > 0 ? (
+                      <p className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 rounded-full px-2 py-0.5 mt-1 max-w-full">
+                        <AlertTriangle className="w-3 h-3 shrink-0" /><span className="truncate">{p.issues[0]}{p.issues.length > 1 ? ` +${p.issues.length - 1}` : ""}</span>
+                      </p>
+                    ) : (
+                      <p className="text-xs text-[#9B9B9B] mt-0.5">{p._count.sections} sections</p>
                     )}
-                    <p className="text-xs text-[#6B6B6B] mt-0.5">
-                      {p._count.sections} sections
-                    </p>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#6B6B6B] group-hover:text-[#0F2F61] transition-colors" />
+                  <ArrowRight className="w-4 h-4 shrink-0 text-[#BABAB5] group-hover:text-[#0F2F61] transition-colors" />
                 </Link>
               </li>
             );

@@ -4,9 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
+import { createPortal } from "react-dom";
 import {
   BellRing, DoorOpen, UtensilsCrossed, Megaphone, Star, Loader2, Trash2, Download, Printer,
-  ExternalLink, RefreshCw, Eye, EyeOff, Copy, Check, BookOpen, QrCode, X, AlertTriangle, Share2, Settings, ClipboardList, Clock,
+  ExternalLink, RefreshCw, Eye, EyeOff, Copy, Check, BookOpen, QrCode, X, AlertTriangle, Share2, Settings, ClipboardList, Clock, Plus,
 } from "lucide-react";
 import SectionEditor, { SectionForm } from "@/components/SectionEditor";
 import { ReceptionEmailForm } from "@/components/ReceptionEmail";
@@ -329,6 +330,42 @@ function GuideTab({ propertyId }: { propertyId: string }) {
 
 // ─── Rooms ───────────────────────────────────────────────────────────────────
 
+/** Phones: add forms open in a bottom sheet (list first). From sm up the form stays inline, as before. */
+function AddSheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
+  // Open (phones only — the + button is hidden from sm up): render on top of everything, incl. the bottom nav
+  if (open && typeof document !== "undefined") {
+    return createPortal(
+      <div className="fixed inset-0 z-[70] bg-black/40 flex items-end sm:items-center sm:justify-center" onClick={onClose}>
+        <div className="w-full sm:max-w-lg max-h-[88svh] overflow-y-auto bg-[#F7F7F5] rounded-t-3xl sm:rounded-3xl p-3 pb-[calc(1rem+env(safe-area-inset-bottom))]" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center justify-between px-2 pt-1 pb-3">
+            <p className="font-semibold text-[#262626]">{title}</p>
+            <button onClick={onClose} aria-label="Close" className="w-9 h-9 flex items-center justify-center rounded-full bg-white border border-[#EDEDE9] text-[#6B6B6B]"><X className="w-4 h-4" /></button>
+          </div>
+          {children}
+        </div>
+      </div>,
+      document.body,
+    );
+  }
+  // Closed: hidden on phones, inline form from sm up
+  return <div className="hidden sm:block">{children}</div>;
+}
+
+function AddFab({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="sm:hidden fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 inline-flex items-center gap-1.5 bg-[#FF6700] active:scale-95 transition text-white text-sm font-semibold pl-4 pr-5 h-12 rounded-full shadow-lg"
+    >
+      <Plus className="w-5 h-5" /> {label}
+    </button>
+  );
+}
+
+function EmptyCard({ text }: { text: string }) {
+  return <div className={`${card} p-8 text-center text-sm text-[#6B6B6B]`}>{text}</div>;
+}
+
 function RoomsTab({ hotel }: { hotel: HotelRef }) {
   const [rooms, setRooms] = useState<Room[] | null>(null);
   const [value, setValue] = useState("");
@@ -336,6 +373,7 @@ function RoomsTab({ hotel }: { hotel: HotelRef }) {
   const [msg, setMsg] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [qrRoom, setQrRoom] = useState<Room | null>(null);
+  const [adding, setAdding] = useState(false);
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/hotel/${hotel.id}/rooms`);
@@ -365,9 +403,11 @@ function RoomsTab({ hotel }: { hotel: HotelRef }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-16 sm:pb-0">
+      <AddFab label="Add rooms" onClick={() => setAdding(true)} />
+      <AddSheet open={adding} onClose={() => setAdding(false)} title="Add rooms">
       <div className={`${card} p-5`}>
-        <p className="font-semibold text-[#262626]">Add rooms</p>
+        <p className="font-semibold text-[#262626] hidden sm:block">Add rooms</p>
         <p className="text-sm text-[#6B6B6B] mt-0.5 mb-3">
           A new room automatically shows everything from the <strong>Hotel guide</strong>. Open a room only to change what&apos;s different there (e.g. Wi-Fi or parking).
         </p>
@@ -379,7 +419,9 @@ function RoomsTab({ hotel }: { hotel: HotelRef }) {
         </div>
         {msg && <p className="text-sm text-[#0F2F61] mt-2">{msg}</p>}
       </div>
+      </AddSheet>
 
+      {rooms && rooms.length === 0 && <div className="sm:hidden"><EmptyCard text="No rooms yet. Tap “Add rooms” — e.g. 101-110." /></div>}
       {!rooms ? <Spinner /> : rooms.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-3">
@@ -692,6 +734,7 @@ function ServicesTab({ propertyId }: { propertyId: string }) {
   const [form, setForm] = useState({ kind: "FOOD", name: "", description: "", price: "", priceNote: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [adding, setAdding] = useState(false);
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/hotel/${propertyId}/services`);
@@ -705,6 +748,7 @@ function ServicesTab({ propertyId }: { propertyId: string }) {
     setBusy(false);
     if (!res.ok) { setError((await res.json()).error ?? "Error"); return; }
     setForm({ ...form, name: "", description: "", price: "", priceNote: "" }); // keep the category for the next item
+    setAdding(false);
     load();
   }
   async function toggle(s: Service) {
@@ -722,9 +766,11 @@ function ServicesTab({ propertyId }: { propertyId: string }) {
   const used = CATEGORIES.filter((c) => items.some((i) => i.kind === c.key));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-16 sm:pb-0">
+      <AddFab label="Add service" onClick={() => setAdding(true)} />
+      <AddSheet open={adding} onClose={() => setAdding(false)} title="Add a service">
       <div className={`${card} p-5`}>
-        <p className="font-semibold text-[#262626]">Add a service</p>
+        <p className="font-semibold text-[#262626] hidden sm:block">Add a service</p>
         <p className="text-sm text-[#6B6B6B] mt-0.5 mb-3">
           Everything guests can order or book. Guests see it under <strong>Extras</strong>, one tab per category. Write names and descriptions in English.
         </p>
@@ -743,6 +789,7 @@ function ServicesTab({ propertyId }: { propertyId: string }) {
           {busy && <Loader2 className="w-4 h-4 animate-spin" />} Add service
         </button>
       </div>
+      </AddSheet>
 
       {items.length === 0 ? (
         <div className={`${card} p-8 text-center text-sm text-[#6B6B6B]`}>No services yet. Start with breakfast or an airport transfer.</div>
@@ -790,6 +837,7 @@ function AnnouncementsTab({ propertyId, slug }: { propertyId: string; slug: stri
   const [hours, setHours] = useState(0);
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/hotel/${propertyId}/announcements`);
@@ -802,6 +850,7 @@ function AnnouncementsTab({ propertyId, slug }: { propertyId: string; slug: stri
     await fetch(`/api/hotel/${propertyId}/announcements`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, hours }) });
     setBusy(false);
     setMessage("");
+    setAdding(false);
     load();
   }
   async function toggle(a: Announcement, active: boolean) {
@@ -817,9 +866,11 @@ function AnnouncementsTab({ propertyId, slug }: { propertyId: string; slug: stri
   const isLive = (a: Announcement) => a.active && (!a.expiresAt || new Date(a.expiresAt) > new Date());
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-16 sm:pb-0">
+      <AddFab label="New announcement" onClick={() => setAdding(true)} />
+      <AddSheet open={adding} onClose={() => setAdding(false)} title="New announcement">
       <div className={`${card} p-5`}>
-        <p className="font-semibold text-[#262626]">New announcement</p>
+        <p className="font-semibold text-[#262626] hidden sm:block">New announcement</p>
         <p className="text-sm text-[#6B6B6B] mt-0.5 mb-3">
           Shown as an orange bar at the top of the guide for every guest. Write it in Bosnian or English — it&apos;s translated automatically to EN, DE, TR and IT.
         </p>
@@ -840,6 +891,9 @@ function AnnouncementsTab({ propertyId, slug }: { propertyId: string; slug: stri
           </button>
         </div>
       </div>
+      </AddSheet>
+
+      {items && items.length === 0 && <div className="sm:hidden"><EmptyCard text="No announcements. Tap “New announcement” — guests see it as an orange bar at the top of the guide." /></div>}
 
       {!items ? <Spinner /> : items.length > 0 && (
         <div className="space-y-2">

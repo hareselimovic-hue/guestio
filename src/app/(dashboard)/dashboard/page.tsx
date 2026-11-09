@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
 import { Building2, Eye, MessageCircle, ClipboardList, AlertTriangle, ArrowRight, CheckCircle2, Circle, Plus, MessageSquare } from "lucide-react";
 import HotelOverview, { type HotelOverviewData } from "@/components/HotelOverview";
+import { guideIssues } from "@/lib/guide-issues";
 import { getRegistrationRecipients } from "@/lib/guest-registration";
 
 export const dynamic = "force-dynamic";
@@ -22,21 +23,6 @@ function sarajevoMidnight() {
   const [h, m, s] = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false, timeZone: "Europe/Sarajevo" })
     .format(now).split(":").map(Number);
   return new Date(now.getTime() - ((h % 24) * 3600 + m * 60 + s) * 1000 - now.getMilliseconds());
-}
-
-type SectionLite ={ type: string; content: unknown; isVisible: boolean; updatedAt: Date; _count: { translations: number } };
-
-/** Gaps in an apartment guide a guest would notice */
-function guideIssues(sections: SectionLite[]): string[] {
-  const get = (type: string) => sections.find((s) => s.type === type);
-  const c = (type: string) => ((get(type)?.content ?? {}) as Record<string, unknown>);
-  const visible = (type: string) => !!get(type)?.isVisible;
-  const issues: string[] = [];
-  if (visible("WIFI") && (!c("WIFI").network || !c("WIFI").password)) issues.push("Wi-Fi details missing");
-  if (visible("CHECKIN") && !c("CHECKIN").instructions) issues.push("no check-in instructions");
-  if (visible("CONTACT") && !c("CONTACT").phone) issues.push("no contact phone");
-  if (sections.every((s) => s._count.translations === 0)) issues.push("not translated (guests see English only)");
-  return issues;
 }
 
 export default async function DashboardPage() {
