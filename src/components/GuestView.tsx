@@ -127,6 +127,32 @@ const UI_STRINGS: Record<string, {
       PARKING:     { label: "Parking",            subtitle: "Parking & Access" },
     },
   },
+  BS: {
+    welcome: "Dobro došli",
+    exploreGuide: "Pogledaj vodič",
+    guideSoon: "Vodič uskoro",
+    guideSoonSub: "Vaš domaćin još dodaje informacije.",
+    trueLocalTitle: "Želite istražiti Sarajevo i okolinu kao pravi lokalac?",
+    trueLocalBody: "Tražite autentična lokalna iskustva u Bosni i Hercegovini? Istražite pažljivo odabrane ture, aktivnosti i skrivene dragulje.",
+    trueLocalCta: "Istraži TrueLocal.ba",
+    rentCarTitle: "Rent-a-car",
+    rentCarBody: "Treba vam auto tokom boravka? Nudimo pouzdano i povoljno iznajmljivanje vozila — javite nam se i sve ćemo organizovati.",
+    callUs: "Pozovi nas",
+    regTitle: "Prijava gostiju",
+    regBody: "Molimo pošaljite nam podatke svih gostiju kako bismo prijavili vaš boravak nadležnim organima, kako zakon nalaže. Traje oko 2 minute.",
+    regCta: "Pošalji podatke gostiju",
+    regDone: "Podaci poslani",
+    regDoneBody: "Hvala! Primili smo vaše podatke.",
+    sections: {
+      WIFI:        { label: "WiFi",               subtitle: "Internet i WiFi" },
+      CHECKIN:     { label: "Dolazak i odlazak",  subtitle: "Informacije o dolasku i odlasku" },
+      HOUSE_RULES: { label: "Kućni red",          subtitle: "Pravila i smjernice" },
+      LOCATION:    { label: "Lokacija",           subtitle: "Kako doći" },
+      LOCAL_RECS:  { label: "Preporuke",          subtitle: "Šta raditi u blizini" },
+      CONTACT:     { label: "Kontakt",            subtitle: "Treba vam pomoć?" },
+      PARKING:     { label: "Parking",            subtitle: "Parking i pristup" },
+    },
+  },
   DE: {
     welcome: "Willkommen",
     exploreGuide: "Zum Gästeführer",
@@ -234,10 +260,13 @@ interface Props {
 
 const LANGUAGES = [
   { code: "EN", flag: "🇬🇧", label: "EN" },
+  { code: "BS", flag: "🇧🇦", label: "BS" },
   { code: "DE", flag: "🇩🇪", label: "DE" },
   { code: "TR", flag: "🇹🇷", label: "TR" },
   { code: "IT", flag: "🇮🇹", label: "IT" },
 ];
+
+const GUEST_LANG_KEY = "smartstay_guest_lang";
 
 function getContent(section: Section, lang: string): Record<string, unknown> {
   if (lang === "EN") return section.content as Record<string, unknown>;
@@ -262,6 +291,22 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   // Only show language switcher if at least one section has any translation
   // (hotel blocks and announcements are always translated)
   const hasTranslations = !!hotel || sections.some((s) => s.translations && s.translations.length > 0);
+
+  // First open: the guest's own language (phone/browser setting); afterwards whatever they picked last on this device
+  useEffect(() => {
+    if (!hasTranslations) return;
+    try {
+      const saved = localStorage.getItem(GUEST_LANG_KEY);
+      if (saved && LANGUAGES.some((l) => l.code === saved)) { setLang(saved); return; }
+      const nav = (navigator.language || "").toLowerCase();
+      const detected = /^(bs|hr|sr)/.test(nav) ? "BS" : nav.startsWith("de") ? "DE" : nav.startsWith("tr") ? "TR" : nav.startsWith("it") ? "IT" : "EN";
+      setLang(detected);
+    } catch {}
+  }, [hasTranslations]);
+  function changeLang(next: string) {
+    setLang(next);
+    try { localStorage.setItem(GUEST_LANG_KEY, next); } catch {}
+  }
 
   const welcomeSection = sections.find((s) => s.type === "WELCOME");
   const otherSections = sections.filter((s) => s.type !== "WELCOME" && s.type !== "AI_CONTEXT");
@@ -294,7 +339,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   const langSelect = hasTranslations && (
     <select
       value={lang}
-      onChange={(e) => setLang(e.target.value)}
+      onChange={(e) => changeLang(e.target.value)}
       className="bg-white/20 backdrop-blur-sm text-white text-sm font-medium px-3 py-1.5 rounded-full border border-white/30 outline-none cursor-pointer appearance-none pr-7"
       style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 8px center" }}
     >
@@ -458,7 +503,8 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
                 </h2>
               </div>
               <div className="px-5 py-4 space-y-3">
-                <p className="text-sm text-[#262626] leading-relaxed">{ui.regBody}</p>
+                {/* Right padding on phones keeps the text clear of the floating chat button */}
+                <p className="text-sm text-[#262626] leading-relaxed pr-12 sm:pr-0">{ui.regBody}</p>
                 <a
                   href={registrationHref}
                   className="inline-flex items-center gap-2 bg-[#FF6700] hover:bg-[#e05c00] text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"

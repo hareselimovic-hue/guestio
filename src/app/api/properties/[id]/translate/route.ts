@@ -7,7 +7,7 @@ import Anthropic from "@anthropic-ai/sdk";
 
 export const dynamic = "force-dynamic";
 
-const LANGUAGES = ["DE", "TR", "IT"] as const;
+const LANGUAGES = ["BS", "DE", "TR", "IT"] as const;
 
 const SKIP_FIELDS = new Set([
   "checkIn", "checkOut", "network", "password", "mapUrl",
@@ -81,10 +81,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   const prompt = `You are a professional translator for a property management guest guide app.
-Translate the following sections from English to German (DE), Turkish (TR), and Italian (IT).
+Translate the following sections (written in English or Bosnian) into Bosnian (BS, Latin script), German (DE), Turkish (TR), and Italian (IT).
+If a field is already in the target language, return it unchanged for that language.
 Return ONLY a valid JSON object with this exact structure:
 {
   "sectionId1": {
+    "BS": { ...translated fields },
     "DE": { ...translated fields },
     "TR": { ...translated fields },
     "IT": { ...translated fields }
@@ -105,7 +107,7 @@ ${JSON.stringify(Object.fromEntries(sectionsToTranslate), null, 2)}`;
   try {
     const response = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 16000, // many sections × 3 languages — 4000 cut the JSON off
+      max_tokens: 16000, // many sections × 4 languages — 4000 cut the JSON off
       messages: [{ role: "user", content: prompt }],
     });
 

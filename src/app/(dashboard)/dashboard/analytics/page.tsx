@@ -65,13 +65,14 @@ export default async function AnalyticsPage() {
   const totalChats = properties.reduce((sum, p) => sum + (p.chatCount ?? 0), 0);
 
   // Recent views (last 50, across all properties)
-  const allViews: { viewedAt: Date; propertyName: string; token: string; guestName: string | null }[] = [];
+  const allViews: { viewedAt: Date; propertyName: string; slug: string; token: string; guestName: string | null }[] = [];
   for (const property of properties) {
     for (const guest of property.guests) {
       for (const view of guest.views) {
         allViews.push({
           viewedAt: view.viewedAt,
           propertyName: property.name,
+          slug: property.slug,
           token: guest.token,
           guestName: guest.guestName,
         });
@@ -198,7 +199,7 @@ export default async function AnalyticsPage() {
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell">
                       <a
-                        href={`/g/${view.token}`}
+                        href={`/g/${view.slug}/${view.token}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[#0F2F61] font-mono text-xs hover:underline flex items-center gap-1"

@@ -1,7 +1,30 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import GuestView from "@/components/GuestView";
 export const dynamic = "force-dynamic";
+
+/** Link preview (WhatsApp, Booking/Airbnb inbox, iMessage): the property's name and photo instead of the generic app title */
+export async function generateMetadata({ params }: { params: Promise<{ slug: string; token?: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const property = await prisma.property.findUnique({
+    where: { slug },
+    select: { name: true, coverImage: true, kind: true, sections: { where: { type: "WELCOME" }, select: { content: true }, take: 1 } },
+  });
+  if (!property) return { title: "SmartStay" };
+  const welcome = (property.sections[0]?.content ?? {}) as Record<string, unknown>;
+  const str = (k: string) => (typeof welcome[k] === "string" && (welcome[k] as string).trim() ? (welcome[k] as string).trim() : "");
+  const image = property.coverImage || str("heroImage") || undefined;
+  const title = `${property.name} · ${property.kind === "HOTEL" ? "Hotel guide" : "Guest guide"}`;
+  const description = str("welcomeSubtitle") || str("subtitle") || str("welcomeText") ||
+    "Wi-Fi, check-in, house rules, directions and local tips — everything for your stay in one link.";
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: "website", siteName: "SmartStay", ...(image ? { images: [{ url: image }] } : {}) },
+    twitter: { card: image ? "summary_large_image" : "summary", title, description, ...(image ? { images: [image] } : {}) },
+  };
+}
 
 export default async function GuestPage({
   params,

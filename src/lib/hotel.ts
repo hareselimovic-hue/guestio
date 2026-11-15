@@ -17,7 +17,7 @@ export async function userCanUseHotels(user: { id: string; email: string }) {
 export const SERVICE_KINDS = ["FOOD", "STAY", "TRANSPORT", "WELLNESS", "TOURS", "OCCASIONS", "OTHER"] as const;
 export const REQUEST_TYPES = ["HOUSEKEEPING", "TOWELS", "ISSUE", "WAKEUP", "OTHER", "ORDER", "BOOKING"] as const;
 export const REQUEST_STATUSES = ["NEW", "IN_PROGRESS", "DONE", "DECLINED"] as const;
-export const GUEST_LANGS = ["EN", "DE", "TR", "IT"] as const;
+export const GUEST_LANGS = ["EN", "BS", "DE", "TR", "IT"] as const;
 
 /** Bosnian labels for staff (dashboard + emails) */
 export const REQUEST_LABEL: Record<string, string> = {
@@ -124,7 +124,7 @@ export async function notifyHotelStaff(
 
 export const EMAIL_RE = /^[^\s@,]+@[^\s@,]+\.[^\s@,]+$/;
 
-const LANG_NAMES: Record<string, string> = { EN: "English", DE: "German", TR: "Turkish", IT: "Italian" };
+const LANG_NAMES: Record<string, string> = { EN: "English", BS: "Bosnian (Latin script)", DE: "German", TR: "Turkish", IT: "Italian" };
 
 /** Reception's short reply, translated into the guest's language (written in any language) */
 export async function translateText(text: string, lang: string): Promise<string> {
@@ -158,6 +158,12 @@ const GUEST_MAIL: Record<string, {
     subject: { IN_PROGRESS: "We're on it", DONE: "Done", DECLINED: "About your request" },
     body: { IN_PROGRESS: "The reception has received your request and is taking care of it.", DONE: "Your request has been completed. Enjoy your stay!", DECLINED: "Unfortunately we can't fulfil this request. Please contact the reception if you have any questions." },
     room: "Room", reply: "Message from the reception", footer: "You're receiving this because you asked for updates on this request.",
+  },
+  BS: {
+    type: { HOUSEKEEPING: "Čišćenje sobe", TOWELS: "Čisti peškiri", ISSUE: "Nešto ne radi", WAKEUP: "Buđenje", OTHER: "Vaš zahtjev", ORDER: "Narudžba room servicea", BOOKING: "Vaša rezervacija" },
+    subject: { IN_PROGRESS: "Radimo na tome", DONE: "Završeno", DECLINED: "U vezi vašeg zahtjeva" },
+    body: { IN_PROGRESS: "Recepcija je primila vaš zahtjev i radi na njemu.", DONE: "Vaš zahtjev je izvršen. Uživajte u boravku!", DECLINED: "Nažalost, ovaj zahtjev ne možemo ispuniti. Za pitanja se obratite recepciji." },
+    room: "Soba", reply: "Poruka recepcije", footer: "Ovaj email ste dobili jer ste zatražili obavijesti o ovom zahtjevu.",
   },
   DE: {
     type: { HOUSEKEEPING: "Zimmerreinigung", TOWELS: "Frische Handtücher", ISSUE: "Etwas funktioniert nicht", WAKEUP: "Weckruf", OTHER: "Ihr Wunsch", ORDER: "Zimmerservice-Bestellung", BOOKING: "Ihre Buchung" },
@@ -215,7 +221,7 @@ ${reply ? `<div style="background:#F7F7F5;border-left:3px solid #0F2F61;border-r
 // Same rules as the section translator: never translate codes, times, links, media
 const SKIP_FIELDS = new Set(["checkIn", "checkOut", "network", "password", "mapUrl", "phone", "url", "photoUrl", "videoUrl", "photos", "available", "paid", "parkingType", "checkInType", "links", "heroImage", "images"]);
 
-/** Translates a room's own version of a section into DE/TR/IT (EN is the content itself). */
+/** Translates a room's own version of a section into BS/DE/TR/IT (EN is the content itself). */
 export async function translateSectionContent(content: Record<string, unknown>): Promise<Record<string, Record<string, unknown>> | null> {
   const fields: Record<string, string> = {};
   for (const [k, v] of Object.entries(content)) {
@@ -228,11 +234,11 @@ export async function translateSectionContent(content: Record<string, unknown>):
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const res = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 2000,
+      max_tokens: 3000,
       messages: [{
         role: "user",
-        content: `Translate these hotel guest-guide fields from English to German, Turkish and Italian. Fields "rules" and "places" are JSON arrays as strings: translate the text inside and return them as JSON array strings. Keep names, codes and numbers unchanged.
-Return ONLY JSON: {"DE": {...}, "TR": {...}, "IT": {...}}
+        content: `Translate these hotel guest-guide fields (written in English or Bosnian) into Bosnian (Latin script), German, Turkish and Italian. If a field is already in the target language, return it unchanged. Fields "rules" and "places" are JSON arrays as strings: translate the text inside and return them as JSON array strings. Keep names, codes and numbers unchanged.
+Return ONLY JSON: {"BS": {...}, "DE": {...}, "TR": {...}, "IT": {...}}
 
 ${JSON.stringify(fields, null, 2)}`,
       }],
@@ -240,7 +246,7 @@ ${JSON.stringify(fields, null, 2)}`,
     const text = res.content[0]?.type === "text" ? res.content[0].text : "";
     const json = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] ?? "{}") as Record<string, Record<string, string>>;
     const out: Record<string, Record<string, unknown>> = {};
-    for (const lang of ["DE", "TR", "IT"]) {
+    for (const lang of ["BS", "DE", "TR", "IT"]) {
       const merged: Record<string, unknown> = { ...content };
       for (const [k, v] of Object.entries(json[lang] ?? {})) {
         if (k === "rules" || k === "places") { try { merged[k] = JSON.parse(v); } catch {} }
@@ -269,8 +275,8 @@ export async function translateAnnouncement(message: string): Promise<Record<str
       max_tokens: 1500,
       messages: [{
         role: "user",
-        content: `Translate this short hotel announcement for guests into English, German, Turkish and Italian. Keep it short, friendly and natural; keep times, dates, names and numbers unchanged.
-Return ONLY JSON: {"EN": "...", "DE": "...", "TR": "...", "IT": "..."}
+        content: `Translate this short hotel announcement for guests into English, Bosnian (Latin script), German, Turkish and Italian. If it is already in one of these languages, return it unchanged for that language. Keep it short, friendly and natural; keep times, dates, names and numbers unchanged.
+Return ONLY JSON: {"EN": "...", "BS": "...", "DE": "...", "TR": "...", "IT": "..."}
 
 Announcement:
 ${message}`,

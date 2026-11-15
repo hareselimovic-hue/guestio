@@ -10,6 +10,7 @@ interface Message {
 
 const SUGGESTED: Record<string, string[]> = {
   EN: ["What's the WiFi password?", "What time is check-out?", "Where can I park?"],
+  BS: ["Koja je WiFi lozinka?", "U koliko sati je odjava?", "Gdje mogu parkirati?"],
   DE: ["Was ist das WLAN-Passwort?", "Wann ist Check-out?", "Wo kann ich parken?"],
   TR: ["WiFi şifresi nedir?", "Check-out saati nedir?", "Nereye park edebilirim?"],
   IT: ["Qual è la password WiFi?", "A che ora è il check-out?", "Dove posso parcheggiare?"],

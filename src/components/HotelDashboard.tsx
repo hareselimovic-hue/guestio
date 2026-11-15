@@ -881,7 +881,7 @@ function AnnouncementsTab({ propertyId, slug }: { propertyId: string; slug: stri
       <div className={`${card} p-5`}>
         <p className="font-semibold text-[#262626] hidden">New announcement</p>
         <p className="text-sm text-[#6B6B6B] mt-0.5 mb-3">
-          Shown as an orange bar at the top of the guide for every guest. Write it in Bosnian or English — it&apos;s translated automatically to EN, DE, TR and IT.
+          Shown as an orange bar at the top of the guide for every guest. Write it in Bosnian or English — it&apos;s translated automatically to EN, BS, DE, TR and IT.
         </p>
         <textarea
           value={message}

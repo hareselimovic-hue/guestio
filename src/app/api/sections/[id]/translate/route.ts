@@ -7,8 +7,9 @@ import Anthropic from "@anthropic-ai/sdk";
 
 export const dynamic = "force-dynamic";
 
-const LANGUAGES = ["DE", "TR", "IT"] as const;
+const LANGUAGES = ["BS", "DE", "TR", "IT"] as const;
 const LANGUAGE_NAMES: Record<string, string> = {
+  BS: "Bosnian",
   DE: "German",
   TR: "Turkish",
   IT: "Italian",
@@ -77,9 +78,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   const prompt = `You are a professional translator for a property management guest guide app.
-Translate the following JSON fields from English to all three target languages.
+Translate the following JSON fields (written in English or Bosnian) into all four target languages.
+If a field is already in the target language, return it unchanged for that language.
 Return ONLY a valid JSON object with this structure:
 {
+  "BS": { ...translated fields in Bosnian (Latin script) },
   "DE": { ...translated fields in German },
   "TR": { ...translated fields in Turkish },
   "IT": { ...translated fields in Italian }
@@ -98,7 +101,7 @@ ${JSON.stringify(translatableText, null, 2)}`;
   try {
     const response = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 2000,
+      max_tokens: 3000,
       messages: [{ role: "user", content: prompt }],
     });
 
@@ -111,7 +114,7 @@ ${JSON.stringify(translatableText, null, 2)}`;
     return NextResponse.json({ error: "Translation failed" }, { status: 500 });
   }
 
-  // Upsert all 3 translations
+  // Upsert all 4 translations
   await Promise.all(
     LANGUAGES.map((lang) => {
       const translatedContent = applyTranslation(content, translations[lang] ?? {});

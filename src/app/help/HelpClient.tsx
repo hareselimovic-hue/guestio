@@ -143,10 +143,10 @@ function TabAI() {
           Podržani jezici
         </SectionHeading>
         <p className="text-[#6B6B6B] text-sm leading-relaxed mb-4">
-          AI automatski prepoznaje jezik gosta i odgovara na istom jeziku. Prijedlozi pitanja dostupni su na 4 jezika, no AI razumije i ostale.
+          AI automatski prepoznaje jezik gosta i odgovara na istom jeziku. Vodič i prijedlozi pitanja dostupni su na 5 jezika, no AI razumije i ostale.
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[{ flag: "🇬🇧", lang: "Engleski" }, { flag: "🇩🇪", lang: "Njemački" }, { flag: "🇹🇷", lang: "Turski" }, { flag: "🇮🇹", lang: "Talijanski" }].map(({ flag, lang }) => (
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          {[{ flag: "🇧🇦", lang: "Bosanski" }, { flag: "🇬🇧", lang: "Engleski" }, { flag: "🇩🇪", lang: "Njemački" }, { flag: "🇹🇷", lang: "Turski" }, { flag: "🇮🇹", lang: "Talijanski" }].map(({ flag, lang }) => (
             <div key={lang} className="bg-[#F7F7F5] rounded-xl p-3 text-center border border-[#EDEDE9]">
               <div className="text-2xl mb-1">{flag}</div>
               <p className="text-sm font-medium text-[#262626]">{lang}</p>
