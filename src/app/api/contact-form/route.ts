@@ -13,6 +13,8 @@ export async function POST(req: NextRequest) {
 
   // Leads from smartstay.ba/hoteli/ land on signup with "Hotel" preselected
   const isHotel = source === "hotel_page";
+  // Leads from the English site (smartstay.ba/en/...) get the confirmation email in English
+  const isEnglish = body.lang === "en";
   const registerUrl = `https://app.smartstay.ba/register?${isHotel ? "type=hotel&" : ""}email=${encodeURIComponent(email)}`;
 
   // Auto-whitelist email so they can register immediately
@@ -29,6 +31,27 @@ export async function POST(req: NextRequest) {
   if (process.env.RESEND_API_KEY) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const fromEmail = process.env.RESEND_FROM_EMAIL ?? "noreply@resend.dev";
+    const t = isEnglish
+      ? {
+          subject: "Your 30-day trial is ready — SmartStay",
+          eyebrow: "🎁 Limited offer", headline: "30 days free", noCard: "No credit card",
+          title: "Your trial is ready! 🎉",
+          intro: "Your email has been added to the list. Create your account and get immediate access to every SmartStay feature — no credit card, no commitment.",
+          bullets: ["Digital guest guide", "AI chatbot 24/7", "Rentlio sync", "Cancel anytime, no commitment"],
+          cta: "Start your free trial →",
+          ignore: "If you didn't leave this email address, feel free to ignore this message.",
+          footer: "SmartStay — Digital guest guides",
+        }
+      : {
+          subject: "Vaš 30-dnevni trial je spreman — SmartStay",
+          eyebrow: "🎁 Ograničena ponuda", headline: "30 dana besplatno", noCard: "Bez kreditne kartice",
+          title: "Vaš trial je spreman! 🎉",
+          intro: "Vaš email je dodan na listu. Kreirajte nalog i odmah dobijate pristup svim funkcionalnostima SmartStay platforme — bez kreditne kartice, bez obaveze.",
+          bullets: ["Digitalni vodič za goste", "AI chatbot 24/7", "Rentlio sync", "Otkaz kad god, bez obaveze"],
+          cta: "Počnite besplatni trial →",
+          ignore: "Ako niste vi ostavili ovaj email, slobodno ignorirajte ovu poruku.",
+          footer: "SmartStay — Digitalni vodiči za goste",
+        };
 
     await Promise.allSettled([
       // Internal notification
@@ -38,14 +61,14 @@ export async function POST(req: NextRequest) {
         subject: `Novi lead sa smartstay.ba: ${email}`,
         html: `<p>Neko je ostavio email na landing pageu SmartStay.</p>
 <p><strong>Email:</strong> ${email}<br>
-<strong>Izvor:</strong> ${isHotel ? "Stranica za hotele" : source === "trial_popup" ? "Trial popup" : "Kontakt forma"}<br>
+<strong>Izvor:</strong> ${isHotel ? "Stranica za hotele" : source === "trial_popup" ? "Trial popup" : "Kontakt forma"}${isEnglish ? " (engleska stranica)" : ""}<br>
 <strong>Vrijeme:</strong> ${new Date().toLocaleString("bs-BA", { timeZone: "Europe/Sarajevo" })}</p>`,
       }),
-      // Confirmation to visitor — isti email bez obzira na izvor
+      // Confirmation to visitor — isti email bez obzira na izvor (bosanski ili engleski prema stranici)
       resend.emails.send({
         from: fromEmail,
         to: email,
-        subject: "Vaš 30-dnevni trial je spreman — SmartStay",
+        subject: t.subject,
         html: `
 <!DOCTYPE html>
 <html>
@@ -60,40 +83,37 @@ export async function POST(req: NextRequest) {
         <tr><td style="background:#fff;border-radius:16px;border:1px solid #EDEDE9;overflow:hidden;">
           <!-- Orange header -->
           <div style="background:#FF6700;padding:28px 36px;">
-            <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:0.5px;">🎁 Ograničena ponuda</p>
-            <p style="margin:0;font-size:26px;font-weight:800;color:#fff;line-height:1.2;">30 dana besplatno</p>
-            <p style="margin:4px 0 0;font-size:14px;color:rgba(255,255,255,0.8);">Bez kreditne kartice</p>
+            <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:0.5px;">${t.eyebrow}</p>
+            <p style="margin:0;font-size:26px;font-weight:800;color:#fff;line-height:1.2;">${t.headline}</p>
+            <p style="margin:4px 0 0;font-size:14px;color:rgba(255,255,255,0.8);">${t.noCard}</p>
           </div>
           <!-- Body -->
           <div style="padding:32px 36px;">
             <p style="margin:0 0 8px;font-size:22px;font-weight:700;color:#262626;line-height:1.3;">
-              Vaš trial je spreman! 🎉
+              ${t.title}
             </p>
             <p style="margin:0 0 20px;font-size:15px;color:#6B6B6B;line-height:1.6;">
-              Vaš email je dodan na listu. Kreirajte nalog i odmah dobijate pristup svim funkcionalnostima SmartStay platforme — bez kreditne kartice, bez obaveze.
+              ${t.intro}
             </p>
             <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
-              <tr><td style="padding:8px 0;font-size:14px;color:#262626;"><span style="color:#22c55e;font-weight:700;">✓</span>&nbsp; Digitalni vodič za goste</td></tr>
-              <tr><td style="padding:8px 0;font-size:14px;color:#262626;"><span style="color:#22c55e;font-weight:700;">✓</span>&nbsp; AI chatbot 24/7</td></tr>
-              <tr><td style="padding:8px 0;font-size:14px;color:#262626;"><span style="color:#22c55e;font-weight:700;">✓</span>&nbsp; Rentlio sync</td></tr>
-              <tr><td style="padding:8px 0;font-size:14px;color:#262626;"><span style="color:#22c55e;font-weight:700;">✓</span>&nbsp; Otkaz kad god, bez obaveze</td></tr>
+              ${t.bullets.map((b) => `<tr><td style="padding:8px 0;font-size:14px;color:#262626;"><span style="color:#22c55e;font-weight:700;">✓</span>&nbsp; ${b}</td></tr>`).join("\n              ")}
             </table>
             <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 4px;">
               <tr><td align="center">
                 <a href="${registerUrl}"
                    style="display:inline-block;background:#FF6700;color:#fff;font-size:16px;font-weight:700;
                           padding:15px 36px;border-radius:12px;text-decoration:none;text-align:center;">
-                  Počnite besplatni trial →
+                  ${t.cta}
                 </a>
               </td></tr>
             </table>
             <p style="margin:20px 0 0;font-size:12px;color:#BABAB5;text-align:center;">
-              Ako niste vi ostavili ovaj email, slobodno ignorirajte ovu poruku.
+              ${t.ignore}
             </p>
           </div>
         </td></tr>
         <tr><td style="padding-top:20px;text-align:center;">
-          <p style="margin:0;font-size:12px;color:#BABAB5;">SmartStay — Digitalni vodiči za goste</p>
+          <p style="margin:0;font-size:12px;color:#BABAB5;">${t.footer}</p>
         </td></tr>
       </table>
     </td></tr>
