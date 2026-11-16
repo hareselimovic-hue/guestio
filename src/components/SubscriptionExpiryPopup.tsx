@@ -33,25 +33,25 @@ export default function SubscriptionExpiryPopup({ daysLeft }: Props) {
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={dismiss} />
 
       {/* Panel */}
-      <div className="relative w-full sm:max-w-sm bg-white rounded-2xl shadow-2xl border border-[#EDEDE9] overflow-hidden">
+      <div className="relative w-full sm:max-w-sm bg-white rounded-2xl shadow-2xl border border-line overflow-hidden">
         {/* Top bar */}
         <div className="bg-amber-50 border-b border-amber-100 px-5 py-4 flex items-start gap-3">
           <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 mt-0.5">
             <Clock className="w-4 h-4 text-amber-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-[#262626] text-sm">
+            <p className="font-semibold text-ink text-sm">
               {daysLeft === 1
                 ? "Vaša pretplata ističe sutra"
                 : `Vaša pretplata ističe za ${daysLeft} dana`}
             </p>
-            <p className="text-xs text-[#6B6B6B] mt-0.5">
+            <p className="text-xs text-ink-2 mt-0.5">
               Nakon isteka nećete imati pristup dashboardu.
             </p>
           </div>
           <button
             onClick={dismiss}
-            className="text-[#9B9B9B] hover:text-[#262626] transition-colors shrink-0 p-0.5"
+            className="text-ink-3 hover:text-ink transition-colors shrink-0 p-0.5"
             aria-label="Zatvori"
           >
             <X className="w-4 h-4" />
@@ -63,13 +63,13 @@ export default function SubscriptionExpiryPopup({ daysLeft }: Props) {
           <Link
             href="/dashboard/subscription"
             onClick={dismiss}
-            className="flex-1 bg-[#0F2F61] hover:bg-[#0a2347] text-white text-sm font-semibold px-4 py-2.5 rounded-xl text-center transition-colors"
+            className="flex-1 bg-navy hover:bg-navy-dark text-white text-sm font-semibold px-4 py-2.5 rounded-xl text-center transition-colors"
           >
             Plati karticom
           </Link>
           <button
             onClick={dismiss}
-            className="flex-1 bg-[#F7F7F5] hover:bg-[#EDEDE9] text-[#6B6B6B] text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+            className="flex-1 bg-canvas hover:bg-line text-ink-2 text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
           >
             Podsjeti me sutra
           </button>

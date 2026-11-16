@@ -6,6 +6,7 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 
 function ResetPasswordForm() {
@@ -53,12 +54,12 @@ function ResetPasswordForm() {
     return (
       <div>
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#262626] mb-1">Invalid link</h1>
-          <p className="text-[#6B6B6B] text-sm">This reset link is invalid or has expired.</p>
+          <h1 className="text-2xl font-bold text-ink mb-1">Invalid link</h1>
+          <p className="text-ink-2 text-sm">This reset link is invalid or has expired.</p>
         </div>
         <Link
           href="/forgot-password"
-          className="inline-block bg-[#0F2F61] hover:bg-[#0a2347] text-white font-semibold h-11 px-6 rounded-md text-sm flex items-center justify-center"
+          className="inline-block bg-orange hover:bg-orange-dark text-white font-semibold h-11 px-6 rounded-md text-sm flex items-center justify-center"
         >
           Request a new link
         </Link>
@@ -69,40 +70,40 @@ function ResetPasswordForm() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#262626] mb-1">Set new password</h1>
-        <p className="text-[#6B6B6B] text-sm">Choose a strong password with at least 8 characters.</p>
+        <h1 className="text-2xl font-bold text-ink mb-1">Set new password</h1>
+        <p className="text-ink-2 text-sm">Choose a strong password with at least 8 characters.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-[#262626] font-medium text-sm">
+          <Label htmlFor="password" className="text-ink font-medium text-sm">
             New password
           </Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
-            placeholder="••••••••"
+            autoComplete="new-password"
+            placeholder="Minimum 8 characters"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            className="border-[#EDEDE9] focus:border-[#0F2F61] focus:ring-[#0F2F61] h-11"
+            className="border-line focus:border-navy focus:ring-navy h-11"
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="confirm" className="text-[#262626] font-medium text-sm">
+          <Label htmlFor="confirm" className="text-ink font-medium text-sm">
             Confirm password
           </Label>
-          <Input
+          <PasswordInput
             id="confirm"
-            type="password"
-            placeholder="••••••••"
+            autoComplete="new-password"
+            placeholder="Repeat the password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             required
             minLength={8}
-            className="border-[#EDEDE9] focus:border-[#0F2F61] focus:ring-[#0F2F61] h-11"
+            className="border-line focus:border-navy focus:ring-navy h-11"
           />
         </div>
 
@@ -113,7 +114,7 @@ function ResetPasswordForm() {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#0F2F61] hover:bg-[#0a2347] text-white font-semibold h-11"
+          className="w-full bg-orange hover:bg-orange-dark text-white font-semibold h-11"
         >
           {loading ? "Saving..." : "Save new password"}
         </Button>

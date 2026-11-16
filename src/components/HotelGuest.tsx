@@ -296,7 +296,7 @@ async function postJSON(url: string, body: unknown) {
 export function HotelAnnouncements({ items, lang }: { items: HotelAnnouncementItem[]; lang: string }) {
   if (items.length === 0) return null;
   return (
-    <div className="bg-[#FF6700] text-white">
+    <div className="bg-orange text-white">
       {items.map((a) => (
         <div key={a.id} className="px-4 py-2.5 border-b border-white/20 last:border-b-0">
           <p className="max-w-2xl mx-auto text-center text-sm font-medium leading-snug">
@@ -317,8 +317,8 @@ function Sheet({ title, onClose, children }: { title: string; onClose: () => voi
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-5 pt-5 pb-3">
-          <h3 className="font-bold text-lg text-[#262626]" style={HEADING}>{title}</h3>
-          <button onClick={onClose} aria-label="Close" className="w-8 h-8 rounded-full bg-[#F7F7F5] flex items-center justify-center text-[#6B6B6B]">
+          <h3 className="font-bold text-lg text-ink" style={HEADING}>{title}</h3>
+          <button onClick={onClose} aria-label="Close" className="w-8 h-8 rounded-full bg-canvas flex items-center justify-center text-ink-2">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -328,7 +328,7 @@ function Sheet({ title, onClose, children }: { title: string; onClose: () => voi
   );
 }
 
-const inputCls = "w-full border border-[#EDEDE9] rounded-xl px-3.5 py-3 text-sm text-[#262626] outline-none focus:border-[#0F2F61] bg-white";
+const inputCls = "w-full border border-line rounded-xl px-3.5 py-3 text-sm text-ink outline-none focus:border-navy bg-white";
 
 // ─── Services panel: reception, room service, extras, facilities ─────────────
 
@@ -357,7 +357,7 @@ const QUICK = [
   { type: "TOWELS", icon: Bath, tone: "bg-sky-50 text-sky-600" },
   { type: "ISSUE", icon: Wrench, tone: "bg-amber-50 text-amber-600" },
   { type: "WAKEUP", icon: AlarmClock, tone: "bg-rose-50 text-rose-600" },
-  { type: "OTHER", icon: MessageSquarePlus, tone: "bg-[#0F2F61]/5 text-[#0F2F61]" },
+  { type: "OTHER", icon: MessageSquarePlus, tone: "bg-navy/5 text-navy" },
 ];
 
 export type HotelView = "reception" | "extras";
@@ -396,24 +396,24 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
   return (
     <>
       {view === "reception" && !canOrder && (
-        <div className="bg-white rounded-2xl shadow-sm border-2 border-dashed border-[#0F2F61]/30 px-5 py-5 flex gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#0F2F61]/10 text-[#0F2F61]"><QrCode className="w-5 h-5" /></div>
+        <div className="bg-white rounded-2xl shadow-sm border-2 border-dashed border-navy/30 px-5 py-5 flex gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-navy/10 text-navy"><QrCode className="w-5 h-5" /></div>
           <div>
-            <h2 className="font-bold text-[#262626] text-base leading-tight" style={HEADING}>{s.scanTitle}</h2>
-            <p className="text-sm text-[#6B6B6B] mt-1 leading-relaxed">{s.scanBody}</p>
+            <h2 className="font-bold text-ink text-base leading-tight" style={HEADING}>{s.scanTitle}</h2>
+            <p className="text-sm text-ink-2 mt-1 leading-relaxed">{s.scanBody}</p>
           </div>
         </div>
       )}
 
       {view === "reception" && canOrder && (
-        <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#0F2F61]/10 text-[#0F2F61]">
+        <div className="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-line-2">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-navy/10 text-navy">
               <BellRing className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-bold text-[#262626] text-base leading-tight" style={HEADING}>{s.receptionTitle}</h2>
-              <p className="text-xs text-[#9B9B9B] mt-0.5">{s.receptionSub}</p>
+              <h2 className="font-bold text-ink text-base leading-tight" style={HEADING}>{s.receptionTitle}</h2>
+              <p className="text-xs text-ink-3 mt-0.5">{s.receptionSub}</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2.5 p-4">
@@ -423,10 +423,10 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
                 <button
                   key={type}
                   onClick={() => setPending({ kind: "quick", type })}
-                  className={`min-h-[76px] flex ${wide ? "col-span-2 flex-row items-center gap-3" : "flex-col items-start justify-between gap-2"} bg-white border border-[#EDEDE9] hover:border-[#0F2F61]/30 active:scale-[0.98] transition rounded-2xl p-3 text-left shadow-[0_1px_2px_rgba(0,0,0,0.03)]`}
+                  className={`min-h-[76px] flex ${wide ? "col-span-2 flex-row items-center gap-3" : "flex-col items-start justify-between gap-2"} bg-white border border-line hover:border-navy/30 active:scale-[0.98] transition rounded-2xl p-3 text-left shadow-[0_1px_2px_rgba(0,0,0,0.03)]`}
                 >
                   <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${tone}`}><Icon className="w-[18px] h-[18px]" /></span>
-                  <span className="text-sm font-semibold text-[#262626] leading-tight">{s.quick[type]}</span>
+                  <span className="text-sm font-semibold text-ink leading-tight">{s.quick[type]}</span>
                 </button>
               );
             })}
@@ -439,14 +439,14 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
       {view === "extras" && (
         <>
           {chips.length > 2 && (
-            <div className="sticky top-0 z-20 -mx-4 px-4 py-2 bg-[#F7F7F5]/95 backdrop-blur-sm">
+            <div className="sticky top-0 z-20 -mx-4 px-4 py-2 bg-canvas/95 backdrop-blur-sm">
               <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {chips.map((c) => (
                   <button
                     key={c.key}
                     onClick={() => setChip(c.key)}
                     className={`shrink-0 text-sm font-semibold px-3.5 py-1.5 rounded-full border transition-colors ${
-                      chip === c.key ? "bg-[#0F2F61] border-[#0F2F61] text-white" : "bg-white border-[#EDEDE9] text-[#262626]"
+                      chip === c.key ? "bg-navy border-navy text-white" : "bg-white border-line text-ink"
                     }`}
                   >
                     {c.label}
@@ -456,48 +456,48 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
             </div>
           )}
 
-          {chips.length === 1 && <p className="text-center text-sm text-[#6B6B6B] py-10">{s.noExtras}</p>}
+          {chips.length === 1 && <p className="text-center text-sm text-ink-2 py-10">{s.noExtras}</p>}
 
           {!canOrder && chips.length > 1 && (
-            <div className="bg-white rounded-2xl shadow-sm border-2 border-dashed border-[#0F2F61]/30 px-5 py-5 flex gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#0F2F61]/10 text-[#0F2F61]"><QrCode className="w-5 h-5" /></div>
+            <div className="bg-white rounded-2xl shadow-sm border-2 border-dashed border-navy/30 px-5 py-5 flex gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-navy/10 text-navy"><QrCode className="w-5 h-5" /></div>
               <div>
-                <h2 className="font-bold text-[#262626] text-base leading-tight" style={HEADING}>{s.scanTitle}</h2>
-                <p className="text-sm text-[#6B6B6B] mt-1 leading-relaxed">{s.scanBody}</p>
+                <h2 className="font-bold text-ink text-base leading-tight" style={HEADING}>{s.scanTitle}</h2>
+                <p className="text-sm text-ink-2 mt-1 leading-relaxed">{s.scanBody}</p>
               </div>
             </div>
           )}
 
           {/* Room service */}
           {menu.length > 0 && show("FOOD") && (
-            <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
+            <div className="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-line-2">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-rose-50 text-rose-600">
                   <UtensilsCrossed className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-[#262626] text-base leading-tight" style={HEADING}>{s.cat.FOOD}</h2>
-                  <p className="text-xs text-[#9B9B9B] mt-0.5">{s.menuSub}</p>
+                  <h2 className="font-bold text-ink text-base leading-tight" style={HEADING}>{s.cat.FOOD}</h2>
+                  <p className="text-xs text-ink-3 mt-0.5">{s.menuSub}</p>
                 </div>
               </div>
               <div className="px-5 py-3">
                 <div className="py-2">
                     {menu.map((m) => (
-                      <div key={m.id} className="flex items-center gap-3 py-2.5 border-b border-[#F5F5F2] last:border-b-0">
+                      <div key={m.id} className="flex items-center gap-3 py-2.5 border-b border-line-3 last:border-b-0">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-[#262626]">{m.name}</p>
-                          {m.description && <p className="text-xs text-[#6B6B6B] leading-snug mt-0.5">{m.description}</p>}
-                          {m.price !== null && <p className="text-xs font-semibold text-[#0F2F61] mt-1">{km(m.price)}</p>}
+                          <p className="text-sm font-semibold text-ink">{m.name}</p>
+                          {m.description && <p className="text-xs text-ink-2 leading-snug mt-0.5">{m.description}</p>}
+                          {m.price !== null && <p className="text-xs font-semibold text-navy mt-1">{km(m.price)}</p>}
                         </div>
                         {!canOrder ? null : cart[m.id] ? (
                           <div className="flex items-center gap-2 shrink-0">
-                            <button aria-label="−" onClick={() => setCart((c) => ({ ...c, [m.id]: c[m.id] - 1 }))} className="w-9 h-9 rounded-full border border-[#0F2F61]/30 bg-white flex items-center justify-center text-[#0F2F61] active:scale-95 transition-transform"><Minus className="w-4 h-4" /></button>
-                            <span className="w-4 text-center text-sm font-bold text-[#262626]">{cart[m.id]}</span>
-                            <button aria-label="+" onClick={() => setCart((c) => ({ ...c, [m.id]: Math.min(c[m.id] + 1, 20) }))} className="w-9 h-9 rounded-full bg-[#0F2F61] flex items-center justify-center text-white active:scale-95 transition-transform"><Plus className="w-4 h-4" /></button>
+                            <button aria-label="−" onClick={() => setCart((c) => ({ ...c, [m.id]: c[m.id] - 1 }))} className="w-9 h-9 rounded-full border border-navy/30 bg-white flex items-center justify-center text-navy active:scale-95 transition-transform"><Minus className="w-4 h-4" /></button>
+                            <span className="w-4 text-center text-sm font-bold text-ink">{cart[m.id]}</span>
+                            <button aria-label="+" onClick={() => setCart((c) => ({ ...c, [m.id]: Math.min(c[m.id] + 1, 20) }))} className="w-9 h-9 rounded-full bg-navy flex items-center justify-center text-white active:scale-95 transition-transform"><Plus className="w-4 h-4" /></button>
                           </div>
                         ) : (
                           <button onClick={() => setCart((c) => ({ ...c, [m.id]: 1 }))} aria-label={s.addToOrder} title={s.addToOrder}
-                            className="shrink-0 w-9 h-9 rounded-full border border-[#0F2F61]/30 bg-white flex items-center justify-center text-[#0F2F61] hover:bg-[#0F2F61]/5 active:scale-95 transition-transform">
+                            className="shrink-0 w-9 h-9 rounded-full border border-navy/30 bg-white flex items-center justify-center text-navy hover:bg-navy/5 active:scale-95 transition-transform">
                             <Plus className="w-4 h-4" />
                           </button>
                         )}
@@ -531,7 +531,7 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
             <div className="fixed left-4 right-[92px] bottom-[96px] z-40 flex justify-center">
               <button
                 onClick={() => setPending({ kind: "order" })}
-                className="w-full max-w-xl flex items-center justify-between gap-2 bg-[#FF6700] hover:bg-[#e05c00] text-white text-sm font-semibold px-4 py-3.5 rounded-2xl shadow-lg transition-colors"
+                className="w-full max-w-xl flex items-center justify-between gap-2 bg-orange hover:bg-orange-dark text-white text-sm font-semibold px-4 py-3.5 rounded-2xl shadow-lg transition-colors"
               >
                 <span className="whitespace-nowrap truncate">{s.orderToRoom} ({cartCount})</span>
                 <span className="whitespace-nowrap">{km(cartTotal)}</span>
@@ -572,7 +572,7 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
 interface MyRequest { id: string; type: string; status: string; items: { name: string; qty: number }[] | null; createdAt: string; reply: string | null }
 
 const STATUS_TONE: Record<string, string> = {
-  NEW: "bg-orange-50 text-[#FF6700]", IN_PROGRESS: "bg-blue-50 text-blue-700", DONE: "bg-green-50 text-green-700", DECLINED: "bg-gray-100 text-gray-600",
+  NEW: "bg-orange-50 text-orange", IN_PROGRESS: "bg-blue-50 text-blue-700", DONE: "bg-green-50 text-green-700", DECLINED: "bg-gray-100 text-gray-600",
 };
 
 function MyRequests({ ctx, refreshKey }: { ctx: GuestCtx; refreshKey: number }) {
@@ -596,26 +596,26 @@ function MyRequests({ ctx, refreshKey }: { ctx: GuestCtx; refreshKey: number }) 
 
   if (items.length === 0) return (
     <div className="rounded-2xl border border-dashed border-[#DADAD5] px-5 py-5 text-center">
-      <p className="font-bold text-[#262626] text-sm" style={HEADING}>{s.myRequests}</p>
-      <p className="text-xs text-[#9B9B9B] mt-1">{s.noRequests}</p>
+      <p className="font-bold text-ink text-sm" style={HEADING}>{s.myRequests}</p>
+      <p className="text-xs text-ink-3 mt-1">{s.noRequests}</p>
     </div>
   );
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
-      <p className="px-5 py-3.5 border-b border-[#F0F0EE] font-bold text-[#262626] text-base" style={HEADING}>{s.myRequests}</p>
-      <ul className="divide-y divide-[#F5F5F2]">
+    <div className="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
+      <p className="px-5 py-3.5 border-b border-line-2 font-bold text-ink text-base" style={HEADING}>{s.myRequests}</p>
+      <ul className="divide-y divide-line-3">
         {items.map((r) => {
           const what = r.items?.length ? r.items.map((i) => (i.qty > 1 ? `${i.qty} × ${i.name}` : i.name)).join(", ") : s.quick[r.type] ?? r.type;
           const time = new Date(r.createdAt);
           return (
             <li key={r.id} className="px-5 py-3">
               <div className="flex items-center gap-2">
-                <p className="flex-1 min-w-0 text-sm font-medium text-[#262626] truncate">{what}</p>
+                <p className="flex-1 min-w-0 text-sm font-medium text-ink truncate">{what}</p>
                 <span className={`shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_TONE[r.status] ?? STATUS_TONE.NEW}`}>{s.status[r.status] ?? r.status}</span>
               </div>
-              <p className="text-[11px] text-[#9B9B9B] mt-0.5">{String(time.getHours()).padStart(2, "0")}:{String(time.getMinutes()).padStart(2, "0")}</p>
+              <p className="text-[11px] text-ink-3 mt-0.5">{String(time.getHours()).padStart(2, "0")}:{String(time.getMinutes()).padStart(2, "0")}</p>
               {r.reply && (
-                <p className="mt-1.5 text-sm text-[#262626] bg-[#F7F7F5] rounded-lg px-3 py-2"><span className="text-xs font-semibold text-[#0F2F61]">{s.replyFrom}: </span>{r.reply}</p>
+                <p className="mt-1.5 text-sm text-ink bg-canvas rounded-lg px-3 py-2"><span className="text-xs font-semibold text-navy">{s.replyFrom}: </span>{r.reply}</p>
               )}
             </li>
           );
@@ -637,13 +637,13 @@ export function HotelTabBar({ tab, onChange, lang }: { tab: HotelTab; onChange: 
     { key: "extras", label: s.tabExtras, icon: ShoppingBag },
   ];
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#EDEDE9] pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-line pb-[env(safe-area-inset-bottom)]">
       <div className="max-w-2xl mx-auto flex">
         {items.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => onChange(key)}
-            className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-semibold transition-colors ${tab === key ? "text-[#FF6700]" : "text-[#8A8A85]"}`}
+            className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-semibold transition-colors ${tab === key ? "text-orange" : "text-[#8A8A85]"}`}
           >
             <Icon className="w-5 h-5" />
             {label}
@@ -658,25 +658,25 @@ function ServiceListCard({ title, icon, tone, items, action, onPick, s }: {
   s: Strings; title: string; icon: React.ReactNode; tone: string; items: HotelServiceItem[]; action: string; onPick?: (i: HotelServiceItem) => void;
 }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
+    <div className="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-line-2">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${tone}`}>{icon}</div>
-        <h2 className="font-bold text-[#262626] text-base" style={HEADING}>{title}</h2>
+        <h2 className="font-bold text-ink text-base" style={HEADING}>{title}</h2>
       </div>
       <div className="px-5 py-2">
         {items.map((it) => (
-          <div key={it.id} className="flex items-center gap-3 py-3 border-b border-[#F5F5F2] last:border-b-0">
+          <div key={it.id} className="flex items-center gap-3 py-3 border-b border-line-3 last:border-b-0">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[#262626]">{it.name}</p>
-              {it.description && <p className="text-xs text-[#6B6B6B] leading-snug mt-0.5">{it.description}</p>}
+              <p className="text-sm font-semibold text-ink">{it.name}</p>
+              {it.description && <p className="text-xs text-ink-2 leading-snug mt-0.5">{it.description}</p>}
               {it.price !== null && (
-                <p className="text-xs font-semibold text-[#0F2F61] mt-1">
-                  {it.price === 0 ? s.free : km(it.price)}{it.priceNote ? <span className="font-normal text-[#9B9B9B]"> · {it.priceNote}</span> : null}
+                <p className="text-xs font-semibold text-navy mt-1">
+                  {it.price === 0 ? s.free : km(it.price)}{it.priceNote ? <span className="font-normal text-ink-3"> · {it.priceNote}</span> : null}
                 </p>
               )}
             </div>
             {onPick && (
-              <button onClick={() => onPick(it)} className="shrink-0 h-9 text-xs font-semibold text-[#0F2F61] bg-white border border-[#0F2F61]/30 hover:bg-[#0F2F61]/5 rounded-full px-3.5 active:scale-95 transition-transform">
+              <button onClick={() => onPick(it)} className="shrink-0 h-9 text-xs font-semibold text-navy bg-white border border-navy/30 hover:bg-navy/5 rounded-full px-3.5 active:scale-95 transition-transform">
                 {action}
               </button>
             )}
@@ -739,34 +739,34 @@ function RequestSheet({ ctx, pending, cartItems, cartTotal, onClose, onDone }: {
     <Sheet title={title} onClose={onClose}>
       <div className="space-y-3">
         {pending.kind === "order" && (
-          <div className="bg-[#F7F7F5] rounded-xl p-3 space-y-1.5">
+          <div className="bg-canvas rounded-xl p-3 space-y-1.5">
             {cartItems.map((i) => (
-              <div key={i.id} className="flex justify-between text-sm text-[#262626]">
+              <div key={i.id} className="flex justify-between text-sm text-ink">
                 <span>{i.qty} × {i.name}</span>
-                {i.price !== null && <span className="text-[#6B6B6B]">{km(i.price * i.qty)}</span>}
+                {i.price !== null && <span className="text-ink-2">{km(i.price * i.qty)}</span>}
               </div>
             ))}
-            <div className="flex justify-between text-sm font-bold text-[#0F2F61] pt-1.5 border-t border-[#EDEDE9]">
+            <div className="flex justify-between text-sm font-bold text-navy pt-1.5 border-t border-line">
               <span>{s.total}</span><span>{km(cartTotal)}</span>
             </div>
           </div>
         )}
         {pending.kind === "item" && pending.item.description && (
-          <p className="text-sm text-[#6B6B6B]">{pending.item.description}</p>
+          <p className="text-sm text-ink-2">{pending.item.description}</p>
         )}
 
         {ctx.roomNumber ? (
-          <p className="inline-flex text-xs font-semibold bg-[#0F2F61]/10 text-[#0F2F61] px-2.5 py-1 rounded-full">{s.room} {ctx.roomNumber}</p>
+          <p className="inline-flex text-xs font-semibold bg-navy/10 text-navy px-2.5 py-1 rounded-full">{s.room} {ctx.roomNumber}</p>
         ) : (
           <label className="block">
-            <span className="text-xs font-medium text-[#6B6B6B]">{s.yourRoom}</span>
+            <span className="text-xs font-medium text-ink-2">{s.yourRoom}</span>
             <input value={room} onChange={(e) => setRoom(e.target.value)} inputMode="numeric" className={`${inputCls} mt-1`} />
           </label>
         )}
 
         {askWhen && (
           <label className="block">
-            <span className="text-xs font-medium text-[#6B6B6B]">{pending.kind === "quick" ? s.whenWake : s.when}</span>
+            <span className="text-xs font-medium text-ink-2">{pending.kind === "quick" ? s.whenWake : s.when}</span>
             <input
               value={when}
               onChange={(e) => setWhen(e.target.value)}
@@ -777,25 +777,25 @@ function RequestSheet({ ctx, pending, cartItems, cartTotal, onClose, onDone }: {
         )}
         {askGuests && (
           <label className="block">
-            <span className="text-xs font-medium text-[#6B6B6B]">{s.guests}</span>
+            <span className="text-xs font-medium text-ink-2">{s.guests}</span>
             <input value={guests} onChange={(e) => setGuests(e.target.value)} type="number" min={1} max={50} className={`${inputCls} mt-1`} />
           </label>
         )}
         <label className="block">
-          <span className="text-xs font-medium text-[#6B6B6B]">{pending.kind === "quick" && pending.type === "ISSUE" ? s.issueNote : s.note}</span>
+          <span className="text-xs font-medium text-ink-2">{pending.kind === "quick" && pending.type === "ISSUE" ? s.issueNote : s.note}</span>
           <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} className={`${inputCls} mt-1 resize-none`} />
         </label>
         <label className="block">
-          <span className="text-xs font-medium text-[#6B6B6B]">{s.emailLabel}</span>
+          <span className="text-xs font-medium text-ink-2">{s.emailLabel}</span>
           <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" inputMode="email" autoComplete="email" placeholder="you@email.com" className={`${inputCls} mt-1`} />
-          <span className="block text-[11px] text-[#9B9B9B] mt-1">{s.emailHint}</span>
+          <span className="block text-[11px] text-ink-3 mt-1">{s.emailHint}</span>
         </label>
 
         {error && <p className="text-sm text-red-600">{error}</p>}
         <button
           onClick={submit}
           disabled={busy}
-          className="w-full flex items-center justify-center gap-2 bg-[#FF6700] hover:bg-[#e05c00] disabled:opacity-60 text-white font-semibold py-3.5 rounded-xl transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-orange hover:bg-orange-dark disabled:opacity-60 text-white font-semibold py-3.5 rounded-xl transition-colors"
         >
           {busy && <Loader2 className="w-4 h-4 animate-spin" />}
           {s.send}
@@ -821,18 +821,18 @@ function GoogleG() {
 export function GoogleReviewCard({ lang, url }: { lang: string; url: string }) {
   const s = t(lang);
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] px-5 py-5 text-center">
+    <div className="bg-white rounded-2xl shadow-sm border border-line px-5 py-5 text-center">
       <div className="flex items-center justify-center gap-2 mb-2">
         <GoogleG />
         <span className="flex gap-0.5">{[0, 1, 2, 3, 4].map((i) => <Star key={i} className="w-5 h-5 fill-[#FBBC04] text-[#FBBC04]" />)}</span>
       </div>
-      <h2 className="font-bold text-[#262626] text-lg" style={HEADING}>{s.reviewTitle}</h2>
-      <p className="text-sm text-[#6B6B6B] leading-relaxed mt-1 mb-4">{s.reviewBody}</p>
+      <h2 className="font-bold text-ink text-lg" style={HEADING}>{s.reviewTitle}</h2>
+      <p className="text-sm text-ink-2 leading-relaxed mt-1 mb-4">{s.reviewBody}</p>
       <a
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 bg-[#0F2F61] hover:bg-[#0a2347] text-white text-sm font-semibold px-5 py-3 rounded-xl"
+        className="inline-flex items-center gap-2 bg-navy hover:bg-navy-dark text-white text-sm font-semibold px-5 py-3 rounded-xl"
       >
         {s.reviewCta} <ExternalLink className="w-3.5 h-3.5" />
       </a>

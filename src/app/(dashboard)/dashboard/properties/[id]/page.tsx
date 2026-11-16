@@ -93,7 +93,7 @@ export default function PropertyEditorPage() {
   function shareHref(app: "whatsapp" | "viber") {
     if (!property) return "#";
     const url = `${window.location.origin}/g/${property.slug}/preview`;
-    const text = encodeURIComponent(`Evo vašeg digitalnog vodiča za apartman: ${url}`);
+    const text = encodeURIComponent(`Here is your digital guide for the apartment: ${url}`);
     return app === "whatsapp"
       ? `https://wa.me/?text=${text}`
       : `viber://forward?text=${text}`;
@@ -181,7 +181,7 @@ export default function PropertyEditorPage() {
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 border-[#0F2F61] border-t-transparent rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-navy border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -196,7 +196,7 @@ export default function PropertyEditorPage() {
       {/* Header */}
       <div className="mb-6">
        <div className="flex items-start gap-3">
-        <Link href={property.kind === "HOTEL" ? `/dashboard/hotel?property=${property.id}` : "/dashboard/apartments"} className="text-[#6B6B6B] hover:text-[#262626] transition-colors mt-0.5">
+        <Link href={property.kind === "HOTEL" ? `/dashboard/hotel?property=${property.id}` : "/dashboard/apartments"} className="text-ink-2 hover:text-ink transition-colors mt-0.5">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex-1">
@@ -206,7 +206,7 @@ export default function PropertyEditorPage() {
                 autoFocus
                 value={nameValue}
                 onChange={(e) => setNameValue(e.target.value)}
-                className="text-xl font-bold text-[#262626] border border-[#0F2F61] rounded-lg px-2 py-0.5 outline-none flex-1"
+                className="text-xl font-bold text-ink border border-navy rounded-lg px-2 py-0.5 outline-none flex-1"
                 style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
               />
               <button
@@ -220,19 +220,19 @@ export default function PropertyEditorPage() {
                   setProperty({ ...property, name: nameValue.trim() });
                   setEditingName(false);
                 }}
-                className="text-xs font-medium text-white bg-[#0F2F61] px-2.5 py-1 rounded-lg shrink-0"
+                className="text-xs font-medium text-white bg-navy px-2.5 py-1 rounded-lg shrink-0"
               >Save</button>
-              <button onClick={() => { setEditingName(false); setNameValue(property.name); }} className="text-xs text-[#6B6B6B] shrink-0">Cancel</button>
+              <button onClick={() => { setEditingName(false); setNameValue(property.name); }} className="text-xs text-ink-2 shrink-0">Cancel</button>
             </div>
           ) : (
             <button onClick={() => setEditingName(true)} className="flex items-center gap-1.5 group text-left">
               <h1
-                className="text-xl font-bold text-[#262626] group-hover:text-[#0F2F61] transition-colors"
+                className="text-xl font-bold text-ink group-hover:text-navy transition-colors"
                 style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
               >
                 {property.name}
               </h1>
-              <Pencil className="w-3.5 h-3.5 text-[#BABAB5] group-hover:text-[#0F2F61] transition-colors opacity-0 group-hover:opacity-100 shrink-0" />
+              <Pencil className="w-3.5 h-3.5 text-ink-4 group-hover:text-navy transition-colors opacity-0 group-hover:opacity-100 shrink-0" />
             </button>
           )}
           {/* Internal name — editable inline */}
@@ -243,7 +243,7 @@ export default function PropertyEditorPage() {
                 value={internalNameValue}
                 onChange={(e) => setInternalNameValue(e.target.value)}
                 placeholder="Internal name..."
-                className="text-xs border border-[#0F2F61] rounded px-2 py-0.5 outline-none text-[#6B6B6B] w-40"
+                className="text-xs border border-navy rounded px-2 py-0.5 outline-none text-ink-2 w-40"
               />
               <button
                 onClick={async () => {
@@ -256,9 +256,9 @@ export default function PropertyEditorPage() {
                   setProperty({ ...property, internalName: internalNameValue || null });
                   setEditingInternalName(false);
                 }}
-                className="text-xs font-medium text-white bg-[#0F2F61] px-2 py-0.5 rounded"
+                className="text-xs font-medium text-white bg-navy px-2 py-0.5 rounded"
               >Save</button>
-              <button onClick={() => { setEditingInternalName(false); setInternalNameValue(internalName); }} className="text-xs text-[#6B6B6B]">Cancel</button>
+              <button onClick={() => { setEditingInternalName(false); setInternalNameValue(internalName); }} className="text-xs text-ink-2">Cancel</button>
             </div>
           ) : (
             <button
@@ -266,26 +266,26 @@ export default function PropertyEditorPage() {
               className="flex items-center gap-1 mt-0.5 group"
             >
               {internalName ? (
-                <span className="text-xs text-[#6B6B6B] italic group-hover:text-[#0F2F61] transition-colors">{internalName}</span>
+                <span className="text-xs text-ink-2 italic group-hover:text-navy transition-colors">{internalName}</span>
               ) : (
-                <span className="text-xs text-[#BABAB5] group-hover:text-[#6B6B6B] transition-colors italic">+ internal name</span>
+                <span className="text-xs text-ink-4 group-hover:text-ink-2 transition-colors italic">+ internal name</span>
               )}
-              <Pencil className="w-2.5 h-2.5 text-[#BABAB5] group-hover:text-[#6B6B6B] transition-colors opacity-0 group-hover:opacity-100" />
+              <Pencil className="w-2.5 h-2.5 text-ink-4 group-hover:text-ink-2 transition-colors opacity-0 group-hover:opacity-100" />
             </button>
           )}
           {property.address && (
-            <p className="text-sm text-[#6B6B6B] mt-0.5">{property.address}</p>
+            <p className="text-sm text-ink-2 mt-0.5">{property.address}</p>
           )}
           {/* Slug / guest link */}
           {editingSlug ? (
             <div className="flex items-center gap-2 mt-1">
-              <div className="flex items-center border border-[#0F2F61] rounded-lg overflow-hidden h-7 text-xs">
-                <span className="px-2 text-[#6B6B6B] bg-[#F7F7F5] h-full flex items-center border-r border-[#EDEDE9]">/g/</span>
+              <div className="flex items-center border border-navy rounded-lg overflow-hidden h-7 text-xs">
+                <span className="px-2 text-ink-2 bg-canvas h-full flex items-center border-r border-line">/g/</span>
                 <input
                   autoFocus
                   value={slugValue}
                   onChange={(e) => setSlugValue(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}
-                  className="px-2 h-full outline-none text-[#262626] w-40"
+                  className="px-2 h-full outline-none text-ink w-40"
                 />
               </div>
               <button
@@ -304,15 +304,15 @@ export default function PropertyEditorPage() {
                     setEditingSlug(false);
                   }
                 }}
-                className="text-xs font-medium text-white bg-[#0F2F61] px-2.5 py-1 rounded-lg"
+                className="text-xs font-medium text-white bg-navy px-2.5 py-1 rounded-lg"
               >Save</button>
-              <button onClick={() => { setEditingSlug(false); setSlugValue(property.slug); setSlugError(""); }} className="text-xs text-[#6B6B6B]">Cancel</button>
+              <button onClick={() => { setEditingSlug(false); setSlugValue(property.slug); setSlugError(""); }} className="text-xs text-ink-2">Cancel</button>
               {slugError && <span className="text-xs text-red-500">{slugError}</span>}
             </div>
           ) : (
             <div className="hidden sm:flex items-center gap-1.5 mt-1">
-              <span className="text-xs text-[#6B6B6B]">/g/{property.slug}/preview</span>
-              <button onClick={() => setEditingSlug(true)} className="text-[#6B6B6B] hover:text-[#0F2F61] transition-colors">
+              <span className="text-xs text-ink-2">/g/{property.slug}/preview</span>
+              <button onClick={() => setEditingSlug(true)} className="text-ink-2 hover:text-navy transition-colors">
                 <Pencil className="w-3 h-3" />
               </button>
             </div>
@@ -324,20 +324,20 @@ export default function PropertyEditorPage() {
           <div className="relative" ref={shareRefDesktop}>
             <button
               onClick={(e) => { e.stopPropagation(); setShowShare((v) => !v); }}
-              className="flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] border border-[#EDEDE9] px-3 py-1.5 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink border border-line px-3 py-1.5 rounded-lg transition-colors"
             >
               <MessageCircle className="w-3.5 h-3.5 shrink-0" />
               Share
               <ChevronDown className="w-3 h-3" />
             </button>
             {showShare && (
-              <div className="absolute right-0 top-full mt-1 bg-white border border-[#EDEDE9] rounded-xl shadow-lg z-50 overflow-hidden min-w-[160px]">
+              <div className="absolute right-0 top-full mt-1 bg-white border border-line rounded-xl shadow-lg z-50 overflow-hidden min-w-[160px]">
                 <a
                   href={shareHref("whatsapp")}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setShowShare(false)}
-                  className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-[#262626] hover:bg-[#F7F7F5] transition-colors"
+                  className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink hover:bg-canvas transition-colors"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                   WhatsApp
@@ -347,7 +347,7 @@ export default function PropertyEditorPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setShowShare(false)}
-                  className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-[#262626] hover:bg-[#F7F7F5] transition-colors"
+                  className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink hover:bg-canvas transition-colors"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="#7360F2"><path d="M11.398.002C8.865-.028 3.443.675 1.09 5.607c-1.17 2.434-1.126 5.608-1.085 7.507.042 1.9.168 5.462 2.31 7.754 1.964 2.093 4.9 2.64 6.193 2.73v2.553c0 .578.698.869 1.107.456l2.65-2.756h2.64c4.52 0 7.17-1.965 7.532-5.94.375-4.048.293-6.813-.002-8.932C21.935 4.55 19.397.032 11.398.002zm3.05 14.516a1.43 1.43 0 01-.818.415c-.085.007-.17.015-.25.015-.28-.001-.553-.07-.807-.2l-.001-.001c-1.12-.572-2.15-1.266-3.072-2.165-.852-.83-1.537-1.8-2.085-2.857C7.13 9 6.902 8.25 6.953 7.494a1.52 1.52 0 01.436-.93l.006-.007.462-.46c.302-.285.735-.3 1.022-.04.557.52.995 1.127 1.328 1.79.143.28.07.614-.171.832l-.397.36c-.19.172-.219.45-.073.658.29.412.627.797 1.008 1.13.39.34.816.63 1.27.866.21.113.47.082.647-.078l.393-.354c.22-.198.547-.258.829-.148a6.87 6.87 0 011.825 1.22c.278.28.27.721-.083 1.083l-.405.4zm.884-4.753c-.02 0-.04-.001-.059-.004a.283.283 0 01-.222-.326c.13-.749.015-1.53-.328-2.21a4.05 4.05 0 00-1.565-1.64 4.025 4.025 0 00-2.17-.546.284.284 0 01-.292-.274.283.283 0 01.274-.292c.88-.03 1.746.195 2.508.644a4.61 4.61 0 011.789 1.877 4.64 4.64 0 01.378 2.55.284.284 0 01-.313.22zm-1.403-.255a.282.282 0 01-.278-.237 2.24 2.24 0 00-.614-1.222 2.247 2.247 0 00-1.264-.604.283.283 0 01-.237-.322.283.283 0 01.322-.237c.6.088 1.143.37 1.554.817.411.447.65 1.025.706 1.617a.283.283 0 01-.236.322.282.282 0 01-.044.003l-.01.001-.899.065zm-2.832-.696c-.07-.148-.022-.328.124-.418.07-.043.148-.058.22-.045.072.013.14.054.186.12a.823.823 0 01.1.225c.017.067.013.14-.012.208a.274.274 0 01-.134.161.284.284 0 01-.384-.113l-.1-.138z"/></svg>
                   Viber
@@ -359,7 +359,7 @@ export default function PropertyEditorPage() {
           {/* QR button */}
           <button
             onClick={() => setShowQr(true)}
-            className="flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] border border-[#EDEDE9] px-3 py-1.5 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink border border-line px-3 py-1.5 rounded-lg transition-colors"
           >
             <QrCode className="w-3.5 h-3.5 shrink-0" />
             QR
@@ -369,7 +369,7 @@ export default function PropertyEditorPage() {
           <a
             href={`/g/${property.slug}/preview`}
             target="_blank"
-            className="flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] border border-[#EDEDE9] px-3 py-1.5 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink border border-line px-3 py-1.5 rounded-lg transition-colors"
           >
             <ExternalLink className="w-3.5 h-3.5 shrink-0" />
             Guest link
@@ -380,13 +380,13 @@ export default function PropertyEditorPage() {
        </div>{/* end flex items-start */}
 
        {/* Mobile guest link card — hidden on desktop */}
-       <div className="sm:hidden mt-4 bg-white border border-[#EDEDE9] rounded-xl p-3">
+       <div className="sm:hidden mt-4 bg-white border border-line rounded-xl p-3">
          <div className="flex items-center justify-between mb-2">
-           <span className="text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Guest link</span>
+           <span className="text-xs font-semibold text-ink-2 uppercase tracking-wide">Guest link</span>
            {!editingSlug && (
              <button
                onClick={() => setEditingSlug(true)}
-               className="flex items-center gap-1 text-xs text-[#6B6B6B] hover:text-[#0F2F61] transition-colors"
+               className="flex items-center gap-1 text-xs text-ink-2 hover:text-navy transition-colors"
              >
                <Pencil className="w-3 h-3" />
                Edit
@@ -395,41 +395,41 @@ export default function PropertyEditorPage() {
          </div>
          <button
            onClick={copyLink}
-           className="w-full flex items-center gap-2 bg-[#F7F7F5] rounded-lg px-3 py-2.5 text-left"
+           className="w-full flex items-center gap-2 bg-canvas rounded-lg px-3 py-2.5 text-left"
          >
-           <span className="text-xs text-[#262626] font-mono truncate flex-1">
+           <span className="text-xs text-ink font-mono truncate flex-1">
              {window.location.host}/g/{property.slug}/preview
            </span>
            {linkCopied ? (
              <span className="flex items-center gap-1 text-xs font-medium text-green-600 shrink-0"><Check className="w-3.5 h-3.5" /> Copied</span>
            ) : (
-             <Copy className="w-3.5 h-3.5 text-[#6B6B6B] shrink-0" />
+             <Copy className="w-3.5 h-3.5 text-ink-2 shrink-0" />
            )}
          </button>
          <div className="grid grid-cols-3 gap-2 mt-2">
            <a
              href={`/g/${property.slug}/preview`}
              target="_blank"
-             className="flex flex-col items-center justify-center gap-1 py-2.5 text-xs font-medium text-[#262626] border border-[#EDEDE9] rounded-lg active:bg-[#F7F7F5] transition-colors"
+             className="flex flex-col items-center justify-center gap-1 py-2.5 text-xs font-medium text-ink border border-line rounded-lg active:bg-canvas transition-colors"
            >
-             <ExternalLink className="w-4 h-4 text-[#0F2F61]" />
+             <ExternalLink className="w-4 h-4 text-navy" />
              Open
            </a>
            <div className="relative" ref={shareRefMobile}>
              <button
                onClick={(e) => { e.stopPropagation(); setShowShare((v) => !v); }}
-               className="w-full flex flex-col items-center justify-center gap-1 py-2.5 text-xs font-medium text-[#262626] border border-[#EDEDE9] rounded-lg active:bg-[#F7F7F5] transition-colors"
+               className="w-full flex flex-col items-center justify-center gap-1 py-2.5 text-xs font-medium text-ink border border-line rounded-lg active:bg-canvas transition-colors"
              >
-               <MessageCircle className="w-4 h-4 text-[#0F2F61]" />
+               <MessageCircle className="w-4 h-4 text-navy" />
                Share
              </button>
              {showShare && (
-                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-white border border-[#EDEDE9] rounded-xl shadow-lg z-50 overflow-hidden min-w-[160px]">
-                   <a href={shareHref("whatsapp")} target="_blank" rel="noopener noreferrer" onClick={() => setShowShare(false)} className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-[#262626] hover:bg-[#F7F7F5] transition-colors">
+                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-white border border-line rounded-xl shadow-lg z-50 overflow-hidden min-w-[160px]">
+                   <a href={shareHref("whatsapp")} target="_blank" rel="noopener noreferrer" onClick={() => setShowShare(false)} className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink hover:bg-canvas transition-colors">
                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                      WhatsApp
                    </a>
-                   <a href={shareHref("viber")} target="_blank" rel="noopener noreferrer" onClick={() => setShowShare(false)} className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-[#262626] hover:bg-[#F7F7F5] transition-colors">
+                   <a href={shareHref("viber")} target="_blank" rel="noopener noreferrer" onClick={() => setShowShare(false)} className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-ink hover:bg-canvas transition-colors">
                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#7360F2"><path d="M11.398.002C8.865-.028 3.443.675 1.09 5.607c-1.17 2.434-1.126 5.608-1.085 7.507.042 1.9.168 5.462 2.31 7.754 1.964 2.093 4.9 2.64 6.193 2.73v2.553c0 .578.698.869 1.107.456l2.65-2.756h2.64c4.52 0 7.17-1.965 7.532-5.94.375-4.048.293-6.813-.002-8.932C21.935 4.55 19.397.032 11.398.002zm3.05 14.516a1.43 1.43 0 01-.818.415c-.085.007-.17.015-.25.015-.28-.001-.553-.07-.807-.2l-.001-.001c-1.12-.572-2.15-1.266-3.072-2.165-.852-.83-1.537-1.8-2.085-2.857C7.13 9 6.902 8.25 6.953 7.494a1.52 1.52 0 01.436-.93l.006-.007.462-.46c.302-.285.735-.3 1.022-.04.557.52.995 1.127 1.328 1.79.143.28.07.614-.171.832l-.397.36c-.19.172-.219.45-.073.658.29.412.627.797 1.008 1.13.39.34.816.63 1.27.866.21.113.47.082.647-.078l.393-.354c.22-.198.547-.258.829-.148a6.87 6.87 0 011.825 1.22c.278.28.27.721-.083 1.083l-.405.4zm.884-4.753c-.02 0-.04-.001-.059-.004a.283.283 0 01-.222-.326c.13-.749.015-1.53-.328-2.21a4.05 4.05 0 00-1.565-1.64 4.025 4.025 0 00-2.17-.546.284.284 0 01-.292-.274.283.283 0 01.274-.292c.88-.03 1.746.195 2.508.644a4.61 4.61 0 011.789 1.877 4.64 4.64 0 01.378 2.55.284.284 0 01-.313.22zm-1.403-.255a.282.282 0 01-.278-.237 2.24 2.24 0 00-.614-1.222 2.247 2.247 0 00-1.264-.604.283.283 0 01-.237-.322.283.283 0 01.322-.237c.6.088 1.143.37 1.554.817.411.447.65 1.025.706 1.617a.283.283 0 01-.236.322.282.282 0 01-.044.003l-.01.001-.899.065zm-2.832-.696c-.07-.148-.022-.328.124-.418.07-.043.148-.058.22-.045.072.013.14.054.186.12a.823.823 0 01.1.225c.017.067.013.14-.012.208a.274.274 0 01-.134.161.284.284 0 01-.384-.113l-.1-.138z"/></svg>
                      Viber
                    </a>
@@ -438,9 +438,9 @@ export default function PropertyEditorPage() {
            </div>
            <button
              onClick={() => setShowQr(true)}
-             className="flex flex-col items-center justify-center gap-1 py-2.5 text-xs font-medium text-[#262626] border border-[#EDEDE9] rounded-lg active:bg-[#F7F7F5] transition-colors"
+             className="flex flex-col items-center justify-center gap-1 py-2.5 text-xs font-medium text-ink border border-line rounded-lg active:bg-canvas transition-colors"
            >
-             <QrCode className="w-4 h-4 text-[#0F2F61]" />
+             <QrCode className="w-4 h-4 text-navy" />
              QR code
            </button>
          </div>
@@ -451,12 +451,12 @@ export default function PropertyEditorPage() {
           <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowQr(false)}>
             <div className="bg-white rounded-2xl p-6 flex flex-col items-center gap-4 shadow-xl max-w-xs w-full" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between w-full">
-                <h2 className="font-bold text-[#262626]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>QR kod</h2>
-                <button onClick={() => setShowQr(false)} className="text-[#6B6B6B] hover:text-[#262626] transition-colors">
+                <h2 className="font-bold text-ink" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>QR code</h2>
+                <button onClick={() => setShowQr(false)} className="text-ink-2 hover:text-ink transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-xs text-[#6B6B6B] text-center">Skeniraj za pristup vodiču</p>
+              <p className="text-xs text-ink-2 text-center">Scan to open the guide</p>
               <QRCodeCanvas
                 id="qr-canvas"
                 value={`${window.location.origin}/g/${property.slug}/preview`}
@@ -465,13 +465,13 @@ export default function PropertyEditorPage() {
                 fgColor="#0F2F61"
                 level="M"
               />
-              <p className="text-xs text-[#BABAB5] font-mono break-all text-center">/g/{property.slug}/preview</p>
+              <p className="text-xs text-ink-4 font-mono break-all text-center">/g/{property.slug}/preview</p>
               <button
                 onClick={downloadQr}
-                className="flex items-center gap-2 bg-[#0F2F61] hover:bg-[#0a2347] text-white text-sm font-medium px-5 py-2.5 rounded-xl transition-colors w-full justify-center"
+                className="flex items-center gap-2 bg-navy hover:bg-navy-dark text-white text-sm font-medium px-5 py-2.5 rounded-xl transition-colors w-full justify-center"
               >
                 <Download className="w-4 h-4" />
-                Preuzmi PNG
+                Download PNG
               </button>
             </div>
           </div>
@@ -483,7 +483,7 @@ export default function PropertyEditorPage() {
       {property.kind === "HOTEL" && (
         <Link
           href={`/dashboard/hotel?property=${property.id}`}
-          className="mb-3 flex items-center justify-between bg-[#0F2F61] hover:bg-[#0a2347] text-white rounded-xl px-4 py-3 transition-colors"
+          className="mb-3 flex items-center justify-between bg-navy hover:bg-navy-dark text-white rounded-xl px-4 py-3 transition-colors"
         >
           <span className="flex items-center gap-2 text-sm font-semibold"><Hotel className="w-4 h-4" /> Open hotel tools</span>
           <ArrowRight className="w-4 h-4" />
@@ -491,15 +491,15 @@ export default function PropertyEditorPage() {
       )}
 
       {/* Guest registration switch */}
-      <div className="flex items-center gap-3 bg-white border border-[#EDEDE9] rounded-xl px-4 py-3 mb-6">
-        <div className="w-9 h-9 rounded-lg bg-orange-50 text-[#FF6700] flex items-center justify-center shrink-0">
+      <div className="flex items-center gap-3 bg-white border border-line rounded-xl px-4 py-3 mb-6">
+        <div className="w-9 h-9 rounded-lg bg-orange-50 text-orange flex items-center justify-center shrink-0">
           <ClipboardList className="w-4 h-4" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-[#262626]">Guest registration form</p>
-          <p className="text-xs text-[#6B6B6B]">
+          <p className="text-sm font-semibold text-ink">Guest registration form</p>
+          <p className="text-xs text-ink-2">
             {property.guestRegistrationEnabled
-              ? <>Guests can send their travel document details. <Link href={`/dashboard/registrations?property=${property.id}`} className="text-[#0F2F61] hover:underline">View registrations</Link></>
+              ? <>Guests can send their travel document details. <Link href={`/dashboard/registrations?property=${property.id}`} className="text-navy hover:underline">View registrations</Link></>
               : "Off — guests don't see the form in this guide."}
           </p>
         </div>
@@ -508,7 +508,7 @@ export default function PropertyEditorPage() {
           aria-checked={property.guestRegistrationEnabled}
           aria-label="Guest registration form"
           onClick={toggleRegistration}
-          className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${property.guestRegistrationEnabled ? "bg-[#FF6700]" : "bg-[#D5D5CF]"}`}
+          className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${property.guestRegistrationEnabled ? "bg-orange" : "bg-line-strong"}`}
         >
           <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${property.guestRegistrationEnabled ? "translate-x-5" : ""}`} />
         </button>
@@ -516,13 +516,13 @@ export default function PropertyEditorPage() {
 
       {/* Tabs + Copy button */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mb-6">
-        <div className="flex gap-1 bg-[#F7F7F5] p-1 rounded-xl w-full sm:w-fit">
+        <div className="flex gap-1 bg-canvas p-1 rounded-xl w-full sm:w-fit">
           <button
             onClick={() => setTab("sections")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex-1 sm:flex-none justify-center sm:justify-start whitespace-nowrap ${
               tab === "sections"
-                ? "bg-white text-[#262626] shadow-sm"
-                : "text-[#6B6B6B] hover:text-[#262626]"
+                ? "bg-white text-ink shadow-sm"
+                : "text-ink-2 hover:text-ink"
             }`}
           >
             <Share2 className="w-3.5 h-3.5 shrink-0" />
@@ -534,8 +534,8 @@ export default function PropertyEditorPage() {
               onClick={() => setTab("owner")}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex-1 sm:flex-none justify-center sm:justify-start whitespace-nowrap ${
                 tab === "owner"
-                  ? "bg-white text-[#262626] shadow-sm"
-                  : "text-[#6B6B6B] hover:text-[#262626]"
+                  ? "bg-white text-ink shadow-sm"
+                  : "text-ink-2 hover:text-ink"
               }`}
             >
               <Building2 className="w-3.5 h-3.5 shrink-0" />
@@ -546,7 +546,7 @@ export default function PropertyEditorPage() {
         {tab === "sections" && (
           <button
             onClick={openCopyModal}
-            className="flex items-center justify-center gap-1.5 text-xs text-[#6B6B6B] hover:text-[#0F2F61] border border-[#EDEDE9] bg-white px-3 py-2 sm:py-1.5 rounded-lg transition-colors w-full sm:w-auto shrink-0"
+            className="flex items-center justify-center gap-1.5 text-xs text-ink-2 hover:text-navy border border-line bg-white px-3 py-2 sm:py-1.5 rounded-lg transition-colors w-full sm:w-auto shrink-0"
           >
             <Copy className="w-3.5 h-3.5" />
             Copy from another property
@@ -558,23 +558,23 @@ export default function PropertyEditorPage() {
       {showCopyModal && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setShowCopyModal(false)}>
           <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#EDEDE9]">
-              <h2 className="font-bold text-[#262626] text-sm">Copy sections</h2>
-              <button onClick={() => setShowCopyModal(false)} className="text-[#6B6B6B] hover:text-[#262626]">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+              <h2 className="font-bold text-ink text-sm">Copy sections</h2>
+              <button onClick={() => setShowCopyModal(false)} className="text-ink-2 hover:text-ink">
                 <X className="w-4 h-4" />
               </button>
             </div>
             <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
               {loadingRecent ? (
                 <div className="flex justify-center py-6">
-                  <Loader2 className="w-5 h-5 animate-spin text-[#0F2F61]" />
+                  <Loader2 className="w-5 h-5 animate-spin text-navy" />
                 </div>
               ) : recentProps.length === 0 ? (
-                <p className="text-sm text-[#6B6B6B] text-center py-4">No other properties found.</p>
+                <p className="text-sm text-ink-2 text-center py-4">No other properties found.</p>
               ) : (
                 <>
                   <div>
-                    <p className="text-xs font-medium text-[#6B6B6B] mb-2">1. Select property</p>
+                    <p className="text-xs font-medium text-ink-2 mb-2">1. Select property</p>
                     <div className="space-y-1">
                       {recentProps.map((p) => (
                         <button
@@ -582,8 +582,8 @@ export default function PropertyEditorPage() {
                           onClick={() => { setSelectedPropId(p.id); setSelectedTypes(new Set()); }}
                           className={`w-full text-left px-3 py-2.5 rounded-lg text-sm border transition-colors ${
                             selectedPropId === p.id
-                              ? "border-[#0F2F61] bg-[#0F2F61]/5 text-[#0F2F61] font-medium"
-                              : "border-[#EDEDE9] text-[#262626] hover:border-[#0F2F61]/30"
+                              ? "border-navy bg-navy/5 text-navy font-medium"
+                              : "border-line text-ink hover:border-navy/30"
                           }`}
                         >
                           {p.name}
@@ -598,9 +598,9 @@ export default function PropertyEditorPage() {
                     );
                     return (
                       <div>
-                        <p className="text-xs font-medium text-[#6B6B6B] mb-2">2. Select sections to copy</p>
+                        <p className="text-xs font-medium text-ink-2 mb-2">2. Select sections to copy</p>
                         {available.length === 0 ? (
-                          <p className="text-xs text-[#BABAB5]">No compatible sections.</p>
+                          <p className="text-xs text-ink-4">No compatible sections.</p>
                         ) : (
                           <div className="space-y-1">
                             {available.map((ss) => {
@@ -608,9 +608,9 @@ export default function PropertyEditorPage() {
                               return (
                                 <label
                                   key={ss.type}
-                                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-[#EDEDE9] cursor-pointer hover:border-[#0F2F61]/30 transition-colors"
+                                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-line cursor-pointer hover:border-navy/30 transition-colors"
                                 >
-                                  <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${checked ? "bg-[#0F2F61] border-[#0F2F61]" : "border-[#BABAB5]"}`}>
+                                  <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors ${checked ? "bg-navy border-navy" : "border-ink-4"}`}>
                                     {checked && <Check className="w-2.5 h-2.5 text-white" />}
                                   </div>
                                   <input type="checkbox" className="hidden" checked={checked} onChange={() => {
@@ -620,7 +620,7 @@ export default function PropertyEditorPage() {
                                       return next;
                                     });
                                   }} />
-                                  <span className="text-sm text-[#262626]">{ss.title}</span>
+                                  <span className="text-sm text-ink">{ss.title}</span>
                                 </label>
                               );
                             })}
@@ -633,14 +633,14 @@ export default function PropertyEditorPage() {
               )}
             </div>
             {selectedTypes.size > 0 && (
-              <div className="px-5 py-4 border-t border-[#EDEDE9]">
+              <div className="px-5 py-4 border-t border-line">
                 <button
                   onClick={applyTemplate}
-                  className="w-full bg-[#0F2F61] hover:bg-[#0a2347] text-white text-sm font-medium py-2.5 rounded-xl transition-colors"
+                  className="w-full bg-navy hover:bg-navy-dark text-white text-sm font-medium py-2.5 rounded-xl transition-colors"
                 >
                   Copy selected ({selectedTypes.size})
                 </button>
-                <p className="text-xs text-[#BABAB5] text-center mt-2">Content will be copied. Click "Save changes" to confirm.</p>
+                <p className="text-xs text-ink-4 text-center mt-2">Content will be copied. Click "Save changes" to confirm.</p>
               </div>
             )}
           </div>
@@ -659,56 +659,56 @@ export default function PropertyEditorPage() {
 
       {/* Owner Info tab */}
       {tab === "owner" && property.kind !== "HOTEL" && (
-        <div className="bg-white border border-[#EDEDE9] rounded-xl p-5 space-y-4">
+        <div className="bg-white border border-line rounded-xl p-5 space-y-4">
           <div>
-            <p className="text-xs text-[#6B6B6B] mb-4">
+            <p className="text-xs text-ink-2 mb-4">
               This information is private and only visible to you — never shown to guests.
             </p>
           </div>
           <div>
-            <Label className="text-xs font-medium text-[#6B6B6B] mb-1.5 block">Owner name</Label>
+            <Label className="text-xs font-medium text-ink-2 mb-1.5 block">Owner name</Label>
             <Input
               value={ownerName}
               onChange={(e) => setOwnerName(e.target.value)}
               placeholder="e.g. John Smith"
-              className="h-9 text-sm border-[#EDEDE9]"
+              className="h-9 text-sm border-line"
             />
           </div>
           <div>
-            <Label className="text-xs font-medium text-[#6B6B6B] mb-1.5 block">Address</Label>
+            <Label className="text-xs font-medium text-ink-2 mb-1.5 block">Address</Label>
             <Input
               value={ownerAddress}
               onChange={(e) => setOwnerAddress(e.target.value)}
-              placeholder="e.g. 123 Main Street, Sarajevo"
-              className="h-9 text-sm border-[#EDEDE9]"
+              placeholder="e.g. 123 Main Street"
+              className="h-9 text-sm border-line"
             />
           </div>
           <div>
-            <Label className="text-xs font-medium text-[#6B6B6B] mb-1.5 block">Email</Label>
+            <Label className="text-xs font-medium text-ink-2 mb-1.5 block">Email</Label>
             <Input
               value={ownerEmail}
               onChange={(e) => setOwnerEmail(e.target.value)}
               placeholder="e.g. owner@email.com"
               type="email"
-              className="h-9 text-sm border-[#EDEDE9]"
+              className="h-9 text-sm border-line"
             />
           </div>
           <div>
-            <Label className="text-xs font-medium text-[#6B6B6B] mb-1.5 block">Phone number</Label>
+            <Label className="text-xs font-medium text-ink-2 mb-1.5 block">Phone number</Label>
             <Input
               value={ownerPhone}
               onChange={(e) => setOwnerPhone(e.target.value)}
               placeholder="e.g. +387 61 123 456"
-              className="h-9 text-sm border-[#EDEDE9]"
+              className="h-9 text-sm border-line"
             />
           </div>
           <div>
-            <Label className="text-xs font-medium text-[#6B6B6B] mb-1.5 block">Bank account number</Label>
+            <Label className="text-xs font-medium text-ink-2 mb-1.5 block">Bank account number</Label>
             <Input
               value={bankAccount}
               onChange={(e) => setBankAccount(e.target.value)}
               placeholder="e.g. BA39 1234 5678 9012 3456"
-              className="h-9 text-sm border-[#EDEDE9]"
+              className="h-9 text-sm border-line"
             />
           </div>
           <Button
@@ -724,7 +724,7 @@ export default function PropertyEditorPage() {
               setTimeout(() => setOwnerSaved(false), 2000);
             }}
             disabled={ownerSaving}
-            className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm w-full"
+            className="bg-navy hover:bg-navy-dark text-white h-9 text-sm w-full"
           >
             {ownerSaved ? <><Check className="w-3.5 h-3.5 mr-1.5" /> Saved</> : ownerSaving ? "Saving..." : "Save"}
           </Button>
@@ -734,13 +734,13 @@ export default function PropertyEditorPage() {
       {/* Delete lives in its own zone at the very bottom, away from everyday actions */}
       <div className="mt-10 mb-4 border border-red-100 bg-red-50/40 rounded-2xl p-4">
         <p className="text-sm font-semibold text-red-600">Danger zone</p>
-        <p className="text-xs text-[#6B6B6B] mt-0.5 mb-3">Deleting removes the guide, links and statistics of this property. This can&apos;t be undone.</p>
+        <p className="text-xs text-ink-2 mt-0.5 mb-3">Deleting removes the guide, links and statistics of this property. This can&apos;t be undone.</p>
         {confirmDelete ? (
           <div className="flex items-center gap-3">
             <button onClick={deleteProperty} disabled={deleting} className="h-10 text-sm font-semibold text-white bg-red-500 px-4 rounded-xl disabled:opacity-50">
               {deleting ? "Deleting..." : "Yes, delete"}
             </button>
-            <button onClick={() => setConfirmDelete(false)} className="text-sm text-[#6B6B6B]">Cancel</button>
+            <button onClick={() => setConfirmDelete(false)} className="text-sm text-ink-2">Cancel</button>
           </div>
         ) : (
           <button onClick={() => setConfirmDelete(true)} className="h-10 inline-flex items-center gap-1.5 text-sm font-medium text-red-600 border border-red-200 bg-white px-4 rounded-xl">

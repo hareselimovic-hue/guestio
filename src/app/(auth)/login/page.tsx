@@ -6,6 +6,7 @@ import Link from "next/link";
 import { signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 
 function LoginForm() {
@@ -37,13 +38,13 @@ function LoginForm() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#262626] mb-1">Welcome back</h1>
-        <p className="text-[#6B6B6B] text-sm">Sign in to your account</p>
+        <h1 className="text-2xl font-bold text-ink mb-1">Welcome back</h1>
+        <p className="text-ink-2 text-sm">Sign in to your account</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-[#262626] font-medium text-sm">
+          <Label htmlFor="email" className="text-ink font-medium text-sm">
             Email address
           </Label>
           <Input
@@ -53,27 +54,26 @@ function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="border-[#EDEDE9] focus:border-[#0F2F61] focus:ring-[#0F2F61] h-11"
+            className="border-line focus:border-navy focus:ring-navy h-11"
           />
         </div>
 
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password" className="text-[#262626] font-medium text-sm">
+            <Label htmlFor="password" className="text-ink font-medium text-sm">
               Password
             </Label>
-            <Link href="/forgot-password" className="text-xs text-[#FF6700] hover:underline">
+            <Link href="/forgot-password" className="text-xs text-orange hover:underline">
               Forgot password?
             </Link>
           </div>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
-            placeholder="••••••••"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="border-[#EDEDE9] focus:border-[#0F2F61] focus:ring-[#0F2F61] h-11"
+            className="border-line focus:border-navy focus:ring-navy h-11"
           />
         </div>
 
@@ -86,17 +86,17 @@ function LoginForm() {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#0F2F61] hover:bg-[#0a2347] text-white font-semibold h-11"
+          className="w-full bg-orange hover:bg-orange-dark text-white font-semibold h-11"
         >
           {loading ? "Signing in..." : "Sign in"}
         </Button>
       </form>
 
-      <p className="text-sm text-[#6B6B6B] text-center mt-6">
+      <p className="text-sm text-ink-2 text-center mt-6">
         Don&apos;t have an account?{" "}
         <Link
           href={searchParams.get("redirect") ? `/register?redirect=${searchParams.get("redirect")}` : "/register"}
-          className="text-[#FF6700] font-medium hover:underline"
+          className="text-orange font-medium hover:underline"
         >
           Sign up
         </Link>

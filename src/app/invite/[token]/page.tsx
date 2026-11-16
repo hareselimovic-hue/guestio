@@ -44,39 +44,39 @@ export default function InvitePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F7F7F5] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-[#0F2F61] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-canvas flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-navy border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F7F5] flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] p-8 max-w-sm w-full text-center">
+    <div className="min-h-screen bg-canvas flex items-center justify-center px-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-line p-8 max-w-sm w-full text-center">
         {error ? (
           <>
             <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <XCircle className="w-7 h-7 text-red-500" />
             </div>
-            <h1 className="text-lg font-bold text-[#262626] mb-2">Invalid invite</h1>
-            <p className="text-sm text-[#6B6B6B]">{error}</p>
+            <h1 className="text-lg font-bold text-ink mb-2">Invalid invite</h1>
+            <p className="text-sm text-ink-2">{error}</p>
           </>
         ) : joined ? (
           <>
             <div className="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-7 h-7 text-green-600" />
             </div>
-            <h1 className="text-lg font-bold text-[#262626] mb-2">Joined!</h1>
-            <p className="text-sm text-[#6B6B6B]">Redirecting to dashboard...</p>
+            <h1 className="text-lg font-bold text-ink mb-2">Joined!</h1>
+            <p className="text-sm text-ink-2">Redirecting to dashboard...</p>
           </>
         ) : (
           <>
-            <div className="w-14 h-14 bg-[#0F2F61]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Users className="w-7 h-7 text-[#0F2F61]" />
+            <div className="w-14 h-14 bg-navy/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Users className="w-7 h-7 text-navy" />
             </div>
-            <p className="text-sm text-[#6B6B6B] mb-1">You&apos;re invited to join</p>
+            <p className="text-sm text-ink-2 mb-1">You&apos;re invited to join</p>
             <h1
-              className="text-xl font-bold text-[#262626] mb-6"
+              className="text-xl font-bold text-ink mb-6"
               style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
             >
               {workspaceName}
@@ -85,7 +85,7 @@ export default function InvitePage() {
               <Button
                 onClick={handleJoin}
                 disabled={joining}
-                className="w-full bg-[#0F2F61] hover:bg-[#0a2347] text-white h-11"
+                className="w-full bg-navy hover:bg-navy-dark text-white h-11"
               >
                 {joining ? "Joining..." : "Join workspace"}
               </Button>

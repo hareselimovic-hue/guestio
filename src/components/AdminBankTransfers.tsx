@@ -74,21 +74,21 @@ export default function AdminBankTransfers({ transfers: initial, invoices: initi
     <>
       <section>
         <div className="flex items-center gap-2 mb-4">
-          <Landmark className="w-5 h-5 text-[#FF6700]" />
-          <h2 className="text-lg font-semibold text-[#262626]">
-            Uplate virmanom <span className="text-[#6B6B6B] font-normal text-base">({transfers.length} čeka)</span>
+          <Landmark className="w-5 h-5 text-orange" />
+          <h2 className="text-lg font-semibold text-ink">
+            Uplate virmanom <span className="text-ink-2 font-normal text-base">({transfers.length} čeka)</span>
           </h2>
         </div>
-        {message && <p className="text-sm text-[#0F2F61] bg-blue-50 rounded-lg px-3 py-2 mb-3">{message}</p>}
+        {message && <p className="text-sm text-navy bg-blue-50 rounded-lg px-3 py-2 mb-3">{message}</p>}
         {transfers.length === 0 ? (
-          <p className="text-sm text-[#6B6B6B] italic">Nema uplata koje čekaju.</p>
+          <p className="text-sm text-ink-2 italic">Nema uplata koje čekaju.</p>
         ) : (
-          <div className="border border-[#E0E0E0] rounded-xl overflow-hidden divide-y divide-[#F0F0F0]">
+          <div className="border border-line-gray rounded-xl overflow-hidden divide-y divide-line-gray-2">
             {transfers.map((t) => (
               <div key={t.id} className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[#262626]">{t.billingName ?? t.email} · {km(t.amount)}</p>
-                  <p className="text-xs text-[#6B6B6B]">
+                  <p className="text-sm font-semibold text-ink">{t.billingName ?? t.email} · {km(t.amount)}</p>
+                  <p className="text-xs text-ink-2">
                     {t.invoiceNumber ? "Faktura" : "Poziv na broj"} <span className="font-mono">{t.reference}</span> · {t.invoiceNumber ? "izdata" : "zatraženo"} {fmt(t.createdAt)} · {t.email}
                   </p>
                 </div>
@@ -104,7 +104,7 @@ export default function AdminBankTransfers({ transfers: initial, invoices: initi
                   <button
                     onClick={() => act(t, "cancel")}
                     disabled={busy === t.id}
-                    className="text-sm text-[#6B6B6B] hover:text-red-500 px-2"
+                    className="text-sm text-ink-2 hover:text-red-500 px-2"
                   >
                     Otkaži
                   </button>
@@ -117,24 +117,24 @@ export default function AdminBankTransfers({ transfers: initial, invoices: initi
 
       <section>
         <div className="flex items-center gap-2 mb-4">
-          <FileText className="w-5 h-5 text-[#FF6700]" />
-          <h2 className="text-lg font-semibold text-[#262626]">Izdate fakture</h2>
+          <FileText className="w-5 h-5 text-orange" />
+          <h2 className="text-lg font-semibold text-ink">Izdate fakture</h2>
         </div>
         {invoices.length === 0 ? (
-          <p className="text-sm text-[#6B6B6B] italic">Još nema faktura.</p>
+          <p className="text-sm text-ink-2 italic">Još nema faktura.</p>
         ) : (
-          <div className="border border-[#E0E0E0] rounded-xl overflow-hidden divide-y divide-[#F0F0F0]">
+          <div className="border border-line-gray rounded-xl overflow-hidden divide-y divide-line-gray-2">
             {invoices.map((inv) => (
               <div key={inv.number} className="flex items-center gap-3 px-4 py-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[#262626]">{inv.number} · {km(inv.amount)}</p>
-                  <p className="text-xs text-[#6B6B6B]">
+                  <p className="text-sm font-semibold text-ink">{inv.number} · {km(inv.amount)}</p>
+                  <p className="text-xs text-ink-2">
                     {inv.billingName ?? inv.email} · {fmt(inv.issuedAt)} · {inv.method === "CARD" ? "kartica" : "virman"}
                     {!inv.paid && <span className="ml-1.5 text-amber-600 font-medium">· čeka uplatu</span>}
                   </p>
                 </div>
                 {inv.id && (
-                  <a href={`/api/invoices/${inv.id}/pdf`} className="inline-flex items-center gap-1 text-sm text-[#0F2F61] hover:underline">
+                  <a href={`/api/invoices/${inv.id}/pdf`} className="inline-flex items-center gap-1 text-sm text-navy hover:underline">
                     <Download className="w-4 h-4" /> PDF
                   </a>
                 )}

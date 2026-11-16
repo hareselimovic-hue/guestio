@@ -7,6 +7,7 @@ import { signUp } from "@/lib/auth-client";
 import { HOTELS_PUBLIC } from "@/lib/features";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 
 function RegisterForm() {
@@ -75,15 +76,15 @@ function RegisterForm() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#262626] mb-1">{isHotel && !showTypeChoice ? "Create your hotel account" : "Create an account"}</h1>
-        <p className="text-[#6B6B6B] text-sm">
+        <h1 className="text-2xl font-bold text-ink mb-1">{isHotel && !showTypeChoice ? "Create your hotel account" : "Create an account"}</h1>
+        <p className="text-ink-2 text-sm">
           {isHotel && !showTypeChoice ? "Hotel guide, room QR codes and reception requests — 30 days free" : "Start creating digital guides for your guests"}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {showTypeChoice && <div className="space-y-1.5">
-          <Label className="text-[#262626] font-medium text-sm">I manage</Label>
+          <Label className="text-ink font-medium text-sm">I manage</Label>
           <div className="grid grid-cols-2 gap-2">
             {([
               ["APARTMENT", "Apartments", "Holiday rentals, one guide per place"],
@@ -94,11 +95,11 @@ function RegisterForm() {
                 type="button"
                 onClick={() => setAccountType(value)}
                 className={`text-left rounded-xl border-2 px-3 py-2.5 transition-colors ${
-                  accountType === value ? "border-[#FF6700] bg-orange-50/60" : "border-[#EDEDE9] hover:border-[#D5D5CF]"
+                  accountType === value ? "border-orange bg-orange-50/60" : "border-line hover:border-line-strong"
                 }`}
               >
-                <p className="text-sm font-semibold text-[#262626]">{title}</p>
-                <p className="text-xs text-[#6B6B6B] leading-snug mt-0.5">{sub}</p>
+                <p className="text-sm font-semibold text-ink">{title}</p>
+                <p className="text-xs text-ink-2 leading-snug mt-0.5">{sub}</p>
               </button>
             ))}
           </div>
@@ -106,23 +107,23 @@ function RegisterForm() {
 
         {isHotel && (
           <div className="space-y-1.5">
-            <Label htmlFor="hotelName" className="text-[#262626] font-medium text-sm">
+            <Label htmlFor="hotelName" className="text-ink font-medium text-sm">
               Hotel name
             </Label>
             <Input
               id="hotelName"
               type="text"
-              placeholder="Hotel Sarajevo"
+              placeholder="e.g. Grand Hotel"
               value={hotelName}
               onChange={(e) => setHotelName(e.target.value)}
               required
-              className="border-[#EDEDE9] focus:border-[#0F2F61] h-11"
+              className="border-line focus:border-navy h-11"
             />
           </div>
         )}
 
         <div className="space-y-1.5">
-          <Label htmlFor="name" className="text-[#262626] font-medium text-sm">
+          <Label htmlFor="name" className="text-ink font-medium text-sm">
             Full name
           </Label>
           <Input
@@ -132,12 +133,12 @@ function RegisterForm() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="border-[#EDEDE9] focus:border-[#0F2F61] h-11"
+            className="border-line focus:border-navy h-11"
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-[#262626] font-medium text-sm">
+          <Label htmlFor="email" className="text-ink font-medium text-sm">
             Email address
           </Label>
           <Input
@@ -147,23 +148,23 @@ function RegisterForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="border-[#EDEDE9] focus:border-[#0F2F61] h-11"
+            className="border-line focus:border-navy h-11"
           />
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-[#262626] font-medium text-sm">
+          <Label htmlFor="password" className="text-ink font-medium text-sm">
             Password
           </Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
+            autoComplete="new-password"
             placeholder="Minimum 8 characters"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            className="border-[#EDEDE9] focus:border-[#0F2F61] h-11"
+            className="border-line focus:border-navy h-11"
           />
         </div>
 
@@ -182,15 +183,15 @@ function RegisterForm() {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#FF6700] hover:bg-[#e05c00] text-white font-semibold h-11"
+          className="w-full bg-orange hover:bg-orange-dark text-white font-semibold h-11"
         >
           {loading ? "Creating account..." : "Create account"}
         </Button>
       </form>
 
-      <p className="text-sm text-[#6B6B6B] text-center mt-6">
+      <p className="text-sm text-ink-2 text-center mt-6">
         Already have an account?{" "}
-        <Link href="/login" className="text-[#FF6700] font-medium hover:underline">
+        <Link href="/login" className="text-orange font-medium hover:underline">
           Sign in
         </Link>
       </p>

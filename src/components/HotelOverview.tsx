@@ -67,9 +67,9 @@ export default function HotelOverview({ hotel }: { hotel: HotelOverviewData }) {
   return (
     <section className="mb-8">
       <div className="flex items-center justify-between gap-3 mb-3">
-        <h2 className="text-lg font-semibold text-[#262626] min-w-0 truncate">{hotel.name}</h2>
+        <h2 className="text-lg font-semibold text-ink min-w-0 truncate">{hotel.name}</h2>
         <div className="flex gap-2 shrink-0">
-          <Link href={base} className="inline-flex items-center gap-1 text-sm font-medium text-[#0F2F61] border border-[#EDEDE9] bg-white px-3 py-1.5 rounded-lg">
+          <Link href={base} className="inline-flex items-center gap-1 text-sm font-medium text-navy border border-line bg-white px-3 py-1.5 rounded-lg">
             <span className="hidden sm:inline">Open hotel</span><span className="sm:hidden">Open</span> <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -77,50 +77,50 @@ export default function HotelOverview({ hotel }: { hotel: HotelOverviewData }) {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         {tiles.map(({ icon: Icon, value, label, sub, href, hot }) => (
-          <Link key={label} href={href} className={`bg-white rounded-xl p-4 border hover:border-[#0F2F61]/40 active:scale-[0.98] transition ${hot ? "border-[#FF6700] border-2" : "border-[#EDEDE9]"}`}>
-            <Icon className={`w-4 h-4 mb-2 ${hot ? "text-[#FF6700]" : "text-[#0F2F61]"}`} />
-            <p className="text-2xl font-bold text-[#262626] leading-none">{value}</p>
-            <p className="text-sm text-[#262626] mt-1">{label}</p>
-            <p className="text-xs text-[#9B9B9B] mt-0.5 line-clamp-1">{sub}</p>
+          <Link key={label} href={href} className={`bg-white rounded-xl p-4 border hover:border-navy/40 active:scale-[0.98] transition ${hot ? "border-orange border-2" : "border-line"}`}>
+            <Icon className={`w-4 h-4 mb-2 ${hot ? "text-orange" : "text-navy"}`} />
+            <p className="text-2xl font-bold text-ink leading-none">{value}</p>
+            <p className="text-sm text-ink mt-1">{label}</p>
+            <p className="text-xs text-ink-3 mt-0.5 line-clamp-1">{sub}</p>
           </Link>
         ))}
       </div>
 
       {/* Needs attention: reception email (fill in right here) + gaps in the hotel guide */}
       {(!hotel.receptionEmail || hotel.guideIssues.length > 0 || hotel.rooms === 0 || !hotel.hasReviewUrl) && (
-        <div className="bg-white rounded-xl border border-[#EDEDE9] mb-4">
-          <p className="px-4 py-3 border-b border-[#F0F0EE] text-sm font-semibold text-[#262626] flex items-center gap-1.5">
+        <div className="bg-white rounded-xl border border-line mb-4">
+          <p className="px-4 py-3 border-b border-line-2 text-sm font-semibold text-ink flex items-center gap-1.5">
             <AlertTriangle className="w-4 h-4 text-amber-500" /> Needs attention
           </p>
-          <ul className="divide-y divide-[#F5F5F2]">
+          <ul className="divide-y divide-line-3">
             {!hotel.receptionEmail && (
               <li className="px-4 py-3">
-                <p className="text-sm text-[#262626] flex items-center gap-1.5 mb-0.5"><Mail className="w-4 h-4 text-[#FF6700]" /> <span className="font-medium">Add your reception email</span></p>
-                <p className="text-xs text-[#6B6B6B] mb-2">
+                <p className="text-sm text-ink flex items-center gap-1.5 mb-0.5"><Mail className="w-4 h-4 text-orange" /> <span className="font-medium">Add your reception email</span></p>
+                <p className="text-xs text-ink-2 mb-2">
                   Guest requests are emailed here. Right now they go to {hotel.defaultRecipients.join(", ") || "your account email"}.
                 </p>
                 <ReceptionEmailForm hotelId={hotel.id} initial={null} />
               </li>
             )}
             {hotel.guideIssues.length > 0 && (
-              <li><Link href={`${base}&tab=guide`} className="flex items-center gap-3 px-4 py-3 hover:bg-[#FAFAF8]">
+              <li><Link href={`${base}&tab=guide`} className="flex items-center gap-3 px-4 py-3 hover:bg-canvas-2">
                 <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
-                <span className="flex-1 text-sm"><span className="font-medium text-[#262626]">Hotel guide</span><span className="text-[#6B6B6B]"> — {hotel.guideIssues.join(", ")}</span></span>
-                <span className="text-xs font-semibold text-[#0F2F61] shrink-0">Fix →</span>
+                <span className="flex-1 text-sm"><span className="font-medium text-ink">Hotel guide</span><span className="text-ink-2"> — {hotel.guideIssues.join(", ")}</span></span>
+                <span className="text-xs font-semibold text-navy shrink-0">Fix →</span>
               </Link></li>
             )}
             {hotel.rooms === 0 && (
-              <li><Link href={`${base}&tab=rooms`} className="flex items-center gap-3 px-4 py-3 hover:bg-[#FAFAF8]">
+              <li><Link href={`${base}&tab=rooms`} className="flex items-center gap-3 px-4 py-3 hover:bg-canvas-2">
                 <DoorOpen className="w-4 h-4 text-amber-500 shrink-0" />
-                <span className="flex-1 text-sm text-[#262626]">Add your rooms and print the QR cards</span>
-                <span className="text-xs font-semibold text-[#0F2F61] shrink-0">Add →</span>
+                <span className="flex-1 text-sm text-ink">Add your rooms and print the QR cards</span>
+                <span className="text-xs font-semibold text-navy shrink-0">Add →</span>
               </Link></li>
             )}
             {!hotel.hasReviewUrl && (
-              <li><Link href={`${base}&tab=settings`} className="flex items-center gap-3 px-4 py-3 hover:bg-[#FAFAF8]">
+              <li><Link href={`${base}&tab=settings`} className="flex items-center gap-3 px-4 py-3 hover:bg-canvas-2">
                 <span className="w-4 text-center text-sm shrink-0">★</span>
-                <span className="flex-1 text-sm text-[#262626]">Add your Google review link <span className="text-[#9B9B9B]">— guests see “Rate us on Google”</span></span>
-                <span className="text-xs font-semibold text-[#0F2F61] shrink-0">Add →</span>
+                <span className="flex-1 text-sm text-ink">Add your Google review link <span className="text-ink-3">— guests see “Rate us on Google”</span></span>
+                <span className="text-xs font-semibold text-navy shrink-0">Add →</span>
               </Link></li>
             )}
           </ul>
@@ -128,27 +128,27 @@ export default function HotelOverview({ hotel }: { hotel: HotelOverviewData }) {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl border border-[#EDEDE9] min-w-0">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[#F0F0EE]">
-            <p className="text-sm font-semibold text-[#262626]">Waiting for you</p>
-            <Link href={`${base}&tab=requests`} className="text-xs font-medium text-[#0F2F61] hover:underline">All requests →</Link>
+        <div className="bg-white rounded-xl border border-line min-w-0">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-line-2">
+            <p className="text-sm font-semibold text-ink">Waiting for you</p>
+            <Link href={`${base}&tab=requests`} className="text-xs font-medium text-navy hover:underline">All requests →</Link>
           </div>
           {hotel.openRequests.length === 0 ? (
-            <p className="px-4 py-6 text-sm text-[#9B9B9B] text-center">All caught up — no open requests.</p>
+            <p className="px-4 py-6 text-sm text-ink-3 text-center">All caught up — no open requests.</p>
           ) : (
-            <ul className="divide-y divide-[#F5F5F2]">
+            <ul className="divide-y divide-line-3">
               {hotel.openRequests.map((r) => (
                 <li key={r.id} className="px-4 py-3 flex items-center gap-3">
-                  <span className="min-w-12 shrink-0 whitespace-nowrap text-lg font-bold text-[#0F2F61]">{r.roomNumber ?? "—"}</span>
+                  <span className="min-w-12 shrink-0 whitespace-nowrap text-lg font-bold text-navy">{r.roomNumber ?? "—"}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#262626] truncate">
+                    <p className="text-sm font-medium text-ink truncate">
                       {TYPE_LABEL[r.type] ?? r.type}
                       {r.status === "IN_PROGRESS" && <span className="text-xs text-amber-600 font-medium"> · in progress</span>}
                     </p>
-                    <p className="text-xs text-[#6B6B6B] truncate">{r.summary || "—"} · {ago(r.createdAt)}</p>
+                    <p className="text-xs text-ink-2 truncate">{r.summary || "—"} · {ago(r.createdAt)}</p>
                   </div>
                   {r.status === "NEW" && (
-                    <button disabled={busy === r.id} onClick={() => setStatus(r.id, "IN_PROGRESS")} className="text-xs font-semibold bg-[#0F2F61] text-white px-2.5 py-1.5 rounded-lg disabled:opacity-50">Take</button>
+                    <button disabled={busy === r.id} onClick={() => setStatus(r.id, "IN_PROGRESS")} className="text-xs font-semibold bg-navy text-white px-2.5 py-1.5 rounded-lg disabled:opacity-50">Take</button>
                   )}
                   <button disabled={busy === r.id} onClick={() => setStatus(r.id, "DONE")} className="text-xs font-semibold bg-green-600 text-white px-2.5 py-1.5 rounded-lg disabled:opacity-50">Done</button>
                 </li>
@@ -158,27 +158,27 @@ export default function HotelOverview({ hotel }: { hotel: HotelOverviewData }) {
         </div>
 
         <div className="space-y-4 min-w-0">
-          <div className="bg-white rounded-xl border border-[#EDEDE9] px-4 py-3">
-            <p className="text-sm font-semibold text-[#262626] mb-2 flex items-center gap-1.5"><TrendingUp className="w-4 h-4 text-[#0F2F61]" /> Most requested · 30 days</p>
+          <div className="bg-white rounded-xl border border-line px-4 py-3">
+            <p className="text-sm font-semibold text-ink mb-2 flex items-center gap-1.5"><TrendingUp className="w-4 h-4 text-navy" /> Most requested · 30 days</p>
             {hotel.topExtras.length === 0 ? (
-              <p className="text-sm text-[#9B9B9B]">No orders yet.</p>
+              <p className="text-sm text-ink-3">No orders yet.</p>
             ) : (
               <ol className="space-y-1">
                 {hotel.topExtras.map((x, i) => (
-                  <li key={x.name} className="flex justify-between text-sm"><span className="text-[#262626]">{i + 1}. {x.name}</span><span className="text-[#6B6B6B]">{x.count}×</span></li>
+                  <li key={x.name} className="flex justify-between text-sm"><span className="text-ink">{i + 1}. {x.name}</span><span className="text-ink-2">{x.count}×</span></li>
                 ))}
               </ol>
             )}
           </div>
 
-          <div className="bg-white rounded-xl border border-[#EDEDE9] px-4 py-3">
-            <p className="text-sm font-semibold text-[#262626] mb-2 flex items-center gap-1.5"><Megaphone className="w-4 h-4 text-[#FF6700]" /> Live announcement</p>
+          <div className="bg-white rounded-xl border border-line px-4 py-3">
+            <p className="text-sm font-semibold text-ink mb-2 flex items-center gap-1.5"><Megaphone className="w-4 h-4 text-orange" /> Live announcement</p>
             {hotel.announcements.length === 0 ? (
-              <p className="text-sm text-[#9B9B9B]">Nothing shown to guests right now.</p>
+              <p className="text-sm text-ink-3">Nothing shown to guests right now.</p>
             ) : hotel.announcements.map((a) => (
               <div key={a.id} className="flex items-start gap-2 py-1">
-                <p className="text-sm text-[#262626] flex-1">“{a.message}”</p>
-                <button disabled={busy === a.id} onClick={() => turnOff(a.id)} className="text-xs text-[#6B6B6B] border border-[#EDEDE9] rounded-lg px-2 py-1 shrink-0 hover:text-[#262626]">Turn off</button>
+                <p className="text-sm text-ink flex-1">“{a.message}”</p>
+                <button disabled={busy === a.id} onClick={() => turnOff(a.id)} className="text-xs text-ink-2 border border-line rounded-lg px-2 py-1 shrink-0 hover:text-ink">Turn off</button>
               </div>
             ))}
           </div>

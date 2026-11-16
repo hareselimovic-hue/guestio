@@ -105,7 +105,7 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
         onClick={() => toggleHotel(u)}
         title={u.hotelAccess ? "Isključi hotelski dio" : "Uključi hotelski dio"}
         className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border transition-colors ${
-          u.hotelAccess ? "bg-[#0F2F61] border-[#0F2F61] text-white" : "border-[#E0E0E0] text-[#9B9B9B] hover:text-[#0F2F61]"
+          u.hotelAccess ? "bg-navy border-navy text-white" : "border-line-gray text-ink-3 hover:text-navy"
         }`}
       >
         Hotel {u.hotelAccess ? "✓" : "+"}
@@ -173,7 +173,7 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
   }
 
   function daysBadge(days: number | null) {
-    if (days === null) return <span className="text-[#CCCCCC]">—</span>;
+    if (days === null) return <span className="text-line-gray-3">—</span>;
     if (days <= 0) return <span className="text-red-500">Istekla</span>;
     if (days <= 7) return <span className="text-orange-500">{days}d</span>;
     return <span className="text-green-600">{days}d</span>;
@@ -189,19 +189,19 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
             type="date"
             value={newDate}
             onChange={(e) => setNewDate(e.target.value)}
-            className="border border-[#E0E0E0] rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#FF6700]"
+            className="border border-line-gray rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-orange"
           />
-          <button onClick={() => extendSubscription(u.id)} className="bg-[#FF6700] text-white text-xs px-2.5 py-1 rounded-lg hover:bg-[#e05c00] font-medium">Sačuvaj</button>
-          <button onClick={() => { setExtendingId(null); setNewDate(""); }} className="text-[#6B6B6B] text-xs px-2 py-1">Otkaži</button>
+          <button onClick={() => extendSubscription(u.id)} className="bg-orange text-white text-xs px-2.5 py-1 rounded-lg hover:bg-orange-dark font-medium">Sačuvaj</button>
+          <button onClick={() => { setExtendingId(null); setNewDate(""); }} className="text-ink-2 text-xs px-2 py-1">Otkaži</button>
         </div>
       );
     }
     return (
       <div className={`flex items-center gap-1 flex-wrap ${justify}`}>
-        <button onClick={() => setQuickDate(u.id, 30)} className="text-xs border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#F7F7F5] text-[#262626]">+30d</button>
-        <button onClick={() => setQuickDate(u.id, 365)} className="text-xs border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#F7F7F5] text-[#262626]">+1god</button>
-        <button onClick={() => setQuickDate(u.id, "2030")} className="text-xs border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#F7F7F5] text-[#262626]">2030</button>
-        <button onClick={() => { setExtendingId(u.id); setNewDate(u.subscription ? u.subscription.validUntil.split("T")[0] : ""); }} className="text-xs bg-[#F7F7F5] border border-[#E0E0E0] px-2 py-1 rounded-lg hover:bg-[#EDEDE9] text-[#262626]">Datum</button>
+        <button onClick={() => setQuickDate(u.id, 30)} className="text-xs border border-line-gray px-2 py-1 rounded-lg hover:bg-canvas text-ink">+30d</button>
+        <button onClick={() => setQuickDate(u.id, 365)} className="text-xs border border-line-gray px-2 py-1 rounded-lg hover:bg-canvas text-ink">+1god</button>
+        <button onClick={() => setQuickDate(u.id, "2030")} className="text-xs border border-line-gray px-2 py-1 rounded-lg hover:bg-canvas text-ink">2030</button>
+        <button onClick={() => { setExtendingId(u.id); setNewDate(u.subscription ? u.subscription.validUntil.split("T")[0] : ""); }} className="text-xs bg-canvas border border-line-gray px-2 py-1 rounded-lg hover:bg-line text-ink">Datum</button>
       </div>
     );
   }
@@ -217,17 +217,17 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
       {deletePreview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => !deletingUser && setDeletePreview(null)}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-[#262626] mb-1">Obrisati korisnika?</h3>
-            <p className="text-sm text-[#262626] font-medium">{deletePreview.user.name}</p>
-            <p className="text-sm text-[#6B6B6B] mb-4">{deletePreview.user.email}</p>
+            <h3 className="text-lg font-bold text-ink mb-1">Obrisati korisnika?</h3>
+            <p className="text-sm text-ink font-medium">{deletePreview.user.name}</p>
+            <p className="text-sm text-ink-2 mb-4">{deletePreview.user.email}</p>
 
-            <ul className="space-y-2 text-sm text-[#6B6B6B] mb-5">
+            <ul className="space-y-2 text-sm text-ink-2 mb-5">
               <li>• Nalog, prijave i pretplata se trajno brišu.</li>
               <li>• Email se uklanja s whitelist-e, pa se ne može ponovo registrovati.</li>
               {deletePreview.hasWorkspace ? (
                 <li>
                   • Njegovi apartmani ({deletePreview.workspaceProperties}), zadaci i komentari{" "}
-                  <strong className="text-[#262626]">ostaju u workspaceu</strong> i prelaze na vlasnika workspacea.
+                  <strong className="text-ink">ostaju u workspaceu</strong> i prelaze na vlasnika workspacea.
                 </li>
               ) : deletePreview.personalProperties > 0 ? (
                 <li className="text-red-600">
@@ -245,7 +245,7 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
               <button
                 onClick={() => setDeletePreview(null)}
                 disabled={deletingUser}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-[#6B6B6B] border border-[#E0E0E0] hover:bg-[#F7F7F5] disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm font-medium text-ink-2 border border-line-gray hover:bg-canvas disabled:opacity-50"
               >
                 Odustani
               </button>
@@ -264,10 +264,10 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
       {/* ── Whitelist ── */}
       <section>
         <div className="flex items-center gap-2 mb-4">
-          <Shield className="w-5 h-5 text-[#FF6700]" />
-          <h2 className="text-lg font-semibold text-[#262626]">Whitelist registracije</h2>
+          <Shield className="w-5 h-5 text-orange" />
+          <h2 className="text-lg font-semibold text-ink">Whitelist registracije</h2>
         </div>
-        <p className="text-sm text-[#6B6B6B] mb-4">
+        <p className="text-sm text-ink-2 mb-4">
           Samo emailovi s ove liste mogu kreirati nalog. Vaš admin email je uvijek dozvoljen.
         </p>
 
@@ -278,12 +278,12 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addEmail()}
-            className="flex-1 border border-[#E0E0E0] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6700]"
+            className="flex-1 border border-line-gray rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange"
           />
           <button
             onClick={addEmail}
             disabled={adding}
-            className="flex items-center gap-1.5 bg-[#FF6700] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#e55e00] disabled:opacity-50 transition-colors"
+            className="flex items-center gap-1.5 bg-orange text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#e55e00] disabled:opacity-50 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Dodaj
@@ -292,26 +292,26 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
         {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
         {whitelist.length === 0 ? (
-          <p className="text-sm text-[#6B6B6B] italic">Nema emailova na whitelisti.</p>
+          <p className="text-sm text-ink-2 italic">Nema emailova na whitelisti.</p>
         ) : (
-          <div className="border border-[#E0E0E0] rounded-xl overflow-hidden">
+          <div className="border border-line-gray rounded-xl overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-[#F7F7F5]">
+              <thead className="bg-canvas">
                 <tr>
-                  <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium">Email</th>
-                  <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium hidden sm:table-cell">Dodano</th>
+                  <th className="text-left px-4 py-3 text-ink-2 font-medium">Email</th>
+                  <th className="text-left px-4 py-3 text-ink-2 font-medium hidden sm:table-cell">Dodano</th>
                   <th className="px-4 py-3 w-12"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#F0F0F0]">
+              <tbody className="divide-y divide-line-gray-2">
                 {whitelist.map((entry) => (
-                  <tr key={entry.id} className="hover:bg-[#FAFAFA]">
-                    <td className="px-4 py-3 text-[#262626]">{entry.email}</td>
-                    <td className="px-4 py-3 text-[#6B6B6B] hidden sm:table-cell">{fmt(entry.createdAt)}</td>
+                  <tr key={entry.id} className="hover:bg-neutral-50">
+                    <td className="px-4 py-3 text-ink">{entry.email}</td>
+                    <td className="px-4 py-3 text-ink-2 hidden sm:table-cell">{fmt(entry.createdAt)}</td>
                     <td className="px-4 py-3 text-right">
                       <button
                         onClick={() => removeEmail(entry.id)}
-                        className="text-[#6B6B6B] hover:text-red-500 transition-colors"
+                        className="text-ink-2 hover:text-red-500 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -327,25 +327,25 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
       {/* ── Registrovani korisnici ── */}
       <section>
         <div className="flex items-center gap-2 mb-4">
-          <Users className="w-5 h-5 text-[#FF6700]" />
-          <h2 className="text-lg font-semibold text-[#262626]">
+          <Users className="w-5 h-5 text-orange" />
+          <h2 className="text-lg font-semibold text-ink">
             Registrovani korisnici{" "}
-            <span className="text-[#6B6B6B] font-normal text-base">({users.length})</span>
+            <span className="text-ink-2 font-normal text-base">({users.length})</span>
           </h2>
         </div>
 
         {users.length === 0 ? (
-          <p className="text-sm text-[#6B6B6B] italic">Nema registrovanih korisnika.</p>
+          <p className="text-sm text-ink-2 italic">Nema registrovanih korisnika.</p>
         ) : (
           <>
           {/* Mobile: one card per user (the table is wider than the screen) */}
-          <div className="sm:hidden border border-[#E0E0E0] rounded-xl divide-y divide-[#F0F0F0] bg-white">
+          <div className="sm:hidden border border-line-gray rounded-xl divide-y divide-line-gray-2 bg-white">
             {users.map((u) => (
               <div key={u.id} className="flex items-start gap-3 px-4 py-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#262626] truncate">{u.name}</p>
-                  <p className="text-xs text-[#6B6B6B] break-all">{u.email}</p>
-                  <p className="text-xs text-[#9B9B9B] mt-1">
+                  <p className="text-sm font-medium text-ink truncate">{u.name}</p>
+                  <p className="text-xs text-ink-2 break-all">{u.email}</p>
+                  <p className="text-xs text-ink-3 mt-1">
                     {u._count.properties} {u._count.properties === 1 ? "apartman" : "apartmana"} · registrovan {fmt(u.createdAt)}
                   </p>
                   <div className="mt-1.5">{hotelPill(u)}</div>
@@ -354,7 +354,7 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
                   <button
                     onClick={() => askDeleteUser(u)}
                     title="Obriši korisnika"
-                    className="p-1.5 -mr-1.5 text-[#6B6B6B] hover:text-red-500 transition-colors shrink-0"
+                    className="p-1.5 -mr-1.5 text-ink-2 hover:text-red-500 transition-colors shrink-0"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -362,27 +362,27 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
               </div>
             ))}
           </div>
-          <div className="hidden sm:block border border-[#E0E0E0] rounded-xl overflow-hidden">
+          <div className="hidden sm:block border border-line-gray rounded-xl overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-[#F7F7F5]">
+              <thead className="bg-canvas">
                 <tr>
-                  <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium">Ime</th>
-                  <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium">Email</th>
-                  <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium hidden md:table-cell">Registrovan</th>
-                  <th className="text-center px-4 py-3 text-[#6B6B6B] font-medium">Prop.</th>
-                  <th className="text-center px-4 py-3 text-[#6B6B6B] font-medium hidden sm:table-cell">Verificiran</th>
-                  <th className="text-center px-4 py-3 text-[#6B6B6B] font-medium">Hotel</th>
+                  <th className="text-left px-4 py-3 text-ink-2 font-medium">Ime</th>
+                  <th className="text-left px-4 py-3 text-ink-2 font-medium">Email</th>
+                  <th className="text-left px-4 py-3 text-ink-2 font-medium hidden md:table-cell">Registrovan</th>
+                  <th className="text-center px-4 py-3 text-ink-2 font-medium">Prop.</th>
+                  <th className="text-center px-4 py-3 text-ink-2 font-medium hidden sm:table-cell">Verificiran</th>
+                  <th className="text-center px-4 py-3 text-ink-2 font-medium">Hotel</th>
                   <th className="px-4 py-3 w-12"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#F0F0F0]">
+              <tbody className="divide-y divide-line-gray-2">
                 {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-[#FAFAFA]">
-                    <td className="px-4 py-3 text-[#262626] font-medium">{u.name}</td>
-                    <td className="px-4 py-3 text-[#6B6B6B]">{u.email}</td>
-                    <td className="px-4 py-3 text-[#6B6B6B] hidden md:table-cell">{fmt(u.createdAt)}</td>
+                  <tr key={u.id} className="hover:bg-neutral-50">
+                    <td className="px-4 py-3 text-ink font-medium">{u.name}</td>
+                    <td className="px-4 py-3 text-ink-2">{u.email}</td>
+                    <td className="px-4 py-3 text-ink-2 hidden md:table-cell">{fmt(u.createdAt)}</td>
                     <td className="px-4 py-3 text-center">
-                      <span className={`font-semibold ${u._count.properties > 0 ? "text-[#262626]" : "text-[#CCCCCC]"}`}>
+                      <span className={`font-semibold ${u._count.properties > 0 ? "text-ink" : "text-line-gray-3"}`}>
                         {u._count.properties}
                       </span>
                     </td>
@@ -390,7 +390,7 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
                       {u.emailVerified ? (
                         <CheckCircle className="w-4 h-4 text-green-500 inline" />
                       ) : (
-                        <XCircle className="w-4 h-4 text-[#CCCCCC] inline" />
+                        <XCircle className="w-4 h-4 text-line-gray-3 inline" />
                       )}
                     </td>
                     <td className="px-4 py-3 text-center">{hotelPill(u)}</td>
@@ -399,7 +399,7 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
                         <button
                           onClick={() => askDeleteUser(u)}
                           title="Obriši korisnika"
-                          className="text-[#6B6B6B] hover:text-red-500 transition-colors"
+                          className="text-ink-2 hover:text-red-500 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -417,23 +417,23 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
       {/* ── Pretplate ── */}
       <section>
         <div className="flex items-center gap-2 mb-4">
-          <CreditCard className="w-5 h-5 text-[#FF6700]" />
-          <h2 className="text-lg font-semibold text-[#262626]">Pretplate</h2>
+          <CreditCard className="w-5 h-5 text-orange" />
+          <h2 className="text-lg font-semibold text-ink">Pretplate</h2>
         </div>
 
         {subUsers.length === 0 ? (
-          <p className="text-sm text-[#6B6B6B] italic">Nema korisnika.</p>
+          <p className="text-sm text-ink-2 italic">Nema korisnika.</p>
         ) : (
           <>
           {/* Mobile: one card per user with the extend buttons underneath */}
-          <div className="sm:hidden border border-[#E0E0E0] rounded-xl divide-y divide-[#F0F0F0] bg-white">
+          <div className="sm:hidden border border-line-gray rounded-xl divide-y divide-line-gray-2 bg-white">
             {subUsers.map((u) => (
               <div key={u.id} className="px-4 py-3 space-y-2">
                 <div className="flex items-start gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#262626] truncate">{u.name}</p>
-                    <p className="text-xs text-[#6B6B6B] break-all">{u.email}</p>
-                    <p className="text-xs text-[#9B9B9B] mt-0.5">
+                    <p className="text-sm font-medium text-ink truncate">{u.name}</p>
+                    <p className="text-xs text-ink-2 break-all">{u.email}</p>
+                    <p className="text-xs text-ink-3 mt-0.5">
                       Važi do {u.subscription ? fmt(u.subscription.validUntil) : "—"}
                     </p>
                   </div>
@@ -443,26 +443,26 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
               </div>
             ))}
           </div>
-          <div className="hidden sm:block border border-[#E0E0E0] rounded-xl overflow-hidden">
+          <div className="hidden sm:block border border-line-gray rounded-xl overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-[#F7F7F5]">
+              <thead className="bg-canvas">
                 <tr>
-                  <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium">Korisnik</th>
-                  <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium hidden sm:table-cell">Važi do</th>
-                  <th className="text-left px-4 py-3 text-[#6B6B6B] font-medium">Dana</th>
+                  <th className="text-left px-4 py-3 text-ink-2 font-medium">Korisnik</th>
+                  <th className="text-left px-4 py-3 text-ink-2 font-medium hidden sm:table-cell">Važi do</th>
+                  <th className="text-left px-4 py-3 text-ink-2 font-medium">Dana</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#F0F0F0]">
+              <tbody className="divide-y divide-line-gray-2">
                 {subUsers.map((u) => {
                   const days = u.subscription?.daysLeft ?? null;
                   return (
-                    <tr key={u.id} className="hover:bg-[#FAFAFA]">
+                    <tr key={u.id} className="hover:bg-neutral-50">
                       <td className="px-4 py-3">
-                        <p className="text-[#262626] font-medium">{u.name}</p>
-                        <p className="text-[#6B6B6B] text-xs">{u.email}</p>
+                        <p className="text-ink font-medium">{u.name}</p>
+                        <p className="text-ink-2 text-xs">{u.email}</p>
                       </td>
-                      <td className="px-4 py-3 text-[#6B6B6B] hidden sm:table-cell">
+                      <td className="px-4 py-3 text-ink-2 hidden sm:table-cell">
                         {u.subscription ? fmt(u.subscription.validUntil) : "—"}
                       </td>
                       <td className="px-4 py-3 font-semibold">{daysBadge(days)}</td>

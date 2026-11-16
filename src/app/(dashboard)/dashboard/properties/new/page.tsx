@@ -46,27 +46,27 @@ export default function NewPropertyPage() {
       <button
         type="button"
         onClick={() => router.back()}
-        className="inline-flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] mb-6 transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back
       </button>
 
       <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 bg-[#0F2F61]/10 rounded-xl flex items-center justify-center">
-          <Building2 className="w-5 h-5 text-[#0F2F61]" />
+        <div className="w-10 h-10 bg-navy/10 rounded-xl flex items-center justify-center">
+          <Building2 className="w-5 h-5 text-navy" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-[#262626]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+          <h1 className="text-xl font-bold text-ink" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
             New property
           </h1>
-          <p className="text-sm text-[#6B6B6B]">Create a digital guide for your guests</p>
+          <p className="text-sm text-ink-2">Create a digital guide for your guests</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
-          <Label htmlFor="name" className="text-[#262626] font-medium">
+          <Label htmlFor="name" className="text-ink font-medium">
             Property name <span className="text-red-500">*</span>
           </Label>
           <Input
@@ -75,42 +75,42 @@ export default function NewPropertyPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="border-[#EDEDE9] focus:border-[#0F2F61] h-11"
+            className="border-line focus:border-navy h-11"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="internalName" className="text-[#262626] font-medium">
-            Internal name <span className="text-[#6B6B6B] font-normal">(optional, admin only)</span>
+          <Label htmlFor="internalName" className="text-ink font-medium">
+            Internal name <span className="text-ink-2 font-normal">(optional, admin only)</span>
           </Label>
           <Input
             id="internalName"
             placeholder="e.g. apt-101, studio-bascarsija-2"
             value={internalName}
             onChange={(e) => setInternalName(e.target.value)}
-            className="border-[#EDEDE9] focus:border-[#0F2F61] h-11"
+            className="border-line focus:border-navy h-11"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="address" className="text-[#262626] font-medium">
-            Address <span className="text-[#6B6B6B] font-normal">(optional)</span>
+          <Label htmlFor="address" className="text-ink font-medium">
+            Address <span className="text-ink-2 font-normal">(optional)</span>
           </Label>
           <Input
             id="address"
             placeholder="e.g. 123 Main Street, New York"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="border-[#EDEDE9] focus:border-[#0F2F61] h-11"
+            className="border-line focus:border-navy h-11"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="slug" className="text-[#262626] font-medium">
-            Guest link URL <span className="text-[#6B6B6B] font-normal">(optional)</span>
+          <Label htmlFor="slug" className="text-ink font-medium">
+            Guest link URL <span className="text-ink-2 font-normal">(optional)</span>
           </Label>
-          <div className="flex items-center border border-[#EDEDE9] rounded-lg overflow-hidden focus-within:border-[#0F2F61] h-11">
-            <span className="px-3 text-sm text-[#6B6B6B] bg-[#F7F7F5] h-full flex items-center border-r border-[#EDEDE9] shrink-0">
+          <div className="flex items-center border border-line rounded-lg overflow-hidden focus-within:border-navy h-11">
+            <span className="px-3 text-sm text-ink-2 bg-canvas h-full flex items-center border-r border-line shrink-0">
               /g/
             </span>
             <Input
@@ -122,8 +122,8 @@ export default function NewPropertyPage() {
             />
           </div>
           {customSlug && (
-            <p className="text-xs text-[#6B6B6B]">
-              Guest link: <span className="font-medium text-[#0F2F61]">{typeof window !== "undefined" ? window.location.host : "app.smartstay.ba"}/g/{customSlug}/preview</span>
+            <p className="text-xs text-ink-2">
+              Guest link: <span className="font-medium text-navy">{typeof window !== "undefined" ? window.location.host : "app.smartstay.ba"}/g/{customSlug}/preview</span>
             </p>
           )}
         </div>
@@ -136,7 +136,7 @@ export default function NewPropertyPage() {
           <Button
             type="submit"
             disabled={loading || !name.trim()}
-            className="bg-[#0F2F61] hover:bg-[#0a2347] text-white px-6 h-11"
+            className="bg-navy hover:bg-navy-dark text-white px-6 h-11"
           >
             {loading ? "Creating..." : "Create property"}
           </Button>

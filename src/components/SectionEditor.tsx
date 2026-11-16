@@ -158,26 +158,26 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
         <div
           key={section.id}
           className={`bg-white border rounded-xl overflow-hidden transition-all ${
-            section.isVisible ? "border-[#EDEDE9]" : "border-[#EDEDE9] opacity-60"
+            section.isVisible ? "border-line" : "border-line opacity-60"
           }`}
         >
           {/* Section header */}
           <div
-            className="flex items-center gap-3 px-4 py-3.5 cursor-pointer hover:bg-[#F7F7F5] transition-colors"
+            className="flex items-center gap-3 px-4 py-3.5 cursor-pointer hover:bg-canvas transition-colors"
             onClick={() => setOpenId(openId === section.id ? null : section.id)}
           >
             <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${SECTION_COLORS[section.type] ?? "bg-gray-50 text-gray-600"}`}>
               {SECTION_ICONS[section.type]}
             </div>
-            <span className="font-medium text-[#262626] text-sm flex-1">{section.title}</span>
+            <span className="font-medium text-ink text-sm flex-1">{section.title}</span>
             <div className="flex items-center gap-1">
               {dirtyIds.has(section.id) && (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700] shrink-0" />
+                <span className="w-1.5 h-1.5 rounded-full bg-orange shrink-0" />
               )}
               {section.type !== "AI_CONTEXT" && (
                 <button
                   onClick={(e) => { e.stopPropagation(); toggleVisibility(section); }}
-                  className="p-1.5 rounded-lg hover:bg-[#EDEDE9] text-[#6B6B6B] transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-line text-ink-2 transition-colors"
                   title={section.isVisible ? "Hide section" : "Show section"}
                 >
                   {section.isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
@@ -186,22 +186,22 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
               {(section.type === "CUSTOM" || section.type === "AI_CONTEXT") && (
                 <button
                   onClick={(e) => { e.stopPropagation(); deleteSection(section.id); }}
-                  className="p-1.5 rounded-lg hover:bg-red-50 text-[#6B6B6B] hover:text-red-500 transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-red-50 text-ink-2 hover:text-red-500 transition-colors"
                   title="Delete section"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               )}
               {openId === section.id
-                ? <ChevronUp className="w-4 h-4 text-[#6B6B6B]" />
-                : <ChevronDown className="w-4 h-4 text-[#6B6B6B]" />
+                ? <ChevronUp className="w-4 h-4 text-ink-2" />
+                : <ChevronDown className="w-4 h-4 text-ink-2" />
               }
             </div>
           </div>
 
           {/* Section form */}
           {openId === section.id && (
-            <div className="px-4 pb-4 pt-1 border-t border-[#F0F0EE]">
+            <div className="px-4 pb-4 pt-1 border-t border-line-2">
               <SectionForm
                 section={section}
                 onChange={(changes) => updateSection(section.id, changes)}
@@ -226,7 +226,7 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
           <button
             onClick={addCustomSection}
             disabled={addingCustom}
-            className="w-full h-10 border-2 border-dashed border-[#EDEDE9] rounded-xl flex items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors text-sm"
+            className="w-full h-10 border-2 border-dashed border-line rounded-xl flex items-center justify-center gap-2 text-ink-2 hover:border-navy hover:text-navy transition-colors text-sm"
           >
             {addingCustom ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             Add custom section
@@ -235,12 +235,12 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
       )}
 
       {/* Single save button — sticks above the bottom nav while there are unsaved changes */}
-      <div className={`pt-2 flex items-center justify-end gap-3 ${dirtyIds.size > 0 || saving ? "sticky bottom-[76px] md:bottom-4 z-30 bg-white/95 backdrop-blur-sm border border-[#EDEDE9] shadow-lg rounded-2xl px-4 py-3 mt-3" : ""}`}>
+      <div className={`pt-2 flex items-center justify-end gap-3 ${dirtyIds.size > 0 || saving ? "sticky bottom-[76px] md:bottom-4 z-30 bg-white/95 backdrop-blur-sm border border-line shadow-lg rounded-2xl px-4 py-3 mt-3" : ""}`}>
         {dirtyIds.size > 0 && !saving && (
-          <span className="mr-auto text-sm font-medium text-[#FF6700]">Unsaved changes</span>
+          <span className="mr-auto text-sm font-medium text-orange">Unsaved changes</span>
         )}
         {translating && (
-          <span className="text-xs text-[#6B6B6B] flex items-center gap-1.5">
+          <span className="text-xs text-ink-2 flex items-center gap-1.5">
             <Loader2 className="w-3 h-3 animate-spin" />
             Translating...
           </span>
@@ -248,7 +248,7 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
         <Button
           onClick={saveAll}
           disabled={saving || dirtyIds.size === 0}
-          className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm px-6"
+          className="bg-navy hover:bg-navy-dark text-white h-9 text-sm px-6"
         >
           {saving ? (
             <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Saving...</>
@@ -290,7 +290,7 @@ export function SectionForm({
               value={(content.network as string) ?? ""}
               onChange={(e) => setContent({ network: e.target.value })}
               placeholder="e.g. Apartment_WiFi"
-              className="h-9 text-sm border-[#EDEDE9]"
+              className="h-9 text-sm border-line"
             />
           </Field>
           <Field label="Password">
@@ -298,7 +298,7 @@ export function SectionForm({
               value={(content.password as string) ?? ""}
               onChange={(e) => setContent({ password: e.target.value })}
               placeholder="WiFi password"
-              className="h-9 text-sm border-[#EDEDE9]"
+              className="h-9 text-sm border-line"
             />
           </Field>
           <Field label="Note (optional)">
@@ -306,7 +306,7 @@ export function SectionForm({
               value={(content.note as string) ?? ""}
               onChange={(e) => setContent({ note: e.target.value })}
               placeholder="e.g. 2.4GHz network for smart TV"
-              className="h-9 text-sm border-[#EDEDE9]"
+              className="h-9 text-sm border-line"
             />
           </Field>
         </div>
@@ -318,7 +318,7 @@ export function SectionForm({
     case "HOUSE_RULES":
       return (
         <div className="space-y-3 pt-3">
-          <Label className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide">Rules</Label>
+          <Label className="text-xs font-medium text-ink-2 uppercase tracking-wide">Rules</Label>
           <RulesList
             rules={(content.rules as string[]) ?? []}
             onChange={(rules) => setContent({ rules })}
@@ -334,7 +334,7 @@ export function SectionForm({
               value={(content.address as string) ?? ""}
               onChange={(e) => setContent({ ...content, address: e.target.value })}
               placeholder="e.g. 123 Main Street, New York"
-              className="h-9 text-sm border-[#EDEDE9]"
+              className="h-9 text-sm border-line"
             />
           </Field>
           <Field label="Google Maps link (optional)">
@@ -342,10 +342,10 @@ export function SectionForm({
               value={(content.mapUrl as string) ?? ""}
               onChange={(e) => setContent({ ...content, mapUrl: e.target.value })}
               placeholder="https://maps.app.goo.gl/..."
-              className="h-9 text-sm border-[#EDEDE9]"
+              className="h-9 text-sm border-line"
             />
           </Field>
-          <p className="text-xs text-[#6B6B6B] -mt-1">
+          <p className="text-xs text-ink-2 -mt-1">
             Zalijepite share link iz Google Maps za tačan pin. Ako je prazno, koristi se adresa.
           </p>
           <Field label="Directions">
@@ -353,7 +353,7 @@ export function SectionForm({
               value={(content.directions as string) ?? ""}
               onChange={(e) => setContent({ ...content, directions: e.target.value })}
               placeholder="Describe how to get here from the airport, city centre..."
-              className="text-sm border-[#EDEDE9] resize-none"
+              className="text-sm border-line resize-none"
               rows={3}
             />
           </Field>
@@ -363,7 +363,7 @@ export function SectionForm({
     case "LOCAL_RECS":
       return (
         <div className="space-y-3 pt-3">
-          <Label className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide">Recommended places</Label>
+          <Label className="text-xs font-medium text-ink-2 uppercase tracking-wide">Recommended places</Label>
           <PlacesList
             places={(content.places as Place[]) ?? []}
             onChange={(places) => setContent({ places })}
@@ -379,7 +379,7 @@ export function SectionForm({
               value={(content.phone as string) ?? ""}
               onChange={(e) => setContent({ phone: e.target.value })}
               placeholder="e.g. +387 61 123 456"
-              className="h-9 text-sm border-[#EDEDE9]"
+              className="h-9 text-sm border-line"
             />
           </Field>
           <Field label="Label (optional)">
@@ -387,10 +387,10 @@ export function SectionForm({
               value={(content.label as string) ?? ""}
               onChange={(e) => setContent({ label: e.target.value })}
               placeholder="e.g. Host – Haris"
-              className="h-9 text-sm border-[#EDEDE9]"
+              className="h-9 text-sm border-line"
             />
           </Field>
-          <p className="text-xs text-[#6B6B6B]">
+          <p className="text-xs text-ink-2">
             Guests will see buttons for Phone call, Viber and WhatsApp.
           </p>
         </div>
@@ -409,8 +409,8 @@ export function SectionForm({
                   onClick={() => setContent({ available: val })}
                   className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-colors ${
                     available === val
-                      ? "bg-[#0F2F61] text-white border-[#0F2F61]"
-                      : "bg-white text-[#6B6B6B] border-[#EDEDE9] hover:border-[#0F2F61]"
+                      ? "bg-navy text-white border-navy"
+                      : "bg-white text-ink-2 border-line hover:border-navy"
                   }`}
                 >
                   {val ? "Yes" : "No"}
@@ -429,8 +429,8 @@ export function SectionForm({
                       onClick={() => setContent({ parkingType: type })}
                       className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
                         (content.parkingType as string) === type
-                          ? "bg-[#0F2F61] text-white border-[#0F2F61]"
-                          : "bg-white text-[#6B6B6B] border-[#EDEDE9] hover:border-[#0F2F61]"
+                          ? "bg-navy text-white border-navy"
+                          : "bg-white text-ink-2 border-line hover:border-navy"
                       }`}
                     >
                       {type}
@@ -447,8 +447,8 @@ export function SectionForm({
                       onClick={() => setContent({ paid: val })}
                       className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-colors ${
                         (content.paid as boolean) === val
-                          ? "bg-[#0F2F61] text-white border-[#0F2F61]"
-                          : "bg-white text-[#6B6B6B] border-[#EDEDE9] hover:border-[#0F2F61]"
+                          ? "bg-navy text-white border-navy"
+                          : "bg-white text-ink-2 border-line hover:border-navy"
                       }`}
                     >
                       {val ? "Paid" : "Free"}
@@ -463,7 +463,7 @@ export function SectionForm({
               value={(content.notes as string) ?? ""}
               onChange={(e) => setContent({ notes: e.target.value })}
               placeholder="e.g. Park in spot #12, code for gate is 1234..."
-              className="text-sm border-[#EDEDE9] resize-none"
+              className="text-sm border-line resize-none"
               rows={3}
             />
           </Field>
@@ -486,7 +486,7 @@ export function SectionForm({
               value={(content.body as string) ?? ""}
               onChange={(e) => setContent({ body: e.target.value })}
               placeholder="e.g. The key lockbox is behind the fire extinguisher. Pool is open 8am–10pm. Nearest pharmacy is 2 min walk on the left..."
-              className="text-sm border-[#EDEDE9] resize-none"
+              className="text-sm border-line resize-none"
               rows={6}
             />
           </Field>
@@ -533,7 +533,7 @@ function CustomForm({
           value={section.title}
           onChange={(e) => onChange({ title: e.target.value })}
           placeholder="Section name"
-          className="h-9 text-sm border-[#EDEDE9]"
+          className="h-9 text-sm border-line"
         />
       </Field>
       <Field label="Description (optional)">
@@ -541,17 +541,17 @@ function CustomForm({
           value={(content.body as string) ?? ""}
           onChange={(e) => setContent({ body: e.target.value })}
           placeholder="Short intro text..."
-          className="text-sm border-[#EDEDE9] resize-none"
+          className="text-sm border-line resize-none"
           rows={3}
         />
       </Field>
       <div>
-        <Label className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide mb-2 block">Items</Label>
+        <Label className="text-xs font-medium text-ink-2 uppercase tracking-wide mb-2 block">Items</Label>
         <div className="space-y-3">
           {links.map((link, idx) => (
-            <div key={idx} className="border border-[#EDEDE9] rounded-xl p-3 space-y-2 bg-[#F7F7F5]">
+            <div key={idx} className="border border-line rounded-xl p-3 space-y-2 bg-canvas">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-[#6B6B6B]">Item {idx + 1}</span>
+                <span className="text-xs font-medium text-ink-2">Item {idx + 1}</span>
                 <button onClick={() => removeLink(idx)} className="text-red-400 hover:text-red-600 transition-colors">
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -560,25 +560,25 @@ function CustomForm({
                 value={link.name}
                 onChange={(e) => updateLink(idx, "name", e.target.value)}
                 placeholder="Name"
-                className="h-8 text-sm border-[#EDEDE9] bg-white"
+                className="h-8 text-sm border-line bg-white"
               />
               <Input
                 value={link.url}
                 onChange={(e) => updateLink(idx, "url", e.target.value)}
                 placeholder="Link (optional) — https://..."
-                className="h-8 text-sm border-[#EDEDE9] bg-white"
+                className="h-8 text-sm border-line bg-white"
               />
               <Input
                 value={link.description}
                 onChange={(e) => updateLink(idx, "description", e.target.value)}
                 placeholder="Description"
-                className="h-8 text-sm border-[#EDEDE9] bg-white"
+                className="h-8 text-sm border-line bg-white"
               />
             </div>
           ))}
           <button
             onClick={addLink}
-            className="w-full h-9 border-2 border-dashed border-[#EDEDE9] rounded-xl flex items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors text-sm"
+            className="w-full h-9 border-2 border-dashed border-line rounded-xl flex items-center justify-center gap-2 text-ink-2 hover:border-navy hover:text-navy transition-colors text-sm"
           >
             <Plus className="w-4 h-4" /> Add item
           </button>
@@ -656,7 +656,7 @@ function MultiImageUpload({
         <button
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="w-full h-16 border-2 border-dashed border-[#EDEDE9] rounded-xl flex items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors"
+          className="w-full h-16 border-2 border-dashed border-line rounded-xl flex items-center justify-center gap-2 text-ink-2 hover:border-navy hover:text-navy transition-colors"
         >
           {uploading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -721,8 +721,8 @@ function CheckinForm({
               onClick={() => setContent({ checkInType: type })}
               className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-colors ${
                 checkInType === type
-                  ? "bg-[#0F2F61] text-white border-[#0F2F61]"
-                  : "bg-white text-[#6B6B6B] border-[#EDEDE9] hover:border-[#0F2F61]"
+                  ? "bg-navy text-white border-navy"
+                  : "bg-white text-ink-2 border-line hover:border-navy"
               }`}
             >
               {type === "SELF" ? "Self check-in" : "Personal welcome"}
@@ -732,14 +732,14 @@ function CheckinForm({
       </Field>
 
       {/* ── Check-in ── */}
-      <p className="text-sm font-bold text-[#262626] pt-1">Check-in</p>
+      <p className="text-sm font-bold text-ink pt-1">Check-in</p>
 
       <Field label="Check-in time">
         <Input
           type="time"
           value={(content.checkIn as string) ?? "15:00"}
           onChange={(e) => setContent({ checkIn: e.target.value })}
-          className="h-9 text-sm border-[#EDEDE9]"
+          className="h-9 text-sm border-line"
         />
       </Field>
 
@@ -753,7 +753,7 @@ function CheckinForm({
               ? "Describe the self check-in process step by step..."
               : "Describe how you will welcome guests personally..."
           }
-          className="text-sm border-[#EDEDE9] resize-none"
+          className="text-sm border-line resize-none"
           rows={4}
         />
       </Field>
@@ -776,13 +776,13 @@ function CheckinForm({
                 <div className="flex gap-2 mt-2">
                   <button
                     onClick={() => fileRef.current?.click()}
-                    className="text-xs font-medium text-[#0F2F61] bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-[#F0F0EE] transition-colors"
+                    className="text-xs font-medium text-navy bg-white border border-line px-3 py-1.5 rounded-lg hover:bg-line-2 transition-colors"
                   >
                     Replace video
                   </button>
                   <button
                     onClick={() => setContent({ videoUrl: "" })}
-                    className="text-xs font-medium text-red-500 bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                    className="text-xs font-medium text-red-500 bg-white border border-line px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
                   >
                     Remove
                   </button>
@@ -792,7 +792,7 @@ function CheckinForm({
               <button
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
-                className="w-full h-20 border-2 border-dashed border-[#EDEDE9] rounded-xl flex flex-col items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors"
+                className="w-full h-20 border-2 border-dashed border-line rounded-xl flex flex-col items-center justify-center gap-2 text-ink-2 hover:border-navy hover:text-navy transition-colors"
               >
                 {uploading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -810,17 +810,17 @@ function CheckinForm({
       )}
 
       {/* ── Divider ── */}
-      <hr className="border-[#EDEDE9]" />
+      <hr className="border-line" />
 
       {/* ── Check-out ── */}
-      <p className="text-sm font-bold text-[#262626]">Check-out</p>
+      <p className="text-sm font-bold text-ink">Check-out</p>
 
       <Field label="Check-out time">
         <Input
           type="time"
           value={(content.checkOut as string) ?? "11:00"}
           onChange={(e) => setContent({ checkOut: e.target.value })}
-          className="h-9 text-sm border-[#EDEDE9]"
+          className="h-9 text-sm border-line"
         />
       </Field>
 
@@ -829,7 +829,7 @@ function CheckinForm({
           value={(content.checkOutInstructions as string) ?? ""}
           onChange={(e) => setContent({ checkOutInstructions: e.target.value })}
           placeholder="E.g. Leave the key on the table, make sure all windows are closed..."
-          className="text-sm border-[#EDEDE9] resize-none"
+          className="text-sm border-line resize-none"
           rows={3}
         />
       </Field>
@@ -882,7 +882,7 @@ function WelcomeForm({
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 hover:opacity-100 transition-opacity">
               <button
                 onClick={() => fileRef.current?.click()}
-                className="bg-white text-[#262626] text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"
+                className="bg-white text-ink text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5"
               >
                 <ImagePlus className="w-3.5 h-3.5" /> Change
               </button>
@@ -898,7 +898,7 @@ function WelcomeForm({
           <button
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
-            className="w-full h-24 border-2 border-dashed border-[#EDEDE9] rounded-xl flex flex-col items-center justify-center gap-2 text-[#6B6B6B] hover:border-[#0F2F61] hover:text-[#0F2F61] transition-colors"
+            className="w-full h-24 border-2 border-dashed border-line rounded-xl flex flex-col items-center justify-center gap-2 text-ink-2 hover:border-navy hover:text-navy transition-colors"
           >
             {uploading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -918,7 +918,7 @@ function WelcomeForm({
           value={(content.welcomeTitle as string) ?? ""}
           onChange={(e) => setContent({ welcomeTitle: e.target.value })}
           placeholder="e.g. Welcome to our apartment!"
-          className="h-9 text-sm border-[#EDEDE9]"
+          className="h-9 text-sm border-line"
         />
       </Field>
       <Field label="Message to guests">
@@ -926,7 +926,7 @@ function WelcomeForm({
           value={(content.message as string) ?? ""}
           onChange={(e) => setContent({ message: e.target.value })}
           placeholder="Write a warm welcome message for your guests..."
-          className="text-sm border-[#EDEDE9] resize-none"
+          className="text-sm border-line resize-none"
           rows={3}
         />
       </Field>
@@ -935,7 +935,7 @@ function WelcomeForm({
           value={(content.hostName as string) ?? ""}
           onChange={(e) => setContent({ hostName: e.target.value })}
           placeholder="e.g. Haris & Amina"
-          className="h-9 text-sm border-[#EDEDE9]"
+          className="h-9 text-sm border-line"
         />
       </Field>
       <Field label="Button text">
@@ -943,7 +943,7 @@ function WelcomeForm({
           value={(content.ctaText as string) ?? ""}
           onChange={(e) => setContent({ ctaText: e.target.value })}
           placeholder="e.g. Explore the guide"
-          className="h-9 text-sm border-[#EDEDE9]"
+          className="h-9 text-sm border-line"
         />
       </Field>
     </div>
@@ -953,7 +953,7 @@ function WelcomeForm({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs font-medium text-[#6B6B6B]">{label}</Label>
+      <Label className="text-xs font-medium text-ink-2">{label}</Label>
       {children}
     </div>
   );
@@ -972,16 +972,16 @@ function RulesList({ rules, onChange }: { rules: string[]; onChange: (r: string[
             value={rule}
             onChange={(e) => update(i, e.target.value)}
             placeholder={`Rule ${i + 1}`}
-            className="h-9 text-sm border-[#EDEDE9]"
+            className="h-9 text-sm border-line"
           />
-          <button onClick={() => remove(i)} className="p-2 text-[#6B6B6B] hover:text-red-500 transition-colors">
+          <button onClick={() => remove(i)} className="p-2 text-ink-2 hover:text-red-500 transition-colors">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
       ))}
       <button
         onClick={add}
-        className="flex items-center gap-1.5 text-sm text-[#FF6700] hover:text-[#e05c00] font-medium transition-colors"
+        className="flex items-center gap-1.5 text-sm text-orange hover:text-orange-dark font-medium transition-colors"
       >
         <Plus className="w-3.5 h-3.5" /> Add rule
       </button>
@@ -1000,21 +1000,21 @@ function PlacesList({ places, onChange }: { places: Place[]; onChange: (p: Place
   return (
     <div className="space-y-3">
       {places.map((place, i) => (
-        <div key={i} className="bg-[#F7F7F5] rounded-lg p-3 space-y-2">
+        <div key={i} className="bg-canvas rounded-lg p-3 space-y-2">
           <div className="flex gap-2">
             <Input
               value={place.name}
               onChange={(e) => update(i, "name", e.target.value)}
               placeholder="Place name"
-              className="h-8 text-sm border-[#EDEDE9] bg-white flex-1"
+              className="h-8 text-sm border-line bg-white flex-1"
             />
             <Input
               value={place.category}
               onChange={(e) => update(i, "category", e.target.value)}
               placeholder="Category"
-              className="h-8 text-sm border-[#EDEDE9] bg-white w-32"
+              className="h-8 text-sm border-line bg-white w-32"
             />
-            <button onClick={() => remove(i)} className="p-1.5 text-[#6B6B6B] hover:text-red-500 transition-colors">
+            <button onClick={() => remove(i)} className="p-1.5 text-ink-2 hover:text-red-500 transition-colors">
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
@@ -1022,19 +1022,19 @@ function PlacesList({ places, onChange }: { places: Place[]; onChange: (p: Place
             value={place.description}
             onChange={(e) => update(i, "description", e.target.value)}
             placeholder="Short description..."
-            className="h-8 text-sm border-[#EDEDE9] bg-white"
+            className="h-8 text-sm border-line bg-white"
           />
           <Input
             value={place.link ?? ""}
             onChange={(e) => update(i, "link", e.target.value)}
             placeholder="Google Maps link (optional) — e.g. https://maps.app.goo.gl/..."
-            className="h-8 text-sm border-[#EDEDE9] bg-white"
+            className="h-8 text-sm border-line bg-white"
           />
         </div>
       ))}
       <button
         onClick={add}
-        className="flex items-center gap-1.5 text-sm text-[#FF6700] hover:text-[#e05c00] font-medium transition-colors"
+        className="flex items-center gap-1.5 text-sm text-orange hover:text-orange-dark font-medium transition-colors"
       >
         <Plus className="w-3.5 h-3.5" /> Add place
       </button>

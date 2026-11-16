@@ -56,8 +56,8 @@ export default async function AdminPage() {
   return (
     <div className="p-4 sm:p-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#262626]">Admin Panel</h1>
-        <p className="text-[#6B6B6B] mt-1">Manage users and access control</p>
+        <h1 className="text-2xl font-bold text-ink">Admin Panel</h1>
+        <p className="text-ink-2 mt-1">Manage users and access control</p>
       </div>
       <div className="space-y-10 mb-10">
         <AdminBankTransfers

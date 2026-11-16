@@ -30,8 +30,8 @@ export default async function ApartmentsPage() {
   return (
     <div className="p-4 sm:p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#262626]">Apartments</h1>
-        <p className="text-[#6B6B6B] mt-1">{properties.length} {properties.length === 1 ? "apartment" : "apartments"}</p>
+        <h1 className="text-2xl font-bold text-ink">Apartments</h1>
+        <p className="text-ink-2 mt-1">{properties.length} {properties.length === 1 ? "apartment" : "apartments"}</p>
       </div>
       <PropertiesList properties={list} />
     </div>

@@ -82,7 +82,7 @@ function sectionMeta(type: string, title: string) {
   const hit = CUSTOM_ICONS.find(([re]) => re.test(title));
   return hit
     ? { icon: hit[1], color: hit[2], bg: hit[3] }
-    : { icon: <BookOpen className="w-5 h-5" />, color: "text-[#0F2F61]", bg: "bg-[#0F2F61]/5" };
+    : { icon: <BookOpen className="w-5 h-5" />, color: "text-navy", bg: "bg-navy/5" };
 }
 /** Real data under the title when we have it (Wi-Fi name, times, address, phone); else the generic subtitle */
 function sectionSubtitle(type: string, content: Record<string, unknown>, fallback?: string) {
@@ -106,7 +106,7 @@ const UI_STRINGS: Record<string, {
     exploreGuide: "Explore the guide",
     guideSoon: "Guide coming soon",
     guideSoonSub: "Your host is still adding information.",
-    trueLocalTitle: "Want to explore Sarajevo & beyond like a true local?",
+    trueLocalTitle: "Want to explore the area like a true local?",
     trueLocalBody: "Looking for authentic local experiences in Bosnia & Herzegovina? Explore hand-picked tours, activities and hidden gems curated just for you.",
     trueLocalCta: "Explore TrueLocal.ba",
     rentCarTitle: "Rent-a-car",
@@ -132,7 +132,7 @@ const UI_STRINGS: Record<string, {
     exploreGuide: "Pogledaj vodič",
     guideSoon: "Vodič uskoro",
     guideSoonSub: "Vaš domaćin još dodaje informacije.",
-    trueLocalTitle: "Želite istražiti Sarajevo i okolinu kao pravi lokalac?",
+    trueLocalTitle: "Želite istražiti okolinu kao pravi lokalac?",
     trueLocalBody: "Tražite autentična lokalna iskustva u Bosni i Hercegovini? Istražite pažljivo odabrane ture, aktivnosti i skrivene dragulje.",
     trueLocalCta: "Istraži TrueLocal.ba",
     rentCarTitle: "Rent-a-car",
@@ -158,7 +158,7 @@ const UI_STRINGS: Record<string, {
     exploreGuide: "Zum Gästeführer",
     guideSoon: "Leitfaden kommt bald",
     guideSoonSub: "Ihr Gastgeber fügt noch Informationen hinzu.",
-    trueLocalTitle: "Sarajevo & Umgebung wie ein Einheimischer entdecken?",
+    trueLocalTitle: "Die Umgebung wie ein Einheimischer entdecken?",
     trueLocalBody: "Suchen Sie authentische lokale Erlebnisse in Bosnien & Herzegowina? Entdecken Sie handverlesene Touren, Aktivitäten und versteckte Juwelen.",
     trueLocalCta: "TrueLocal.ba entdecken",
     rentCarTitle: "Mietwagen",
@@ -184,7 +184,7 @@ const UI_STRINGS: Record<string, {
     exploreGuide: "Rehberi Keşfet",
     guideSoon: "Rehber Yakında",
     guideSoonSub: "Ev sahibiniz henüz bilgi ekliyor.",
-    trueLocalTitle: "Saraybosna'yı gerçek bir yerel gibi keşfetmek ister misiniz?",
+    trueLocalTitle: "Çevreyi gerçek bir yerel gibi keşfetmek ister misiniz?",
     trueLocalBody: "Bosna Hersek'te otantik yerel deneyimler mi arıyorsunuz? Özenle seçilmiş turları, aktiviteleri ve gizli hazineleri keşfedin.",
     trueLocalCta: "TrueLocal.ba'yı Keşfet",
     rentCarTitle: "Araç Kiralama",
@@ -210,7 +210,7 @@ const UI_STRINGS: Record<string, {
     exploreGuide: "Esplora la guida",
     guideSoon: "Guida in arrivo",
     guideSoonSub: "Il tuo host sta ancora aggiungendo informazioni.",
-    trueLocalTitle: "Vuoi esplorare Sarajevo come un vero locale?",
+    trueLocalTitle: "Vuoi esplorare la zona come un vero locale?",
     trueLocalBody: "Cerchi esperienze locali autentiche in Bosnia ed Erzegovina? Scopri tour, attività e gemme nascoste selezionate per te.",
     trueLocalCta: "Esplora TrueLocal.ba",
     rentCarTitle: "Noleggio auto",
@@ -353,7 +353,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 
   return (
     <div
-      className={`min-h-screen bg-[#F7F7F5] ${hotel ? "pb-20 [&_.bottom-6]:bottom-24" : "pb-24"}`}
+      className={`min-h-screen bg-canvas ${hotel ? "pb-20 [&_.bottom-6]:bottom-24" : "pb-24"}`}
       style={{ fontFamily: "Inter, system-ui, sans-serif" }}
     >
 
@@ -362,7 +362,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 
       {/* ── HOTEL: compact header on Reception / Extras ── */}
       {hotel && !showGuide && (
-        <div className="bg-[#0F2F61] text-white">
+        <div className="bg-navy text-white">
           <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
             <div className="flex-1 min-w-0">
               <p className="font-bold text-lg leading-tight truncate" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{property.name}</p>
@@ -407,7 +407,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
             style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
           >
             {guestName
-              ? <>{ui.welcome},<br /><span className="text-[#FF6700]">{guestName}</span>!</>
+              ? <>{ui.welcome},<br /><span className="text-orange">{guestName}</span>!</>
               : welcomeTitle
             }
           </h1>
@@ -436,7 +436,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
           {otherSections.length > 0 && (
             <button
               onClick={scrollToSections}
-              className="mt-8 inline-flex items-center gap-2 bg-[#FF6700] hover:bg-[#e05c00] text-white font-semibold px-6 py-3 rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg"
+              className="mt-8 inline-flex items-center gap-2 bg-orange hover:bg-orange-dark text-white font-semibold px-6 py-3 rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg"
               style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
             >
               {ctaText}
@@ -486,28 +486,28 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
                 <CheckCircle2 className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="font-bold text-[#262626] text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+                <h2 className="font-bold text-ink text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
                   {ui.regDone}
                 </h2>
-                <p className="text-sm text-[#6B6B6B]">{ui.regDoneBody}</p>
+                <p className="text-sm text-ink-2">{ui.regDoneBody}</p>
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl shadow-sm border-2 border-[#FF6700] overflow-hidden">
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-orange-50 text-[#FF6700]">
+            <div className="bg-white rounded-2xl shadow-sm border-2 border-orange overflow-hidden">
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-line-2">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-orange-50 text-orange">
                   <ClipboardList className="w-5 h-5" />
                 </div>
-                <h2 className="font-bold text-[#262626] text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+                <h2 className="font-bold text-ink text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
                   {ui.regTitle}
                 </h2>
               </div>
               <div className="px-5 py-4 space-y-3">
                 {/* Right padding on phones keeps the text clear of the floating chat button */}
-                <p className="text-sm text-[#262626] leading-relaxed pr-12 sm:pr-0">{ui.regBody}</p>
+                <p className="text-sm text-ink leading-relaxed pr-12 sm:pr-0">{ui.regBody}</p>
                 <a
                   href={registrationHref}
-                  className="inline-flex items-center gap-2 bg-[#FF6700] hover:bg-[#e05c00] text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+                  className="inline-flex items-center gap-2 bg-orange hover:bg-orange-dark text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
                 >
                   {ui.regCta} →
                 </a>
@@ -523,7 +523,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
         {hotel?.reviewUrl && <GoogleReviewCard lang={lang} url={hotel.reviewUrl} />}
 
         {otherSections.length === 0 && (
-          <div className="text-center py-16 text-[#6B6B6B]">
+          <div className="text-center py-16 text-ink-2">
             <p className="text-lg font-medium">{ui.guideSoon}</p>
             <p className="text-sm mt-1">{ui.guideSoonSub}</p>
           </div>
@@ -533,19 +533,19 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       {/* ── UPSELL CARDS ── */}
       <div className="max-w-2xl mx-auto px-4 pb-6 space-y-4">
         {/* TrueLocal */}
-        <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
+        <div className="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-line-2">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-green-50 text-green-600">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
-            <h2 className="font-bold text-[#262626] text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+            <h2 className="font-bold text-ink text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
               {ui.trueLocalTitle}
             </h2>
           </div>
           <div className="px-5 py-4 space-y-3">
-            <p className="text-sm text-[#262626] leading-relaxed">
+            <p className="text-sm text-ink leading-relaxed">
               {ui.trueLocalBody}
             </p>
             <a
@@ -563,25 +563,25 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
         </div>
 
         {/* Rent-a-car — not for hotels (they run their own extras) */}
-        {!hotel && <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-[#F0F0EE]">
+        {!hotel && <div className="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-line-2">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-blue-50 text-blue-600">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
               </svg>
             </div>
-            <h2 className="font-bold text-[#262626] text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+            <h2 className="font-bold text-ink text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
               {ui.rentCarTitle}
             </h2>
           </div>
           <div className="px-5 py-4 space-y-3">
-            <p className="text-sm text-[#262626] leading-relaxed">
+            <p className="text-sm text-ink leading-relaxed">
               {ui.rentCarBody}
             </p>
             <div className="flex gap-2 flex-wrap">
               <a
                 href="tel:+38761684110"
-                className="inline-flex items-center gap-2 bg-[#0F2F61] hover:bg-[#0a2347] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+                className="inline-flex items-center gap-2 bg-navy hover:bg-navy-dark text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
               >
                 <Phone className="w-4 h-4" />
                 {ui.callUs}
@@ -590,7 +590,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
                 href="https://wa.me/38761684110"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1db955] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+                className="inline-flex items-center gap-2 bg-whatsapp hover:bg-[#1db955] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
               >
                 <WhatsAppIcon />
                 WhatsApp
@@ -602,9 +602,9 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 
       {/* Footer */}
       <div className="pb-10 text-center">
-        <p className="text-xs text-[#6B6B6B]">
+        <p className="text-xs text-ink-2">
           Powered by{" "}
-          <span className="font-semibold text-[#0F2F61]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+          <span className="font-semibold text-navy" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
             SmartStay
           </span>
         </p>
@@ -627,11 +627,11 @@ function SectionCard({ section, content, ui }: { section: Section; content: Reco
   const subtitle = sectionSubtitle(section.type, content, sectionStrings?.subtitle);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
       {/* Card header — tap to toggle */}
       <button
         onClick={() => setOpen(!open)}
-        className={`w-full flex items-center justify-between px-5 py-4 text-left ${open ? "border-b border-[#F0F0EE]" : ""}`}
+        className={`w-full flex items-center justify-between px-5 py-4 text-left ${open ? "border-b border-line-2" : ""}`}
       >
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${meta.bg} ${meta.color}`}>
@@ -639,17 +639,17 @@ function SectionCard({ section, content, ui }: { section: Section; content: Reco
           </div>
           <div>
             <h2
-              className="font-bold text-[#262626] text-base leading-tight"
+              className="font-bold text-ink text-base leading-tight"
               style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
             >
               {section.type === "CUSTOM" ? section.title : (sectionStrings?.label ?? section.title)}
             </h2>
             {subtitle && (
-              <p className="text-xs text-[#9B9B9B] font-normal mt-0.5 line-clamp-1">{subtitle}</p>
+              <p className="text-xs text-ink-3 font-normal mt-0.5 line-clamp-1">{subtitle}</p>
             )}
           </div>
         </div>
-        <ChevronDown className={`w-4 h-4 text-[#6B6B6B] transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`w-4 h-4 text-ink-2 transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`} />
       </button>
 
       {/* Card body */}
@@ -670,7 +670,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
           <WifiRow label="Network" value={(content.network as string) ?? ""} copyable />
           <WifiRow label="Password" value={(content.password as string) ?? ""} copyable />
           {(content.note as string) && (
-            <p className="text-sm text-[#6B6B6B] pt-2 border-t border-[#F0F0EE]">
+            <p className="text-sm text-ink-2 pt-2 border-t border-line-2">
               {content.note as string}
             </p>
           )}
@@ -687,13 +687,13 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
       return (
         <div className="space-y-4">
           {/* ── Check-in ── */}
-          <p className="text-sm font-bold text-[#262626]">Check-in</p>
-          <div className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-[#0F2F61]/10 text-[#0F2F61]">
+          <p className="text-sm font-bold text-ink">Check-in</p>
+          <div className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-navy/10 text-navy">
             {checkInType === "SELF" ? "Self check-in" : "Personal welcome"}
           </div>
           <TimeBox label="Check-in" value={(content.checkIn as string) ?? "15:00"} />
           {(content.instructions as string) && (
-            <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap">
+            <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap">
               {content.instructions as string}
             </p>
           )}
@@ -713,13 +713,13 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
           )}
 
           {/* ── Divider ── */}
-          <hr className="border-[#EDEDE9]" />
+          <hr className="border-line" />
 
           {/* ── Check-out ── */}
-          <p className="text-sm font-bold text-[#262626]">Check-out</p>
+          <p className="text-sm font-bold text-ink">Check-out</p>
           <TimeBox label="Check-out" value={(content.checkOut as string) ?? "11:00"} />
           {checkOutInstructions && (
-            <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap">
+            <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap">
               {checkOutInstructions}
             </p>
           )}
@@ -731,10 +731,10 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
       const rules = (content.rules as string[]) ?? [];
       return (
         <ul className="space-y-2.5">
-          {rules.length === 0 && <li className="text-sm text-[#6B6B6B]">No rules defined.</li>}
+          {rules.length === 0 && <li className="text-sm text-ink-2">No rules defined.</li>}
           {rules.map((rule, i) => (
-            <li key={i} className="flex items-start gap-3 text-sm text-[#262626]">
-              <span className="w-6 h-6 bg-[#0F2F61]/10 text-[#0F2F61] rounded-full flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+            <li key={i} className="flex items-start gap-3 text-sm text-ink">
+              <span className="w-6 h-6 bg-navy/10 text-navy rounded-full flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
                 {i + 1}
               </span>
               <span className="leading-relaxed">{rule}</span>
@@ -748,8 +748,8 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
       return (
         <div className="space-y-4">
           {(content.address as string) && (
-            <div className="flex items-start gap-2.5 text-sm text-[#262626]">
-              <MapPin className="w-4 h-4 text-[#6B6B6B] shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2.5 text-sm text-ink">
+              <MapPin className="w-4 h-4 text-ink-2 shrink-0 mt-0.5" />
               <span className="leading-relaxed">{content.address as string}</span>
             </div>
           )}
@@ -758,14 +758,14 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
               href={(content.mapUrl as string) || `https://maps.google.com/?q=${encodeURIComponent(content.address as string)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-[#0F2F61] hover:bg-[#0a2347] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+              className="inline-flex items-center gap-2 bg-navy hover:bg-navy-dark text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
             >
               <MapPin className="w-4 h-4" />
               Open in Google Maps
             </a>
           )}
           {(content.directions as string) && (
-            <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap border-t border-[#F0F0EE] pt-3">
+            <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap border-t border-line-2 pt-3">
               {content.directions as string}
             </p>
           )}
@@ -776,30 +776,30 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
       const places = (content.places as Array<{ name: string; category: string; description: string; link?: string }>) ?? [];
       return (
         <div className="space-y-3">
-          {places.length === 0 && <p className="text-sm text-[#6B6B6B]">No recommendations yet.</p>}
+          {places.length === 0 && <p className="text-sm text-ink-2">No recommendations yet.</p>}
           {places.map((place, i) => (
-            <div key={i} className="flex gap-3 p-3 bg-[#F7F7F5] rounded-xl">
-              <div className="w-8 h-8 bg-[#FF6700]/10 rounded-lg flex items-center justify-center shrink-0">
-                <Star className="w-4 h-4 text-[#FF6700]" />
+            <div key={i} className="flex gap-3 p-3 bg-canvas rounded-xl">
+              <div className="w-8 h-8 bg-orange/10 rounded-lg flex items-center justify-center shrink-0">
+                <Star className="w-4 h-4 text-orange" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="font-semibold text-sm text-[#262626]">{place.name}</p>
+                  <p className="font-semibold text-sm text-ink">{place.name}</p>
                   {place.category && (
-                    <span className="text-xs bg-[#FF6700]/10 text-[#FF6700] px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-xs bg-orange/10 text-orange px-2 py-0.5 rounded-full font-medium">
                       {place.category}
                     </span>
                   )}
                 </div>
                 {place.description && (
-                  <p className="text-xs text-[#6B6B6B] mt-0.5 leading-relaxed">{place.description}</p>
+                  <p className="text-xs text-ink-2 mt-0.5 leading-relaxed">{place.description}</p>
                 )}
                 {place.link && (
                   <a
                     href={place.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 mt-2 text-xs font-medium text-white bg-[#0F2F61] hover:bg-[#0a2347] px-3 py-1.5 rounded-lg transition-colors"
+                    className="inline-flex items-center gap-1.5 mt-2 text-xs font-medium text-white bg-navy hover:bg-navy-dark px-3 py-1.5 rounded-lg transition-colors"
                   >
                     <MapPin className="w-3 h-3" />
                     Open in Google Maps
@@ -818,19 +818,19 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
       const cleanPhone = phone.replace(/\s+/g, "");
       const waPhone = cleanPhone.replace(/^\+/, "");
 
-      if (!phone) return <p className="text-sm text-[#6B6B6B]">No contact number provided.</p>;
+      if (!phone) return <p className="text-sm text-ink-2">No contact number provided.</p>;
 
       return (
         <div className="space-y-3">
           {label && (
-            <p className="text-sm font-medium text-[#262626]">{label}</p>
+            <p className="text-sm font-medium text-ink">{label}</p>
           )}
-          <p className="text-base font-semibold text-[#262626]">{phone}</p>
+          <p className="text-base font-semibold text-ink">{phone}</p>
           <div className="flex gap-2 flex-wrap">
             {/* Phone call */}
             <a
               href={`tel:${cleanPhone}`}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-[#0F2F61] text-white hover:bg-[#0a2347] transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-navy text-white hover:bg-navy-dark transition-colors"
             >
               <Phone className="w-4 h-4" />
               Call
@@ -839,7 +839,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
             {/* Viber */}
             <a
               href={`viber://chat?number=${cleanPhone}`}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-[#7360F2] text-white hover:bg-[#5f4ed4] transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-viber text-white hover:bg-[#5f4ed4] transition-colors"
             >
               <ViberIcon />
               Viber
@@ -850,7 +850,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
               href={`https://wa.me/${waPhone}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-[#25D366] text-white hover:bg-[#1db955] transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-whatsapp text-white hover:bg-[#1db955] transition-colors"
             >
               <WhatsAppIcon />
               WhatsApp
@@ -874,7 +874,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
               {available ? "✓ Available" : "✗ No parking"}
             </span>
             {available && parkingType && (
-              <span className="text-sm bg-[#F7F7F5] text-[#262626] px-3 py-1.5 rounded-full font-medium">
+              <span className="text-sm bg-canvas text-ink px-3 py-1.5 rounded-full font-medium">
                 {parkingType}
               </span>
             )}
@@ -887,7 +887,7 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
             )}
           </div>
           {notes && (
-            <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap border-t border-[#F0F0EE] pt-3">
+            <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap border-t border-line-2 pt-3">
               {notes}
             </p>
           )}
@@ -901,25 +901,25 @@ function SectionBody({ type, content }: { type: string; content: Record<string, 
       return (
         <div className="space-y-3">
           {(content.body as string) && (
-            <p className="text-sm text-[#262626] leading-relaxed whitespace-pre-wrap">
+            <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap">
               {content.body as string}
             </p>
           )}
           {links.length > 0 && (
             <div className="space-y-2">
               {links.map((item, i) => (
-                <div key={i} className="bg-[#F7F7F5] rounded-xl p-3">
+                <div key={i} className="bg-canvas rounded-xl p-3">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="font-semibold text-sm text-[#262626]">{item.name}</p>
+                    <p className="font-semibold text-sm text-ink">{item.name}</p>
                     {item.url && (
                       <a href={item.url} target="_blank" rel="noopener noreferrer"
-                        className="text-xs text-[#0F2F61] font-medium shrink-0 underline underline-offset-2">
+                        className="text-xs text-navy font-medium shrink-0 underline underline-offset-2">
                         Otvori →
                       </a>
                     )}
                   </div>
                   {item.description && (
-                    <p className="text-xs text-[#6B6B6B] mt-1 leading-relaxed">{item.description}</p>
+                    <p className="text-xs text-ink-2 mt-1 leading-relaxed">{item.description}</p>
                   )}
                 </div>
               ))}
@@ -964,15 +964,15 @@ function WifiRow({ label, value, copyable }: { label: string; value: string; cop
     setTimeout(() => setCopied(false), 2000);
   }
   return (
-    <div className="flex items-center justify-between bg-[#F7F7F5] rounded-xl px-4 py-3">
+    <div className="flex items-center justify-between bg-canvas rounded-xl px-4 py-3">
       <div>
-        <p className="text-xs text-[#6B6B6B] font-medium">{label}</p>
-        <p className="font-semibold text-[#262626] mt-0.5 text-sm tracking-wide">{value || "—"}</p>
+        <p className="text-xs text-ink-2 font-medium">{label}</p>
+        <p className="font-semibold text-ink mt-0.5 text-sm tracking-wide">{value || "—"}</p>
       </div>
       {copyable && value && (
         <button
           onClick={copy}
-          className="flex items-center gap-1.5 text-xs font-medium text-[#0F2F61] bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-[#F0F0EE] transition-colors"
+          className="flex items-center gap-1.5 text-xs font-medium text-navy bg-white border border-line px-3 py-1.5 rounded-lg hover:bg-line-2 transition-colors"
         >
           {copied ? <><Check className="w-3 h-3 text-green-500" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
         </button>
@@ -983,9 +983,9 @@ function WifiRow({ label, value, copyable }: { label: string; value: string; cop
 
 function TimeBox({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-[#F7F7F5] rounded-xl p-4 text-center">
-      <p className="text-xs text-[#6B6B6B] font-medium uppercase tracking-wide mb-1">{label}</p>
-      <p className="text-3xl font-bold text-[#0F2F61]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+    <div className="bg-canvas rounded-xl p-4 text-center">
+      <p className="text-xs text-ink-2 font-medium uppercase tracking-wide mb-1">{label}</p>
+      <p className="text-3xl font-bold text-navy" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
         {value}
       </p>
     </div>
@@ -1000,12 +1000,12 @@ function QuickCards({ sections }: { sections: Section[]; lang: string; isHotel: 
   if (!checkIn && !checkOut) return null;
   const cell = (label: string, value: string) => (
     <div className="flex-1 flex items-center justify-center gap-2.5 py-3.5">
-      <span className="text-xs font-semibold uppercase tracking-wide text-[#9B9B9B]">{label}</span>
-      <span className="text-lg font-bold text-[#0F2F61]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{value}</span>
+      <span className="text-xs font-semibold uppercase tracking-wide text-ink-3">{label}</span>
+      <span className="text-lg font-bold text-navy" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{value}</span>
     </div>
   );
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-[#EDEDE9] flex divide-x divide-[#F0F0EE]">
+    <div className="bg-white rounded-2xl shadow-sm border border-line flex divide-x divide-line-2">
       {checkIn && cell("Check-in", checkIn)}
       {checkOut && cell("Check-out", checkOut)}
     </div>

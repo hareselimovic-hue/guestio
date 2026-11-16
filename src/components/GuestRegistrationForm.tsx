@@ -95,12 +95,12 @@ const T = {
 } as const;
 
 const inputCls =
-  "w-full rounded-xl border border-[#EDEDE9] bg-white px-3.5 py-3 text-[16px] text-[#262626] outline-none transition-colors focus:border-[#0F2F61] focus:ring-2 focus:ring-[#0F2F61]/10";
+  "w-full rounded-xl border border-line bg-white px-3.5 py-3 text-[16px] text-ink outline-none transition-colors focus:border-navy focus:ring-2 focus:ring-navy/10";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#6B6B6B]">{label}</span>
+      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink-2">{label}</span>
       {children}
     </label>
   );
@@ -157,7 +157,7 @@ export default function GuestRegistrationForm({
   }
 
   const header = (
-    <div className="bg-[#0F2F61] px-4 pb-8 pt-5 text-white">
+    <div className="bg-navy px-4 pb-8 pt-5 text-white">
       <div className="mx-auto flex max-w-2xl items-center justify-between">
         <a href={backHref} className="inline-flex items-center gap-1.5 text-sm text-white/80 hover:text-white">
           <ArrowLeft className="h-4 w-4" /> {t.back}
@@ -168,7 +168,7 @@ export default function GuestRegistrationForm({
               key={l}
               type="button"
               onClick={() => setLang(l)}
-              className={`px-3 py-1.5 transition-colors ${lang === l ? "bg-white text-[#0F2F61]" : "text-white/80"}`}
+              className={`px-3 py-1.5 transition-colors ${lang === l ? "bg-white text-navy" : "text-white/80"}`}
             >
               {l}
             </button>
@@ -185,16 +185,16 @@ export default function GuestRegistrationForm({
 
   if (done) {
     return (
-      <div className="min-h-screen bg-[#F7F7F5]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+      <div className="min-h-screen bg-canvas" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
         {header}
         <div className="mx-auto max-w-2xl px-4 py-10">
-          <div className="rounded-2xl border border-[#EDEDE9] bg-white p-8 text-center shadow-sm">
+          <div className="rounded-2xl border border-line bg-white p-8 text-center shadow-sm">
             <CheckCircle2 className="mx-auto mb-4 h-14 w-14 text-green-600" />
-            <h2 className="text-xl font-bold text-[#262626]">{t.doneTitle}</h2>
-            <p className="mt-2 text-sm text-[#6B6B6B]">{t.doneBody}</p>
+            <h2 className="text-xl font-bold text-ink">{t.doneTitle}</h2>
+            <p className="mt-2 text-sm text-ink-2">{t.doneBody}</p>
             <a
               href={backHref}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#FF6700] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#e05c00]"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-orange px-6 py-3 font-semibold text-white transition-colors hover:bg-orange-dark"
             >
               <ArrowLeft className="h-4 w-4" /> {t.back}
             </a>
@@ -205,7 +205,7 @@ export default function GuestRegistrationForm({
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F7F5]" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-canvas" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
       {header}
       <form onSubmit={handleSubmit} noValidate className="mx-auto max-w-2xl space-y-4 px-4 py-6">
         {/* Honeypot — hidden from humans */}
@@ -215,8 +215,8 @@ export default function GuestRegistrationForm({
         />
 
         {/* Stay dates */}
-        <div className="rounded-2xl border border-[#EDEDE9] bg-white p-5 shadow-sm">
-          <h2 className="mb-4 font-bold text-[#262626]">{t.stay}</h2>
+        <div className="rounded-2xl border border-line bg-white p-5 shadow-sm">
+          <h2 className="mb-4 font-bold text-ink">{t.stay}</h2>
           <div className="grid grid-cols-2 gap-3">
             <Field label={t.checkIn}>
               <input type="date" className={inputCls} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} />
@@ -229,9 +229,9 @@ export default function GuestRegistrationForm({
 
         {/* Guests */}
         {guests.map((g, i) => (
-          <div key={i} className="rounded-2xl border border-[#EDEDE9] bg-white p-5 shadow-sm">
+          <div key={i} className="rounded-2xl border border-line bg-white p-5 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-bold text-[#262626]">{t.guest} {i + 1}</h2>
+              <h2 className="font-bold text-ink">{t.guest} {i + 1}</h2>
               {guests.length > 1 && (
                 <button
                   type="button"
@@ -291,7 +291,7 @@ export default function GuestRegistrationForm({
           <button
             type="button"
             onClick={() => setGuests((prev) => [...prev, { ...EMPTY_GUEST }])}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#D5D5CF] py-4 text-sm font-semibold text-[#0F2F61] transition-colors hover:border-[#0F2F61] hover:bg-white"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line-strong py-4 text-sm font-semibold text-navy transition-colors hover:border-navy hover:bg-white"
           >
             <Plus className="h-4 w-4" /> {t.addGuest}
           </button>
@@ -302,14 +302,14 @@ export default function GuestRegistrationForm({
         <button
           type="submit"
           disabled={sending}
-          className="flex w-full items-center justify-center gap-2 rounded-full bg-[#FF6700] py-4 font-semibold text-white shadow-lg transition-colors hover:bg-[#e05c00] disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-orange py-4 font-semibold text-white shadow-lg transition-colors hover:bg-orange-dark disabled:opacity-60"
           style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
         >
           {sending && <Loader2 className="h-4 w-4 animate-spin" />}
           {sending ? t.sending : t.submit}
         </button>
 
-        <p className="flex items-center justify-center gap-1.5 pb-6 text-center text-xs text-[#6B6B6B]">
+        <p className="flex items-center justify-center gap-1.5 pb-6 text-center text-xs text-ink-2">
           <ShieldCheck className="h-3.5 w-3.5" /> {t.privacy}
         </p>
       </form>

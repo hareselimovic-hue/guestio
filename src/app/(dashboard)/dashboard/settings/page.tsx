@@ -230,7 +230,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="p-4 sm:p-8 flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 border-[#0F2F61] border-t-transparent rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-navy border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -238,33 +238,33 @@ export default function SettingsPage() {
   return (
     <div className="p-4 sm:p-8 max-w-2xl">
       <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 bg-[#0F2F61]/10 rounded-xl flex items-center justify-center">
-          <Settings className="w-5 h-5 text-[#0F2F61]" />
+        <div className="w-10 h-10 bg-navy/10 rounded-xl flex items-center justify-center">
+          <Settings className="w-5 h-5 text-navy" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-[#262626]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+          <h1 className="text-xl font-bold text-ink" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
             Workspace Settings
           </h1>
-          <p className="text-sm text-[#6B6B6B]">Manage your team and access</p>
+          <p className="text-sm text-ink-2">Manage your team and access</p>
         </div>
       </div>
 
 
       {!data ? (
         /* ── Create workspace ── */
-        <div className="bg-white border border-[#EDEDE9] rounded-xl p-6">
-          <h2 className="font-semibold text-[#262626] mb-1">Create a workspace</h2>
-          <p className="text-sm text-[#6B6B6B] mb-5">
+        <div className="bg-white border border-line rounded-xl p-6">
+          <h2 className="font-semibold text-ink mb-1">Create a workspace</h2>
+          <p className="text-sm text-ink-2 mb-5">
             Give your team a shared space to manage all properties together.
           </p>
           <form onSubmit={createWorkspace} className="space-y-4">
             <div>
-              <Label className="text-xs font-medium text-[#6B6B6B] mb-1.5 block">Workspace name</Label>
+              <Label className="text-xs font-medium text-ink-2 mb-1.5 block">Workspace name</Label>
               <Input
                 value={wsName}
                 onChange={(e) => setWsName(e.target.value)}
-                placeholder="e.g. Sarajevo Rent & Manage"
-                className="h-10 text-sm border-[#EDEDE9]"
+                placeholder="e.g. Your Company"
+                className="h-10 text-sm border-line"
                 required
               />
             </div>
@@ -272,7 +272,7 @@ export default function SettingsPage() {
             <Button
               type="submit"
               disabled={creating || !wsName.trim()}
-              className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-10 text-sm"
+              className="bg-navy hover:bg-navy-dark text-white h-10 text-sm"
             >
               <Plus className="w-4 h-4 mr-1.5" />
               {creating ? "Creating..." : "Create workspace"}
@@ -282,13 +282,13 @@ export default function SettingsPage() {
       ) : (
         <div className="space-y-5">
           {/* ── Workspace name ── */}
-          <div className="bg-white border border-[#EDEDE9] rounded-xl p-5">
+          <div className="bg-white border border-line rounded-xl p-5">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-semibold text-[#262626]">Workspace</h2>
+              <h2 className="font-semibold text-ink">Workspace</h2>
               {data.isOwner && !editingName && (
                 <button
                   onClick={() => setEditingName(true)}
-                  className="text-xs text-[#6B6B6B] hover:text-[#0F2F61] transition-colors"
+                  className="text-xs text-ink-2 hover:text-navy transition-colors"
                 >
                   Edit name
                 </button>
@@ -299,13 +299,13 @@ export default function SettingsPage() {
                 <Input
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="h-9 text-sm border-[#EDEDE9] flex-1"
+                  className="h-9 text-sm border-line flex-1"
                   autoFocus
                 />
                 <Button
                   onClick={saveName}
                   disabled={savingName || !newName.trim()}
-                  className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm px-4"
+                  className="bg-navy hover:bg-navy-dark text-white h-9 text-sm px-4"
                 >
                   {savingName ? "Saving..." : "Save"}
                 </Button>
@@ -318,36 +318,36 @@ export default function SettingsPage() {
                 </Button>
               </div>
             ) : (
-              <p className="text-lg font-bold text-[#0F2F61]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
+              <p className="text-lg font-bold text-navy" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
                 {data.workspace.name}
               </p>
             )}
           </div>
 
           {/* ── Members ── */}
-          <div className="bg-white border border-[#EDEDE9] rounded-xl p-5">
+          <div className="bg-white border border-line rounded-xl p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Users className="w-4 h-4 text-[#6B6B6B]" />
-              <h2 className="font-semibold text-[#262626]">Members</h2>
-              <span className="bg-[#0F2F61] text-white text-xs px-1.5 py-0.5 rounded-full">{members.length}</span>
+              <Users className="w-4 h-4 text-ink-2" />
+              <h2 className="font-semibold text-ink">Members</h2>
+              <span className="bg-navy text-white text-xs px-1.5 py-0.5 rounded-full">{members.length}</span>
             </div>
             <div className="space-y-2">
               {members.map((member) => (
-                <div key={member.id} className="flex items-center justify-between py-2 border-b border-[#F0F0EE] last:border-0">
+                <div key={member.id} className="flex items-center justify-between py-2 border-b border-line-2 last:border-0">
                   <div>
-                    <p className="text-sm font-medium text-[#262626]">{member.name}</p>
-                    <p className="text-xs text-[#6B6B6B]">{member.email}</p>
+                    <p className="text-sm font-medium text-ink">{member.name}</p>
+                    <p className="text-xs text-ink-2">{member.email}</p>
                   </div>
                   {data.isOwner && member.id !== data.workspace.ownerId && (
                     <button
                       onClick={() => removeMember(member.id)}
-                      className="p-1.5 text-[#6B6B6B] hover:text-red-500 transition-colors rounded-lg hover:bg-red-50"
+                      className="p-1.5 text-ink-2 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   )}
                   {member.id === data.workspace.ownerId && (
-                    <span className="text-xs text-[#6B6B6B] bg-[#F7F7F5] px-2 py-1 rounded-lg">Owner</span>
+                    <span className="text-xs text-ink-2 bg-canvas px-2 py-1 rounded-lg">Owner</span>
                   )}
                 </div>
               ))}
@@ -358,29 +358,29 @@ export default function SettingsPage() {
           {(() => {
             const ownerEmail = members.find((m) => m.id === data.workspace.ownerId)?.email ?? "the workspace owner";
             return (
-              <div className="bg-white border border-[#EDEDE9] rounded-xl p-5">
+              <div className="bg-white border border-line rounded-xl p-5">
                 <div className="flex items-center gap-2 mb-1">
-                  <ClipboardList className="w-4 h-4 text-[#6B6B6B]" />
-                  <h2 className="font-semibold text-[#262626]">Guest registrations</h2>
+                  <ClipboardList className="w-4 h-4 text-ink-2" />
+                  <h2 className="font-semibold text-ink">Guest registrations</h2>
                 </div>
-                <p className="text-sm text-[#6B6B6B] mb-4">
+                <p className="text-sm text-ink-2 mb-4">
                   Who gets an email when a guest sends their details. Separate multiple addresses with commas.
                 </p>
                 {data.isOwner ? (
                   <div className="space-y-2">
-                    <Label className="text-xs font-medium text-[#6B6B6B]">Notification email</Label>
+                    <Label className="text-xs font-medium text-ink-2">Notification email</Label>
                     <div className="flex gap-2">
                       <Input
                         type="text"
                         value={regEmails}
                         onChange={(e) => { setRegEmails(e.target.value); setRegEmailsMsg(null); }}
                         placeholder={ownerEmail}
-                        className="h-9 text-sm border-[#EDEDE9] flex-1"
+                        className="h-9 text-sm border-line flex-1"
                       />
                       <Button
                         onClick={saveRegEmails}
                         disabled={savingRegEmails}
-                        className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm shrink-0"
+                        className="bg-navy hover:bg-navy-dark text-white h-9 text-sm shrink-0"
                       >
                         {savingRegEmails ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
                       </Button>
@@ -388,69 +388,69 @@ export default function SettingsPage() {
                     {regEmailsMsg && (
                       <p className={`text-xs ${regEmailsMsg.ok ? "text-green-600" : "text-red-500"}`}>{regEmailsMsg.text}</p>
                     )}
-                    <p className="text-xs text-[#6B6B6B]">If empty, emails go to {ownerEmail}.</p>
+                    <p className="text-xs text-ink-2">If empty, emails go to {ownerEmail}.</p>
                   </div>
                 ) : (
-                  <p className="text-sm text-[#262626]">
+                  <p className="text-sm text-ink">
                     {(data.workspace.registrationEmails?.length ? data.workspace.registrationEmails.join(", ") : ownerEmail)}
                   </p>
                 )}
 
                 {/* Per-property switch */}
-                <div className="mt-5 pt-4 border-t border-[#F0F0EE]">
+                <div className="mt-5 pt-4 border-t border-line-2">
                   <div className="flex items-center justify-between mb-2">
-                    <Label className="text-xs font-medium text-[#6B6B6B]">
+                    <Label className="text-xs font-medium text-ink-2">
                       Show registration form on ({regProperties.filter((p) => p.guestRegistrationEnabled).length}/{regProperties.length})
                     </Label>
                     <div className="flex gap-3 text-xs">
                       <button
                         onClick={() => setRegistrationFor(regProperties.map((p) => p.id), true)}
-                        className="text-[#0F2F61] hover:underline"
+                        className="text-navy hover:underline"
                       >
                         All
                       </button>
                       <button
                         onClick={() => setRegistrationFor(regProperties.map((p) => p.id), false)}
-                        className="text-[#6B6B6B] hover:underline"
+                        className="text-ink-2 hover:underline"
                       >
                         None
                       </button>
                     </div>
                   </div>
-                  <div className="max-h-72 overflow-y-auto border border-[#EDEDE9] rounded-lg divide-y divide-[#F0F0EE]">
+                  <div className="max-h-72 overflow-y-auto border border-line rounded-lg divide-y divide-line-2">
                     {regProperties.map((p) => (
-                      <label key={p.id} className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-[#F7F7F5]">
+                      <label key={p.id} className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-canvas">
                         <input
                           type="checkbox"
                           checked={p.guestRegistrationEnabled}
                           onChange={(e) => setRegistrationFor([p.id], e.target.checked)}
-                          className="w-4 h-4 accent-[#FF6700]"
+                          className="w-4 h-4 accent-orange"
                         />
-                        <span className="text-sm text-[#262626]">{p.name}</span>
+                        <span className="text-sm text-ink">{p.name}</span>
                       </label>
                     ))}
                   </div>
-                  <p className="text-xs text-[#6B6B6B] mt-2">New properties have the form switched off. You can also switch it on the property page.</p>
+                  <p className="text-xs text-ink-2 mt-2">New properties have the form switched off. You can also switch it on the property page.</p>
                 </div>
               </div>
             );
           })()}
 
           {/* ── Rentlio integration ── */}
-          <div className="bg-white border border-[#EDEDE9] rounded-xl p-5">
+          <div className="bg-white border border-line rounded-xl p-5">
             <div className="flex items-center gap-2 mb-1">
-              <Plug className="w-4 h-4 text-[#6B6B6B]" />
-              <h2 className="font-semibold text-[#262626]">Integrations</h2>
+              <Plug className="w-4 h-4 text-ink-2" />
+              <h2 className="font-semibold text-ink">Integrations</h2>
             </div>
-            <p className="text-sm text-[#6B6B6B] mb-4">Connect external services to your workspace.</p>
+            <p className="text-sm text-ink-2 mb-4">Connect external services to your workspace.</p>
 
-            <div className="border border-[#EDEDE9] rounded-xl p-4 space-y-3">
+            <div className="border border-line rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-[#F0F4FF] rounded-lg flex items-center justify-center text-sm font-bold text-[#0F2F61]">R</div>
+                  <div className="w-9 h-9 bg-[#F0F4FF] rounded-lg flex items-center justify-center text-sm font-bold text-navy">R</div>
                   <div>
-                    <p className="text-sm font-semibold text-[#262626]">Rentlio</p>
-                    <p className="text-xs text-[#6B6B6B]">Property management system</p>
+                    <p className="text-sm font-semibold text-ink">Rentlio</p>
+                    <p className="text-xs text-ink-2">Property management system</p>
                   </div>
                 </div>
                 {rentlio.connected && (
@@ -463,22 +463,22 @@ export default function SettingsPage() {
 
               {rentlio.connected ? (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between bg-[#F7F7F5] rounded-lg px-3 py-2">
-                    <span className="text-xs font-mono text-[#262626]">{rentlio.maskedKey}</span>
+                  <div className="flex items-center justify-between bg-canvas rounded-lg px-3 py-2">
+                    <span className="text-xs font-mono text-ink">{rentlio.maskedKey}</span>
                     {rentlio.connectedAt && (
-                      <span className="text-xs text-[#6B6B6B]">
+                      <span className="text-xs text-ink-2">
                         {new Date(rentlio.connectedAt).toLocaleDateString("bs-BA")}
                       </span>
                     )}
                   </div>
                   {/* Preview — broj novih */}
                   {preview && !syncResult && (
-                    <div className="bg-[#F7F7F5] rounded-lg p-4 space-y-3">
+                    <div className="bg-canvas rounded-lg p-4 space-y-3">
                       {preview.new + preview.matchable === 0 ? (
-                        <p className="text-sm font-medium text-[#262626]">All properties are already imported.</p>
+                        <p className="text-sm font-medium text-ink">All properties are already imported.</p>
                       ) : (
-                        <p className="text-sm font-medium text-[#262626]">
-                          Found <span className="text-[#0F2F61]">{preview.new + preview.matchable}</span> properties not yet imported.
+                        <p className="text-sm font-medium text-ink">
+                          Found <span className="text-navy">{preview.new + preview.matchable}</span> properties not yet imported.
                         </p>
                       )}
                       {preview.new + preview.matchable > 0 && (
@@ -486,7 +486,7 @@ export default function SettingsPage() {
                           <Button
                             onClick={syncRentlio}
                             disabled={syncing}
-                            className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm"
+                            className="bg-navy hover:bg-navy-dark text-white h-9 text-sm"
                           >
                             {syncing ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
                             {syncing ? "Importing..." : "Import"}
@@ -512,7 +512,7 @@ export default function SettingsPage() {
                   )}
 
                   {syncResult && (
-                    <p className="text-xs text-[#6B6B6B] bg-[#F7F7F5] rounded-lg px-3 py-2">{syncResult}</p>
+                    <p className="text-xs text-ink-2 bg-canvas rounded-lg px-3 py-2">{syncResult}</p>
                   )}
 
                   {!preview && !syncResult && (
@@ -520,7 +520,7 @@ export default function SettingsPage() {
                       <Button
                         onClick={checkRentlio}
                         disabled={loadingPreview}
-                        className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm flex-1"
+                        className="bg-navy hover:bg-navy-dark text-white h-9 text-sm flex-1"
                       >
                         {loadingPreview ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <RefreshCw className="w-4 h-4 mr-1.5" />}
                         {loadingPreview ? "Checking..." : "Sync properties"}
@@ -540,30 +540,30 @@ export default function SettingsPage() {
               ) : (
                 data.isOwner ? (
                   <div className="space-y-2">
-                    <Label className="text-xs font-medium text-[#6B6B6B]">Rentlio API key</Label>
+                    <Label className="text-xs font-medium text-ink-2">Rentlio API key</Label>
                     <div className="flex gap-2">
                       <Input
                         type="password"
                         value={rentlioKey}
                         onChange={(e) => setRentlioKey(e.target.value)}
                         placeholder="Enter your Rentlio API key..."
-                        className="h-9 text-sm border-[#EDEDE9] flex-1 font-mono"
+                        className="h-9 text-sm border-line flex-1 font-mono"
                       />
                       <Button
                         onClick={connectRentlio}
                         disabled={connectingRentlio || !rentlioKey.trim()}
-                        className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm shrink-0"
+                        className="bg-navy hover:bg-navy-dark text-white h-9 text-sm shrink-0"
                       >
                         {connectingRentlio ? <Loader2 className="w-4 h-4 animate-spin" /> : "Connect"}
                       </Button>
                     </div>
                     {rentlioError && <p className="text-xs text-red-500">{rentlioError}</p>}
-                    <p className="text-xs text-[#6B6B6B]">
+                    <p className="text-xs text-ink-2">
                       Find your API key in Rentlio → Settings → API.
                     </p>
                   </div>
                 ) : (
-                  <p className="text-xs text-[#6B6B6B]">Only the workspace owner can manage integrations.</p>
+                  <p className="text-xs text-ink-2">Only the workspace owner can manage integrations.</p>
                 )
               )}
             </div>
@@ -571,28 +571,28 @@ export default function SettingsPage() {
 
           {/* ── Invite ── */}
           {data.isOwner && (
-            <div className="bg-white border border-[#EDEDE9] rounded-xl p-5">
+            <div className="bg-white border border-line rounded-xl p-5">
               <div className="flex items-center gap-2 mb-2">
-                <Link2 className="w-4 h-4 text-[#6B6B6B]" />
-                <h2 className="font-semibold text-[#262626]">Invite link</h2>
+                <Link2 className="w-4 h-4 text-ink-2" />
+                <h2 className="font-semibold text-ink">Invite link</h2>
               </div>
-              <p className="text-sm text-[#6B6B6B] mb-3">
+              <p className="text-sm text-ink-2 mb-3">
                 Generate a link and share it with your team. Anyone with the link can join.
               </p>
               {inviteLink ? (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 bg-[#F7F7F5] rounded-lg px-3 py-2">
-                    <span className="text-xs text-[#262626] flex-1 truncate font-mono">{inviteLink}</span>
+                  <div className="flex items-center gap-2 bg-canvas rounded-lg px-3 py-2">
+                    <span className="text-xs text-ink flex-1 truncate font-mono">{inviteLink}</span>
                     <button
                       onClick={copyLink}
-                      className="flex items-center gap-1.5 text-xs font-medium text-[#0F2F61] bg-white border border-[#EDEDE9] px-3 py-1.5 rounded-lg hover:bg-[#F0F0EE] transition-colors shrink-0"
+                      className="flex items-center gap-1.5 text-xs font-medium text-navy bg-white border border-line px-3 py-1.5 rounded-lg hover:bg-line-2 transition-colors shrink-0"
                     >
                       {copied ? <><Check className="w-3 h-3 text-green-500" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
                     </button>
                   </div>
                   <button
                     onClick={rotateInvite}
-                    className="text-xs text-[#6B6B6B] hover:text-red-500 transition-colors"
+                    className="text-xs text-ink-2 hover:text-red-500 transition-colors"
                   >
                     Generate new link (invalidates current)
                   </button>
@@ -617,25 +617,25 @@ export default function SettingsPage() {
       {showList && preview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowList(false)}>
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#EDEDE9]">
-              <h3 className="font-semibold text-[#262626]">Properties to import ({preview.new + preview.matchable})</h3>
-              <button onClick={() => setShowList(false)} className="text-[#6B6B6B] hover:text-[#262626] transition-colors text-lg leading-none">✕</button>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+              <h3 className="font-semibold text-ink">Properties to import ({preview.new + preview.matchable})</h3>
+              <button onClick={() => setShowList(false)} className="text-ink-2 hover:text-ink transition-colors text-lg leading-none">✕</button>
             </div>
-            <ul className="divide-y divide-[#F0F0EE] max-h-80 overflow-y-auto">
+            <ul className="divide-y divide-line-2 max-h-80 overflow-y-auto">
               {preview.items.filter(i => i.status !== "linked").map((item) => (
                 <li key={item.rentlioId} className="flex items-center justify-between px-5 py-3">
-                  <span className="text-sm text-[#262626]">{item.rentlioName}</span>
+                  <span className="text-sm text-ink">{item.rentlioName}</span>
                   <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ml-3 ${item.status === "matchable" ? "bg-blue-50 text-blue-600" : "bg-amber-50 text-amber-600"}`}>
                     {item.status === "matchable" ? "Name match" : "New"}
                   </span>
                 </li>
               ))}
             </ul>
-            <div className="px-5 py-4 border-t border-[#EDEDE9] flex gap-2">
+            <div className="px-5 py-4 border-t border-line flex gap-2">
               <Button
                 onClick={() => { setShowList(false); syncRentlio(); }}
                 disabled={syncing}
-                className="bg-[#0F2F61] hover:bg-[#0a2347] text-white h-9 text-sm flex-1"
+                className="bg-navy hover:bg-navy-dark text-white h-9 text-sm flex-1"
               >
                 Import all
               </Button>

@@ -73,9 +73,9 @@ function when(local: string) {
   return t ? `${label} ${t.slice(0, 5)}` : label;
 }
 
-const card = "bg-white border border-[#EDEDE9] rounded-2xl";
-const input = "w-full border border-[#EDEDE9] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#0F2F61] bg-white";
-const btnPrimary = "inline-flex items-center justify-center gap-1.5 bg-[#0F2F61] hover:bg-[#0a2347] disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors";
+const card = "bg-white border border-line rounded-2xl";
+const input = "w-full border border-line rounded-lg px-3 py-2 text-sm outline-none focus:border-navy bg-white";
+const btnPrimary = "inline-flex items-center justify-center gap-1.5 bg-navy hover:bg-navy-dark disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors";
 
 export default function HotelDashboard({ hotels, current, initialTab }: { hotels: HotelRef[]; current: HotelRef; initialTab: string }) {
   const router = useRouter();
@@ -103,37 +103,37 @@ export default function HotelDashboard({ hotels, current, initialTab }: { hotels
     <div className="p-4 sm:p-8 max-w-5xl">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-bold text-[#262626]">Hotel</h1>
+          <h1 className="text-2xl font-bold text-ink">Hotel</h1>
           {hotels.length > 1 ? (
-            <select value={current.id} onChange={(e) => go({ property: e.target.value })} className="mt-1 text-sm border border-[#EDEDE9] rounded-lg px-2 py-1 bg-white">
+            <select value={current.id} onChange={(e) => go({ property: e.target.value })} className="mt-1 text-sm border border-line rounded-lg px-2 py-1 bg-white">
               {hotels.map((h) => <option key={h.id} value={h.id}>{h.name}</option>)}
             </select>
           ) : (
-            <p className="text-sm text-[#6B6B6B] mt-0.5 truncate">{current.name}</p>
+            <p className="text-sm text-ink-2 mt-0.5 truncate">{current.name}</p>
           )}
         </div>
         <div className="flex gap-2">
-          <a href={`/g/${current.slug}`} target="_blank" title="The general hotel link: guide only — requests and orders work from the room QR codes" className="inline-flex items-center gap-1.5 text-sm text-[#6B6B6B] hover:text-[#262626] border border-[#EDEDE9] bg-white px-3 py-1.5 rounded-lg">
+          <a href={`/g/${current.slug}`} target="_blank" title="The general hotel link: guide only — requests and orders work from the room QR codes" className="inline-flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink border border-line bg-white px-3 py-1.5 rounded-lg">
             <ExternalLink className="w-3.5 h-3.5" /> Open general hotel link
           </a>
         </div>
       </div>
 
       {/* Phones: all 6 tabs visible as a 3×2 grid. From sm up: classic underline tabs */}
-      <div className="grid grid-cols-3 gap-1.5 mb-6 sm:flex sm:gap-1 sm:border-b sm:border-[#EDEDE9]">
+      <div className="grid grid-cols-3 gap-1.5 mb-6 sm:flex sm:gap-1 sm:border-b sm:border-line">
         {TABS.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => go({ tab: key })}
             className={`relative flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap rounded-xl sm:rounded-none border sm:border-0 sm:border-b-2 sm:-mb-px transition-colors ${
               tab === key
-                ? "bg-[#0F2F61] text-white border-[#0F2F61] sm:bg-transparent sm:text-[#262626] sm:border-[#FF6700]"
-                : "bg-white text-[#6B6B6B] border-[#EDEDE9] sm:bg-transparent sm:border-transparent hover:text-[#262626]"
+                ? "bg-navy text-white border-navy sm:bg-transparent sm:text-ink sm:border-orange"
+                : "bg-white text-ink-2 border-line sm:bg-transparent sm:border-transparent hover:text-ink"
             }`}
           >
             <Icon className="w-4 h-4" /> {label}
             {key === "requests" && newCount > 0 && (
-              <span className="absolute top-1 right-1 sm:static min-w-5 h-5 px-1.5 rounded-full bg-[#FF6700] text-white text-[11px] font-bold leading-5 text-center">{newCount}</span>
+              <span className="absolute top-1 right-1 sm:static min-w-5 h-5 px-1.5 rounded-full bg-orange text-white text-[11px] font-bold leading-5 text-center">{newCount}</span>
             )}
           </button>
         ))}
@@ -185,20 +185,20 @@ function RequestsTab({ propertyId }: { propertyId: string }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-[#6B6B6B]">
-          {fresh > 0 ? <span className="font-semibold text-[#FF6700]">{fresh} new</span> : "No new requests"}
-          <span className="text-[#BABAB5]"> · refreshes automatically</span>
+        <p className="text-sm text-ink-2">
+          {fresh > 0 ? <span className="font-semibold text-orange">{fresh} new</span> : "No new requests"}
+          <span className="text-ink-4"> · refreshes automatically</span>
         </p>
         <div className="flex items-center gap-3">
-          <label className="flex items-center gap-1.5 text-sm text-[#6B6B6B]">
+          <label className="flex items-center gap-1.5 text-sm text-ink-2">
             <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} /> Show finished
           </label>
-          <button onClick={load} className="text-[#6B6B6B] hover:text-[#262626]" aria-label="Refresh"><RefreshCw className="w-4 h-4" /></button>
+          <button onClick={load} className="text-ink-2 hover:text-ink" aria-label="Refresh"><RefreshCw className="w-4 h-4" /></button>
         </div>
       </div>
 
       {items.length === 0 ? (
-        <div className={`${card} p-8 text-center text-sm text-[#6B6B6B]`}>
+        <div className={`${card} p-8 text-center text-sm text-ink-2`}>
           Guest requests from the guide (reception, room service, bookings) show up here.
         </div>
       ) : (
@@ -207,39 +207,39 @@ function RequestsTab({ propertyId }: { propertyId: string }) {
             const total = r.items?.reduce((s, i) => s + (i.price ?? 0) * i.qty, 0) ?? 0;
             const finished = r.status === "DONE" || r.status === "DECLINED";
             return (
-              <div key={r.id} className={`${card} p-4 flex gap-4 ${r.status === "NEW" ? "border-[#FF6700] border-2" : ""} ${finished ? "opacity-60" : ""}`}>
+              <div key={r.id} className={`${card} p-4 flex gap-4 ${r.status === "NEW" ? "border-orange border-2" : ""} ${finished ? "opacity-60" : ""}`}>
                 <div className="w-16 shrink-0 text-center">
-                  <p className="text-[10px] uppercase tracking-wide text-[#9B9B9B] font-semibold">Room</p>
-                  <p className="text-2xl font-bold text-[#0F2F61] leading-tight break-words">{r.roomNumber ?? "—"}</p>
+                  <p className="text-[10px] uppercase tracking-wide text-ink-3 font-semibold">Room</p>
+                  <p className="text-2xl font-bold text-navy leading-tight break-words">{r.roomNumber ?? "—"}</p>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${TYPE_TONE[r.type] ?? "bg-blue-50 text-blue-700"}`}>{TYPE_LABEL[r.type] ?? r.type}</span>
-                    <span className="text-xs text-[#9B9B9B]">{ago(r.createdAt)}</span>
-                    {r.lang && r.lang !== "EN" && <span className="text-[10px] font-semibold text-[#9B9B9B] border border-[#EDEDE9] rounded px-1">{r.lang}</span>}
-                    {finished && <span className="text-xs text-[#6B6B6B]">· {STATUS_LABEL[r.status]}</span>}
+                    <span className="text-xs text-ink-3">{ago(r.createdAt)}</span>
+                    {r.lang && r.lang !== "EN" && <span className="text-[10px] font-semibold text-ink-3 border border-line rounded px-1">{r.lang}</span>}
+                    {finished && <span className="text-xs text-ink-2">· {STATUS_LABEL[r.status]}</span>}
                   </div>
                   {r.items && r.items.length > 0 && (
-                    <ul className="mt-2 text-sm text-[#262626] space-y-0.5">
-                      {r.items.map((i, idx) => <li key={idx}>{i.qty} × {i.name}{i.price ? <span className="text-[#9B9B9B]"> · {km(i.price * i.qty)}</span> : null}</li>)}
-                      {total > 0 && <li className="font-semibold text-[#0F2F61]">Total {km(total)}</li>}
+                    <ul className="mt-2 text-sm text-ink space-y-0.5">
+                      {r.items.map((i, idx) => <li key={idx}>{i.qty} × {i.name}{i.price ? <span className="text-ink-3"> · {km(i.price * i.qty)}</span> : null}</li>)}
+                      {total > 0 && <li className="font-semibold text-navy">Total {km(total)}</li>}
                     </ul>
                   )}
                   {(r.scheduledFor || r.guests) && (
-                    <p className="text-sm text-[#262626] mt-1">
-                      {r.scheduledFor && <><Clock className="w-3.5 h-3.5 inline -mt-0.5 mr-1 text-[#6B6B6B]" />{when(r.scheduledFor)}</>}{r.scheduledFor && r.guests ? " · " : ""}{r.guests ? `${r.guests} ${r.guests === 1 ? "guest" : "guests"}` : ""}
+                    <p className="text-sm text-ink mt-1">
+                      {r.scheduledFor && <><Clock className="w-3.5 h-3.5 inline -mt-0.5 mr-1 text-ink-2" />{when(r.scheduledFor)}</>}{r.scheduledFor && r.guests ? " · " : ""}{r.guests ? `${r.guests} ${r.guests === 1 ? "guest" : "guests"}` : ""}
                     </p>
                   )}
-                  {r.note && <p className="text-sm text-[#262626] mt-1 bg-[#F7F7F5] rounded-lg px-2.5 py-1.5 whitespace-pre-wrap">“{r.note}”</p>}
-                  {r.staffReply && <p className="text-xs text-[#0F2F61] mt-1.5">↳ Your reply: {r.staffReply}</p>}
-                  {r.guestEmail && !finished && <p className="text-xs text-[#6B6B6B] mt-1.5">✉ The guest gets an email when you take it and when it&apos;s done.</p>}
+                  {r.note && <p className="text-sm text-ink mt-1 bg-canvas rounded-lg px-2.5 py-1.5 whitespace-pre-wrap">“{r.note}”</p>}
+                  {r.staffReply && <p className="text-xs text-navy mt-1.5">↳ Your reply: {r.staffReply}</p>}
+                  {r.guestEmail && !finished && <p className="text-xs text-ink-2 mt-1.5">✉ The guest gets an email when you take it and when it&apos;s done.</p>}
                   {!finished && (
                     <input
                       value={replies[r.id] ?? ""}
                       onChange={(e) => setReplies((x) => ({ ...x, [r.id]: e.target.value }))}
                       maxLength={300}
                       placeholder="Reply to the guest (optional) — e.g. “Transfer confirmed for 07:30” · translated automatically"
-                      className="mt-3 w-full border border-[#EDEDE9] rounded-lg px-3 py-1.5 text-sm outline-none focus:border-[#0F2F61]"
+                      className="mt-3 w-full border border-line rounded-lg px-3 py-1.5 text-sm outline-none focus:border-navy"
                     />
                   )}
                   {!finished && (
@@ -247,14 +247,14 @@ function RequestsTab({ propertyId }: { propertyId: string }) {
                       {r.status === "IN_PROGRESS" && <p className="text-xs text-amber-600 font-semibold mt-3">In progress</p>}
                       <div className={`grid gap-2 mt-3 ${r.status === "NEW" ? "grid-cols-[1fr_1fr_44px]" : "grid-cols-[1fr_44px]"} sm:flex sm:flex-wrap`}>
                         {r.status === "NEW" && (
-                          <button disabled={busy === r.id} onClick={() => setStatus(r.id, "IN_PROGRESS")} className="h-11 sm:h-9 text-sm font-semibold bg-[#0F2F61] text-white px-4 rounded-xl disabled:opacity-50">Take it</button>
+                          <button disabled={busy === r.id} onClick={() => setStatus(r.id, "IN_PROGRESS")} className="h-11 sm:h-9 text-sm font-semibold bg-navy text-white px-4 rounded-xl disabled:opacity-50">Take it</button>
                         )}
                         <button disabled={busy === r.id} onClick={() => setStatus(r.id, "DONE")} className="h-11 sm:h-9 text-sm font-semibold bg-green-600 text-white px-4 rounded-xl disabled:opacity-50">Done</button>
                         <button
                           disabled={busy === r.id}
                           onClick={() => { if (confirm("Decline this request? The guest will see it was declined.")) setStatus(r.id, "DECLINED"); }}
                           title="Decline" aria-label="Decline"
-                          className="h-11 sm:h-9 w-11 sm:w-9 flex items-center justify-center rounded-xl border border-[#EDEDE9] text-[#6B6B6B] hover:text-red-500 hover:border-red-200 disabled:opacity-50"
+                          className="h-11 sm:h-9 w-11 sm:w-9 flex items-center justify-center rounded-xl border border-line text-ink-2 hover:text-red-500 hover:border-red-200 disabled:opacity-50"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -299,7 +299,7 @@ function GuideTab({ propertyId }: { propertyId: string }) {
   if (!sections) return <Spinner />;
   return (
     <div>
-      <p className="text-sm text-[#6B6B6B] mb-4">
+      <p className="text-sm text-ink-2 mb-4">
         The general guide for the whole hotel: check-in, Wi-Fi, location, house rules, recommendations… Every room shows this, unless you change a section for a specific room under Rooms.
         For check-in choose <strong>Personal welcome</strong> (reception).
       </p>
@@ -314,7 +314,7 @@ function GuideTab({ propertyId }: { propertyId: string }) {
               return (
                 <li key={sec.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-amber-900">
                   <span><strong>{sec.title}</strong> — {rooms.length === 1 ? "room" : "rooms"} {rooms.join(", ")}</span>
-                  <button onClick={() => followHotel(sec.id, sec.title)} disabled={resetting === sec.id} className="text-xs font-medium text-[#0F2F61] border border-[#0F2F61]/30 bg-white rounded-lg px-2.5 py-1 inline-flex items-center gap-1">
+                  <button onClick={() => followHotel(sec.id, sec.title)} disabled={resetting === sec.id} className="text-xs font-medium text-navy border border-navy/30 bg-white rounded-lg px-2.5 py-1 inline-flex items-center gap-1">
                     {resetting === sec.id && <Loader2 className="w-3 h-3 animate-spin" />} Make {rooms.length === 1 ? "it" : "them"} follow the hotel
                   </button>
                 </li>
@@ -336,10 +336,10 @@ function AddSheet({ open, onClose, title, children }: { open: boolean; onClose: 
   if (open && typeof document !== "undefined") {
     return createPortal(
       <div className="fixed inset-0 z-[70] bg-black/40 flex items-end sm:items-center sm:justify-center" onClick={onClose}>
-        <div className="w-full sm:max-w-lg max-h-[88svh] overflow-y-auto bg-[#F7F7F5] rounded-t-3xl sm:rounded-3xl p-3 pb-[calc(1rem+env(safe-area-inset-bottom))]" onClick={(e) => e.stopPropagation()}>
+        <div className="w-full sm:max-w-lg max-h-[88svh] overflow-y-auto bg-canvas rounded-t-3xl sm:rounded-3xl p-3 pb-[calc(1rem+env(safe-area-inset-bottom))]" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center justify-between px-2 pt-1 pb-3">
-            <p className="font-semibold text-[#262626]">{title}</p>
-            <button onClick={onClose} aria-label="Close" className="w-9 h-9 flex items-center justify-center rounded-full bg-white border border-[#EDEDE9] text-[#6B6B6B]"><X className="w-4 h-4" /></button>
+            <p className="font-semibold text-ink">{title}</p>
+            <button onClick={onClose} aria-label="Close" className="w-9 h-9 flex items-center justify-center rounded-full bg-white border border-line text-ink-2"><X className="w-4 h-4" /></button>
           </div>
           {children}
         </div>
@@ -357,13 +357,13 @@ function AddFab({ label, onClick }: { label: string; onClick: () => void }) {
       {/* Phones: floating button above the bottom nav */}
       <button
         onClick={onClick}
-        className="sm:hidden fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 inline-flex items-center gap-1.5 bg-[#FF6700] active:scale-95 transition text-white text-sm font-semibold pl-4 pr-5 h-12 rounded-full shadow-lg"
+        className="sm:hidden fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 inline-flex items-center gap-1.5 bg-orange active:scale-95 transition text-white text-sm font-semibold pl-4 pr-5 h-12 rounded-full shadow-lg"
       >
         <Plus className="w-5 h-5" /> {label}
       </button>
       {/* Desktop: button at the top right of the list */}
       <div className="hidden sm:flex justify-end">
-        <button onClick={onClick} className="inline-flex items-center gap-1.5 bg-[#FF6700] hover:bg-[#e05c00] transition text-white text-sm font-semibold px-4 h-10 rounded-xl shadow-sm">
+        <button onClick={onClick} className="inline-flex items-center gap-1.5 bg-orange hover:bg-orange-dark transition text-white text-sm font-semibold px-4 h-10 rounded-xl shadow-sm">
           <Plus className="w-4 h-4" /> {label}
         </button>
       </div>
@@ -372,7 +372,7 @@ function AddFab({ label, onClick }: { label: string; onClick: () => void }) {
 }
 
 function EmptyCard({ text }: { text: string }) {
-  return <div className={`${card} p-8 text-center text-sm text-[#6B6B6B]`}>{text}</div>;
+  return <div className={`${card} p-8 text-center text-sm text-ink-2`}>{text}</div>;
 }
 
 function RoomsTab({ hotel }: { hotel: HotelRef }) {
@@ -416,8 +416,8 @@ function RoomsTab({ hotel }: { hotel: HotelRef }) {
       <AddFab label="Add rooms" onClick={() => setAdding(true)} />
       <AddSheet open={adding} onClose={() => setAdding(false)} title="Add rooms">
       <div className={`${card} p-5`}>
-        <p className="font-semibold text-[#262626] hidden">Add rooms</p>
-        <p className="text-sm text-[#6B6B6B] mt-0.5 mb-3">
+        <p className="font-semibold text-ink hidden">Add rooms</p>
+        <p className="text-sm text-ink-2 mt-0.5 mb-3">
           A new room automatically shows everything from the <strong>Hotel guide</strong>. Open a room only to change what&apos;s different there (e.g. Wi-Fi or parking).
         </p>
         <div className="flex flex-col sm:flex-row gap-2">
@@ -426,7 +426,7 @@ function RoomsTab({ hotel }: { hotel: HotelRef }) {
             {busy && <Loader2 className="w-4 h-4 animate-spin" />} Add
           </button>
         </div>
-        {msg && <p className="text-sm text-[#0F2F61] mt-2">{msg}</p>}
+        {msg && <p className="text-sm text-navy mt-2">{msg}</p>}
       </div>
       </AddSheet>
 
@@ -434,27 +434,27 @@ function RoomsTab({ hotel }: { hotel: HotelRef }) {
       {!rooms ? <Spinner /> : rooms.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm text-[#6B6B6B]">{rooms.length} rooms</p>
-            <a href={`/print/rooms?property=${hotel.id}`} target="_blank" className="inline-flex items-center gap-1.5 text-sm font-medium text-[#0F2F61] hover:underline">
+            <p className="text-sm text-ink-2">{rooms.length} rooms</p>
+            <a href={`/print/rooms?property=${hotel.id}`} target="_blank" className="inline-flex items-center gap-1.5 text-sm font-medium text-navy hover:underline">
               <Printer className="w-4 h-4" /> Print all QR cards
             </a>
           </div>
-          <div className={`${card} divide-y divide-[#F5F5F2]`}>
+          <div className={`${card} divide-y divide-line-3`}>
             {rooms.map((r) => (
               <div key={r.id} className="flex items-center gap-3 px-4 py-3">
                 <button onClick={() => setEditing(r.id)} className="flex-1 min-w-0 flex items-center gap-3 text-left group">
-                  <span className="w-14 shrink-0 text-lg font-bold text-[#0F2F61]">{r.roomNumber}</span>
+                  <span className="w-14 shrink-0 text-lg font-bold text-navy">{r.roomNumber}</span>
                   <span className="min-w-0">
                     {r.customSections > 0
-                      ? <span className="inline-block whitespace-nowrap text-xs font-semibold text-[#FF6700] bg-orange-50 px-2 py-0.5 rounded-full">{r.customSections} custom</span>
-                      : <span className="block text-xs text-[#9B9B9B] whitespace-nowrap">Follows hotel</span>}
-                    <span className="block text-[11px] text-[#BABAB5] mt-0.5">{r.viewCount} opens</span>
+                      ? <span className="inline-block whitespace-nowrap text-xs font-semibold text-orange bg-orange-50 px-2 py-0.5 rounded-full">{r.customSections} custom</span>
+                      : <span className="block text-xs text-ink-3 whitespace-nowrap">Follows hotel</span>}
+                    <span className="block text-[11px] text-ink-4 mt-0.5">{r.viewCount} opens</span>
                   </span>
                 </button>
-                <button onClick={() => setEditing(r.id)} className="text-xs font-semibold text-[#0F2F61] border border-[#0F2F61]/30 rounded-lg px-2.5 py-1.5 hover:bg-[#0F2F61]/5">Edit</button>
-                <button onClick={() => setQrRoom(r)} title="QR code" className="p-1.5 rounded-lg border border-[#EDEDE9] text-[#6B6B6B] hover:text-[#0F2F61]"><QrCode className="w-4 h-4" /></button>
-                <a href={`/g/${hotel.slug}/${r.token}`} target="_blank" title="Open as guest" className="p-1.5 rounded-lg border border-[#EDEDE9] text-[#6B6B6B] hover:text-[#0F2F61]"><ExternalLink className="w-4 h-4" /></a>
-                <button onClick={() => remove(r)} title="Delete" className="p-1.5 rounded-lg border border-[#EDEDE9] text-[#6B6B6B] hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                <button onClick={() => setEditing(r.id)} className="text-xs font-semibold text-navy border border-navy/30 rounded-lg px-2.5 py-1.5 hover:bg-navy/5">Edit</button>
+                <button onClick={() => setQrRoom(r)} title="QR code" className="p-1.5 rounded-lg border border-line text-ink-2 hover:text-navy"><QrCode className="w-4 h-4" /></button>
+                <a href={`/g/${hotel.slug}/${r.token}`} target="_blank" title="Open as guest" className="p-1.5 rounded-lg border border-line text-ink-2 hover:text-navy"><ExternalLink className="w-4 h-4" /></a>
+                <button onClick={() => remove(r)} title="Delete" className="p-1.5 rounded-lg border border-line text-ink-2 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
               </div>
             ))}
           </div>
@@ -530,20 +530,20 @@ function QrModal({ hotel, room, onClose }: { hotel: HotelRef; room: Room; onClos
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl p-5 flex flex-col items-center gap-3 shadow-xl max-w-sm w-full max-h-[95vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between w-full">
-          <p className="font-bold text-[#262626]">Room {room.roomNumber}</p>
-          <button onClick={onClose} className="text-[#6B6B6B] hover:text-[#262626]"><X className="w-5 h-5" /></button>
+          <p className="font-bold text-ink">Room {room.roomNumber}</p>
+          <button onClick={onClose} className="text-ink-2 hover:text-ink"><X className="w-5 h-5" /></button>
         </div>
         <div className="hidden"><QRCodeCanvas id={`qr-${room.id}`} value={url} size={440} fgColor="#0F2F61" level="M" marginSize={0} /></div>
         {png
           ? <img src={png} alt={`QR card room ${room.roomNumber}`} className="w-full max-w-[260px] rounded-lg border border-dashed border-[#CFCFCA]" />
-          : <div className="w-full max-w-[260px] aspect-[92/128] rounded-lg bg-[#F7F7F5]" />}
+          : <div className="w-full max-w-[260px] aspect-[92/128] rounded-lg bg-canvas" />}
         <div className="grid grid-cols-2 gap-2 w-full">
           <button onClick={share} className={btnPrimary}><Share2 className="w-4 h-4" /> Send</button>
-          <a href={`/print/rooms?property=${hotel.id}&room=${room.id}`} target="_blank" className="flex items-center justify-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] rounded-lg py-2"><Printer className="w-4 h-4" /> Print</a>
-          <button onClick={save} className="flex items-center justify-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] rounded-lg py-2"><Download className="w-4 h-4" /> Save image</button>
+          <a href={`/print/rooms?property=${hotel.id}&room=${room.id}`} target="_blank" className="flex items-center justify-center gap-1.5 text-sm text-ink border border-line rounded-lg py-2"><Printer className="w-4 h-4" /> Print</a>
+          <button onClick={save} className="flex items-center justify-center gap-1.5 text-sm text-ink border border-line rounded-lg py-2"><Download className="w-4 h-4" /> Save image</button>
           <button
             onClick={async () => { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-            className="flex items-center justify-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] rounded-lg py-2"
+            className="flex items-center justify-center gap-1.5 text-sm text-ink border border-line rounded-lg py-2"
           >
             {copied ? <><Check className="w-4 h-4 text-green-600" /> Copied</> : <><Copy className="w-4 h-4" /> Copy link</>}
           </button>
@@ -602,17 +602,17 @@ function RoomEditor({ hotel, roomId, rooms, onBack, onQr, qrRoom, closeQr }: {
 
   return (
     <div>
-      <button onClick={onBack} className="text-sm text-[#6B6B6B] hover:text-[#262626] mb-3">← All rooms</button>
+      <button onClick={onBack} className="text-sm text-ink-2 hover:text-ink mb-3">← All rooms</button>
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         <div className="flex-1">
-          <h2 className="text-xl font-bold text-[#262626]">Room {data.room.roomNumber}</h2>
-          <p className="text-sm text-[#6B6B6B]">
+          <h2 className="text-xl font-bold text-ink">Room {data.room.roomNumber}</h2>
+          <p className="text-sm text-ink-2">
             Everything follows the <strong>Hotel guide</strong>. Change a section here only if it&apos;s different in this room — the rest keeps updating from the hotel.
           </p>
         </div>
         <div className="flex gap-2 shrink-0">
-          {room && <button onClick={() => onQr(room)} className="inline-flex items-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] bg-white px-3 py-1.5 rounded-lg"><QrCode className="w-4 h-4" /> QR</button>}
-          <a href={`/g/${hotel.slug}/${data.room.token}`} target="_blank" className="inline-flex items-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] bg-white px-3 py-1.5 rounded-lg"><ExternalLink className="w-4 h-4" /> Open as guest</a>
+          {room && <button onClick={() => onQr(room)} className="inline-flex items-center gap-1.5 text-sm text-ink border border-line bg-white px-3 py-1.5 rounded-lg"><QrCode className="w-4 h-4" /> QR</button>}
+          <a href={`/g/${hotel.slug}/${data.room.token}`} target="_blank" className="inline-flex items-center gap-1.5 text-sm text-ink border border-line bg-white px-3 py-1.5 rounded-lg"><ExternalLink className="w-4 h-4" /> Open as guest</a>
         </div>
       </div>
       {note && <p className="text-sm text-green-700 bg-green-50 rounded-lg px-3 py-2 mb-3">{note}</p>}
@@ -624,17 +624,17 @@ function RoomEditor({ hotel, roomId, rooms, onBack, onQr, qrRoom, closeQr }: {
           const dirty = !!drafts[s.id];
           const open = openId === s.id;
           return (
-            <div key={s.id} className={`bg-white border rounded-xl overflow-hidden ${custom ? "border-[#FF6700]/50" : "border-[#EDEDE9]"}`}>
-              <button onClick={() => setOpenId(open ? null : s.id)} className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-[#F7F7F5]">
-                <span className="font-medium text-[#262626] text-sm flex-1">{s.title}</span>
+            <div key={s.id} className={`bg-white border rounded-xl overflow-hidden ${custom ? "border-orange/50" : "border-line"}`}>
+              <button onClick={() => setOpenId(open ? null : s.id)} className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-canvas">
+                <span className="font-medium text-ink text-sm flex-1">{s.title}</span>
                 {custom
-                  ? <span className="text-[11px] font-semibold text-[#FF6700] bg-orange-50 px-2 py-0.5 rounded-full">Custom for this room</span>
-                  : <span className="text-[11px] text-[#9B9B9B] bg-[#F7F7F5] px-2 py-0.5 rounded-full">Same as hotel</span>}
+                  ? <span className="text-[11px] font-semibold text-orange bg-orange-50 px-2 py-0.5 rounded-full">Custom for this room</span>
+                  : <span className="text-[11px] text-ink-3 bg-canvas px-2 py-0.5 rounded-full">Same as hotel</span>}
               </button>
               {open && (
-                <div className="px-4 pb-4 pt-1 border-t border-[#F0F0EE]">
+                <div className="px-4 pb-4 pt-1 border-t border-line-2">
                   {!custom && !dirty && (
-                    <p className="text-xs text-[#6B6B6B] bg-[#F7F7F5] rounded-lg px-3 py-2 my-2">
+                    <p className="text-xs text-ink-2 bg-canvas rounded-lg px-3 py-2 my-2">
                       Showing the hotel guide version. Edit below to make it different for room {data.room.roomNumber} only.
                     </p>
                   )}
@@ -648,11 +648,11 @@ function RoomEditor({ hotel, roomId, rooms, onBack, onQr, qrRoom, closeQr }: {
                     </button>
                     {custom && (
                       <>
-                        <button onClick={() => setApplyFor(s.id)} className="text-sm font-medium text-[#0F2F61] border border-[#0F2F61]/30 rounded-lg px-3 py-2">Apply to other rooms…</button>
-                        <button onClick={() => reset(s.id)} className="text-sm text-[#6B6B6B] hover:text-red-500 px-2">Reset to hotel guide</button>
+                        <button onClick={() => setApplyFor(s.id)} className="text-sm font-medium text-navy border border-navy/30 rounded-lg px-3 py-2">Apply to other rooms…</button>
+                        <button onClick={() => reset(s.id)} className="text-sm text-ink-2 hover:text-red-500 px-2">Reset to hotel guide</button>
                       </>
                     )}
-                    {dirty && <button onClick={() => setDrafts((d) => { const n = { ...d }; delete n[s.id]; return n; })} className="text-sm text-[#6B6B6B] px-2">Cancel</button>}
+                    {dirty && <button onClick={() => setDrafts((d) => { const n = { ...d }; delete n[s.id]; return n; })} className="text-sm text-ink-2 px-2">Cancel</button>}
                   </div>
                 </div>
               )}
@@ -696,25 +696,25 @@ function ApplyModal({ hotelId, roomId, sectionId, sectionTitle, rooms, onClose }
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => onClose()}>
       <div className="bg-white rounded-2xl p-5 shadow-xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-        <p className="font-bold text-[#262626]">Apply “{sectionTitle}” to other rooms</p>
-        <p className="text-sm text-[#6B6B6B] mt-0.5 mb-3">The selected rooms get this room&apos;s version of the section.</p>
+        <p className="font-bold text-ink">Apply “{sectionTitle}” to other rooms</p>
+        <p className="text-sm text-ink-2 mt-0.5 mb-3">The selected rooms get this room&apos;s version of the section.</p>
         <div className="flex gap-3 text-xs mb-2">
-          <button onClick={() => setPicked(new Set(rooms.map((r) => r.id)))} className="text-[#0F2F61] font-medium">Select all</button>
-          <button onClick={() => setPicked(new Set())} className="text-[#6B6B6B]">None</button>
+          <button onClick={() => setPicked(new Set(rooms.map((r) => r.id)))} className="text-navy font-medium">Select all</button>
+          <button onClick={() => setPicked(new Set())} className="text-ink-2">None</button>
         </div>
         <div className="grid grid-cols-4 sm:grid-cols-5 gap-1.5 max-h-64 overflow-y-auto">
           {rooms.map((r) => (
             <button
               key={r.id}
               onClick={() => toggle(r.id)}
-              className={`text-sm font-semibold rounded-lg py-2 border ${picked.has(r.id) ? "bg-[#0F2F61] text-white border-[#0F2F61]" : "bg-white text-[#262626] border-[#EDEDE9]"}`}
+              className={`text-sm font-semibold rounded-lg py-2 border ${picked.has(r.id) ? "bg-navy text-white border-navy" : "bg-white text-ink border-line"}`}
             >
               {r.roomNumber}
             </button>
           ))}
         </div>
         <div className="flex justify-end gap-2 mt-4">
-          <button onClick={() => onClose()} className="text-sm text-[#6B6B6B] px-3">Cancel</button>
+          <button onClick={() => onClose()} className="text-sm text-ink-2 px-3">Cancel</button>
           <button onClick={apply} disabled={busy || picked.size === 0} className={btnPrimary}>
             {busy && <Loader2 className="w-4 h-4 animate-spin" />} Apply to {picked.size} room{picked.size === 1 ? "" : "s"}
           </button>
@@ -779,8 +779,8 @@ function ServicesTab({ propertyId }: { propertyId: string }) {
       <AddFab label="Add service" onClick={() => setAdding(true)} />
       <AddSheet open={adding} onClose={() => setAdding(false)} title="Add a service">
       <div className={`${card} p-5`}>
-        <p className="font-semibold text-[#262626] hidden">Add a service</p>
-        <p className="text-sm text-[#6B6B6B] mt-0.5 mb-3">
+        <p className="font-semibold text-ink hidden">Add a service</p>
+        <p className="text-sm text-ink-2 mt-0.5 mb-3">
           Everything guests can order or book. Guests see it under <strong>Extras</strong>, one tab per category. Write names and descriptions in English.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-6 gap-2">
@@ -792,7 +792,7 @@ function ServicesTab({ propertyId }: { propertyId: string }) {
           <input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Price € (empty = on request, 0 = free)" inputMode="decimal" className={`${input} sm:col-span-3`} />
           <input value={form.priceNote} onChange={(e) => setForm({ ...form, priceNote: e.target.value })} placeholder="Price note, e.g. per person" className={`${input} sm:col-span-3`} />
         </div>
-        {how && <p className="text-xs text-[#6B6B6B] mt-2">{how}</p>}
+        {how && <p className="text-xs text-ink-2 mt-2">{how}</p>}
         {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
         <button onClick={add} disabled={busy || !form.name.trim()} className={`${btnPrimary} mt-3`}>
           {busy && <Loader2 className="w-4 h-4 animate-spin" />} Add service
@@ -801,25 +801,25 @@ function ServicesTab({ propertyId }: { propertyId: string }) {
       </AddSheet>
 
       {items.length === 0 ? (
-        <div className={`${card} p-8 text-center text-sm text-[#6B6B6B]`}>No services yet. Start with breakfast or an airport transfer.</div>
+        <div className={`${card} p-8 text-center text-sm text-ink-2`}>No services yet. Start with breakfast or an airport transfer.</div>
       ) : used.map((c) => (
         <div key={c.key} className={`${card} overflow-hidden`}>
-          <p className="px-5 py-3 border-b border-[#F0F0EE] font-semibold text-[#262626]">{c.label}</p>
-          <ul className="divide-y divide-[#F5F5F2]">
+          <p className="px-5 py-3 border-b border-line-2 font-semibold text-ink">{c.label}</p>
+          <ul className="divide-y divide-line-3">
             {items.filter((i) => i.kind === c.key).map((s) => (
               <li key={s.id} className={`flex items-center gap-3 px-5 py-3 ${s.active ? "" : "opacity-50"}`}>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[#262626]">{s.name}</p>
-                  {s.description && <p className="text-xs text-[#6B6B6B] truncate">{s.description}</p>}
+                  <p className="text-sm font-semibold text-ink">{s.name}</p>
+                  {s.description && <p className="text-xs text-ink-2 truncate">{s.description}</p>}
                 </div>
-                <p className="text-sm text-[#0F2F61] font-medium shrink-0">
+                <p className="text-sm text-navy font-medium shrink-0">
                   {s.price === null ? "—" : s.price === 0 ? "Free" : km(s.price)}
-                  {s.priceNote && <span className="text-xs text-[#9B9B9B] font-normal"> {s.priceNote}</span>}
+                  {s.priceNote && <span className="text-xs text-ink-3 font-normal"> {s.priceNote}</span>}
                 </p>
-                <button onClick={() => toggle(s)} title={s.active ? "Hide from guests" : "Show to guests"} className="text-[#6B6B6B] hover:text-[#0F2F61]">
+                <button onClick={() => toggle(s)} title={s.active ? "Hide from guests" : "Show to guests"} className="text-ink-2 hover:text-navy">
                   {s.active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                 </button>
-                <button onClick={() => remove(s)} title="Delete" className="text-[#6B6B6B] hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                <button onClick={() => remove(s)} title="Delete" className="text-ink-2 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
               </li>
             ))}
           </ul>
@@ -879,8 +879,8 @@ function AnnouncementsTab({ propertyId, slug }: { propertyId: string; slug: stri
       <AddFab label="New announcement" onClick={() => setAdding(true)} />
       <AddSheet open={adding} onClose={() => setAdding(false)} title="New announcement">
       <div className={`${card} p-5`}>
-        <p className="font-semibold text-[#262626] hidden">New announcement</p>
-        <p className="text-sm text-[#6B6B6B] mt-0.5 mb-3">
+        <p className="font-semibold text-ink hidden">New announcement</p>
+        <p className="text-sm text-ink-2 mt-0.5 mb-3">
           Shown as an orange bar at the top of the guide for every guest. Write it in Bosnian or English — it&apos;s translated automatically to EN, BS, DE, TR and IT.
         </p>
         <textarea
@@ -911,38 +911,38 @@ function AnnouncementsTab({ propertyId, slug }: { propertyId: string; slug: stri
             return (
               <div key={a.id} className={`${card} p-4`}>
                 <div className="flex items-start gap-3">
-                  <Megaphone className={`w-4 h-4 mt-0.5 shrink-0 ${live ? "text-[#FF6700]" : "text-[#BABAB5]"}`} />
+                  <Megaphone className={`w-4 h-4 mt-0.5 shrink-0 ${live ? "text-orange" : "text-ink-4"}`} />
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm ${live ? "text-[#262626]" : "text-[#9B9B9B]"}`}>{a.message}</p>
-                    <p className="text-xs text-[#9B9B9B] mt-1">
+                    <p className={`text-sm ${live ? "text-ink" : "text-ink-3"}`}>{a.message}</p>
+                    <p className="text-xs text-ink-3 mt-1">
                       {live ? <span className="text-green-600 font-semibold">Live</span> : a.active ? "Expired" : "Off"}
                       {" · "}{fmtDateTime(a.createdAt)}
                       {a.expiresAt && live && <> · until {fmtDateTime(a.expiresAt)}</>}
                       {a.translations && (
-                        <button onClick={() => setOpen(open === a.id ? null : a.id)} className="ml-2 text-[#0F2F61] hover:underline">
+                        <button onClick={() => setOpen(open === a.id ? null : a.id)} className="ml-2 text-navy hover:underline">
                           {open === a.id ? "hide translations" : "translations"}
                         </button>
                       )}
                     </p>
                     {open === a.id && a.translations && (
-                      <div className="mt-2 space-y-1 bg-[#F7F7F5] rounded-lg p-2.5">
+                      <div className="mt-2 space-y-1 bg-canvas rounded-lg p-2.5">
                         {Object.entries(a.translations).map(([l, text]) => (
-                          <p key={l} className="text-xs text-[#262626]"><span className="font-semibold text-[#9B9B9B] w-6 inline-block">{l}</span> {text}</p>
+                          <p key={l} className="text-xs text-ink"><span className="font-semibold text-ink-3 w-6 inline-block">{l}</span> {text}</p>
                         ))}
                       </div>
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {live
-                      ? <button onClick={() => toggle(a, false)} className="text-xs font-medium text-[#6B6B6B] border border-[#EDEDE9] rounded-lg px-2.5 py-1 hover:text-[#262626]">Turn off</button>
-                      : <button onClick={() => toggle(a, true)} className="text-xs font-medium text-[#0F2F61] border border-[#0F2F61]/30 rounded-lg px-2.5 py-1">Show again</button>}
-                    <button onClick={() => remove(a)} title="Delete" className="text-[#6B6B6B] hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                      ? <button onClick={() => toggle(a, false)} className="text-xs font-medium text-ink-2 border border-line rounded-lg px-2.5 py-1 hover:text-ink">Turn off</button>
+                      : <button onClick={() => toggle(a, true)} className="text-xs font-medium text-navy border border-navy/30 rounded-lg px-2.5 py-1">Show again</button>}
+                    <button onClick={() => remove(a)} title="Delete" className="text-ink-2 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>
               </div>
             );
           })}
-          <a href={`/g/${slug}`} target="_blank" className="inline-flex items-center gap-1.5 text-sm text-[#0F2F61] hover:underline mt-1">
+          <a href={`/g/${slug}`} target="_blank" className="inline-flex items-center gap-1.5 text-sm text-navy hover:underline mt-1">
             <ExternalLink className="w-3.5 h-3.5" /> See it as a guest
           </a>
         </div>
@@ -1002,8 +1002,8 @@ function SettingsTab({ hotel }: { hotel: HotelRef }) {
     if (res.ok) { router.push("/dashboard"); router.refresh(); } else setDeleting(false);
   }
 
-  const label = "font-semibold text-[#262626]";
-  const help = "text-sm text-[#6B6B6B] mt-0.5 mb-3";
+  const label = "font-semibold text-ink";
+  const help = "text-sm text-ink-2 mt-0.5 mb-3";
   return (
     <div className="space-y-4">
       <div className={`${card} p-5`}>
@@ -1029,21 +1029,21 @@ function SettingsTab({ hotel }: { hotel: HotelRef }) {
           <button onClick={saveReview} className={btnPrimary}>{reviewSaved ? <><Check className="w-4 h-4" /> Saved</> : "Save"}</button>
         </div>
         {reviewError && <p className="text-sm text-red-600 mt-2">{reviewError}</p>}
-        <p className="text-xs text-[#9B9B9B] mt-3">Where to find it: Google Business Profile → <em>Ask for reviews</em> (or <em>Get more reviews</em>) → copy the link.</p>
+        <p className="text-xs text-ink-3 mt-3">Where to find it: Google Business Profile → <em>Ask for reviews</em> (or <em>Get more reviews</em>) → copy the link.</p>
       </div>
 
       <div className={`${card} p-5 flex items-center gap-3`}>
-        <div className="w-9 h-9 rounded-lg bg-orange-50 text-[#FF6700] flex items-center justify-center shrink-0"><ClipboardList className="w-4 h-4" /></div>
+        <div className="w-9 h-9 rounded-lg bg-orange-50 text-orange flex items-center justify-center shrink-0"><ClipboardList className="w-4 h-4" /></div>
         <div className="flex-1 min-w-0">
           <p className={label}>Online guest registration</p>
-          <p className="text-sm text-[#6B6B6B] mt-0.5">
+          <p className="text-sm text-ink-2 mt-0.5">
             {registration
-              ? <>Guests can send their travel document details from the guide. <Link href={`/dashboard/registrations?property=${hotel.id}`} className="text-[#0F2F61] hover:underline">View registrations</Link></>
+              ? <>Guests can send their travel document details from the guide. <Link href={`/dashboard/registrations?property=${hotel.id}`} className="text-navy hover:underline">View registrations</Link></>
               : "Off — guests don't see the registration form."}
           </p>
         </div>
         <button role="switch" aria-checked={registration} onClick={toggleRegistration}
-          className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${registration ? "bg-[#FF6700]" : "bg-[#D5D5CF]"}`}>
+          className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${registration ? "bg-orange" : "bg-line-strong"}`}>
           <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${registration ? "translate-x-5" : ""}`} />
         </button>
       </div>
@@ -1055,16 +1055,16 @@ function SettingsTab({ hotel }: { hotel: HotelRef }) {
         </p>
         {url && (
           <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
-            <QRCodeCanvas id="qr-general" value={url} size={130} fgColor="#0F2F61" level="M" marginSize={2} className="rounded-lg border border-[#EDEDE9] self-start" />
+            <QRCodeCanvas id="qr-general" value={url} size={130} fgColor="#0F2F61" level="M" marginSize={2} className="rounded-lg border border-line self-start" />
             <div className="flex-1 min-w-0 space-y-2">
-              <p className="text-sm text-[#0F2F61] break-all">{url}</p>
+              <p className="text-sm text-navy break-all">{url}</p>
               <div className="flex flex-wrap gap-2">
                 <button onClick={async () => { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-                  className="inline-flex items-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] rounded-lg px-3 py-1.5">
+                  className="inline-flex items-center gap-1.5 text-sm text-ink border border-line rounded-lg px-3 py-1.5">
                   {copied ? <><Check className="w-4 h-4 text-green-600" /> Copied</> : <><Copy className="w-4 h-4" /> Copy link</>}
                 </button>
-                <button onClick={saveQr} className="inline-flex items-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] rounded-lg px-3 py-1.5"><Download className="w-4 h-4" /> Save QR</button>
-                <a href={url} target="_blank" className="inline-flex items-center gap-1.5 text-sm text-[#262626] border border-[#EDEDE9] rounded-lg px-3 py-1.5"><ExternalLink className="w-4 h-4" /> Open</a>
+                <button onClick={saveQr} className="inline-flex items-center gap-1.5 text-sm text-ink border border-line rounded-lg px-3 py-1.5"><Download className="w-4 h-4" /> Save QR</button>
+                <a href={url} target="_blank" className="inline-flex items-center gap-1.5 text-sm text-ink border border-line rounded-lg px-3 py-1.5"><ExternalLink className="w-4 h-4" /> Open</a>
               </div>
             </div>
           </div>
@@ -1081,5 +1081,5 @@ function SettingsTab({ hotel }: { hotel: HotelRef }) {
 }
 
 function Spinner() {
-  return <div className="py-10 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-[#0F2F61]" /></div>;
+  return <div className="py-10 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-navy" /></div>;
 }

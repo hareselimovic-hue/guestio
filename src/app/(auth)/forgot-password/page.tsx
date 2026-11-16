@@ -37,21 +37,21 @@ export default function ForgotPasswordPage() {
     return (
       <div>
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-[#262626] mb-1">Check your email</h1>
-          <p className="text-[#6B6B6B] text-sm">We sent a password reset link to <strong className="text-[#262626]">{email}</strong></p>
+          <h1 className="text-2xl font-bold text-ink mb-1">Check your email</h1>
+          <p className="text-ink-2 text-sm">We sent a password reset link to <strong className="text-ink">{email}</strong></p>
         </div>
-        <div className="bg-[#F4F4F1] rounded-xl p-4 text-sm text-[#6B6B6B] leading-relaxed mb-6">
+        <div className="bg-canvas-3 rounded-xl p-4 text-sm text-ink-2 leading-relaxed mb-6">
           Didn&apos;t receive it? Check your spam folder or{" "}
           <button
             onClick={() => { setSent(false); setEmail(""); }}
-            className="text-[#FF6700] font-medium hover:underline"
+            className="text-orange font-medium hover:underline"
           >
             try a different email
           </button>.
         </div>
         <Link
           href="/login"
-          className="text-sm text-[#6B6B6B] hover:text-[#262626] transition-colors"
+          className="text-sm text-ink-2 hover:text-ink transition-colors"
         >
           ← Back to sign in
         </Link>
@@ -62,13 +62,13 @@ export default function ForgotPasswordPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#262626] mb-1">Forgot password?</h1>
-        <p className="text-[#6B6B6B] text-sm">Enter your email and we&apos;ll send you a reset link.</p>
+        <h1 className="text-2xl font-bold text-ink mb-1">Forgot password?</h1>
+        <p className="text-ink-2 text-sm">Enter your email and we&apos;ll send you a reset link.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-[#262626] font-medium text-sm">
+          <Label htmlFor="email" className="text-ink font-medium text-sm">
             Email address
           </Label>
           <Input
@@ -78,7 +78,7 @@ export default function ForgotPasswordPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="border-[#EDEDE9] focus:border-[#0F2F61] focus:ring-[#0F2F61] h-11"
+            className="border-line focus:border-navy focus:ring-navy h-11"
           />
         </div>
 
@@ -89,15 +89,15 @@ export default function ForgotPasswordPage() {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#0F2F61] hover:bg-[#0a2347] text-white font-semibold h-11"
+          className="w-full bg-orange hover:bg-orange-dark text-white font-semibold h-11"
         >
           {loading ? "Sending..." : "Send reset link"}
         </Button>
       </form>
 
-      <p className="text-sm text-[#6B6B6B] text-center mt-6">
+      <p className="text-sm text-ink-2 text-center mt-6">
         Remember your password?{" "}
-        <Link href="/login" className="text-[#FF6700] font-medium hover:underline">
+        <Link href="/login" className="text-orange font-medium hover:underline">
           Sign in
         </Link>
       </p>

@@ -49,7 +49,7 @@ export default function Sidebar({ user, workspaceName, showHotel = false, showAp
               key={href}
               href={href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                ${isActive ? "bg-[#FF6700] text-white" : "text-[#8ba3c7] hover:bg-[#1a3d75] hover:text-white"}`}
+                ${isActive ? "bg-orange text-white" : "text-navy-soft hover:bg-navy-mid hover:text-white"}`}
             >
               <Icon className="w-4 h-4 shrink-0" />
               <span>{label}</span>
@@ -64,7 +64,7 @@ export default function Sidebar({ user, workspaceName, showHotel = false, showAp
           <Link
             href="/help"
             target="_blank"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#8ba3c7] hover:bg-[#1a3d75] hover:text-white transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-navy-soft hover:bg-navy-mid hover:text-white transition-colors"
           >
             <HelpCircle className="w-4 h-4 shrink-0" />
             <span>Help</span>
@@ -72,15 +72,15 @@ export default function Sidebar({ user, workspaceName, showHotel = false, showAp
         </div>
 
       {/* User + logout */}
-      <div className="px-3 py-4 border-t border-[#1a3d75]">
+      <div className="px-3 py-4 border-t border-navy-mid">
         <div className="px-3 py-2 mb-2">
           <p className="text-white text-sm font-medium truncate">{user.name ?? "User"}</p>
-          {workspaceName && <p className="text-[#FF6700] text-xs truncate">{workspaceName}</p>}
-          <p className="text-[#8ba3c7] text-xs truncate">{user.email}</p>
+          {workspaceName && <p className="text-orange text-xs truncate">{workspaceName}</p>}
+          <p className="text-navy-soft text-xs truncate">{user.email}</p>
         </div>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-[#8ba3c7] hover:bg-[#1a3d75] hover:text-white transition-colors"
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-navy-soft hover:bg-navy-mid hover:text-white transition-colors"
         >
           <LogOut className="w-4 h-4 shrink-0" />
           <span>Sign out</span>
@@ -91,10 +91,10 @@ export default function Sidebar({ user, workspaceName, showHotel = false, showAp
 
   return (
     /* Desktop sidebar only — mobile uses BottomNav */
-    <aside className="hidden md:flex w-64 bg-[#0F2F61] flex-col h-full shrink-0">
-      <div className="px-6 py-6 border-b border-[#1a3d75]">
+    <aside className="hidden md:flex w-64 bg-navy flex-col h-full shrink-0">
+      <div className="px-6 py-6 border-b border-navy-mid">
         <span className="text-white font-bold text-2xl tracking-tight">SmartStay</span>
-        <p className="text-[#8ba3c7] text-xs mt-0.5">{workspaceName ?? "Digital guest guidebook"}</p>
+        <p className="text-navy-soft text-xs mt-0.5">{workspaceName ?? "Digital guest guidebook"}</p>
       </div>
       <NavContent />
     </aside>

@@ -81,11 +81,11 @@ export default async function SubscriptionPage() {
   return (
     <div className="p-6 md:p-10 max-w-2xl mx-auto">
       <div className="flex items-center gap-3 mb-8">
-        <CreditCard className="w-6 h-6 text-[#FF6700]" />
-        <h1 className="text-2xl font-bold text-[#262626]">Subscription</h1>
+        <CreditCard className="w-6 h-6 text-orange" />
+        <h1 className="text-2xl font-bold text-ink">Subscription</h1>
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#EDEDE9] p-8 space-y-6">
+      <div className="bg-white rounded-2xl border border-line p-8 space-y-6">
 
         {/* Status */}
         <div className="flex items-center gap-3">
@@ -95,22 +95,22 @@ export default async function SubscriptionPage() {
             <XCircle className="w-6 h-6 text-red-500 shrink-0" />
           )}
           <div>
-            <p className="text-sm text-[#6B6B6B] font-medium uppercase tracking-wide">Status</p>
+            <p className="text-sm text-ink-2 font-medium uppercase tracking-wide">Status</p>
             <p className={`text-lg font-bold ${isActive ? "text-green-600" : "text-red-500"}`}>
               {isActive ? "Active" : "Expired"}
             </p>
           </div>
         </div>
 
-        <div className="border-t border-[#F0F0F0]" />
+        <div className="border-t border-line-gray-2" />
 
         {/* Valid until */}
         {sub ? (
           <div className="flex items-center gap-3">
-            <Clock className="w-5 h-5 text-[#6B6B6B] shrink-0" />
+            <Clock className="w-5 h-5 text-ink-2 shrink-0" />
             <div>
-              <p className="text-sm text-[#6B6B6B] font-medium">Valid until</p>
-              <p className="text-[#262626] font-semibold">{fmtDate(sub.validUntil)}</p>
+              <p className="text-sm text-ink-2 font-medium">Valid until</p>
+              <p className="text-ink font-semibold">{fmtDate(sub.validUntil)}</p>
             </div>
           </div>
         ) : null}
@@ -136,16 +136,16 @@ export default async function SubscriptionPage() {
           </div>
         )}
 
-        <div className="border-t border-[#F0F0F0]" />
+        <div className="border-t border-line-gray-2" />
 
         {/* CTA */}
         <div>
-          <p className="text-sm text-[#6B6B6B] mb-3">
+          <p className="text-sm text-ink-2 mb-3">
             Ili nas kontaktirajte direktno:
           </p>
           <a
             href="mailto:info@smartstay.ba?subject=SmartStay subscription renewal"
-            className="inline-flex items-center gap-2 text-[#6B6B6B] hover:text-[#262626] font-medium text-sm underline"
+            className="inline-flex items-center gap-2 text-ink-2 hover:text-ink font-medium text-sm underline"
           >
             info@smartstay.ba
           </a>
@@ -170,23 +170,23 @@ export default async function SubscriptionPage() {
       )}
 
       {invoices.length > 0 && (
-        <div className="mt-6 bg-white rounded-2xl border border-[#EDEDE9] p-6 sm:p-8">
+        <div className="mt-6 bg-white rounded-2xl border border-line p-6 sm:p-8">
           <div className="flex items-center gap-2 mb-4">
-            <FileText className="w-5 h-5 text-[#0F2F61]" />
-            <h2 className="font-bold text-[#262626]">Fakture</h2>
+            <FileText className="w-5 h-5 text-navy" />
+            <h2 className="font-bold text-ink">Fakture</h2>
           </div>
-          <ul className="divide-y divide-[#F0F0EE]">
+          <ul className="divide-y divide-line-2">
             {invoices.map((inv) => (
               <li key={inv.id} className="flex items-center gap-3 py-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-[#262626]">{inv.number}</p>
-                  <p className="text-xs text-[#6B6B6B]">
+                  <p className="text-sm font-semibold text-ink">{inv.number}</p>
+                  <p className="text-xs text-ink-2">
                     {inv.issuedAt.toLocaleDateString("bs-BA")} · {inv.amount.toFixed(2)} KM · {inv.payment.status === "SUCCESS" ? (inv.method === "CARD" ? "kartica" : "virman") : "čeka uplatu"}
                   </p>
                 </div>
                 <a
                   href={`/api/invoices/${inv.id}/pdf`}
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-[#0F2F61] hover:underline"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-navy hover:underline"
                 >
                   <Download className="w-4 h-4" /> PDF
                 </a>

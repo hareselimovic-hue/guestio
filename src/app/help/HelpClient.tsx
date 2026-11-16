@@ -25,21 +25,21 @@ export default function HelpClient() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F7F7F5]" style={{ fontFamily: "var(--font-inter), Inter, sans-serif" }}>
+    <div className="min-h-screen bg-canvas" style={{ fontFamily: "var(--font-inter), Inter, sans-serif" }}>
 
       {/* Header */}
-      <div className="bg-[#0F2F61] text-white">
+      <div className="bg-navy text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-8 pt-6 pb-0">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-1.5 text-[#8ba3c7] hover:text-white text-sm font-medium transition-colors"
+            className="inline-flex items-center gap-1.5 text-navy-soft hover:text-white text-sm font-medium transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Nazad na Dashboard
           </Link>
         </div>
         <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8">
-          <p className="text-[#8ba3c7] text-sm font-medium uppercase tracking-wide mb-2">Pomoć i upute</p>
+          <p className="text-navy-soft text-sm font-medium uppercase tracking-wide mb-2">Pomoć i upute</p>
           <h1 className="text-3xl sm:text-4xl font-bold">Kako koristiti SmartStay</h1>
         </div>
 
@@ -52,8 +52,8 @@ export default function HelpClient() {
                 onClick={() => setActive(tab.id)}
                 className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-3 text-xs sm:text-sm font-medium border-b-2 transition-colors ${
                   active === tab.id
-                    ? "border-[#FF6700] text-white"
-                    : "border-transparent text-[#8ba3c7] hover:text-white"
+                    ? "border-orange text-white"
+                    : "border-transparent text-navy-soft hover:text-white"
                 }`}
               >
                 {tab.icon}
@@ -82,55 +82,55 @@ function TabAI() {
   return (
     <>
       <Card>
-        <SectionHeading icon={<MessageCircle className="w-5 h-5" />} color="bg-[#FF6700]">
+        <SectionHeading icon={<MessageCircle className="w-5 h-5" />} color="bg-orange">
           Šta je AI Asistent?
         </SectionHeading>
-        <p className="text-[#6B6B6B] leading-relaxed mb-3">
+        <p className="text-ink-2 leading-relaxed mb-3">
           AI Asistent je chat dugme koje se pojavljuje na stranici vašeg guest guidebooka. Gosti postavljaju pitanja
           prirodnim jezikom i dobijaju trenutne odgovore — bez pozivanja ili poruka vama.
         </p>
-        <p className="text-[#6B6B6B] leading-relaxed">
-          AI odgovara <strong className="text-[#262626]">isključivo na osnovu informacija koje ste vi unijeli</strong> u
+        <p className="text-ink-2 leading-relaxed">
+          AI odgovara <strong className="text-ink">isključivo na osnovu informacija koje ste vi unijeli</strong> u
           guidebook. Ne izmišlja — ako nešto ne zna, kaže gostu da kontaktira vas direktno.
         </p>
 
         {/* Chat mockup */}
         <div className="mt-5 flex justify-center">
-          <div className="w-full max-w-xs bg-white rounded-2xl shadow-lg border border-[#EDEDE9] overflow-hidden">
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-[#EDEDE9]">
-              <div className="w-7 h-7 bg-[#FF6700] rounded-full flex items-center justify-center shrink-0">
+          <div className="w-full max-w-xs bg-white rounded-2xl shadow-lg border border-line overflow-hidden">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-line">
+              <div className="w-7 h-7 bg-orange rounded-full flex items-center justify-center shrink-0">
                 <MessageCircle className="w-3.5 h-3.5 text-white" />
               </div>
               <div>
-                <p className="font-semibold text-xs text-[#262626]">AI Asistent</p>
-                <p className="text-[10px] text-[#9B9B9B]">Powered by AI · odgovara odmah</p>
+                <p className="font-semibold text-xs text-ink">AI Asistent</p>
+                <p className="text-[10px] text-ink-3">Powered by AI · odgovara odmah</p>
               </div>
             </div>
-            <div className="px-3 py-3 bg-[#F7F7F5] space-y-2">
+            <div className="px-3 py-3 bg-canvas space-y-2">
               <div className="flex justify-end">
-                <div className="bg-[#FF6700] text-white text-xs px-3 py-2 rounded-2xl rounded-br-sm max-w-[75%]">
+                <div className="bg-orange text-white text-xs px-3 py-2 rounded-2xl rounded-br-sm max-w-[75%]">
                   Koja je WiFi lozinka?
                 </div>
               </div>
               <div className="flex justify-start">
-                <div className="bg-white text-[#262626] text-xs px-3 py-2 rounded-2xl rounded-bl-sm max-w-[82%] border border-[#EDEDE9] shadow-sm">
+                <div className="bg-white text-ink text-xs px-3 py-2 rounded-2xl rounded-bl-sm max-w-[82%] border border-line shadow-sm">
                   Mreža je <strong>Apartment_5G</strong>, lozinka <strong>Welcome2024!</strong> 🔑
                 </div>
               </div>
               <div className="flex justify-end">
-                <div className="bg-[#FF6700] text-white text-xs px-3 py-2 rounded-2xl rounded-br-sm max-w-[75%]">
+                <div className="bg-orange text-white text-xs px-3 py-2 rounded-2xl rounded-br-sm max-w-[75%]">
                   Wann ist der Check-out?
                 </div>
               </div>
               <div className="flex justify-start">
-                <div className="bg-white text-[#262626] text-xs px-3 py-2 rounded-2xl rounded-bl-sm max-w-[82%] border border-[#EDEDE9] shadow-sm">
+                <div className="bg-white text-ink text-xs px-3 py-2 rounded-2xl rounded-bl-sm max-w-[82%] border border-line shadow-sm">
                   Check-out ist bis <strong>11:00 Uhr</strong>. ✅
                 </div>
               </div>
             </div>
-            <div className="px-3 py-2.5 border-t border-[#EDEDE9] bg-white flex gap-2 items-center">
-              <div className="flex-1 bg-[#F7F7F5] rounded-lg px-3 py-1.5 text-[10px] text-[#9B9B9B]">Upiši pitanje...</div>
-              <div className="w-7 h-7 bg-[#FF6700] rounded-lg flex items-center justify-center shrink-0">
+            <div className="px-3 py-2.5 border-t border-line bg-white flex gap-2 items-center">
+              <div className="flex-1 bg-canvas rounded-lg px-3 py-1.5 text-[10px] text-ink-3">Upiši pitanje...</div>
+              <div className="w-7 h-7 bg-orange rounded-lg flex items-center justify-center shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
               </div>
             </div>
@@ -142,14 +142,14 @@ function TabAI() {
         <SectionHeading icon={<Globe className="w-5 h-5" />} color="bg-green-600">
           Podržani jezici
         </SectionHeading>
-        <p className="text-[#6B6B6B] text-sm leading-relaxed mb-4">
+        <p className="text-ink-2 text-sm leading-relaxed mb-4">
           AI automatski prepoznaje jezik gosta i odgovara na istom jeziku. Vodič i prijedlozi pitanja dostupni su na 5 jezika, no AI razumije i ostale.
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {[{ flag: "🇧🇦", lang: "Bosanski" }, { flag: "🇬🇧", lang: "Engleski" }, { flag: "🇩🇪", lang: "Njemački" }, { flag: "🇹🇷", lang: "Turski" }, { flag: "🇮🇹", lang: "Talijanski" }].map(({ flag, lang }) => (
-            <div key={lang} className="bg-[#F7F7F5] rounded-xl p-3 text-center border border-[#EDEDE9]">
+            <div key={lang} className="bg-canvas rounded-xl p-3 text-center border border-line">
               <div className="text-2xl mb-1">{flag}</div>
-              <p className="text-sm font-medium text-[#262626]">{lang}</p>
+              <p className="text-sm font-medium text-ink">{lang}</p>
             </div>
           ))}
         </div>
@@ -161,26 +161,26 @@ function TabAI() {
             <Brain className="w-5 h-5 text-violet-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="font-bold text-[#262626] text-lg mb-2">AI Context — skrivena sekcija</h2>
-            <p className="text-[#6B6B6B] text-sm leading-relaxed mb-4">
-              U editoru postoji <strong className="text-[#262626]">AI Context</strong> dugme (ljubičasto, opcionalno).
+            <h2 className="font-bold text-ink text-lg mb-2">AI Context — skrivena sekcija</h2>
+            <p className="text-ink-2 text-sm leading-relaxed mb-4">
+              U editoru postoji <strong className="text-ink">AI Context</strong> dugme (ljubičasto, opcionalno).
               Kreira sekciju nevidljivu gostima, ali AI je čita i koristi za preciznije odgovore.
             </p>
             <div className="bg-white rounded-xl border border-violet-100 overflow-hidden mb-4">
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-[#EDEDE9]">
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-line">
                 <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center">
                   <Brain className="w-3.5 h-3.5 text-violet-600" />
                 </div>
-                <span className="text-sm font-medium text-[#262626]">AI Context</span>
+                <span className="text-sm font-medium text-ink">AI Context</span>
                 <span className="ml-auto text-xs text-violet-400">optional</span>
               </div>
               <div className="px-4 py-3">
-                <p className="text-xs text-[#6B6B6B] leading-relaxed">Ključ je u kutijici iza aparata za kafu. Bazen radi 08–22h, pristup bijelom karticom. Najbliža apoteka je 2 min hoda, lijevo od ulaza...</p>
+                <p className="text-xs text-ink-2 leading-relaxed">Ključ je u kutijici iza aparata za kafu. Bazen radi 08–22h, pristup bijelom karticom. Najbliža apoteka je 2 min hoda, lijevo od ulaza...</p>
               </div>
             </div>
             <ul className="space-y-1.5">
               {["Ključ je u kutijici iza aparata za kafu", "Bazen radi od 08:00 do 22:00, pristup karticom", "Najbliža apoteka: 2 minute hoda, lijevo od ulaza", "Za hitne slučajeve, portir je dostupan 24/7"].map((tip) => (
-                <li key={tip} className="flex items-start gap-2 text-sm text-[#6B6B6B]">
+                <li key={tip} className="flex items-start gap-2 text-sm text-ink-2">
                   <span className="text-violet-500 mt-0.5 shrink-0">•</span>{tip}
                 </li>
               ))}
@@ -201,7 +201,7 @@ function TabAI() {
             "Dodajte lokalne preporuke s opisima — AI može predlagati restorane, apoteke, atrakcije.",
             "AI odgovara kratko (2–4 rečenice) — ako nešto ne zna, kaže i upućuje na vas.",
           ].map((item) => (
-            <li key={item} className="flex items-start gap-2 text-sm text-[#6B6B6B] list-none">
+            <li key={item} className="flex items-start gap-2 text-sm text-ink-2 list-none">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 mt-1.5" />{item}
             </li>
           ))}
@@ -229,19 +229,19 @@ function TabSections() {
   return (
     <>
       <Card>
-        <SectionHeading icon={<LayoutGrid className="w-5 h-5" />} color="bg-[#0F2F61]">
+        <SectionHeading icon={<LayoutGrid className="w-5 h-5" />} color="bg-navy">
           Tipovi sekcija
         </SectionHeading>
-        <p className="text-[#6B6B6B] text-sm leading-relaxed">
+        <p className="text-ink-2 text-sm leading-relaxed">
           Svaki apartman ima set sekcija koje popunjavate. Sekcije možete sakriti (oko ikona) ili obrisati (samo Custom i AI Context).
         </p>
         <div className="space-y-3 mt-2">
           {sections.map(({ emoji, name, desc }) => (
-            <div key={name} className="flex items-start gap-3 p-3 bg-[#F7F7F5] rounded-xl border border-[#EDEDE9]">
+            <div key={name} className="flex items-start gap-3 p-3 bg-canvas rounded-xl border border-line">
               <span className="text-xl shrink-0 mt-0.5">{emoji}</span>
               <div>
-                <p className="font-semibold text-sm text-[#262626]">{name}</p>
-                <p className="text-xs text-[#6B6B6B] leading-relaxed mt-0.5">{desc}</p>
+                <p className="font-semibold text-sm text-ink">{name}</p>
+                <p className="text-xs text-ink-2 leading-relaxed mt-0.5">{desc}</p>
               </div>
             </div>
           ))}
@@ -252,21 +252,21 @@ function TabSections() {
         <SectionHeading icon={<EyeOff className="w-5 h-5" />} color="bg-slate-500">
           Vidljivost sekcija
         </SectionHeading>
-        <div className="space-y-3 text-sm text-[#6B6B6B]">
+        <div className="space-y-3 text-sm text-ink-2">
           <div className="flex items-start gap-3">
-            <div className="w-7 h-7 rounded-lg bg-[#F7F7F5] border border-[#EDEDE9] flex items-center justify-center shrink-0 mt-0.5">
-              <Eye className="w-3.5 h-3.5 text-[#6B6B6B]" />
+            <div className="w-7 h-7 rounded-lg bg-canvas border border-line flex items-center justify-center shrink-0 mt-0.5">
+              <Eye className="w-3.5 h-3.5 text-ink-2" />
             </div>
-            <p><strong className="text-[#262626]">Vidljivo</strong> — sekcija se prikazuje gostu na guidebooku.</p>
+            <p><strong className="text-ink">Vidljivo</strong> — sekcija se prikazuje gostu na guidebooku.</p>
           </div>
           <div className="flex items-start gap-3">
-            <div className="w-7 h-7 rounded-lg bg-[#F7F7F5] border border-[#EDEDE9] flex items-center justify-center shrink-0 mt-0.5">
-              <EyeOff className="w-3.5 h-3.5 text-[#6B6B6B]" />
+            <div className="w-7 h-7 rounded-lg bg-canvas border border-line flex items-center justify-center shrink-0 mt-0.5">
+              <EyeOff className="w-3.5 h-3.5 text-ink-2" />
             </div>
-            <p><strong className="text-[#262626]">Skriveno</strong> — sekcija postoji u editoru ali gost je ne vidi, niti je AI koristi.</p>
+            <p><strong className="text-ink">Skriveno</strong> — sekcija postoji u editoru ali gost je ne vidi, niti je AI koristi.</p>
           </div>
         </div>
-        <p className="text-xs text-[#9B9B9B] mt-2">
+        <p className="text-xs text-ink-3 mt-2">
           Klik na oko ikonu u headeru sekcije mijenja vidljivost. Ne zaboravite sačuvati.
         </p>
       </Card>
@@ -282,7 +282,7 @@ function TabSections() {
             "Prevodi se generišu automatski pri svakom čuvanju — gosti koji koriste drugi jezik vidjet će prevedeni sadržaj.",
             "Custom sekcija je odlična za mašinu za veš, roštilj, pristup balkonu, bazen...",
           ].map((item) => (
-            <li key={item} className="flex items-start gap-2 text-sm text-[#6B6B6B] list-none">
+            <li key={item} className="flex items-start gap-2 text-sm text-ink-2 list-none">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 mt-1.5" />{item}
             </li>
           ))}
@@ -297,20 +297,20 @@ function TabLinks() {
   return (
     <>
       <Card>
-        <SectionHeading icon={<Link2 className="w-5 h-5" />} color="bg-[#FF6700]">
+        <SectionHeading icon={<Link2 className="w-5 h-5" />} color="bg-orange">
           Link koji šaljete gostima
         </SectionHeading>
-        <p className="text-[#6B6B6B] text-sm leading-relaxed mb-4">
-          Svaki apartman ima <strong className="text-[#262626]">guest link</strong> — to je link koji šaljete gostima.
+        <p className="text-ink-2 text-sm leading-relaxed mb-4">
+          Svaki apartman ima <strong className="text-ink">guest link</strong> — to je link koji šaljete gostima.
           Sadrži kompletan guidebook: WiFi, check-in, pravila, preporuke i sve ostalo što ste unijeli.
         </p>
-        <div className="bg-[#F7F7F5] rounded-xl border border-[#EDEDE9] p-4 font-mono text-xs text-[#6B6B6B] break-all">
-          app.smartstay.ba/g/<span className="text-[#FF6700]">naziv-apartmana</span>/preview
+        <div className="bg-canvas rounded-xl border border-line p-4 font-mono text-xs text-ink-2 break-all">
+          app.smartstay.ba/g/<span className="text-orange">naziv-apartmana</span>/preview
         </div>
       </Card>
 
       <Card>
-        <SectionHeading icon={<ChevronRight className="w-5 h-5" />} color="bg-[#0F2F61]">
+        <SectionHeading icon={<ChevronRight className="w-5 h-5" />} color="bg-navy">
           Kako pronaći i podijeliti link?
         </SectionHeading>
         <ol className="space-y-4">
@@ -321,10 +321,10 @@ function TabLinks() {
             "Opciono: dugme QR otvara QR kod koji možete preuzeti i odštampati.",
           ].map((text, i) => (
             <li key={i} className="flex items-start gap-4 list-none">
-              <span className="w-7 h-7 rounded-full bg-[#0F2F61] text-white text-sm font-bold flex items-center justify-center shrink-0 mt-0.5">
+              <span className="w-7 h-7 rounded-full bg-navy text-white text-sm font-bold flex items-center justify-center shrink-0 mt-0.5">
                 {i + 1}
               </span>
-              <p className="text-[#6B6B6B] text-sm leading-relaxed pt-1">{text}</p>
+              <p className="text-ink-2 text-sm leading-relaxed pt-1">{text}</p>
             </li>
           ))}
         </ol>
@@ -341,7 +341,7 @@ function TabLinks() {
             "Link je uvijek ažuran — ako izmijenite sadržaj, gost odmah vidi novu verziju.",
             "Isti link možete koristiti za sve goste u tom apartmanu.",
           ].map((item) => (
-            <li key={item} className="flex items-start gap-2 text-sm text-[#6B6B6B] list-none">
+            <li key={item} className="flex items-start gap-2 text-sm text-ink-2 list-none">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 mt-1.5" />{item}
             </li>
           ))}
@@ -356,21 +356,21 @@ function TabRegistrations() {
   return (
     <>
       <Card>
-        <SectionHeading icon={<ClipboardList className="w-5 h-5" />} color="bg-[#FF6700]">
+        <SectionHeading icon={<ClipboardList className="w-5 h-5" />} color="bg-orange">
           Šta je prijava gostiju?
         </SectionHeading>
-        <p className="text-[#6B6B6B] text-sm leading-relaxed mb-3">
-          Gosti vam podatke za prijavu boravka šalju <strong className="text-[#262626]">direktno kroz guest link</strong> —
+        <p className="text-ink-2 text-sm leading-relaxed mb-3">
+          Gosti vam podatke za prijavu boravka šalju <strong className="text-ink">direktno kroz guest link</strong> —
           bez slikanja pasoša i dopisivanja. Vi dobijete email obavijest, a sve prijave su na jednom mjestu u
           SmartStayu, spremne za prepisivanje u sistem za prijavu turista.
         </p>
-        <p className="text-[#6B6B6B] text-sm leading-relaxed">
+        <p className="text-ink-2 text-sm leading-relaxed">
           Gosti se ne prijavljuju sami — samo vam šalju podatke, a prijavu radite vi kao i do sada.
         </p>
       </Card>
 
       <Card>
-        <SectionHeading icon={<ChevronRight className="w-5 h-5" />} color="bg-[#0F2F61]">
+        <SectionHeading icon={<ChevronRight className="w-5 h-5" />} color="bg-navy">
           Kako uključiti?
         </SectionHeading>
         <ol className="space-y-4">
@@ -381,12 +381,12 @@ function TabRegistrations() {
             { title: "Pošaljite gostima link", desc: "Gostima šaljete isti guest link kao i do sada. Na vrhu vodiča pojavit će im se dugme i kartica Guest registration." },
           ].map(({ title, desc }, i) => (
             <li key={title} className="flex items-start gap-4 list-none">
-              <span className="w-7 h-7 rounded-full bg-[#0F2F61] text-white text-sm font-bold flex items-center justify-center shrink-0 mt-0.5">
+              <span className="w-7 h-7 rounded-full bg-navy text-white text-sm font-bold flex items-center justify-center shrink-0 mt-0.5">
                 {i + 1}
               </span>
               <div>
-                <p className="font-semibold text-sm text-[#262626]">{title}</p>
-                <p className="text-xs text-[#6B6B6B] mt-0.5 leading-relaxed">{desc}</p>
+                <p className="font-semibold text-sm text-ink">{title}</p>
+                <p className="text-xs text-ink-2 mt-0.5 leading-relaxed">{desc}</p>
               </div>
             </li>
           ))}
@@ -397,15 +397,15 @@ function TabRegistrations() {
         <SectionHeading icon={<LayoutGrid className="w-5 h-5" />} color="bg-green-600">
           Šta gost unosi?
         </SectionHeading>
-        <p className="text-[#6B6B6B] text-sm leading-relaxed">
+        <p className="text-ink-2 text-sm leading-relaxed">
           Datum dolaska i odlaska jednom za cijeli boravak, a zatim za svaku osobu (dugme <em>Add another guest</em>):
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           {["Ime", "Prezime", "Datum rođenja", "Spol", "Državljanstvo", "Mjesto rođenja", "Vrsta putne isprave", "Broj putne isprave", "Rok važenja isprave"].map((f) => (
-            <div key={f} className="bg-[#F7F7F5] rounded-lg border border-[#EDEDE9] px-3 py-2 text-sm text-[#262626]">{f}</div>
+            <div key={f} className="bg-canvas rounded-lg border border-line px-3 py-2 text-sm text-ink">{f}</div>
           ))}
         </div>
-        <p className="text-xs text-[#9B9B9B]">
+        <p className="text-xs text-ink-3">
           Formular je na engleskom i bosanskom. Prijava se veže za apartman preko linka, a za boravak preko datuma koje gost unese.
         </p>
       </Card>
@@ -420,11 +420,11 @@ function TabRegistrations() {
             { label: "Guest registrations stranica", desc: "U meniju dashboarda. Filtrirate po apartmanu i periodu (tekući i budući / prošli / svi boravci), a klikom otvarate tabelu sa svim podacima." },
             { label: "Brisanje", desc: "Prijavu koju ste obradili ili vam više ne treba obrišite dugmetom Delete — brisanje je trajno." },
           ].map(({ label, desc }) => (
-            <div key={label} className="flex items-start gap-3 p-3 bg-[#F7F7F5] rounded-xl border border-[#EDEDE9]">
+            <div key={label} className="flex items-start gap-3 p-3 bg-canvas rounded-xl border border-line">
               <span className="w-2.5 h-2.5 rounded-full bg-violet-500 shrink-0 mt-1.5" />
               <div>
-                <p className="font-semibold text-sm text-[#262626]">{label}</p>
-                <p className="text-xs text-[#6B6B6B] mt-0.5 leading-relaxed">{desc}</p>
+                <p className="font-semibold text-sm text-ink">{label}</p>
+                <p className="text-xs text-ink-2 mt-0.5 leading-relaxed">{desc}</p>
               </div>
             </div>
           ))}
@@ -435,8 +435,8 @@ function TabRegistrations() {
         <SectionHeading icon={<ShieldCheck className="w-5 h-5" />} color="bg-slate-500">
           Sigurnost podataka
         </SectionHeading>
-        <p className="text-[#6B6B6B] text-sm leading-relaxed">
-          Podaci gostiju čuvaju se <strong className="text-[#262626]">šifrovano</strong> i vidljivi su samo vama i članovima
+        <p className="text-ink-2 text-sm leading-relaxed">
+          Podaci gostiju čuvaju se <strong className="text-ink">šifrovano</strong> i vidljivi su samo vama i članovima
           vašeg workspacea. Gost može samo poslati podatke — niko preko guest linka ne može vidjeti tuđe prijave.
         </p>
       </Card>
@@ -451,7 +451,7 @@ function TabRegistrations() {
             "Ako neka prijava ima pogrešne datume, provjerite ime gosta i rezervaciju u tom apartmanu.",
             "Redovno brišite obrađene prijave — ne čuvajte lične podatke duže nego što morate.",
           ].map((item) => (
-            <li key={item} className="flex items-start gap-2 text-sm text-[#6B6B6B] list-none">
+            <li key={item} className="flex items-start gap-2 text-sm text-ink-2 list-none">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 mt-1.5" />{item}
             </li>
           ))}
@@ -466,21 +466,21 @@ function TabAnalytics() {
   return (
     <>
       <Card>
-        <SectionHeading icon={<BarChart2 className="w-5 h-5" />} color="bg-[#0F2F61]">
+        <SectionHeading icon={<BarChart2 className="w-5 h-5" />} color="bg-navy">
           Šta se mjeri?
         </SectionHeading>
         <div className="space-y-3">
           {[
-            { label: "Otvaranja guidebooka", desc: "Svaki put kad gost otvori link, broji se jedno otvaranje. Vidite ukupan broj i posljednje otvaranje po apartmanu.", color: "bg-[#FF6700]" },
+            { label: "Otvaranja guidebooka", desc: "Svaki put kad gost otvori link, broji se jedno otvaranje. Vidite ukupan broj i posljednje otvaranje po apartmanu.", color: "bg-orange" },
             { label: "AI chat poruke", desc: "Koliko puta je AI asistent odgovorio na pitanje gosta. Pratite po apartmanu i ukupno.", color: "bg-violet-500" },
             { label: "Preview otvaranja", desc: "Koliko puta ste vi testirali guidebook putem preview linka.", color: "bg-amber-400" },
             { label: "Guest link pregled", desc: "Za svaki pravi guest link vidite ime gosta, broj otvaranja i datum zadnjeg otvaranja.", color: "bg-green-500" },
           ].map(({ label, desc, color }) => (
-            <div key={label} className="flex items-start gap-3 p-3 bg-[#F7F7F5] rounded-xl border border-[#EDEDE9]">
+            <div key={label} className="flex items-start gap-3 p-3 bg-canvas rounded-xl border border-line">
               <span className={`w-2.5 h-2.5 rounded-full ${color} shrink-0 mt-1.5`} />
               <div>
-                <p className="font-semibold text-sm text-[#262626]">{label}</p>
-                <p className="text-xs text-[#6B6B6B] mt-0.5 leading-relaxed">{desc}</p>
+                <p className="font-semibold text-sm text-ink">{label}</p>
+                <p className="text-xs text-ink-2 mt-0.5 leading-relaxed">{desc}</p>
               </div>
             </div>
           ))}
@@ -488,10 +488,10 @@ function TabAnalytics() {
       </Card>
 
       <Card>
-        <SectionHeading icon={<Eye className="w-5 h-5" />} color="bg-[#FF6700]">
+        <SectionHeading icon={<Eye className="w-5 h-5" />} color="bg-orange">
           Zadnja otvaranja (feed)
         </SectionHeading>
-        <p className="text-[#6B6B6B] text-sm leading-relaxed">
+        <p className="text-ink-2 text-sm leading-relaxed">
           Na dnu analytics stranice nalazi se feed zadnjih 50 otvaranja — po apartmanu, imenu gosta i vremenu.
           Idealno za provjeru je li gost otvorio link prije dolaska.
         </p>
@@ -507,7 +507,7 @@ function TabAnalytics() {
             "Visok AI chat count znači da gosti imaju pitanja koja možda vrijedi dodati direktno u guidebook.",
             "Preview otvaranja se broje odvojeno — ne miješaju se sa stvarnim gostima.",
           ].map((item) => (
-            <li key={item} className="flex items-start gap-2 text-sm text-[#6B6B6B] list-none">
+            <li key={item} className="flex items-start gap-2 text-sm text-ink-2 list-none">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 mt-1.5" />{item}
             </li>
           ))}
@@ -522,21 +522,21 @@ function TabRentlio() {
   return (
     <>
       <Card>
-        <SectionHeading icon={<Plug className="w-5 h-5" />} color="bg-[#0F2F61]">
+        <SectionHeading icon={<Plug className="w-5 h-5" />} color="bg-navy">
           Šta je Rentlio integracija?
         </SectionHeading>
-        <p className="text-[#6B6B6B] text-sm leading-relaxed mb-3">
+        <p className="text-ink-2 text-sm leading-relaxed mb-3">
           Rentlio je property management sistem koji mnogi iznajmljivači koriste za upravljanje rezervacijama.
           SmartStay se može povezati s Rentliom kako bi automatski sinhronizovao vaše apartmane —
           bez ručnog kreiranja svakog posebno.
         </p>
-        <p className="text-[#6B6B6B] text-sm leading-relaxed">
-          Integracija je dostupna vlasnicima workspacea u <strong className="text-[#262626]">Settings → Rentlio</strong>.
+        <p className="text-ink-2 text-sm leading-relaxed">
+          Integracija je dostupna vlasnicima workspacea u <strong className="text-ink">Settings → Rentlio</strong>.
         </p>
       </Card>
 
       <Card>
-        <SectionHeading icon={<ChevronRight className="w-5 h-5" />} color="bg-[#FF6700]">
+        <SectionHeading icon={<ChevronRight className="w-5 h-5" />} color="bg-orange">
           Kako povezati Rentlio?
         </SectionHeading>
         <ol className="space-y-4">
@@ -548,12 +548,12 @@ function TabRentlio() {
             { step: "5", title: "Pokrenite sync", desc: "Kliknite Sinhronizuj. Novi apartmani se kreiraju, postojeći se povezuju po imenu." },
           ].map(({ step, title, desc }) => (
             <li key={step} className="flex items-start gap-4 list-none">
-              <span className="w-7 h-7 rounded-full bg-[#FF6700] text-white text-sm font-bold flex items-center justify-center shrink-0 mt-0.5">
+              <span className="w-7 h-7 rounded-full bg-orange text-white text-sm font-bold flex items-center justify-center shrink-0 mt-0.5">
                 {step}
               </span>
               <div>
-                <p className="font-semibold text-sm text-[#262626]">{title}</p>
-                <p className="text-xs text-[#6B6B6B] mt-0.5 leading-relaxed">{desc}</p>
+                <p className="font-semibold text-sm text-ink">{title}</p>
+                <p className="text-xs text-ink-2 mt-0.5 leading-relaxed">{desc}</p>
               </div>
             </li>
           ))}
@@ -570,11 +570,11 @@ function TabRentlio() {
             { status: "Matchable", color: "bg-amber-400", desc: "Ime se podudara s postojećim apartmanom u SmartStay — sync ih povezuje." },
             { status: "New", color: "bg-blue-500", desc: "Novi apartman iz Rentlia — sync ga kreira u SmartStay." },
           ].map(({ status, color, desc }) => (
-            <div key={status} className="flex items-start gap-3 p-3 bg-[#F7F7F5] rounded-xl border border-[#EDEDE9]">
+            <div key={status} className="flex items-start gap-3 p-3 bg-canvas rounded-xl border border-line">
               <span className={`w-2.5 h-2.5 rounded-full ${color} shrink-0 mt-1.5`} />
               <div>
-                <p className="font-semibold text-sm text-[#262626]">{status}</p>
-                <p className="text-xs text-[#6B6B6B] mt-0.5">{desc}</p>
+                <p className="font-semibold text-sm text-ink">{status}</p>
+                <p className="text-xs text-ink-2 mt-0.5">{desc}</p>
               </div>
             </div>
           ))}
@@ -592,7 +592,7 @@ function TabRentlio() {
             "API ključ možete u svakom trenutku ukloniti iz Settings-a.",
             "Sync možete pokrenuti više puta — već povezani apartmani se samo ažuriraju, ne dupliciraju.",
           ].map((item) => (
-            <li key={item} className="flex items-start gap-2 text-sm text-[#6B6B6B] list-none">
+            <li key={item} className="flex items-start gap-2 text-sm text-ink-2 list-none">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 mt-1.5" />{item}
             </li>
           ))}
@@ -605,7 +605,7 @@ function TabRentlio() {
 /* ─── Shared components ────────────────────────────────────────────────────── */
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl border border-[#EDEDE9] p-6 space-y-4">
+    <div className="bg-white rounded-2xl border border-line p-6 space-y-4">
       {children}
     </div>
   );
@@ -617,7 +617,7 @@ function SectionHeading({ children, icon, color }: { children: React.ReactNode; 
       <div className={`w-8 h-8 rounded-lg ${color} flex items-center justify-center shrink-0 text-white`}>
         {icon}
       </div>
-      <h2 className="font-bold text-[#262626] text-lg">{children}</h2>
+      <h2 className="font-bold text-ink text-lg">{children}</h2>
     </div>
   );
 }

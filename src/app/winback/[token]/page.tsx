@@ -77,7 +77,7 @@ export default async function WinbackPage({
 
   const content: Record<State, { icon: React.ReactNode; title: string; body: string }> = {
     offer: {
-      icon: <Gift className="w-12 h-12 text-[#FF6700]" />,
+      icon: <Gift className="w-12 h-12 text-orange" />,
       title: "Još 30 dana besplatno",
       body: "Kliknite ispod i vaš SmartStay nalog se odmah ponovo aktivira na 30 dana — bez kartice i bez obaveze.",
     },
@@ -97,12 +97,12 @@ export default async function WinbackPage({
       body: `Pretplata važi do ${loaded.validUntil ? fmt(loaded.validUntil) : ""}, pa poklon trenutno nije potreban.`,
     },
     expired: {
-      icon: <XCircle className="w-12 h-12 text-[#BABAB5]" />,
+      icon: <XCircle className="w-12 h-12 text-ink-4" />,
       title: "Ponuda je istekla",
       body: "Ova ponuda je važila 14 dana. Pretplatu možete produžiti u aplikaciji ili nam pišite na info@smartstay.ba.",
     },
     invalid: {
-      icon: <XCircle className="w-12 h-12 text-[#BABAB5]" />,
+      icon: <XCircle className="w-12 h-12 text-ink-4" />,
       title: "Link nije važeći",
       body: "Provjerite da ste otvorili cijeli link iz emaila ili nam pišite na info@smartstay.ba.",
     },
@@ -110,19 +110,19 @@ export default async function WinbackPage({
   const c = content[state];
 
   return (
-    <div className="min-h-screen bg-[#F7F7F5] flex items-center justify-center p-4" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-      <div className="w-full max-w-md bg-white rounded-2xl border border-[#EDEDE9] shadow-sm p-8 text-center">
-        <p className="text-xl font-extrabold text-[#0F2F61] mb-6">Smart<span className="text-[#FF6700]">Stay</span></p>
+    <div className="min-h-screen bg-canvas flex items-center justify-center p-4" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+      <div className="w-full max-w-md bg-white rounded-2xl border border-line shadow-sm p-8 text-center">
+        <p className="text-xl font-extrabold text-navy mb-6">Smart<span className="text-orange">Stay</span></p>
         <div className="flex justify-center mb-4">{c.icon}</div>
-        <h1 className="text-2xl font-bold text-[#262626] mb-2">{c.title}</h1>
-        <p className="text-sm text-[#6B6B6B] leading-relaxed mb-6">{c.body}</p>
+        <h1 className="text-2xl font-bold text-ink mb-2">{c.title}</h1>
+        <p className="text-sm text-ink-2 leading-relaxed mb-6">{c.body}</p>
 
         {state === "offer" ? (
           <form action={accept}>
             <input type="hidden" name="token" value={token} />
             <button
               type="submit"
-              className="w-full bg-[#FF6700] hover:bg-[#e05c00] text-white font-semibold py-3.5 rounded-xl transition-colors"
+              className="w-full bg-orange hover:bg-orange-dark text-white font-semibold py-3.5 rounded-xl transition-colors"
             >
               Aktiviraj 30 dana besplatno
             </button>
@@ -130,7 +130,7 @@ export default async function WinbackPage({
         ) : (
           <Link
             href="/dashboard"
-            className="inline-block w-full bg-[#0F2F61] hover:bg-[#0a2347] text-white font-semibold py-3.5 rounded-xl transition-colors"
+            className="inline-block w-full bg-navy hover:bg-navy-dark text-white font-semibold py-3.5 rounded-xl transition-colors"
           >
             Otvori SmartStay
           </Link>

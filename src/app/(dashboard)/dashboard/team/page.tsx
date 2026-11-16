@@ -22,7 +22,7 @@ interface Member { id: string; name: string; email: string; }
 function Avatar({ user, size = 8 }: { user: Author; size?: number }) {
   const initials = user.name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
   return (
-    <div className={`w-${size} h-${size} rounded-full bg-[#0F2F61] flex items-center justify-center text-white text-xs font-semibold shrink-0`}>
+    <div className={`w-${size} h-${size} rounded-full bg-navy flex items-center justify-center text-white text-xs font-semibold shrink-0`}>
       {user.image ? <img src={user.image} className="w-full h-full rounded-full object-cover" alt="" /> : initials}
     </div>
   );
@@ -93,31 +93,31 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
   }
 
   return (
-    <div className={`bg-white rounded-2xl border transition-all ${task.status === "DONE" ? "border-green-200 opacity-75" : "border-[#EDEDE9]"}`}>
+    <div className={`bg-white rounded-2xl border transition-all ${task.status === "DONE" ? "border-green-200 opacity-75" : "border-line"}`}>
       <div className="p-4">
         <div className="flex items-start gap-3">
           <Avatar user={task.author} size={9} />
           <div className="flex-1 min-w-0">
             {/* Header row */}
             <div className="flex items-center gap-2 flex-wrap mb-1">
-              <span className="text-sm font-semibold text-[#262626]">{task.author.name}</span>
-              <span className="text-xs text-[#BABAB5]">·</span>
-              <span className="text-xs text-[#6B6B6B]">{formatDistanceToNow(new Date(task.createdAt), { addSuffix: true })}</span>
+              <span className="text-sm font-semibold text-ink">{task.author.name}</span>
+              <span className="text-xs text-ink-4">·</span>
+              <span className="text-xs text-ink-2">{formatDistanceToNow(new Date(task.createdAt), { addSuffix: true })}</span>
               <StatusBadge status={task.status} />
             </div>
 
             {/* Content */}
-            <p className="text-sm text-[#262626] leading-relaxed">{task.content}</p>
+            <p className="text-sm text-ink leading-relaxed">{task.content}</p>
 
             {/* Tags */}
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               {task.property && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs bg-[#F7F7F5] text-[#0F2F61] border border-[#EDEDE9] font-medium">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs bg-canvas text-navy border border-line font-medium">
                   <Home className="w-3 h-3" /> {task.property.name}
                 </span>
               )}
               {mentionedNames.map((name, i) => (
-                <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs bg-[#FFF4EE] text-[#FF6700] border border-[#FFE4D0] font-medium">
+                <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs bg-orange-tint text-orange border border-orange-soft font-medium">
                   <AtSign className="w-3 h-3" /> {name}
                 </span>
               ))}
@@ -126,10 +126,10 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
         </div>
 
         {/* Footer actions */}
-        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[#F7F7F5]">
+        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-canvas">
           <button
             onClick={() => setExpanded(e => !e)}
-            className="flex items-center gap-1.5 text-xs text-[#6B6B6B] hover:text-[#262626] transition-colors"
+            className="flex items-center gap-1.5 text-xs text-ink-2 hover:text-ink transition-colors"
           >
             {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             {task.comments.length === 0 ? "Comment" : `${task.comments.length} comment${task.comments.length !== 1 ? "s" : ""}`}
@@ -139,7 +139,7 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
             <button
               onClick={deleteTask}
               disabled={deleting}
-              className="p-1 text-[#BABAB5] hover:text-red-500 transition-colors disabled:opacity-40"
+              className="p-1 text-ink-4 hover:text-red-500 transition-colors disabled:opacity-40"
               title="Obriši poruku"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -160,16 +160,16 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
 
       {/* Comments */}
       {expanded && (
-        <div className="border-t border-[#F7F7F5] px-4 pb-4">
+        <div className="border-t border-canvas px-4 pb-4">
           {task.comments.map(c => (
             <div key={c.id} className="flex gap-2.5 mt-3">
               <Avatar user={c.author} size={7} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-xs font-semibold text-[#262626]">{c.author.name}</span>
-                  <span className="text-xs text-[#BABAB5]">{formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}</span>
+                  <span className="text-xs font-semibold text-ink">{c.author.name}</span>
+                  <span className="text-xs text-ink-4">{formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}</span>
                 </div>
-                <p className="text-sm text-[#262626]">{c.content}</p>
+                <p className="text-sm text-ink">{c.content}</p>
               </div>
             </div>
           ))}
@@ -184,7 +184,7 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
                     <button
                       key={id}
                       onClick={() => setCommentMentionIds(ids => ids.filter(i => i !== id))}
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs bg-[#FFF4EE] text-[#FF6700] border border-[#FFE4D0] hover:bg-[#FFE4D0] transition-colors"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs bg-orange-tint text-orange border border-orange-soft hover:bg-orange-soft transition-colors"
                     >
                       <AtSign className="w-3 h-3" />{m.name.split(" ")[0]} <X className="w-3 h-3" />
                     </button>
@@ -193,10 +193,10 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
               </div>
             )}
             {showPicker && members.length > 0 && (
-              <div className="mb-2 border border-[#EDEDE9] rounded-xl overflow-hidden bg-white shadow-sm">
+              <div className="mb-2 border border-line rounded-xl overflow-hidden bg-white shadow-sm">
                 <button
                   onMouseDown={e => { e.preventDefault(); setCommentMentionIds(members.map(m => m.id)); setShowPicker(false); }}
-                  className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-[#FFF4EE] flex items-center gap-2 transition-colors border-b border-[#EDEDE9] text-[#FF6700]"
+                  className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-orange-tint flex items-center gap-2 transition-colors border-b border-line text-orange"
                 >
                   <AtSign className="w-3.5 h-3.5 shrink-0" />
                   Tag All
@@ -205,10 +205,10 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
                   <button
                     key={m.id}
                     onMouseDown={e => { e.preventDefault(); pickMention(m); }}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-[#F7F7F5] flex items-center gap-2 transition-colors border-b border-[#F7F7F5] last:border-0"
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-canvas flex items-center gap-2 transition-colors border-b border-canvas last:border-0"
                   >
-                    <AtSign className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
-                    <span className="text-[#262626]">{m.name}</span>
+                    <AtSign className="w-3.5 h-3.5 text-orange shrink-0" />
+                    <span className="text-ink">{m.name}</span>
                   </button>
                 ))}
               </div>
@@ -217,7 +217,7 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
               {members.length > 0 && (
                 <button
                   onClick={() => setShowPicker(p => !p)}
-                  className={`p-2 rounded-xl border transition-colors ${showPicker ? "bg-[#FF6700] border-[#FF6700] text-white" : "border-[#EDEDE9] text-[#6B6B6B] hover:border-[#0F2F61]"}`}
+                  className={`p-2 rounded-xl border transition-colors ${showPicker ? "bg-orange border-orange text-white" : "border-line text-ink-2 hover:border-navy"}`}
                   title="Mention a teammate"
                 >
                   <AtSign className="w-4 h-4" />
@@ -228,12 +228,12 @@ function TaskCard({ task, members, currentUserId, onUpdate, onDelete }: { task: 
                 onChange={e => setComment(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addComment(); } }}
                 placeholder="Add a comment..."
-                className="flex-1 text-base border border-[#EDEDE9] rounded-xl px-3 py-2 outline-none focus:border-[#0F2F61] bg-[#F7F7F5]"
+                className="flex-1 text-base border border-line rounded-xl px-3 py-2 outline-none focus:border-navy bg-canvas"
               />
               <button
                 onClick={addComment}
                 disabled={posting || !comment.trim()}
-                className="p-2 rounded-xl bg-[#0F2F61] text-white disabled:opacity-40 hover:bg-[#1a3d75] transition-colors"
+                className="p-2 rounded-xl bg-navy text-white disabled:opacity-40 hover:bg-navy-mid transition-colors"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -278,10 +278,10 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-[#0F2F61] p-4 shadow-sm">
+    <div className="bg-white rounded-2xl border border-navy p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-[#262626]">New message</h3>
-        <button onClick={onClose} className="text-[#6B6B6B] hover:text-[#262626]"><X className="w-4 h-4" /></button>
+        <h3 className="text-sm font-semibold text-ink">New message</h3>
+        <button onClick={onClose} className="text-ink-2 hover:text-ink"><X className="w-4 h-4" /></button>
       </div>
 
       {mentionIds.length > 0 && (
@@ -293,7 +293,7 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
               <button
                 key={id}
                 onClick={() => setMentionIds(ids => ids.filter(i => i !== id))}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs bg-[#FFF4EE] text-[#FF6700] border border-[#FFE4D0] hover:bg-[#FFE4D0] transition-colors"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs bg-orange-tint text-orange border border-orange-soft hover:bg-orange-soft transition-colors"
               >
                 <AtSign className="w-3 h-3" />{m.name.split(" ")[0]} <X className="w-3 h-3" />
               </button>
@@ -302,10 +302,10 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
         </div>
       )}
       {showPicker && members.length > 0 && (
-        <div className="mb-2 border border-[#EDEDE9] rounded-xl overflow-hidden bg-white shadow-sm">
+        <div className="mb-2 border border-line rounded-xl overflow-hidden bg-white shadow-sm">
           <button
             onMouseDown={e => { e.preventDefault(); setMentionIds(members.map(m => m.id)); setShowPicker(false); }}
-            className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-[#FFF4EE] flex items-center gap-2 transition-colors border-b border-[#EDEDE9] text-[#FF6700]"
+            className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-orange-tint flex items-center gap-2 transition-colors border-b border-line text-orange"
           >
             <AtSign className="w-3.5 h-3.5 shrink-0" />
             Tag All
@@ -314,10 +314,10 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
             <button
               key={m.id}
               onMouseDown={e => { e.preventDefault(); pickMention(m); }}
-              className="w-full text-left px-3 py-2 text-sm hover:bg-[#F7F7F5] flex items-center gap-2 transition-colors border-b border-[#F7F7F5] last:border-0"
+              className="w-full text-left px-3 py-2 text-sm hover:bg-canvas flex items-center gap-2 transition-colors border-b border-canvas last:border-0"
             >
-              <AtSign className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
-              <span className="text-[#262626]">{m.name}</span>
+              <AtSign className="w-3.5 h-3.5 text-orange shrink-0" />
+              <span className="text-ink">{m.name}</span>
             </button>
           ))}
         </div>
@@ -328,14 +328,14 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
           onChange={e => setContent(e.target.value)}
           placeholder="Describe the issue, task or announcement..."
           rows={3}
-          className="w-full text-base border border-[#EDEDE9] rounded-xl px-3 py-2.5 pr-10 outline-none focus:border-[#0F2F61] resize-none bg-[#F7F7F5]"
+          className="w-full text-base border border-line rounded-xl px-3 py-2.5 pr-10 outline-none focus:border-navy resize-none bg-canvas"
           autoFocus
         />
         {members.length > 0 && (
           <button
             type="button"
             onClick={() => setShowPicker(p => !p)}
-            className={`absolute right-2 top-2 p-1.5 rounded-lg transition-colors ${showPicker ? "bg-[#FF6700] text-white" : "text-[#6B6B6B] hover:text-[#0F2F61]"}`}
+            className={`absolute right-2 top-2 p-1.5 rounded-lg transition-colors ${showPicker ? "bg-orange text-white" : "text-ink-2 hover:text-navy"}`}
             title="Mention a teammate"
           >
             <AtSign className="w-4 h-4" />
@@ -346,7 +346,7 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
       <select
         value={propertyId}
         onChange={e => setPropertyId(e.target.value)}
-        className="w-full mt-3 text-sm border border-[#EDEDE9] rounded-xl px-3 py-2 outline-none focus:border-[#0F2F61] bg-[#F7F7F5] text-[#262626]"
+        className="w-full mt-3 text-sm border border-line rounded-xl px-3 py-2 outline-none focus:border-navy bg-canvas text-ink"
       >
         <option value="">Property (optional)</option>
         {properties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -356,7 +356,7 @@ function NewTaskForm({ members, properties, onCreated, onClose }: {
         <button
           onClick={submit}
           disabled={submitting || !content.trim()}
-          className="px-5 py-2 bg-[#0F2F61] text-white text-sm font-medium rounded-xl hover:bg-[#1a3d75] disabled:opacity-40 transition-colors"
+          className="px-5 py-2 bg-navy text-white text-sm font-medium rounded-xl hover:bg-navy-mid disabled:opacity-40 transition-colors"
         >
           {submitting ? "Posting..." : "Post"}
         </button>
@@ -390,12 +390,12 @@ function CreateWorkspaceModal({ onCreated, onClose }: { onCreated: () => void; o
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40">
-      <div className="bg-white rounded-2xl border border-[#EDEDE9] shadow-xl p-6 w-full max-w-sm">
+      <div className="bg-white rounded-2xl border border-line shadow-xl p-6 w-full max-w-sm">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-[#262626]">Create a workspace</h2>
-          <button onClick={onClose} className="text-[#6B6B6B] hover:text-[#262626]"><X className="w-4 h-4" /></button>
+          <h2 className="text-lg font-bold text-ink">Create a workspace</h2>
+          <button onClick={onClose} className="text-ink-2 hover:text-ink"><X className="w-4 h-4" /></button>
         </div>
-        <p className="text-sm text-[#6B6B6B] mb-4 leading-relaxed">
+        <p className="text-sm text-ink-2 mb-4 leading-relaxed">
           To use Team Channel, you need a workspace. Give it a name to get started.
         </p>
         <input
@@ -404,20 +404,20 @@ function CreateWorkspaceModal({ onCreated, onClose }: { onCreated: () => void; o
           onKeyDown={e => { if (e.key === "Enter") handleCreate(); }}
           placeholder="e.g. My Property Team"
           autoFocus
-          className="w-full text-sm border border-[#EDEDE9] rounded-xl px-3 py-2.5 outline-none focus:border-[#0F2F61] bg-[#F7F7F5] mb-3"
+          className="w-full text-sm border border-line rounded-xl px-3 py-2.5 outline-none focus:border-navy bg-canvas mb-3"
         />
         {error && <p className="text-xs text-red-500 mb-3">{error}</p>}
         <div className="flex gap-2">
           <button
             onClick={onClose}
-            className="flex-1 text-sm font-medium px-4 py-2 border border-[#EDEDE9] rounded-xl text-[#6B6B6B] hover:bg-[#F7F7F5] transition-colors"
+            className="flex-1 text-sm font-medium px-4 py-2 border border-line rounded-xl text-ink-2 hover:bg-canvas transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleCreate}
             disabled={creating || !name.trim()}
-            className="flex-1 text-sm font-medium px-4 py-2 bg-[#0F2F61] text-white rounded-xl hover:bg-[#1a3d75] disabled:opacity-40 transition-colors"
+            className="flex-1 text-sm font-medium px-4 py-2 bg-navy text-white rounded-xl hover:bg-navy-mid disabled:opacity-40 transition-colors"
           >
             {creating ? "Creating..." : "Create workspace"}
           </button>
@@ -478,12 +478,12 @@ export default function TeamPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#262626]">Team Channel</h1>
-          <p className="text-sm text-[#6B6B6B] mt-0.5">Internal team communication</p>
+          <h1 className="text-2xl font-bold text-ink">Team Channel</h1>
+          <p className="text-sm text-ink-2 mt-0.5">Internal team communication</p>
         </div>
         <button
           onClick={() => hasWorkspace ? setShowForm(true) : setShowWorkspaceModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#0F2F61] text-white text-sm font-medium rounded-xl hover:bg-[#1a3d75] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-navy text-white text-sm font-medium rounded-xl hover:bg-navy-mid transition-colors"
         >
           <Plus className="w-4 h-4" /> New message
         </button>
@@ -502,13 +502,13 @@ export default function TeamPage() {
       )}
 
       {/* Filter tabs — status */}
-      <div className="flex gap-1 mb-3 bg-[#F7F7F5] rounded-xl p-1">
+      <div className="flex gap-1 mb-3 bg-canvas rounded-xl p-1">
         {(["IN_PROGRESS", "DONE", "ALL"] as const).map(f => (
           <button
             key={f}
             onClick={() => setFilter(f)}
             className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-colors ${
-              filter === f ? "bg-white text-[#0F2F61] shadow-sm" : "text-[#6B6B6B]"
+              filter === f ? "bg-white text-navy shadow-sm" : "text-ink-2"
             }`}
           >
             {f === "ALL" ? "All" : f === "IN_PROGRESS" ? "In Progress" : "Done"}
@@ -521,7 +521,7 @@ export default function TeamPage() {
         <select
           value={filterProperty}
           onChange={e => setFilterProperty(e.target.value)}
-          className={`w-1/2 min-w-0 text-xs border rounded-xl px-3 py-2 outline-none bg-white transition-colors ${filterProperty ? "border-[#0F2F61] text-[#0F2F61] font-medium" : "border-[#EDEDE9] text-[#6B6B6B]"}`}
+          className={`w-1/2 min-w-0 text-xs border rounded-xl px-3 py-2 outline-none bg-white transition-colors ${filterProperty ? "border-navy text-navy font-medium" : "border-line text-ink-2"}`}
         >
           <option value="">🏠 Properties</option>
           {properties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -529,7 +529,7 @@ export default function TeamPage() {
         <select
           value={filterMember}
           onChange={e => setFilterMember(e.target.value)}
-          className={`w-1/2 min-w-0 text-xs border rounded-xl px-3 py-2 outline-none bg-white transition-colors ${filterMember ? "border-[#0F2F61] text-[#0F2F61] font-medium" : "border-[#EDEDE9] text-[#6B6B6B]"}`}
+          className={`w-1/2 min-w-0 text-xs border rounded-xl px-3 py-2 outline-none bg-white transition-colors ${filterMember ? "border-navy text-navy font-medium" : "border-line text-ink-2"}`}
         >
           <option value="">👤 Members</option>
           {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -539,12 +539,12 @@ export default function TeamPage() {
       {/* Tasks feed */}
       {loading ? (
         <div className="space-y-3">
-          {[1, 2, 3].map(i => <div key={i} className="h-24 bg-[#F7F7F5] rounded-2xl animate-pulse" />)}
+          {[1, 2, 3].map(i => <div key={i} className="h-24 bg-canvas rounded-2xl animate-pulse" />)}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-[#6B6B6B]">
+        <div className="text-center py-16 text-ink-2">
           <p className="text-4xl mb-3">💬</p>
-          <p className="font-medium text-[#262626]">No messages</p>
+          <p className="font-medium text-ink">No messages</p>
           <p className="text-sm mt-1">Click "New message" to create the first one</p>
         </div>
       ) : (

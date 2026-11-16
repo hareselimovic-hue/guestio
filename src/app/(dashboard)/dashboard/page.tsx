@@ -56,17 +56,17 @@ export default async function DashboardPage() {
     ];
     return (
       <div className="p-4 sm:p-8 max-w-2xl">
-        <h1 className="text-2xl font-bold text-[#262626]">Welcome, {firstName} 👋</h1>
-        <p className="text-[#6B6B6B] mt-1 mb-6">Three steps and your guests have everything on their phone.</p>
+        <h1 className="text-2xl font-bold text-ink">Welcome, {firstName} 👋</h1>
+        <p className="text-ink-2 mt-1 mb-6">Three steps and your guests have everything on their phone.</p>
         <ol className="space-y-3">
           {steps.map((s, i) => (
-            <li key={s.title} className="bg-white border border-[#EDEDE9] rounded-xl p-4 flex gap-3">
-              {s.done ? <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" /> : <Circle className="w-5 h-5 text-[#D5D5CF] shrink-0" />}
+            <li key={s.title} className="bg-white border border-line rounded-xl p-4 flex gap-3">
+              {s.done ? <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0" /> : <Circle className="w-5 h-5 text-line-strong shrink-0" />}
               <div className="flex-1">
-                <p className="font-semibold text-[#262626]">{i + 1}. {s.title}</p>
-                <p className="text-sm text-[#6B6B6B]">{s.text}</p>
+                <p className="font-semibold text-ink">{i + 1}. {s.title}</p>
+                <p className="text-sm text-ink-2">{s.text}</p>
                 {s.href && (
-                  <Link href={s.href} className="inline-flex items-center gap-1.5 mt-3 text-sm font-semibold text-white bg-[#FF6700] hover:bg-[#e05c00] px-4 py-2 rounded-lg">
+                  <Link href={s.href} className="inline-flex items-center gap-1.5 mt-3 text-sm font-semibold text-white bg-orange hover:bg-orange-dark px-4 py-2 rounded-lg">
                     <Plus className="w-4 h-4" /> {s.title}
                   </Link>
                 )}
@@ -156,50 +156,50 @@ export default async function DashboardPage() {
   return (
     <div className="p-4 sm:p-8 max-w-6xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#262626]">{greeting()}, {firstName} 👋</h1>
-        <p className="text-[#6B6B6B] mt-1">Here&apos;s what&apos;s happening today.</p>
+        <h1 className="text-2xl font-bold text-ink">{greeting()}, {firstName} 👋</h1>
+        <p className="text-ink-2 mt-1">Here&apos;s what&apos;s happening today.</p>
       </div>
 
       {hotelData.map((h) => <HotelOverview key={h.id} hotel={h} />)}
 
       {apartments.length > 0 && (
         <section>
-          {hotels.length > 0 && <h2 className="text-lg font-semibold text-[#262626] mb-3">Apartments</h2>}
+          {hotels.length > 0 && <h2 className="text-lg font-semibold text-ink mb-3">Apartments</h2>}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
             {tiles.map(({ icon: Icon, value, label, sub, href }) => (
-              <Link key={label} href={href} className="bg-white rounded-xl p-4 border border-[#EDEDE9] hover:border-[#0F2F61]/40 active:scale-[0.98] transition">
-                <Icon className="w-4 h-4 mb-2 text-[#0F2F61]" />
-                <p className="text-2xl font-bold text-[#262626] leading-none">{value}</p>
-                <p className="text-sm text-[#262626] mt-1">{label}</p>
-                {sub && <p className="text-xs text-[#9B9B9B] mt-0.5 line-clamp-1">{sub}</p>}
+              <Link key={label} href={href} className="bg-white rounded-xl p-4 border border-line hover:border-navy/40 active:scale-[0.98] transition">
+                <Icon className="w-4 h-4 mb-2 text-navy" />
+                <p className="text-2xl font-bold text-ink leading-none">{value}</p>
+                <p className="text-sm text-ink mt-1">{label}</p>
+                {sub && <p className="text-xs text-ink-3 mt-0.5 line-clamp-1">{sub}</p>}
               </Link>
             ))}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2 bg-white rounded-xl border border-[#EDEDE9] min-w-0">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[#F0F0EE]">
-                <p className="text-sm font-semibold text-[#262626] flex items-center gap-1.5">
+            <div className="lg:col-span-2 bg-white rounded-xl border border-line min-w-0">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-line-2">
+                <p className="text-sm font-semibold text-ink flex items-center gap-1.5">
                   <AlertTriangle className="w-4 h-4 text-amber-500" /> Needs attention
                 </p>
-                {attention.length > 0 && <span className="text-xs text-[#9B9B9B]">{attention.length} of {apartments.length} guides</span>}
+                {attention.length > 0 && <span className="text-xs text-ink-3">{attention.length} of {apartments.length} guides</span>}
               </div>
               {attention.length === 0 && registrations7d === 0 && openTasks === 0 ? (
-                <p className="px-4 py-6 text-sm text-[#9B9B9B] text-center">All guides look complete. Nice work!</p>
+                <p className="px-4 py-6 text-sm text-ink-3 text-center">All guides look complete. Nice work!</p>
               ) : (
-                <ul className="divide-y divide-[#F5F5F2]">
+                <ul className="divide-y divide-line-3">
                   {registrations7d > 0 && (
-                    <li><Link href="/dashboard/registrations" className="flex items-center gap-3 px-4 py-3 hover:bg-[#FAFAF8]">
-                      <ClipboardList className="w-4 h-4 text-[#FF6700] shrink-0" />
-                      <span className="flex-1 text-sm text-[#262626]">{registrations7d} new guest registration{registrations7d === 1 ? "" : "s"} this week</span>
-                      <ArrowRight className="w-4 h-4 text-[#BABAB5]" />
+                    <li><Link href="/dashboard/registrations" className="flex items-center gap-3 px-4 py-3 hover:bg-canvas-2">
+                      <ClipboardList className="w-4 h-4 text-orange shrink-0" />
+                      <span className="flex-1 text-sm text-ink">{registrations7d} new guest registration{registrations7d === 1 ? "" : "s"} this week</span>
+                      <ArrowRight className="w-4 h-4 text-ink-4" />
                     </Link></li>
                   )}
                   {openTasks > 0 && (
-                    <li><Link href="/dashboard/team" className="flex items-center gap-3 px-4 py-3 hover:bg-[#FAFAF8]">
-                      <MessageSquare className="w-4 h-4 text-[#0F2F61] shrink-0" />
-                      <span className="flex-1 text-sm text-[#262626]">{openTasks} open task{openTasks === 1 ? "" : "s"} in Team Channel</span>
-                      <ArrowRight className="w-4 h-4 text-[#BABAB5]" />
+                    <li><Link href="/dashboard/team" className="flex items-center gap-3 px-4 py-3 hover:bg-canvas-2">
+                      <MessageSquare className="w-4 h-4 text-navy shrink-0" />
+                      <span className="flex-1 text-sm text-ink">{openTasks} open task{openTasks === 1 ? "" : "s"} in Team Channel</span>
+                      <ArrowRight className="w-4 h-4 text-ink-4" />
                     </Link></li>
                   )}
                   {/* One row per problem, with the apartments that have it */}
@@ -207,17 +207,17 @@ export default async function DashboardPage() {
                     <li key={issue} className="flex gap-3 px-4 py-3">
                       <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-[#262626]">
+                        <p className="text-sm text-ink">
                           <span className="font-medium">{issue.charAt(0).toUpperCase() + issue.slice(1)}</span>
-                          <span className="text-[#9B9B9B]"> · {list.length} {list.length === 1 ? "apartment" : "apartments"}</span>
+                          <span className="text-ink-3"> · {list.length} {list.length === 1 ? "apartment" : "apartments"}</span>
                         </p>
                         <div className="flex flex-wrap gap-1.5 mt-1.5">
                           {list.slice(0, 5).map((p) => (
-                            <Link key={p.id} href={`/dashboard/properties/${p.id}`} className="text-xs font-medium text-[#0F2F61] bg-[#0F2F61]/5 hover:bg-[#0F2F61]/10 rounded-full px-2.5 py-1 max-w-[180px] truncate">
+                            <Link key={p.id} href={`/dashboard/properties/${p.id}`} className="text-xs font-medium text-navy bg-navy/5 hover:bg-navy/10 rounded-full px-2.5 py-1 max-w-[180px] truncate">
                               {p.name} →
                             </Link>
                           ))}
-                          {list.length > 5 && <Link href="/dashboard/apartments" className="text-xs text-[#6B6B6B] px-1 py-1">+{list.length - 5} more</Link>}
+                          {list.length > 5 && <Link href="/dashboard/apartments" className="text-xs text-ink-2 px-1 py-1">+{list.length - 5} more</Link>}
                         </div>
                       </div>
                     </li>
@@ -226,25 +226,25 @@ export default async function DashboardPage() {
               )}
             </div>
 
-            <div className="bg-white rounded-xl border border-[#EDEDE9]">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[#F0F0EE]">
-                <p className="text-sm font-semibold text-[#262626]">Recently edited</p>
-                <Link href="/dashboard/apartments" className="text-xs font-medium text-[#0F2F61] hover:underline">All apartments →</Link>
+            <div className="bg-white rounded-xl border border-line">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-line-2">
+                <p className="text-sm font-semibold text-ink">Recently edited</p>
+                <Link href="/dashboard/apartments" className="text-xs font-medium text-navy hover:underline">All apartments →</Link>
               </div>
-              <ul className="divide-y divide-[#F5F5F2]">
+              <ul className="divide-y divide-line-3">
                 {recent.map((p) => (
-                  <li key={p.id}><Link href={`/dashboard/properties/${p.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-[#FAFAF8]">
-                    <Building2 className="w-4 h-4 text-[#0F2F61] shrink-0" />
+                  <li key={p.id}><Link href={`/dashboard/properties/${p.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-canvas-2">
+                    <Building2 className="w-4 h-4 text-navy shrink-0" />
                     <span className="flex-1 min-w-0">
-                      <span className="block text-sm font-medium text-[#262626] truncate">{p.name}</span>
-                      {p.internalName && <span className="block text-xs text-[#9B9B9B] truncate">{p.internalName}</span>}
+                      <span className="block text-sm font-medium text-ink truncate">{p.name}</span>
+                      {p.internalName && <span className="block text-xs text-ink-3 truncate">{p.internalName}</span>}
                     </span>
-                    <ArrowRight className="w-4 h-4 text-[#BABAB5]" />
+                    <ArrowRight className="w-4 h-4 text-ink-4" />
                   </Link></li>
                 ))}
               </ul>
-              <div className="px-4 py-3 border-t border-[#F0F0EE]">
-                <Link href="/dashboard/properties/new?kind=apartment" className="inline-flex items-center gap-1.5 text-sm font-medium text-[#FF6700] hover:text-[#e05c00]">
+              <div className="px-4 py-3 border-t border-line-2">
+                <Link href="/dashboard/properties/new?kind=apartment" className="inline-flex items-center gap-1.5 text-sm font-medium text-orange hover:text-orange-dark">
                   <Plus className="w-4 h-4" /> New apartment
                 </Link>
               </div>

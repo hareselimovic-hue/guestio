@@ -56,18 +56,18 @@ export default async function RegistrationsPage({
     return { ...r, guests, decryptError };
   });
 
-  const th = "text-left px-3 py-2.5 text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide whitespace-nowrap";
-  const td = "px-3 py-2.5 text-[#262626] whitespace-nowrap";
+  const th = "text-left px-3 py-2.5 text-xs font-semibold text-ink-2 uppercase tracking-wide whitespace-nowrap";
+  const td = "px-3 py-2.5 text-ink whitespace-nowrap";
 
   return (
     <div className="p-4 sm:p-8 max-w-6xl">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#262626] flex items-center gap-2">
-          <ClipboardList className="w-6 h-6 text-[#0F2F61]" />
+        <h1 className="text-2xl font-bold text-ink flex items-center gap-2">
+          <ClipboardList className="w-6 h-6 text-navy" />
           Guest registrations
         </h1>
-        <p className="text-[#6B6B6B] mt-1 text-sm">
+        <p className="text-ink-2 mt-1 text-sm">
           Guest details submitted through the guide link. Turn the form on per property on the property page.
         </p>
       </div>
@@ -75,58 +75,58 @@ export default async function RegistrationsPage({
       {/* Filters */}
       <form className="flex flex-wrap items-end gap-3 mb-6">
         <label className="block">
-          <span className="block text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide mb-1">Property</span>
-          <select name="property" defaultValue={propertyFilter ?? ""} className="bg-white border border-[#EDEDE9] rounded-lg px-3 py-2 text-sm min-w-[200px]">
+          <span className="block text-xs font-semibold text-ink-2 uppercase tracking-wide mb-1">Property</span>
+          <select name="property" defaultValue={propertyFilter ?? ""} className="bg-white border border-line rounded-lg px-3 py-2 text-sm min-w-[200px]">
             <option value="">All properties</option>
             {properties.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </label>
         <label className="block">
-          <span className="block text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide mb-1">Stay</span>
-          <select name="period" defaultValue={period} className="bg-white border border-[#EDEDE9] rounded-lg px-3 py-2 text-sm">
+          <span className="block text-xs font-semibold text-ink-2 uppercase tracking-wide mb-1">Stay</span>
+          <select name="period" defaultValue={period} className="bg-white border border-line rounded-lg px-3 py-2 text-sm">
             <option value="upcoming">Current & upcoming</option>
             <option value="past">Past</option>
             <option value="all">All</option>
           </select>
         </label>
-        <button type="submit" className="bg-[#0F2F61] hover:bg-[#0a2347] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+        <button type="submit" className="bg-navy hover:bg-navy-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
           Filter
         </button>
       </form>
 
       {/* List */}
       {rows.length === 0 ? (
-        <div className="bg-white rounded-xl border border-[#EDEDE9] p-8 text-center">
-          <ClipboardList className="w-8 h-8 text-[#EDEDE9] mx-auto mb-3" />
-          <p className="text-[#6B6B6B] text-sm">No registrations yet.</p>
-          <p className="text-[#BABAB5] text-xs mt-1">They will appear here as soon as a guest submits the form.</p>
+        <div className="bg-white rounded-xl border border-line p-8 text-center">
+          <ClipboardList className="w-8 h-8 text-line mx-auto mb-3" />
+          <p className="text-ink-2 text-sm">No registrations yet.</p>
+          <p className="text-ink-4 text-xs mt-1">They will appear here as soon as a guest submits the form.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {rows.map((r) => (
-            <details key={r.id} id={r.id} className="group bg-white rounded-xl border border-[#EDEDE9] overflow-hidden">
-              <summary className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3.5 cursor-pointer list-none hover:bg-[#F7F7F5] transition-colors">
-                <span className="font-semibold text-[#262626]">{r.property.name}</span>
-                <span className="text-sm text-[#0F2F61] font-medium">
+            <details key={r.id} id={r.id} className="group bg-white rounded-xl border border-line overflow-hidden">
+              <summary className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3.5 cursor-pointer list-none hover:bg-canvas transition-colors">
+                <span className="font-semibold text-ink">{r.property.name}</span>
+                <span className="text-sm text-navy font-medium">
                   {formatDateBs(iso(r.checkIn))} – {formatDateBs(iso(r.checkOut))}
                 </span>
-                <span className="inline-flex items-center gap-1 text-sm text-[#6B6B6B]">
+                <span className="inline-flex items-center gap-1 text-sm text-ink-2">
                   <Users className="w-3.5 h-3.5" /> {r.guestCount} · {r.leadGuestName}
                 </span>
-                <span className="ml-auto flex items-center gap-2 text-xs text-[#BABAB5]">
+                <span className="ml-auto flex items-center gap-2 text-xs text-ink-4">
                   Submitted {formatDateTime(r.createdAt)}
                   <ChevronDown className="w-4 h-4 transition-transform group-open:rotate-180" />
                 </span>
               </summary>
 
-              <div className="border-t border-[#EDEDE9]">
+              <div className="border-t border-line">
                 {r.decryptError ? (
                   <p className="p-4 text-sm text-red-600">Guest details could not be decrypted.</p>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b border-[#EDEDE9] bg-[#F7F7F5]">
+                        <tr className="border-b border-line bg-canvas">
                           <th className={th}>Ime</th>
                           <th className={th}>Prezime</th>
                           <th className={th}>Datum rođenja</th>
@@ -140,7 +140,7 @@ export default async function RegistrationsPage({
                       </thead>
                       <tbody>
                         {r.guests.map((g, i) => (
-                          <tr key={i} className="border-b border-[#EDEDE9] last:border-0">
+                          <tr key={i} className="border-b border-line last:border-0">
                             <td className={td}>{g.firstName}</td>
                             <td className={td}>{g.lastName}</td>
                             <td className={td}>{formatDateBs(g.dateOfBirth)}</td>
@@ -156,7 +156,7 @@ export default async function RegistrationsPage({
                     </table>
                   </div>
                 )}
-                <div className="flex justify-end px-4 py-2.5 border-t border-[#EDEDE9] bg-[#FAFAF8]">
+                <div className="flex justify-end px-4 py-2.5 border-t border-line bg-canvas-2">
                   <DeleteRegistrationButton id={r.id} />
                 </div>
               </div>

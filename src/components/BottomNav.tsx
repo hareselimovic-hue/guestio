@@ -53,7 +53,7 @@ export default function BottomNav({ user, showHotel = false, showApartments = tr
   return (
     <>
       {/* Bottom nav bar */}
-      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#EDEDE9] shadow-[0_-4px_20px_rgba(15,47,97,0.06)] items-stretch h-16 pb-[env(safe-area-inset-bottom)] box-content ${typing ? "hidden" : "flex"}`}>
+      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-line shadow-[0_-4px_20px_rgba(15,47,97,0.06)] items-stretch h-16 pb-[env(safe-area-inset-bottom)] box-content ${typing ? "hidden" : "flex"}`}>
         {barItems.map(({ href, label, icon: Icon }) => {
           const isActive = href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
           return (
@@ -61,9 +61,9 @@ export default function BottomNav({ user, showHotel = false, showApartments = tr
               key={href}
               href={href}
               className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors
-                ${isActive ? "text-[#0F2F61]" : "text-[#0F2F61]/55"}`}
+                ${isActive ? "text-navy" : "text-navy/55"}`}
             >
-              <span className={`flex items-center justify-center w-14 h-7 rounded-full transition-colors ${isActive ? "bg-[#E7EDF7]" : ""}`}>
+              <span className={`flex items-center justify-center w-14 h-7 rounded-full transition-colors ${isActive ? "bg-navy-tint" : ""}`}>
                 <Icon className="w-5 h-5" />
               </span>
               <span>{label}</span>
@@ -75,9 +75,9 @@ export default function BottomNav({ user, showHotel = false, showApartments = tr
         <button
           onClick={() => setShowMore(true)}
           className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors
-            ${showMore ? "text-[#0F2F61]" : "text-[#0F2F61]/55"}`}
+            ${showMore ? "text-navy" : "text-navy/55"}`}
         >
-          <span className={`flex items-center justify-center w-14 h-7 rounded-full transition-colors ${showMore ? "bg-[#E7EDF7]" : ""}`}>
+          <span className={`flex items-center justify-center w-14 h-7 rounded-full transition-colors ${showMore ? "bg-navy-tint" : ""}`}>
             <MoreHorizontal className="w-5 h-5" />
           </span>
           <span>More</span>
@@ -91,13 +91,13 @@ export default function BottomNav({ user, showHotel = false, showApartments = tr
           <div className="relative bg-white rounded-t-2xl shadow-xl">
             {/* Handle */}
             <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 bg-[#EDEDE9] rounded-full" />
+              <div className="w-10 h-1 bg-line rounded-full" />
             </div>
 
             {/* User info */}
-            <div className="px-5 py-3 border-b border-[#EDEDE9]">
-              <p className="font-semibold text-[#262626] text-sm">{user.name ?? "User"}</p>
-              <p className="text-[#6B6B6B] text-xs">{user.email}</p>
+            <div className="px-5 py-3 border-b border-line">
+              <p className="font-semibold text-ink text-sm">{user.name ?? "User"}</p>
+              <p className="text-ink-2 text-xs">{user.email}</p>
             </div>
 
             {/* Extra nav items */}
@@ -106,9 +106,9 @@ export default function BottomNav({ user, showHotel = false, showApartments = tr
                 <Link
                   href="/dashboard/apartments"
                   onClick={() => setShowMore(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#262626] hover:bg-[#F7F7F5] transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-ink hover:bg-canvas transition-colors"
                 >
-                  <Building2 className="w-5 h-5 text-[#6B6B6B]" />
+                  <Building2 className="w-5 h-5 text-ink-2" />
                   Apartments
                 </Link>
               )}
@@ -116,36 +116,36 @@ export default function BottomNav({ user, showHotel = false, showApartments = tr
               <Link
                 href="/dashboard/team"
                 onClick={() => setShowMore(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#262626] hover:bg-[#F7F7F5] transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-ink hover:bg-canvas transition-colors"
               >
-                <MessageSquare className="w-5 h-5 text-[#6B6B6B]" />
+                <MessageSquare className="w-5 h-5 text-ink-2" />
                 Team
               </Link>
 
               <Link
                 href="/dashboard/analytics"
                 onClick={() => setShowMore(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#262626] hover:bg-[#F7F7F5] transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-ink hover:bg-canvas transition-colors"
               >
-                <BarChart2 className="w-5 h-5 text-[#6B6B6B]" />
+                <BarChart2 className="w-5 h-5 text-ink-2" />
                 Analytics
               </Link>
 
               <Link
                 href="/dashboard/registrations"
                 onClick={() => setShowMore(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#262626] hover:bg-[#F7F7F5] transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-ink hover:bg-canvas transition-colors"
               >
-                <ClipboardList className="w-5 h-5 text-[#6B6B6B]" />
+                <ClipboardList className="w-5 h-5 text-ink-2" />
                 Guest registrations
               </Link>
 
               <Link
                 href="/dashboard/subscription"
                 onClick={() => setShowMore(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#262626] hover:bg-[#F7F7F5] transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-ink hover:bg-canvas transition-colors"
               >
-                <CreditCard className="w-5 h-5 text-[#6B6B6B]" />
+                <CreditCard className="w-5 h-5 text-ink-2" />
                 Subscription
               </Link>
 
@@ -153,9 +153,9 @@ export default function BottomNav({ user, showHotel = false, showApartments = tr
                 href="/help"
                 target="_blank"
                 onClick={() => setShowMore(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#262626] hover:bg-[#F7F7F5] transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-ink hover:bg-canvas transition-colors"
               >
-                <HelpCircle className="w-5 h-5 text-[#6B6B6B]" />
+                <HelpCircle className="w-5 h-5 text-ink-2" />
                 Help
               </Link>
 
@@ -163,16 +163,16 @@ export default function BottomNav({ user, showHotel = false, showApartments = tr
                 <Link
                   href="/dashboard/admin"
                   onClick={() => setShowMore(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#262626] hover:bg-[#F7F7F5] transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-ink hover:bg-canvas transition-colors"
                 >
-                  <ShieldCheck className="w-5 h-5 text-[#6B6B6B]" />
+                  <ShieldCheck className="w-5 h-5 text-ink-2" />
                   Admin
                 </Link>
               )}
             </div>
 
             {/* Sign out */}
-            <div className="px-3 pb-3 border-t border-[#EDEDE9] pt-2">
+            <div className="px-3 pb-3 border-t border-line pt-2">
               <button
                 onClick={handleSignOut}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
