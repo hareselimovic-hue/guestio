@@ -181,7 +181,8 @@ export default function GuestChat({ propertySlug, token, lang, hideLauncher, ope
                         : "bg-[#F7F7F5] text-[#262626] rounded-bl-sm"
                     }`}
                   >
-                    {msg.content || (loading && i === messages.length - 1
+                    {/* the model is told to answer in plain text; strip any stray Markdown bold markers */}
+                    {msg.content.replace(/\*\*/g, "") || (loading && i === messages.length - 1
                       ? <Loader2 className="w-4 h-4 animate-spin text-[#9B9B9B]" />
                       : null
                     )}
