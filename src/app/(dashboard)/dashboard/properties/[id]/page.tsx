@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Share2, ExternalLink, Check, Building2, Pencil, QrCode, X, Download, MessageCircle, ChevronDown, Copy, Loader2, Trash2, ClipboardList, Hotel, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -36,9 +36,15 @@ interface Property {
 }
 
 
-export default function PropertyEditorPage() {
+function PropertyEditor() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  // From Analytics → "Add to guide": the guest question to answer, and which one to mark handled after saving
+  const searchParams = useSearchParams();
+  const openType = searchParams.get("open") ?? undefined;
+  const askedQuestion = searchParams.get("ask");
+  const questionId = searchParams.get("qid");
+  const [questionResolved, setQuestionResolved] = useState(false);
   const [property, setProperty] = useState<Property | null>(null);
   const [tab, setTab] = useState<"sections" | "owner">("sections");
   const [ownerName, setOwnerName] = useState("");
@@ -647,6 +653,15 @@ export default function PropertyEditorPage() {
         </div>
       )}
 
+      {/* Guest question from Analytics */}
+      {tab === "sections" && askedQuestion && (
+        <div className={`mb-4 rounded-xl border px-4 py-3 ${questionResolved ? "border-green-200 bg-green-50" : "border-violet-200 bg-violet-50"}`}>
+          <p className="text-xs font-semibold uppercase tracking-wide text-violet-700">{questionResolved ? "Saved — marked as handled" : "A guest asked the AI assistant"}</p>
+          <p className="text-sm text-ink mt-1">&ldquo;{askedQuestion}&rdquo;</p>
+          {!questionResolved && <p className="text-xs text-ink-2 mt-1">Add the answer to <strong>AI context</strong> below (or the matching section) and save — the assistant will know it from now on.</p>}
+        </div>
+      )}
+
       {/* Sections tab */}
       {tab === "sections" && (
         <SectionEditor
@@ -654,6 +669,15 @@ export default function PropertyEditorPage() {
           propertyId={property.id}
           onUpdate={(sections) => setProperty({ ...property, sections })}
           markDirtyIds={markDirtyIds}
+          initialOpenType={openType}
+          onSaved={() => {
+            if (!questionId || questionResolved) return;
+            fetch(`/api/chat-questions/${questionId}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ resolved: true }),
+            }).then((r) => { if (r.ok) setQuestionResolved(true); }).catch(() => {});
+          }}
         />
       )}
 
@@ -750,5 +774,14 @@ export default function PropertyEditorPage() {
       </div>
 
     </div>
+  );
+}
+
+// useSearchParams (Analytics → "Add to guide") needs a Suspense boundary
+export default function PropertyEditorPage() {
+  return (
+    <Suspense>
+      <PropertyEditor />
+    </Suspense>
   );
 }

@@ -52,10 +52,17 @@ interface SectionEditorProps {
   propertyId?: string;
   onUpdate: (sections: Section[]) => void;
   markDirtyIds?: string[];
+  /** open this section type on load (creating AI_CONTEXT if it doesn't exist yet), e.g. from Analytics → "Add to guide" */
+  initialOpenType?: string;
+  /** called after a successful save */
+  onSaved?: () => void;
 }
 
-export default function SectionEditor({ sections, propertyId, onUpdate, markDirtyIds }: SectionEditorProps) {
-  const [openId, setOpenId] = useState<string | null>(sections[0]?.id ?? null);
+export default function SectionEditor({ sections, propertyId, onUpdate, markDirtyIds, initialOpenType, onSaved }: SectionEditorProps) {
+  const [openId, setOpenId] = useState<string | null>(
+    (initialOpenType && sections.find((s) => s.type === initialOpenType)?.id) || (sections[0]?.id ?? null)
+  );
+  const autoCreated = useRef(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [dirtyIds, setDirtyIds] = useState<Set<string>>(new Set());
@@ -119,6 +126,19 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
     setAddingAiContext(false);
   }
 
+  // Coming from Analytics: make sure the AI context section exists, then bring it into view
+  useEffect(() => {
+    if (initialOpenType !== "AI_CONTEXT" || !propertyId) return;
+    if (!sections.some((s) => s.type === "AI_CONTEXT") && !autoCreated.current) {
+      autoCreated.current = true;
+      addAiContextSection();
+      return;
+    }
+    const t = setTimeout(() => document.getElementById("section-AI_CONTEXT")?.scrollIntoView({ behavior: "smooth", block: "center" }), 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialOpenType, propertyId, sections.length]);
+
   async function deleteSection(id: string) {
     await fetch(`/api/sections/${id}`, { method: "DELETE" });
     onUpdate(sections.filter((s) => s.id !== id));
@@ -139,6 +159,7 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
     setDirtyIds(new Set());
     setSaving(false);
     setSaved(true);
+    onSaved?.();
     setTimeout(() => setSaved(false), 2000);
 
     // Fire-and-forget translation in background
@@ -157,6 +178,7 @@ export default function SectionEditor({ sections, propertyId, onUpdate, markDirt
       {sections.map((section) => (
         <div
           key={section.id}
+          id={`section-${section.type}`}
           className={`bg-white border rounded-xl overflow-hidden transition-all ${
             section.isVisible ? "border-line" : "border-line opacity-60"
           }`}

@@ -49,10 +49,14 @@ export default async function GuestPage({
   // Handle preview (track at property level) or real guest link
   let guestLink = null;
   if (token === "preview") {
-    await prisma.property.update({
-      where: { id: property.id },
-      data: { previewViewCount: { increment: 1 } },
-    });
+    await Promise.all([
+      prisma.property.update({
+        where: { id: property.id },
+        data: { previewViewCount: { increment: 1 } },
+      }),
+      // dated record for the 30-day Analytics (the counter above has no date)
+      prisma.propertyView.create({ data: { propertyId: property.id } }),
+    ]);
   } else {
     guestLink = await prisma.guestLink.findUnique({ where: { token } });
     if (!guestLink || guestLink.propertyId !== property.id) notFound();

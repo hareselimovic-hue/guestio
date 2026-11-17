@@ -79,6 +79,12 @@ export async function POST(req: NextRequest) {
     where: { guestEmail: { not: null }, createdAt: { lt: new Date(Date.now() - 30 * 86_400_000) } },
     data: { guestEmail: null },
   }).catch((err) => console.error("[cron] guest email cleanup failed:", err));
+  // AI questions and dated guide opens feed the 30-day Analytics; keep 90 days, then drop
+  const keepSince = new Date(Date.now() - 90 * 86_400_000);
+  await Promise.all([
+    prisma.chatQuestion.deleteMany({ where: { createdAt: { lt: keepSince } } }),
+    prisma.propertyView.deleteMany({ where: { viewedAt: { lt: keepSince } } }),
+  ]).catch((err) => console.error("[cron] analytics cleanup failed:", err));
 
   const resend = new Resend(process.env.RESEND_API_KEY);
   const from = process.env.RESEND_FROM_EMAIL ?? "noreply@smartstay.ba";

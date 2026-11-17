@@ -1,6 +1,7 @@
-import { NextRequest } from "next/server";
+import { NextRequest, after } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/prisma";
+import { NO_INFO_MARKER, classifyQuestion } from "@/lib/chat-topics";
 
 export const runtime = "nodejs";
 
@@ -122,6 +123,24 @@ export async function POST(req: NextRequest) {
 
   const encoder = new TextEncoder();
 
+  let full = "";
+  let noInfo = false;
+  let ok = false;
+
+  // After the reply is sent: keep the question for Analytics (what guests ask, what the guide is missing)
+  after(async () => {
+    if (!ok) return;
+    const answer = full.replace(NO_INFO_MARKER, "").trim();
+    try {
+      const topic = await classifyQuestion(question);
+      await prisma.chatQuestion.create({
+        data: { propertyId: property.id, question: String(question).trim().slice(0, 1000), answer: answer.slice(0, 2000), lang, answered: !noInfo, topic },
+      });
+    } catch (err) {
+      console.error("[chat] saving question failed:", err);
+    }
+  });
+
   const readable = new ReadableStream({
     async start(controller) {
       try {
@@ -131,21 +150,37 @@ export async function POST(req: NextRequest) {
           system: [
             {
               type: "text",
-              text: `You are a friendly guest assistant for "${property.name}". Answer questions using ONLY the information below. Be concise (2-4 sentences max). Write plain text only: no Markdown, asterisks, headings or bullet symbols. The check-in time is the earliest time the guest can arrive, not the only one, so never say check-in is over or too late; for a late or night arrival, explain how to get in from the check-in instructions. Don't add the host's phone number to an answer you could give from the information below. If something isn't covered, say you don't have that info and suggest contacting the host directly. Respond in the same language the guest uses.\n\n---\n${context}\n---`,
+              text: `You are a friendly guest assistant for "${property.name}". Answer questions using ONLY the information below. Be concise (2-4 sentences max). Write plain text only: no Markdown, asterisks, headings or bullet symbols. The check-in time is the earliest time the guest can arrive, not the only one, so never say check-in is over or too late; for a late or night arrival, explain how to get in from the check-in instructions. Don't add the host's phone number to an answer you could give from the information below. If something isn't covered, start your reply with the exact text ${NO_INFO_MARKER} (it is hidden from the guest), then say you don't have that info and suggest contacting the host directly. Use ${NO_INFO_MARKER} only when the information below does not answer the question. Respond in the same language the guest uses.\n\n---\n${context}\n---`,
               cache_control: { type: "ephemeral" },
             },
           ],
           messages: [{ role: "user", content: question }],
         });
 
+        // Hold back the first characters until we know whether the answer starts with the hidden marker
+        let pending = "";
+        let decided = false;
+        let stripLead = false;
         for await (const event of stream) {
-          if (
-            event.type === "content_block_delta" &&
-            event.delta.type === "text_delta"
-          ) {
-            controller.enqueue(encoder.encode(event.delta.text));
+          if (event.type !== "content_block_delta" || event.delta.type !== "text_delta") continue;
+          full += event.delta.text;
+          if (decided) {
+            // right after the hidden marker the model usually sends a space — don't show it
+            const text = stripLead ? event.delta.text.trimStart() : event.delta.text;
+            if (text) { stripLead = false; controller.enqueue(encoder.encode(text)); }
+            continue;
           }
+          pending += event.delta.text;
+          const trimmed = pending.trimStart();
+          if (trimmed.length < NO_INFO_MARKER.length && NO_INFO_MARKER.startsWith(trimmed)) continue;
+          decided = true;
+          if (trimmed.startsWith(NO_INFO_MARKER)) { noInfo = true; pending = trimmed.slice(NO_INFO_MARKER.length).trimStart(); stripLead = !pending; }
+          if (pending) controller.enqueue(encoder.encode(pending));
         }
+        if (!decided && pending.trim() && !pending.trim().startsWith(NO_INFO_MARKER.slice(0, pending.trim().length))) {
+          controller.enqueue(encoder.encode(pending));
+        }
+        ok = true;
       } catch {
         controller.enqueue(encoder.encode("Sorry, something went wrong. Please try again."));
       } finally {

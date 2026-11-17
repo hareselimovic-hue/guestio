@@ -103,6 +103,8 @@ model Property {
   chatCount         Int      @default(0)
   sections     Section[]
   guests       GuestLink[]
+  chatQuestions ChatQuestion[]
+  views        PropertyView[]
   registrations GuestRegistration[]
   tasks        Task[]
   hotelServices  HotelService[]
@@ -443,4 +445,33 @@ model TaskComment {
 enum TaskStatus {
   IN_PROGRESS
   DONE
+}
+
+// Questions guests asked the AI assistant (no guest identity stored). Kept 90 days (daily cron).
+model ChatQuestion {
+  id         String    @id @default(cuid())
+  propertyId String
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  question   String
+  answer     String?
+  lang       String?
+  // false = the guide didn't cover it ("AI didn't know")
+  answered   Boolean   @default(true)
+  // WIFI | CHECKIN | CHECKOUT | PARKING | DIRECTIONS | FOOD | ACTIVITIES | RULES | AMENITIES | CLEANING | PAYMENT | OTHER
+  topic      String?
+  // host marked an unanswered question as handled (e.g. added the answer to the guide)
+  resolvedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([propertyId, createdAt])
+}
+
+// Opens of a property's general guide link (/g/<slug>), with a date. Room / guest links use GuestLinkView.
+model PropertyView {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  viewedAt   DateTime @default(now())
+
+  @@index([propertyId, viewedAt])
 }
