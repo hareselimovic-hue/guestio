@@ -30,7 +30,7 @@ export default async function AnalyticsPage() {
 
   const properties = await prisma.property.findMany({
     where: propertyAccessWhere(userId, wsIds, memberUserIds),
-    select: { id: true, name: true, internalName: true, kind: true, guests: { select: { id: true } } },
+    select: { id: true, name: true, internalName: true, kind: true, previewViewCount: true, chatCount: true, guests: { select: { id: true, viewCount: true } } },
   });
   const ids = properties.map((p) => p.id);
   const since = new Date(Date.now() - PERIOD_DAYS * DAY);
@@ -54,17 +54,28 @@ export default async function AnalyticsPage() {
     : [[], [], []];
 
   // ── per property ──
-  type Row = { id: string; name: string; kind: string; opens: number; questions: number; unanswered: number; last: Date | null };
-  const rows = new Map<string, Row>(properties.map((p) => [p.id, { id: p.id, name: p.internalName || p.name, kind: p.kind, opens: 0, questions: 0, unanswered: 0, last: null }]));
+  // all-time opens = same formula as the Dashboard (running counters, no dates)
+  const allTimeOpens = (p: (typeof properties)[number]) => p.previewViewCount + p.guests.reduce((s, g) => s + g.viewCount, 0);
+  type Row = { id: string; name: string; kind: string; opens: number; allOpens: number; questions: number; unanswered: number; last: Date | null };
+  const rows = new Map<string, Row>(properties.map((p) => [p.id, { id: p.id, name: p.internalName || p.name, kind: p.kind, opens: 0, allOpens: allTimeOpens(p), questions: 0, unanswered: 0, last: null }]));
   const bumpLast = (r: Row, d: Date | null) => { if (d && (!r.last || d > r.last)) r.last = d; };
   for (const v of pageViews) { const r = rows.get(v.propertyId)!; r.opens += v._count; bumpLast(r, v._max.viewedAt); }
   for (const v of linkViews) { const r = rows.get(linkToProperty.get(v.guestLinkId)!); if (r) { r.opens += v._count; bumpLast(r, v._max.viewedAt); } }
   for (const q of questions) { const r = rows.get(q.propertyId)!; r.questions++; if (!q.answered) r.unanswered++; }
-  const table = [...rows.values()].sort((a, b) => b.opens - a.opens || b.questions - a.questions || a.name.localeCompare(b.name));
+  const table = [...rows.values()].sort((a, b) => b.opens - a.opens || b.allOpens - a.allOpens || b.questions - a.questions || a.name.localeCompare(b.name));
 
   // ── totals ──
   const totalOpens = table.reduce((s, r) => s + r.opens, 0);
   const totalQuestions = questions.length;
+  const fmt = (n: number) => n.toLocaleString("de-DE");
+  const opensAll = properties.reduce((s, p) => s + allTimeOpens(p), 0);
+  const opensApt = properties.filter((p) => p.kind !== "HOTEL").reduce((s, p) => s + allTimeOpens(p), 0);
+  const hasBothKinds = properties.some((p) => p.kind === "HOTEL") && properties.some((p) => p.kind !== "HOTEL");
+  const questionsAll = properties.reduce((s, p) => s + (p.chatCount ?? 0), 0);
+  // The Dashboard's "guide opens" tile counts apartments only — show that split so the numbers match
+  const opensAllNote = hasBothKinds
+    ? `${fmt(opensAll)} all time · apartments ${fmt(opensApt)}, hotels ${fmt(opensAll - opensApt)}`
+    : `${fmt(opensAll)} all time`;
   const answeredPct = totalQuestions ? Math.round((questions.filter((q) => q.answered).length / totalQuestions) * 100) : null;
   const open = questions.filter((q) => !q.answered && !q.resolvedAt);
 
@@ -93,10 +104,10 @@ export default async function AnalyticsPage() {
     : null;
 
   const tiles = [
-    { icon: Eye, label: "Guide opens", value: totalOpens.toLocaleString("de-DE") },
-    { icon: MessageCircle, label: "Questions to the AI", value: totalQuestions.toLocaleString("de-DE") },
+    { icon: Eye, label: "Guide opens", value: fmt(totalOpens), sub: opensAllNote },
+    { icon: MessageCircle, label: "Questions to the AI", value: fmt(totalQuestions), sub: `${fmt(questionsAll)} all time` },
     { icon: CheckCircle2, label: "Answered by the AI", value: answeredPct === null ? "—" : `${answeredPct}%` },
-    { icon: HelpCircle, label: "Waiting for an answer in the guide", value: open.length.toLocaleString("de-DE"), warn: open.length > 0 },
+    { icon: HelpCircle, label: "Waiting for an answer in the guide", value: fmt(open.length), warn: open.length > 0 },
   ];
 
   return (
@@ -107,17 +118,18 @@ export default async function AnalyticsPage() {
           Analytics
         </h1>
         <p className="text-ink-2 mt-1 text-sm">
-          Last {PERIOD_DAYS} days{trackingNote ? ` · ${trackingNote}` : ""}
+          Last {PERIOD_DAYS} days{trackingNote ? ` · ${trackingNote} (opens and AI questions weren’t dated before; all-time totals are shown below each number)` : ""}
         </p>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-        {tiles.map(({ icon: Icon, label, value, warn }) => (
+        {tiles.map(({ icon: Icon, label, value, warn, sub }) => (
           <div key={label} className={`bg-white rounded-xl p-4 border ${warn ? "border-orange/40" : "border-line"}`}>
             <Icon className={`w-4 h-4 mb-2 ${warn ? "text-orange" : "text-navy"}`} />
             <p className="text-2xl font-bold text-ink leading-none">{value}</p>
             <p className="text-sm text-ink-2 mt-1.5 leading-snug">{label}</p>
+            {sub && <p className="text-xs text-ink-3 mt-1 leading-snug">{sub}</p>}
           </div>
         ))}
       </div>
@@ -192,7 +204,8 @@ export default async function AnalyticsPage() {
               <thead>
                 <tr className="border-b border-line bg-canvas">
                   <th className="text-left px-4 py-3 text-xs font-semibold text-ink-2 uppercase tracking-wide">Property</th>
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-ink-2 uppercase tracking-wide">Opens</th>
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-ink-2 uppercase tracking-wide">Opens <span className="normal-case font-normal text-ink-3">30 d</span></th>
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-ink-2 uppercase tracking-wide hidden sm:table-cell">Opens <span className="normal-case font-normal text-ink-3">all time</span></th>
                   <th className="text-right px-4 py-3 text-xs font-semibold text-ink-2 uppercase tracking-wide">AI questions</th>
                   <th className="text-right px-4 py-3 text-xs font-semibold text-ink-2 uppercase tracking-wide hidden sm:table-cell">Unanswered</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-ink-2 uppercase tracking-wide hidden md:table-cell">Last opened</th>
@@ -205,6 +218,7 @@ export default async function AnalyticsPage() {
                       <Link href={r.kind === "HOTEL" ? `/dashboard/hotel?property=${r.id}` : `/dashboard/properties/${r.id}`} className="hover:text-navy">{r.name}</Link>
                     </td>
                     <td className={`px-4 py-3 text-right tabular-nums ${r.opens ? "text-ink font-semibold" : "text-ink-4"}`}>{r.opens}</td>
+                    <td className={`px-4 py-3 text-right tabular-nums hidden sm:table-cell ${r.allOpens ? "text-ink-2" : "text-ink-4"}`}>{fmt(r.allOpens)}</td>
                     <td className={`px-4 py-3 text-right tabular-nums ${r.questions ? "text-ink" : "text-ink-4"}`}>{r.questions}</td>
                     <td className={`px-4 py-3 text-right tabular-nums hidden sm:table-cell ${r.unanswered ? "text-orange font-semibold" : "text-ink-4"}`}>{r.unanswered}</td>
                     <td className="px-4 py-3 text-ink-2 hidden md:table-cell">{r.last ? timeAgo(r.last) : <span className="text-ink-4">—</span>}</td>
