@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
 import { randomBytes } from "crypto";
+import { deleteExpiredProspects } from "@/lib/prospect";
 
 export const dynamic = "force-dynamic";
 
@@ -138,7 +139,15 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ sent, total: notices.length, ...(errors.length > 0 && { errors }) });
+  // Housekeeping on the same daily run (Hobby plan: 2 crons): unclaimed outreach guides past their 30 days
+  let prospectsDeleted = 0;
+  try {
+    prospectsDeleted = await deleteExpiredProspects();
+  } catch (err) {
+    console.error("[cron] prospect cleanup failed:", err);
+  }
+
+  return NextResponse.json({ sent, total: notices.length, prospectsDeleted, ...(errors.length > 0 && { errors }) });
 }
 
 function escapeHtml(s: string) {

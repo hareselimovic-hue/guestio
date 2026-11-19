@@ -19,8 +19,10 @@ function RegisterForm() {
   const [password, setPassword] = useState("");
   const [accountType, setAccountType] = useState<"APARTMENT" | "HOTEL">(searchParams.get("type") === "hotel" ? "HOTEL" : "APARTMENT");
   const [hotelName, setHotelName] = useState("");
-  // Invited team members join an existing workspace — no apartment/hotel choice for them
-  const isInvite = searchParams.get("redirect")?.startsWith("/invite/") ?? false;
+  // Invited team members join an existing workspace, and owners claiming a ready-made guide (/preuzmi/…)
+  // get theirs moved over — no apartment/hotel choice and no new hotel for either
+  const redirectPath = searchParams.get("redirect") ?? "";
+  const isInvite = redirectPath.startsWith("/invite/") || redirectPath.startsWith("/preuzmi/");
   // Apartment/Hotel choice only once hotel mode is public; until then the hotels page
   // links here with ?type=hotel (the server only grants hotel mode to hotel-page leads)
   const showTypeChoice = HOTELS_PUBLIC && !isInvite;

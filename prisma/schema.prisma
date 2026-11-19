@@ -101,6 +101,16 @@ model Property {
   receptionEmail    String?
   previewViewCount  Int      @default(0)
   chatCount         Int      @default(0)
+  // Outreach "ready-made guide": built by the sales agent under the admin account and shown only on
+  // /g/<slug>/<prospectToken>; the prospect claims it (register → property moves to them). Unclaimed
+  // ones are deleted after prospectExpiresAt by the prospect-cleanup cron.
+  prospectToken     String?  // random 192-bit; indexed below (not @unique, to keep db push non-interactive)
+  prospectEmail     String?  // outreach address the guide was made for
+  prospectSource    String?  // public page the information was taken from
+  prospectExpiresAt DateTime?
+  prospectViews     Int      @default(0)
+  prospectLastViewAt DateTime?
+  prospectClaimedAt DateTime? // set on claim (token cleared); prospectEmail kept for attribution
   sections     Section[]
   guests       GuestLink[]
   chatQuestions ChatQuestion[]
@@ -113,6 +123,8 @@ model Property {
   feedback       GuestFeedback[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
+
+  @@index([prospectToken])
 }
 
 model Section {

@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { timingSafeEqual } from "crypto";
 import { prisma } from "@/lib/prisma";
+import { prospectClaimPath } from "@/lib/prospect";
 import GuestView from "@/components/GuestView";
 export const dynamic = "force-dynamic";
 
@@ -9,9 +12,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const property = await prisma.property.findUnique({
     where: { slug },
-    select: { name: true, coverImage: true, kind: true, sections: { where: { type: "WELCOME" }, select: { content: true }, take: 1 } },
+    select: { name: true, coverImage: true, kind: true, prospectToken: true, sections: { where: { type: "WELCOME" }, select: { content: true }, take: 1 } },
   });
   if (!property) return { title: "SmartStay" };
+  // Ready-made outreach guide: private until claimed
+  if (property.prospectToken) return { title: `${property.name} · SmartStay`, robots: { index: false, follow: false } };
   const welcome = (property.sections[0]?.content ?? {}) as Record<string, unknown>;
   const str = (k: string) => (typeof welcome[k] === "string" && (welcome[k] as string).trim() ? (welcome[k] as string).trim() : "");
   const image = property.coverImage || str("heroImage") || undefined;
@@ -46,9 +51,23 @@ export default async function GuestPage({
 
   if (!property) notFound();
 
+  // Ready-made outreach guide: only its secret link works (not /g/<slug> or /preview), until claimed
+  const isProspect = !!property.prospectToken;
+  if (isProspect) {
+    const expired = property.prospectExpiresAt && property.prospectExpiresAt < new Date();
+    if (expired || token.length !== property.prospectToken!.length || !timingSafeEqual(Buffer.from(token), Buffer.from(property.prospectToken!))) {
+      notFound();
+    }
+  }
+
   // Handle preview (track at property level) or real guest link
   let guestLink = null;
-  if (token === "preview") {
+  if (isProspect) {
+    await prisma.property.update({
+      where: { id: property.id },
+      data: { prospectViews: { increment: 1 }, prospectLastViewAt: new Date() },
+    });
+  } else if (token === "preview") {
     await Promise.all([
       prisma.property.update({
         where: { id: property.id },
@@ -103,7 +122,7 @@ export default async function GuestPage({
       ])
     : [[], []];
 
-  return (
+  const view = (
     <GuestView
       property={property}
       sections={property.sections}
@@ -117,7 +136,28 @@ export default async function GuestPage({
       guestName={guestLink?.guestName ?? null}
       checkIn={guestLink?.checkIn?.toISOString() ?? null}
       checkOut={guestLink?.checkOut?.toISOString() ?? null}
-      token={token}
+      token={isProspect ? "preview" : token}
     />
+  );
+  if (!isProspect) return view;
+
+  return (
+    <>
+      <div className="bg-navy text-white px-4 py-3">
+        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row sm:items-center gap-3">
+          <p className="text-sm leading-snug flex-1">
+            <strong>Ovaj vodič smo pripremili za vas.</strong> Trenutno je vidljiv samo vama. Ako vam se sviđa,
+            preuzmite ga i nastavite koristiti, prvih 30 dana besplatno.
+          </p>
+          <Link
+            href={prospectClaimPath(token)}
+            className="shrink-0 text-center bg-orange hover:bg-orange-dark text-white text-sm font-semibold rounded-lg px-4 py-2.5"
+          >
+            Preuzmi vodič →
+          </Link>
+        </div>
+      </div>
+      {view}
+    </>
   );
 }

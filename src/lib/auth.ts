@@ -3,6 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { APIError } from "better-auth/api";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
+import { findOpenProspect } from "@/lib/prospect";
 
 const ADMIN_EMAIL = "hareselimovic@gmail.com";
 
@@ -10,10 +11,16 @@ function escapeHtml(s: string) {
   return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 }
 
-/** Team members register via /register?redirect=/invite/<token>; the register page sends it as callbackURL. */
+/**
+ * Team members register via /register?redirect=/invite/<token>, and owners of a ready-made outreach guide
+ * via /register?redirect=/preuzmi/<token>; the register page sends it as callbackURL.
+ */
 async function hasValidInvite(ctx: unknown): Promise<boolean> {
   const callbackURL = (ctx as { body?: { callbackURL?: unknown } } | null)?.body?.callbackURL;
-  const token = typeof callbackURL === "string" ? callbackURL.match(/^\/invite\/([\w-]+)/)?.[1] : undefined;
+  if (typeof callbackURL !== "string") return false;
+  const claim = callbackURL.match(/^\/preuzmi\/([\w-]+)/)?.[1];
+  if (claim) return !!(await findOpenProspect(claim));
+  const token = callbackURL.match(/^\/invite\/([\w-]+)/)?.[1];
   if (!token) return false;
   const invite = await prisma.workspaceInvite.findUnique({ where: { token }, select: { expiresAt: true } });
   return !!invite && invite.expiresAt > new Date();
