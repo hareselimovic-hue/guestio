@@ -147,7 +147,7 @@ export default async function GuestPage({
         <div className="max-w-2xl mx-auto flex flex-col sm:flex-row sm:items-center gap-3">
           <p className="text-sm leading-snug flex-1">
             <strong>Ovaj vodič smo pripremili za vas.</strong> Trenutno je vidljiv samo vama. Ako vam se sviđa,
-            preuzmite ga i nastavite koristiti, prvih 30 dana besplatno.
+            preuzmite ga, doradite i nastavite koristiti, prvih 30 dana besplatno.
           </p>
           <Link
             href={prospectClaimPath(token)}
