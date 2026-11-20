@@ -1,29 +1,10 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { APIError } from "better-auth/api";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
-import { findOpenProspect } from "@/lib/prospect";
-
-const ADMIN_EMAIL = "hareselimovic@gmail.com";
 
 function escapeHtml(s: string) {
   return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
-}
-
-/**
- * Team members register via /register?redirect=/invite/<token>, and owners of a ready-made outreach guide
- * via /register?redirect=/preuzmi/<token>; the register page sends it as callbackURL.
- */
-async function hasValidInvite(ctx: unknown): Promise<boolean> {
-  const callbackURL = (ctx as { body?: { callbackURL?: unknown } } | null)?.body?.callbackURL;
-  if (typeof callbackURL !== "string") return false;
-  const claim = callbackURL.match(/^\/preuzmi\/([\w-]+)/)?.[1];
-  if (claim) return !!(await findOpenProspect(claim));
-  const token = callbackURL.match(/^\/invite\/([\w-]+)/)?.[1];
-  if (!token) return false;
-  const invite = await prisma.workspaceInvite.findUnique({ where: { token }, select: { expiresAt: true } });
-  return !!invite && invite.expiresAt > new Date();
 }
 
 export const auth = betterAuth({
@@ -87,26 +68,13 @@ export const auth = betterAuth({
       });
     },
   },
-  // Registration gate + trial. (Better Auth only runs hooks under databaseHooks —
+  // Trial for every new account. (Better Auth only runs hooks under databaseHooks —
   // the old emailAndPassword.beforeCreateUser/afterCreateUser were silently ignored.)
+  // Registration is open to everyone since 2026-11-20 (no whitelist gate any more). The WhitelistEmail
+  // table is still filled by the landing forms: it marks hotel leads and feeds the onboarding follow-up.
   databaseHooks: {
     user: {
       create: {
-        // Only people on the whitelist (left their email on smartstay.ba / added by admin)
-        // or holding a valid workspace invite may register.
-        async before(user, ctx) {
-          const email = String(user.email ?? "").toLowerCase();
-          if (email === ADMIN_EMAIL) return;
-          const whitelisted = await prisma.whitelistEmail.findFirst({
-            where: { email: { equals: email, mode: "insensitive" } },
-            select: { id: true },
-          });
-          if (whitelisted) return;
-          if (await hasValidInvite(ctx)) return;
-          throw new APIError("FORBIDDEN", {
-            message: "Registracija je moguća nakon što ostavite email na smartstay.ba — tamo odmah dobijate pristup i 30 dana besplatno.",
-          });
-        },
         async after(user) {
           // Signed up after leaving the email on smartstay.ba/hoteli/ → hotel mode
           try {

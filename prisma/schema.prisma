@@ -487,3 +487,28 @@ model PropertyView {
 
   @@index([propertyId, viewedAt])
 }
+
+// "Vodič iz linka" (2026-11-20): a visitor leaves their Airbnb/Booking/website link + email on smartstay.ba,
+// we build a ready-made guide (a prospect Property), the admin reviews it and approves → the visitor gets it.
+// status: NEW → (NEEDS_BROWSER: picked up by the GitHub Actions worker) → READY (waiting for admin) → SENT,
+//         or FAILED (admin makes it by hand). raw = what was read from the listing.
+model GuideRequest {
+  id         String    @id @default(cuid())
+  email      String
+  url        String
+  platform   String    // AIRBNB | BOOKING | WEBSITE
+  kind       String    @default("APARTMENT") // APARTMENT | HOTEL
+  lang       String    @default("bs")        // bs | en (language of the visitor's emails)
+  status     String    @default("NEW")
+  error      String?
+  attempts   Int       @default(0)
+  raw        Json?
+  propertyId String?   // the prospect guide (Property with prospectToken)
+  notifiedAt DateTime? // admin got the "review" email
+  sentAt     DateTime? // visitor got their guide
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([status])
+  @@index([email])
+}

@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const isEnglish = body.lang === "en";
   const registerUrl = `https://app.smartstay.ba/register?${isHotel ? "type=hotel&" : ""}email=${encodeURIComponent(email)}`;
 
-  // Auto-whitelist email so they can register immediately
+  // Lead list (registration is open to everyone; this marks hotel leads + feeds the onboarding follow-up)
   const { prisma } = await import("@/lib/prisma");
   // Hotels page leads are marked so their signup gets hotel mode
   await prisma.whitelistEmail.upsert({
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
           subject: "Your 30-day trial is ready — SmartStay",
           eyebrow: "🎁 Limited offer", headline: "30 days free", noCard: "No credit card",
           title: "Your trial is ready! 🎉",
-          intro: "Your email has been added to the list. Create your account and get immediate access to every SmartStay feature — no credit card, no commitment.",
+          intro: "Your account is waiting. Create it in a minute and use every SmartStay feature right away: no credit card, no commitment.",
           bullets: ["Digital guest guide", "AI chatbot 24/7", "Rentlio sync", "Cancel anytime, no commitment"],
           cta: "Start your free trial →",
           ignore: "If you didn't leave this email address, feel free to ignore this message.",
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
           subject: "Vaš 30-dnevni trial je spreman — SmartStay",
           eyebrow: "🎁 Ograničena ponuda", headline: "30 dana besplatno", noCard: "Bez kreditne kartice",
           title: "Vaš trial je spreman! 🎉",
-          intro: "Vaš email je dodan na listu. Kreirajte nalog i odmah dobijate pristup svim funkcionalnostima SmartStay platforme — bez kreditne kartice, bez obaveze.",
+          intro: "Vaš nalog vas čeka. Napravite ga za minut i odmah koristite sve funkcije SmartStaya: bez kreditne kartice, bez obaveze.",
           bullets: ["Digitalni vodič za goste", "AI chatbot 24/7", "Rentlio sync", "Otkaz kad god, bez obaveze"],
           cta: "Počnite besplatni trial →",
           ignore: "Ako niste vi ostavili ovaj email, slobodno ignorirajte ovu poruku.",

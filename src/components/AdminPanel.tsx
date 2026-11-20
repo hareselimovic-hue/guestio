@@ -223,7 +223,7 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
 
             <ul className="space-y-2 text-sm text-ink-2 mb-5">
               <li>• Nalog, prijave i pretplata se trajno brišu.</li>
-              <li>• Email se uklanja s whitelist-e, pa se ne može ponovo registrovati.</li>
+              <li>• Email se uklanja s liste leadova. Registracija je otvorena, pa se može ponovo registrovati.</li>
               {deletePreview.hasWorkspace ? (
                 <li>
                   • Njegovi apartmani ({deletePreview.workspaceProperties}), zadaci i komentari{" "}
@@ -265,10 +265,11 @@ export default function AdminPanel({ users: initialUsers, whitelist: initialWhit
       <section>
         <div className="flex items-center gap-2 mb-4">
           <Shield className="w-5 h-5 text-orange" />
-          <h2 className="text-lg font-semibold text-ink">Whitelist registracije</h2>
+          <h2 className="text-lg font-semibold text-ink">Leadovi (emailovi sa sajta)</h2>
         </div>
         <p className="text-sm text-ink-2 mb-4">
-          Samo emailovi s ove liste mogu kreirati nalog. Vaš admin email je uvijek dozvoljen.
+          Registracija je otvorena svima. Ova lista su emailovi ostavljeni na smartstay.ba: označava hotelske
+          leadove (nalog se otvara u hotelskom režimu) i šalje im podsjetnik ako ne naprave nalog.
         </p>
 
         <div className="flex gap-2 mb-4">

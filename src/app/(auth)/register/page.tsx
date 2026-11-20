@@ -173,12 +173,6 @@ function RegisterForm() {
         {error && (
           <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-md">
             {error}
-            {error.includes("smartstay.ba") && (
-              <>
-                {" "}
-                <a href="https://smartstay.ba/#kontakt" className="font-semibold underline">Idi na smartstay.ba →</a>
-              </>
-            )}
           </p>
         )}
 
