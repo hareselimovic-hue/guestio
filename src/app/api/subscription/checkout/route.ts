@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
-import { calculateMonthlyPrice } from "@/lib/pricing";
+import { getAccountPrice } from "@/lib/account-price";
 import { createDebitTransaction } from "@/lib/bankart";
 
 export const dynamic = "force-dynamic";
@@ -44,15 +43,8 @@ export async function POST() {
     return NextResponse.json({ error: "Prvo popunite podatke za naplatu." }, { status: 400 });
   }
 
-  const [wsIds, memberUserIds] = await Promise.all([
-    getUserWorkspaceIds(session.user.id),
-    getWorkspaceMemberUserIds(session.user.id),
-  ]);
-  const propertyCount = await prisma.property.count({
-    where: propertyAccessWhere(session.user.id, wsIds, memberUserIds),
-  });
-
-  const price = calculateMonthlyPrice(propertyCount);
+  // Apartments by count + each hotel by its room package (same prices as smartstay.ba)
+  const price = await getAccountPrice(session.user.id);
   const merchantTransactionId = `SUB-${session.user.id}-${Date.now()}`;
 
   await prisma.payment.create({
@@ -60,6 +52,7 @@ export async function POST() {
       userId: session.user.id,
       merchantTransactionId,
       propertyCount: price.propertyCount,
+      planLabel: price.label,
       amount: price.total,
       currency: "BAM",
       status: "PENDING",
@@ -77,7 +70,7 @@ export async function POST() {
       cancelUrl: `${appUrl}/dashboard/subscription/checkout/result?status=cancel`,
       errorUrl: `${appUrl}/dashboard/subscription/checkout/result?status=error`,
       callbackUrl: `${appUrl}/api/subscription/checkout/callback`,
-      description: `SmartStay pretplata — ${price.tierName} (${price.propertyCount} objekata)`,
+      description: `SmartStay pretplata — ${price.label}`.slice(0, 120),
       language: "bs",
       customer: {
         email: session.user.email,

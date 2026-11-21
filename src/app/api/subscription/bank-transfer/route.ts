@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
+import { getAccountPrice } from "@/lib/account-price";
 import { calculateMonthlyPrice } from "@/lib/pricing";
 import { ISSUER } from "@/lib/billing-pdf";
 import {
@@ -12,7 +12,7 @@ import {
 
 export const dynamic = "force-dynamic";
 
-function toView(p: { id: string; merchantTransactionId: string; amount: number; propertyCount: number; createdAt: Date; previousValidUntil: Date | null }) {
+function toView(p: { id: string; merchantTransactionId: string; amount: number; propertyCount: number; planLabel: string | null; createdAt: Date; previousValidUntil: Date | null }) {
   const price = calculateMonthlyPrice(p.propertyCount);
   const period = bankTransferPeriod(p);
   return {
@@ -21,7 +21,7 @@ function toView(p: { id: string; merchantTransactionId: string; amount: number; 
     reference: p.merchantTransactionId,
     amount: p.amount,
     propertyCount: p.propertyCount,
-    tierName: price.tierName,
+    tierName: p.planLabel ?? price.tierName,
     createdAt: p.createdAt,
     dueDate: addDays(p.createdAt, BANK_TRANSFER_GRACE_DAYS),
     recipient: ISSUER.name,
@@ -62,12 +62,8 @@ export async function POST() {
   });
   if (existing) return NextResponse.json({ pending: toView(existing), created: false });
 
-  const [wsIds, memberUserIds] = await Promise.all([
-    getUserWorkspaceIds(session.user.id),
-    getWorkspaceMemberUserIds(session.user.id),
-  ]);
-  const propertyCount = await prisma.property.count({ where: propertyAccessWhere(session.user.id, wsIds, memberUserIds) });
-  const price = calculateMonthlyPrice(propertyCount);
+  // Apartments by count + each hotel by its room package (same prices as smartstay.ba)
+  const price = await getAccountPrice(session.user.id);
 
   const reference = await nextBankTransferReference();
   let payment = null;
@@ -79,6 +75,7 @@ export async function POST() {
           merchantTransactionId: reference(attempt),
           method: "BANK_TRANSFER",
           propertyCount: price.propertyCount,
+          planLabel: price.label,
           amount: price.total,
           currency: "BAM",
           status: "PENDING",

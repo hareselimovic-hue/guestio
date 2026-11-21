@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { CreditCard, Landmark, Loader2, Download, Mail, Check } from "lucide-react";
-import { calculateMonthlyPrice } from "@/lib/pricing";
 
 interface BillingInfo {
   billingName: string | null;
@@ -35,12 +34,13 @@ const fmtDate = (iso: string) => {
 const inputCls = "w-full rounded-xl border border-line px-4 py-2.5 text-sm";
 
 export default function SubscriptionCheckoutCard({
-  propertyCount,
+  price,
   billing,
   initialPending,
   collapsedUntil,
 }: {
-  propertyCount: number;
+  /** from getAccountPrice() on the server: apartments by count + each hotel by its room package */
+  price: { total: number; label: string; detail: string };
   billing: BillingInfo;
   initialPending: PendingTransfer | null;
   /** Set while renewal isn't due yet: show a one-line note with "Plati unaprijed" instead of the card */
@@ -65,7 +65,6 @@ export default function SubscriptionCheckoutCard({
   const [pending, setPending] = useState<PendingTransfer | null>(initialPending);
   const [error, setError] = useState("");
 
-  const price = calculateMonthlyPrice(propertyCount);
 
   async function saveBilling(e: React.FormEvent) {
     e.preventDefault();
@@ -151,10 +150,10 @@ export default function SubscriptionCheckoutCard({
 
       <div className="rounded-xl bg-canvas px-5 py-4 space-y-1">
         <p className="text-sm text-ink-2">
-          {price.tierName} plan · {price.propertyCount} {price.propertyCount === 1 ? "objekat" : "objekata"} × {price.pricePerProperty.toFixed(2)} KM
+          {price.detail}
         </p>
         <p className="text-2xl font-bold text-ink">{price.total.toFixed(2)} KM<span className="text-sm font-normal text-ink-2"> / mjesečno</span></p>
-        <p className="text-xs text-ink-3">Cijena se svaki put ponovo računa po vašem trenutnom broju objekata.</p>
+        <p className="text-xs text-ink-3">Cijena se svaki put ponovo računa po vašem trenutnom broju objekata (kod hotela po broju soba).</p>
       </div>
 
       {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}

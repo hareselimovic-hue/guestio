@@ -265,6 +265,7 @@ model Payment {
   merchantTransactionId String        @unique
   bankartUuid           String?
   propertyCount         Int
+  planLabel     String? // e.g. "Standard (5 apt.) + Hotel Srednji (20 soba)"; null = apartments only (older rows)
   amount                Float
   currency              String        @default("BAM")
   status                PaymentStatus @default(PENDING)
@@ -288,6 +289,7 @@ model Invoice {
   amount          Float
   currency        String   @default("BAM")
   propertyCount   Int
+  planLabel     String? // e.g. "Standard (5 apt.) + Hotel Srednji (20 soba)"; null = apartments only (older rows)
   billingName     String?
   billingAddress  String?
   billingCity     String?

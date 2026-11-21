@@ -22,3 +22,45 @@ export function calculateMonthlyPrice(propertyCount: number): MonthlyPrice {
   const total = Math.round(tier.pricePerProperty * count * 100) / 100;
   return { tierName: tier.name, pricePerProperty: tier.pricePerProperty, propertyCount: count, total };
 }
+
+// ─── Hotels (2026-11-21) ───────────────────────────────────────────────────────
+// Same packages as smartstay.ba/hoteli/: price by number of rooms, all features included.
+// More than 80 rooms is "po dogovoru" on the site; until a custom deal is set the largest package applies.
+export const HOTEL_PACKAGES = [
+  { name: "Mini", maxRooms: 7, price: 59 },
+  { name: "Mali", maxRooms: 15, price: 79 },
+  { name: "Srednji", maxRooms: 40, price: 119 },
+  { name: "Veliki", maxRooms: Infinity, price: 169 },
+] as const;
+
+export function hotelPackage(rooms: number) {
+  return HOTEL_PACKAGES.find((p) => Math.max(rooms, 0) <= p.maxRooms) ?? HOTEL_PACKAGES[HOTEL_PACKAGES.length - 1];
+}
+
+/** 1 soba, 2–4 sobe, 5+ soba (21 soba, 22 sobe…) */
+function roomsWord(n: number) {
+  const d = n % 10, h = n % 100;
+  return d >= 2 && d <= 4 && !(h >= 12 && h <= 14) ? "sobe" : "soba";
+}
+
+export interface AccountPrice {
+  total: number;
+  /** Plan description stored on the payment/invoice, e.g. "Standard (5 apt.) + Hotel Srednji (20 soba)" */
+  label: string;
+  /** Apartments + hotels (what the invoice line counts as "obj.") */
+  propertyCount: number;
+  apartments: MonthlyPrice | null;
+  hotels: { rooms: number; name: string; price: number }[];
+}
+
+/** Monthly price of a whole account: apartments by the per-property tiers, every hotel by its room package. */
+export function calculateAccountPrice(apartmentCount: number, hotelRooms: number[]): AccountPrice {
+  const apartments = apartmentCount > 0 || hotelRooms.length === 0 ? calculateMonthlyPrice(apartmentCount) : null;
+  const hotels = hotelRooms.map((rooms) => ({ rooms, ...hotelPackage(rooms) })).map(({ rooms, name, price }) => ({ rooms, name, price }));
+  const total = Math.round(((apartments?.total ?? 0) + hotels.reduce((s, h) => s + h.price, 0)) * 100) / 100;
+  const parts = [
+    ...(apartments ? [`${apartments.tierName} (${apartments.propertyCount} apt.)`] : []),
+    ...hotels.map((h) => `Hotel ${h.name} (${h.rooms} ${roomsWord(h.rooms)})`),
+  ];
+  return { total, label: parts.join(" + "), propertyCount: (apartments?.propertyCount ?? 0) + hotels.length, apartments, hotels };
+}

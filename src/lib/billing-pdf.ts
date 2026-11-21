@@ -124,7 +124,7 @@ export async function buildInvoicePdf(inv: {
     page.drawText(h, { x: cols[i], y, size: 9, font: bold, color: MUTED }),
   );
   y -= 28;
-  page.drawText(`SmartStay pretplata — ${inv.tierName} plan`, { x: cols[0], y, size: 10, font: bold, color: TEXT });
+  page.drawText(`SmartStay pretplata — ${inv.tierName}${inv.tierName.includes("(") ? "" : " plan"}`, { x: cols[0], y, size: 10, font: bold, color: TEXT });
   page.drawText(`${inv.propertyCount} obj.`, { x: cols[1], y, size: 10, font: regular, color: TEXT });
   page.drawText(fmtKM(inv.pricePerProperty), { x: cols[2], y, size: 10, font: regular, color: TEXT });
   page.drawText(fmtKM(inv.amount), { x: cols[3], y, size: 10, font: regular, color: TEXT });
@@ -200,7 +200,7 @@ export async function buildPaymentInstructionsPdf(p: {
     ["Iznos", fmtKM(p.amount)],
     ["Poziv na broj", p.reference],
     ["Svrha uplate", `SmartStay pretplata ${p.periodShort}`],
-    ["Period pretplate", `${fmtDate(p.periodFrom)} – ${fmtDate(p.periodTo)} (${p.tierName}, ${p.propertyCount} obj.)`],
+    ["Period pretplate", `${fmtDate(p.periodFrom)} – ${fmtDate(p.periodTo)} (${p.tierName.includes("(") ? p.tierName : `${p.tierName}, ${p.propertyCount} obj.`})`],
     ["Uplatilac", [p.payer.name, p.payer.city].filter(Boolean).join(", ")],
     ["Rok za uplatu", fmtDate(p.dueDate)],
   ];

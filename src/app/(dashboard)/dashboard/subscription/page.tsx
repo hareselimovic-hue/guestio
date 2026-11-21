@@ -6,6 +6,7 @@ import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } f
 import { CreditCard, CheckCircle, XCircle, Clock } from "lucide-react";
 import SubscriptionCheckoutCard from "@/components/SubscriptionCheckoutCard";
 import { calculateMonthlyPrice } from "@/lib/pricing";
+import { getAccountPrice } from "@/lib/account-price";
 import { addDays, BANK_TRANSFER_GRACE_DAYS, bankTransferPeriod, shortPeriod } from "@/lib/billing";
 import { ISSUER } from "@/lib/billing-pdf";
 import { FileText, Download } from "lucide-react";
@@ -40,8 +41,8 @@ export default async function SubscriptionPage() {
     getUserWorkspaceIds(session.user.id),
     getWorkspaceMemberUserIds(session.user.id),
   ]);
-  const [propertyCount, pendingTransfer, invoices] = await Promise.all([
-    prisma.property.count({ where: propertyAccessWhere(session.user.id, wsIds, memberUserIds) }),
+  const [accountPrice, pendingTransfer, invoices] = await Promise.all([
+    getAccountPrice(session.user.id),
     prisma.payment.findFirst({
       // Payments with a pre-issued invoice (billed in arrears) aren't renewal requests
       where: { userId: session.user.id, method: "BANK_TRANSFER", status: "PENDING", invoice: { is: null } },
@@ -66,7 +67,7 @@ export default async function SubscriptionPage() {
         period: (({ from, to }) => shortPeriod(from, to))(bankTransferPeriod(pendingTransfer)),
         reference: pendingTransfer.merchantTransactionId,
         amount: pendingTransfer.amount,
-        tierName: calculateMonthlyPrice(pendingTransfer.propertyCount).tierName,
+        tierName: pendingTransfer.planLabel ?? calculateMonthlyPrice(pendingTransfer.propertyCount).tierName,
         dueDate: addDays(pendingTransfer.createdAt, BANK_TRANSFER_GRACE_DAYS).toISOString(),
         recipient: ISSUER.name,
         account: ISSUER.racun,
@@ -156,7 +157,13 @@ export default async function SubscriptionPage() {
       <div className="mt-6">
         <SubscriptionCheckoutCard
           collapsedUntil={renewalDue ? undefined : sub.validUntil.toISOString()}
-          propertyCount={propertyCount}
+          price={{
+            total: accountPrice.total,
+            label: accountPrice.label,
+            detail: accountPrice.hotels.length === 0 && accountPrice.apartments
+              ? `${accountPrice.apartments.tierName} plan · ${accountPrice.apartments.propertyCount} ${accountPrice.apartments.propertyCount === 1 ? "objekat" : "objekata"} × ${accountPrice.apartments.pricePerProperty.toFixed(2)} KM`
+              : accountPrice.label,
+          }}
           billing={{
             billingName: sub.billingName,
             billingAddress: sub.billingAddress,

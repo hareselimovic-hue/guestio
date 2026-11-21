@@ -56,6 +56,7 @@ export async function issueInvoice(paymentId: string, period: { from: Date; to: 
           amount: payment.amount,
           currency: payment.currency,
           propertyCount: payment.propertyCount,
+          planLabel: payment.planLabel,
           billingName: sub?.billingName ?? null,
           billingAddress: sub?.billingAddress ?? null,
           billingCity: sub?.billingCity ?? null,
@@ -85,7 +86,7 @@ export async function renderInvoicePdf(invoiceId: string) {
   const price = calculateMonthlyPrice(inv.propertyCount);
   const unitPrice = inv.propertyCount > 0 ? inv.amount / inv.propertyCount : price.pricePerProperty;
   // Custom-priced customers (e.g. 5,99 regardless of count) get the plan name matching their price
-  const tierName = PRICING_TIERS.find((t) => Math.abs(t.pricePerProperty - unitPrice) < 0.005)?.name ?? price.tierName;
+  const tierName = inv.planLabel ?? PRICING_TIERS.find((t) => Math.abs(t.pricePerProperty - unitPrice) < 0.005)?.name ?? price.tierName;
   const pdf = await buildInvoicePdf({
     number: inv.number,
     issuedAt: inv.issuedAt,
@@ -205,13 +206,13 @@ export async function renderInstructionsPdf(paymentId: string) {
     dueDate: addDays(payment.createdAt, BANK_TRANSFER_GRACE_DAYS),
     amount: payment.amount,
     propertyCount: payment.propertyCount,
-    tierName: price.tierName,
+    tierName: payment.planLabel ?? price.tierName,
     periodFrom: period.from,
     periodTo: period.to,
     periodShort: shortPeriod(period.from, period.to),
     payer: billingPartyFromSub(sub, payment.user.email),
   });
-  return { payment, pdf: Buffer.from(pdf), tierName: price.tierName, period };
+  return { payment, pdf: Buffer.from(pdf), tierName: payment.planLabel ?? price.tierName, period };
 }
 
 export async function sendInstructionsEmail(paymentId: string) {
