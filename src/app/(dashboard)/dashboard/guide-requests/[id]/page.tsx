@@ -6,6 +6,7 @@ import { ADMIN_EMAIL } from "@/lib/features";
 import { guideChecklist } from "@/lib/guide-request";
 import { prospectFields } from "@/lib/prospect-edit";
 import GuideRequestReview from "@/components/GuideRequestReview";
+import { editorHref } from "@/lib/prospect-owner";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,7 @@ export default async function GuideRequestPage({ params }: { params: Promise<{ i
 
   const checklist = gr.propertyId ? await guideChecklist(gr.propertyId) : null;
   const fields = gr.propertyId ? await prospectFields(gr.propertyId) : null;
+  const prop = gr.propertyId ? await prisma.property.findUnique({ where: { id: gr.propertyId }, select: { id: true, kind: true, prospectToken: true } }) : null;
 
   return (
     <GuideRequestReview
@@ -35,6 +37,7 @@ export default async function GuideRequestPage({ params }: { params: Promise<{ i
       emptyNote={gr.status === "FAILED"
         ? "Vodič nije napravljen automatski. Napravi ga ručno (outreach agent / create_guide.py) ili se javi posjetiocu."
         : "Vodič se još pravi. Osvježi stranicu za minut."}
+      editorHref={prop?.prospectToken ? editorHref(prop) : null}
     />
   );
 }

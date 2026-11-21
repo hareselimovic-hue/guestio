@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_EMAIL } from "@/lib/features";
+import { editorHref } from "@/lib/prospect-owner";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ export default async function ProspectGuidesPage() {
   if (session?.user.email !== ADMIN_EMAIL) redirect("/dashboard");
   const rows = await prisma.property.findMany({
     where: { prospectToken: { not: null }, prospectClaimedAt: null, prospectExpiresAt: { gt: new Date() } },
-    select: { name: true, kind: true, prospectToken: true, prospectEmail: true, prospectViews: true, internalName: true, createdAt: true, coverImage: true },
+    select: { id: true, name: true, kind: true, prospectToken: true, prospectEmail: true, prospectViews: true, internalName: true, createdAt: true, coverImage: true },
     orderBy: { createdAt: "desc" },
     take: 200,
   });
@@ -32,7 +33,8 @@ export default async function ProspectGuidesPage() {
         <ul className="divide-y divide-line border border-line rounded-xl bg-white">
           {rows.map((r) => (
             <li key={r.prospectToken}>
-              <Link href={`/dashboard/vodici/${r.prospectToken}`} className="flex items-center gap-3 p-3 hover:bg-canvas">
+              <div className="flex items-center gap-3 p-3 hover:bg-canvas">
+              <Link href={`/dashboard/vodici/${r.prospectToken}`} className="flex items-center gap-3 min-w-0 flex-1">
                 {r.coverImage
                   // eslint-disable-next-line @next/next/no-img-element
                   ? <img src={r.coverImage} alt="" className="w-12 h-12 rounded-lg object-cover flex-none" />
@@ -43,8 +45,10 @@ export default async function ProspectGuidesPage() {
                     {r.internalName?.startsWith("Sa sajta") ? "Sajt" : "Outreach"} · {r.prospectEmail} · {r.prospectViews} otvaranja
                   </span>
                 </span>
-                <span className="text-xs text-ink-2 whitespace-nowrap">{fmt(r.createdAt)}</span>
+                <span className="text-xs text-ink-2 whitespace-nowrap hidden sm:inline">{fmt(r.createdAt)}</span>
               </Link>
+              <Link href={editorHref(r)} className="text-xs font-semibold text-white bg-navy px-3 py-2 rounded-lg whitespace-nowrap">Uredi</Link>
+              </div>
             </li>
           ))}
         </ul>

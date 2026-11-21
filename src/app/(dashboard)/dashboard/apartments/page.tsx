@@ -17,7 +17,7 @@ export default async function ApartmentsPage() {
   ]);
 
   const properties = await prisma.property.findMany({
-    where: { kind: "APARTMENT", ...propertyAccessWhere(session!.user.id, wsIds, memberUserIds) },
+    where: { kind: "APARTMENT", prospectToken: null, ...propertyAccessWhere(session!.user.id, wsIds, memberUserIds) }, // ready-made (prospect) guides are edited from /dashboard/vodici, not listed here
     select: {
       id: true, name: true, internalName: true, coverImage: true,
       sections: { select: { type: true, content: true, isVisible: true, _count: { select: { translations: true } } } },

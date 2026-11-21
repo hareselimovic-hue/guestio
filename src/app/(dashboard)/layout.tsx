@@ -35,7 +35,7 @@ export default async function DashboardLayout({
       : null,
     prisma.user.findUnique({ where: { id: session.user.id }, select: { accountType: true } }),
     getManagedHotelIds(session.user.id),
-    prisma.property.count({ where: { kind: "APARTMENT", ...propertyAccessWhere(session.user.id, wsIds, memberUserIds) } }),
+    prisma.property.count({ where: { kind: "APARTMENT", prospectToken: null, ...propertyAccessWhere(session.user.id, wsIds, memberUserIds) } }),
   ]);
   // Hotel menu for hotel accounts and anyone managing a hotel property;
   // Apartments for anyone with apartments (and apartment accounts that have none yet)

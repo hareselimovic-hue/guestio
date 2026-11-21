@@ -6,6 +6,7 @@ import { ADMIN_EMAIL } from "@/lib/features";
 import { guideChecklist } from "@/lib/guide-request";
 import { prospectFields } from "@/lib/prospect-edit";
 import GuideRequestReview from "@/components/GuideRequestReview";
+import { editorHref } from "@/lib/prospect-owner";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,7 @@ export default async function ProspectGuidePage({ params }: { params: Promise<{ 
       patchUrl={`/api/prospects/edit/${token}`}
       approve={null}
       emptyNote="Vodič više nije dostupan: vlasnik ga je preuzeo ili je istekao."
+      editorHref={p ? editorHref(p) : null}
     />
   );
 }

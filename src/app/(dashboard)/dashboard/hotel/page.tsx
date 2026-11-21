@@ -14,12 +14,13 @@ export default async function HotelPage({ searchParams }: { searchParams: Promis
   if (!session) redirect("/login");
 
   const ids = await getManagedHotelIds(session.user.id);
+  const { property, tab } = await searchParams;
+  // A ready-made (prospect) hotel only shows when opened from /dashboard/vodici ("Uredi")
   const hotels = await prisma.property.findMany({
-    where: { id: { in: ids } },
+    where: { id: { in: ids }, OR: [{ prospectToken: null }, { id: property ?? "-" }] },
     select: { id: true, name: true, slug: true, reviewUrl: true, receptionEmail: true, guestRegistrationEnabled: true },
     orderBy: { createdAt: "asc" },
   });
-  const { property, tab } = await searchParams;
 
   if (hotels.length === 0) {
     if (!(await userCanUseHotels(session.user))) redirect("/dashboard");

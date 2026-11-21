@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
   const properties = await prisma.property.findMany({
     where: {
       AND: [
+        { prospectToken: null },
         accessWhere,
         excludeId ? { id: { not: excludeId } } : {},
       ],

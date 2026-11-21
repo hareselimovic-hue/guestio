@@ -36,7 +36,7 @@ export default async function DashboardPage() {
   const accessWhere = propertyAccessWhere(userId, wsIds, memberUserIds);
 
   const properties = await prisma.property.findMany({
-    where: accessWhere,
+    where: { AND: [accessWhere, { prospectToken: null }] }, // ready-made (prospect) guides are edited from /dashboard/vodici, not listed here
     select: {
       id: true, name: true, internalName: true, kind: true, previewViewCount: true, chatCount: true, reviewUrl: true, receptionEmail: true, workspaceId: true, userId: true,
       guests: { select: { viewCount: true } },

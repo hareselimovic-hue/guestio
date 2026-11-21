@@ -4,9 +4,10 @@ import { prisma } from "@/lib/prisma";
 /** Ready-made outreach guides ("prospects"): see Property.prospect* in the schema. */
 
 export const PROSPECT_DAYS = 30;
-// System user that holds unclaimed guides: no password, no workspace — so the guides don't show up in
-// anyone's dashboard (created once by scripts/create-prospect-owner.mjs)
-export const PROSPECT_OWNER_EMAIL = process.env.PROSPECT_OWNER_EMAIL ?? "outreach@smartstay.local";
+// Unclaimed guides belong to the admin's own account (since 2026-11-21) so the admin can open them in the
+// normal editor / hotel panel from /dashboard/vodici. They are hidden from the admin's lists (prospectToken
+// filter); claiming moves them to the new owner. (Before: system user outreach@smartstay.local.)
+export const PROSPECT_OWNER_EMAIL = process.env.PROSPECT_OWNER_EMAIL ?? "hareselimovic@gmail.com";
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.smartstay.ba";
 
 export function newProspectToken(): string {

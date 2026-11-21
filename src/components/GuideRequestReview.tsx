@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, Send, Save } from "lucide-react";
+import { ArrowLeft, ExternalLink, Send, Save, PencilLine } from "lucide-react";
 
 type Fields = Record<"welcome" | "wifiNetwork" | "wifiPassword" | "checkIn" | "checkOut" | "instructions" | "phone", string>;
 
@@ -16,10 +16,12 @@ interface Props {
   approve?: { url: string; sent: boolean } | null;
   /** shown when there is no guide yet */
   emptyNote?: string;
+  /** the full editor (apartment editor or hotel panel) of this guide */
+  editorHref?: string | null;
 }
 
 /** Admin review of a ready-made guide: what it has, fill in what the listing didn't say, (approve & send). */
-export default function GuideRequestReview({ info, guide, fields: initial, patchUrl, approve, emptyNote }: Props) {
+export default function GuideRequestReview({ info, guide, fields: initial, patchUrl, approve, emptyNote, editorHref }: Props) {
   const [f, setF] = useState(initial);
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState<"" | "save" | "send">("");
@@ -77,6 +79,14 @@ export default function GuideRequestReview({ info, guide, fields: initial, patch
         {info.source && <> · <a href={info.source} target="_blank" rel="noreferrer" className="underline">{info.source}</a></>}
       </p>
       {info.note && <p className="mt-2 text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-2">{info.note}</p>}
+      {editorHref && guide && (
+        <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-navy/15 bg-navy/5 p-4">
+          <Link href={editorHref} className="inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-navy text-white text-sm font-semibold">
+            <PencilLine className="w-4 h-4" /> Otvori u editoru
+          </Link>
+          <span className="text-sm text-ink-2">Sve sekcije, slike{info.eyebrow.includes("hotel") ? ", sobe, usluge i meni" : ""}. Isti editor kao za tvoje objekte.</span>
+        </div>
+      )}
 
       {!guide ? (
         <div className="mt-6 rounded-xl border border-line bg-white p-5 text-sm text-ink-2">{emptyNote ?? "Vodič nije pronađen."}</div>

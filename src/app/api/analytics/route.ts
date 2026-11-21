@@ -17,7 +17,7 @@ export async function GET() {
   const accessWhere = propertyAccessWhere(session.user.id, wsIds, memberUserIds);
 
   const properties = await prisma.property.findMany({
-    where: accessWhere,
+    where: { AND: [accessWhere, { prospectToken: null }] },
     select: {
       id: true,
       name: true,

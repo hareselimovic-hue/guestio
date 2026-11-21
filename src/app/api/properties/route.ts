@@ -30,7 +30,7 @@ export async function GET() {
     getWorkspaceMemberUserIds(session.user.id),
   ]);
   const properties = await prisma.property.findMany({
-    where: propertyAccessWhere(session.user.id, wsIds, memberUserIds),
+    where: { AND: [propertyAccessWhere(session.user.id, wsIds, memberUserIds), { prospectToken: null }] },
     include: { _count: { select: { guests: true, sections: true } } },
     orderBy: { createdAt: "desc" },
   });

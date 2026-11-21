@@ -29,7 +29,7 @@ export default async function AnalyticsPage() {
   const [wsIds, memberUserIds] = await Promise.all([getUserWorkspaceIds(userId), getWorkspaceMemberUserIds(userId)]);
 
   const properties = await prisma.property.findMany({
-    where: propertyAccessWhere(userId, wsIds, memberUserIds),
+    where: { AND: [propertyAccessWhere(userId, wsIds, memberUserIds), { prospectToken: null }] },
     select: { id: true, name: true, internalName: true, kind: true, previewViewCount: true, chatCount: true, guests: { select: { id: true, viewCount: true } } },
   });
   const ids = properties.map((p) => p.id);
