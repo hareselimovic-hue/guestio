@@ -32,6 +32,12 @@ model User {
   invoices         Invoice[]
   tasks            Task[]            @relation("TaskAuthor")
   taskComments     TaskComment[]     @relation("TaskCommentAuthor")
+  // Unused (added 2026-11-21 for an admin-plugin experiment that was dropped). Kept so `prisma db push`
+  // on Vercel doesn't need --accept-data-loss; safe to remove together with the DB columns later.
+  role       String?
+  banned     Boolean?  @default(false)
+  banReason  String?
+  banExpires DateTime?
 }
 
 model Session {
@@ -44,6 +50,7 @@ model Session {
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy String? // unused, see User.role
 }
 
 model Account {
