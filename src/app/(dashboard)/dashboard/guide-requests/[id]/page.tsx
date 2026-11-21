@@ -4,10 +4,12 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_EMAIL } from "@/lib/features";
 import { guideChecklist } from "@/lib/guide-request";
-import { TODO } from "@/lib/prospect-create";
+import { prospectFields } from "@/lib/prospect-edit";
 import GuideRequestReview from "@/components/GuideRequestReview";
 
 export const dynamic = "force-dynamic";
+
+const PLATFORM: Record<string, string> = { AIRBNB: "Airbnb", BOOKING: "Booking", WEBSITE: "Sajt" };
 
 export default async function GuideRequestPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -17,26 +19,22 @@ export default async function GuideRequestPage({ params }: { params: Promise<{ i
   if (!gr) notFound();
 
   const checklist = gr.propertyId ? await guideChecklist(gr.propertyId) : null;
-  const sections = gr.propertyId
-    ? await prisma.section.findMany({ where: { propertyId: gr.propertyId, type: { in: ["WELCOME", "WIFI", "CHECKIN", "CONTACT"] } }, select: { type: true, content: true } })
-    : [];
-  const val = (type: string, key: string) => {
-    const v = (sections.find((s) => s.type === type)?.content as Record<string, unknown> | undefined)?.[key];
-    return typeof v === "string" && v !== TODO ? v : "";
-  };
+  const fields = gr.propertyId ? await prospectFields(gr.propertyId) : null;
 
   return (
     <GuideRequestReview
-      request={{
-        id: gr.id, email: gr.email, url: gr.url, platform: gr.platform, kind: gr.kind, status: gr.status,
-        error: gr.error, sentAt: gr.sentAt?.toISOString() ?? null, createdAt: gr.createdAt.toISOString(),
+      info={{
+        eyebrow: `Vodič iz linka · ${PLATFORM[gr.platform] ?? gr.platform}${gr.kind === "HOTEL" ? " · hotel" : ""}`,
+        title: gr.email, email: gr.email, source: gr.url, note: gr.error,
+        back: { href: "/dashboard/guide-requests", label: "Svi zahtjevi" },
       }}
       guide={checklist ? { name: checklist.name, url: checklist.url, have: checklist.have } : null}
-      fields={{
-        welcome: val("WELCOME", "message"), wifiNetwork: val("WIFI", "network"), wifiPassword: val("WIFI", "password"),
-        checkIn: val("CHECKIN", "checkIn"), checkOut: val("CHECKIN", "checkOut"), instructions: val("CHECKIN", "instructions"),
-        phone: val("CONTACT", "phone"),
-      }}
+      fields={fields ?? { welcome: "", wifiNetwork: "", wifiPassword: "", checkIn: "", checkOut: "", instructions: "", phone: "" }}
+      patchUrl={`/api/guide-request/${gr.id}`}
+      approve={{ url: `/api/guide-request/${gr.id}/approve`, sent: !!gr.sentAt }}
+      emptyNote={gr.status === "FAILED"
+        ? "Vodič nije napravljen automatski. Napravi ga ručno (outreach agent / create_guide.py) ili se javi posjetiocu."
+        : "Vodič se još pravi. Osvježi stranicu za minut."}
     />
   );
 }
