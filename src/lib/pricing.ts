@@ -25,16 +25,21 @@ export function calculateMonthlyPrice(propertyCount: number): MonthlyPrice {
 
 // ─── Hotels (2026-11-21) ───────────────────────────────────────────────────────
 // Same packages as smartstay.ba/hoteli/: price by number of rooms, all features included.
-// More than 80 rooms is "po dogovoru" on the site; until a custom deal is set the largest package applies.
+// Above 80 rooms (decided 2026-11-21): Veliki 169 KM + 1,50 KM for every room over 80.
 export const HOTEL_PACKAGES = [
   { name: "Mini", maxRooms: 7, price: 59 },
   { name: "Mali", maxRooms: 15, price: 79 },
   { name: "Srednji", maxRooms: 40, price: 119 },
-  { name: "Veliki", maxRooms: Infinity, price: 169 },
+  { name: "Veliki", maxRooms: 80, price: 169 },
 ] as const;
+export const HOTEL_EXTRA_ROOM_PRICE = 1.5;
 
-export function hotelPackage(rooms: number) {
-  return HOTEL_PACKAGES.find((p) => Math.max(rooms, 0) <= p.maxRooms) ?? HOTEL_PACKAGES[HOTEL_PACKAGES.length - 1];
+export function hotelPackage(rooms: number): { name: string; price: number } {
+  const r = Math.max(Math.round(rooms), 0);
+  const pkg = HOTEL_PACKAGES.find((p) => r <= p.maxRooms);
+  if (pkg) return { name: pkg.name, price: pkg.price };
+  const big = HOTEL_PACKAGES[HOTEL_PACKAGES.length - 1];
+  return { name: big.name, price: Math.round((big.price + (r - big.maxRooms) * HOTEL_EXTRA_ROOM_PRICE) * 100) / 100 };
 }
 
 /** 1 soba, 2–4 sobe, 5+ soba (21 soba, 22 sobe…) */
