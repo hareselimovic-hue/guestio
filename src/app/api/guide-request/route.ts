@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { detectPlatform, normaliseUrl } from "@/lib/listing-import";
-import { processGuideRequest } from "@/lib/guide-request";
+import { processGuideRequest, notifyNewLead } from "@/lib/guide-request";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // read listing + AI + translation run in after()
@@ -60,6 +60,11 @@ export async function POST(req: NextRequest) {
 
   const gr = await prisma.guideRequest.create({ data: { email, url, platform, kind, lang } });
   after(async () => {
+    try {
+      await notifyNewLead(gr); // heads-up to info@smartstay.ba right away
+    } catch (e) {
+      console.error("[guide-request] new-lead email failed:", e);
+    }
     try {
       await processGuideRequest(gr.id);
     } catch (e) {

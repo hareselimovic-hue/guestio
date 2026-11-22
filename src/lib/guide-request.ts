@@ -158,6 +158,20 @@ export async function notifyAdmin(id: string) {
   await prisma.guideRequest.update({ where: { id }, data: { notifiedAt: new Date() } });
 }
 
+/** Right when a visitor leaves a link: short heads-up to info@smartstay.ba (the review email follows when the guide is ready). */
+export async function notifyNewLead(req: { id: string; email: string; url: string; platform: string; kind: string; lang: string; createdAt: Date }) {
+  const platform = req.platform === "AIRBNB" ? "Airbnb" : req.platform === "BOOKING" ? "Booking" : "sajt";
+  await sendMail("info@smartstay.ba", `Neko je ostavio link: ${req.email}`, adminShell(`
+    <p style="margin:0 0 4px;font-size:12px;font-weight:700;color:#FF6700;text-transform:uppercase;letter-spacing:.5px;">Novi lead sa sajta · ${platform}${req.kind === "HOTEL" ? " · hotel" : ""}</p>
+    <p style="margin:0 0 12px;font-size:20px;font-weight:700;color:#262626;">Neko je ostavio link za vodič</p>
+    <p style="margin:0 0 12px;font-size:14px;color:#6B6B6B;line-height:1.7;"><b>Email:</b> ${esc(req.email)}<br>
+    <b>Link:</b> <a href="${esc(req.url)}">${esc(req.url)}</a><br>
+    <b>Jezik:</b> ${req.lang === "en" ? "engleski" : "bosanski"}<br>
+    <b>Vrijeme:</b> ${req.createdAt.toLocaleString("bs-BA", { timeZone: "Europe/Sarajevo" })}</p>
+    <p style="margin:0;font-size:14px;color:#6B6B6B;">Vodič se upravo pravi. Kad bude gotov, na ${esc(ADMIN_EMAIL)} stiže mail „Novi vodič čeka odobrenje“${req.platform === "BOOKING" ? " (Booking: do sat vremena)" : ""}.</p>
+    ${button(reviewUrl(req.id), "Otvori zahtjev")}`));
+}
+
 /** Admin approved → the visitor gets their guide (view + claim). */
 export async function sendToVisitor(id: string): Promise<{ ok: boolean; error?: string }> {
   const req = await prisma.guideRequest.findUnique({ where: { id } });
