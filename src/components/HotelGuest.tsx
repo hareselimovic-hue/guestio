@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  Megaphone, BellRing, Sparkles, Bath, Wrench, AlarmClock, MessageSquarePlus, UtensilsCrossed,
+  Megaphone, BellRing, Sparkles, Bath, Wrench, MessageSquarePlus, UtensilsCrossed,
   CalendarCheck, Gift, Star, X, Minus, Plus, CheckCircle2, Loader2, ExternalLink, BookOpen, ShoppingBag, BedDouble, Car, MapPin, QrCode,
 } from "lucide-react";
 
@@ -296,6 +296,31 @@ function readIds(slug: string): string[] {
 }
 function rememberRequest(slug: string, id: string) {
   try { localStorage.setItem(requestsKey(slug), JSON.stringify([id, ...readIds(slug)].slice(0, 30))); } catch {}
+  try { window.dispatchEvent(new Event(REQUESTS_EVENT)); } catch {}
+}
+const REQUESTS_EVENT = "smartstay-requests-changed";
+const OPEN_STATUSES = new Set(["NEW", "IN_PROGRESS"]);
+
+/** How many of this device's requests are still open (Received / In progress) — badge on the Reception tab. */
+function useOpenRequestCount(slug?: string) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!slug) return;
+    let alive = true;
+    async function load() {
+      const ids = readIds(slug!);
+      if (ids.length === 0) { if (alive) setCount(0); return; }
+      try {
+        const res = await fetch(`/api/hotel/public/requests?slug=${encodeURIComponent(slug!)}&ids=${ids.join(",")}`);
+        if (res.ok && alive) setCount(((await res.json()) as { status: string }[]).filter((r) => OPEN_STATUSES.has(r.status)).length);
+      } catch {}
+    }
+    load();
+    const timer = setInterval(load, 20000);
+    window.addEventListener(REQUESTS_EVENT, load);
+    return () => { alive = false; clearInterval(timer); window.removeEventListener(REQUESTS_EVENT, load); };
+  }, [slug]);
+  return count;
 }
 const km = (n: number) => `${n.toFixed(2).replace(".", ",")} €`;
 const HEADING = { fontFamily: "Plus Jakarta Sans Variable, sans-serif" };
@@ -371,7 +396,6 @@ const QUICK = [
   { type: "HOUSEKEEPING", icon: Sparkles, tone: "bg-violet-50 text-violet-600" },
   { type: "TOWELS", icon: Bath, tone: "bg-sky-50 text-sky-600" },
   { type: "ISSUE", icon: Wrench, tone: "bg-amber-50 text-amber-600" },
-  { type: "WAKEUP", icon: AlarmClock, tone: "bg-rose-50 text-rose-600" },
   { type: "OTHER", icon: MessageSquarePlus, tone: "bg-navy/5 text-navy" },
 ];
 
@@ -433,7 +457,7 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
           </div>
           <div className="grid grid-cols-2 gap-2.5 p-4">
             {QUICK.map(({ type, icon: Icon, tone }, i) => {
-              const wide = i === QUICK.length - 1;
+              const wide = QUICK.length % 2 === 1 && i === QUICK.length - 1; // 4 buttons = clean 2×2 grid
               return (
                 <button
                   key={type}
@@ -654,8 +678,9 @@ function MyRequests({ ctx, refreshKey }: { ctx: GuestCtx; refreshKey: number }) 
 
 export type HotelTab = "guide" | HotelView;
 
-export function HotelTabBar({ tab, onChange, lang }: { tab: HotelTab; onChange: (t: HotelTab) => void; lang: string }) {
+export function HotelTabBar({ tab, onChange, lang, slug }: { tab: HotelTab; onChange: (t: HotelTab) => void; lang: string; slug?: string }) {
   const s = t(lang);
+  const open = useOpenRequestCount(slug);
   const items: { key: HotelTab; label: string; icon: typeof BookOpen }[] = [
     { key: "guide", label: s.tabGuide, icon: BookOpen },
     { key: "reception", label: s.tabReception, icon: BellRing },
@@ -670,7 +695,14 @@ export function HotelTabBar({ tab, onChange, lang }: { tab: HotelTab; onChange: 
             onClick={() => onChange(key)}
             className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-semibold transition-colors ${tab === key ? "text-orange" : "text-[#8A8A85]"}`}
           >
-            <Icon className="w-5 h-5" />
+            <span className="relative">
+              <Icon className="w-5 h-5" />
+              {key === "reception" && open > 0 && (
+                <span className="absolute -top-1.5 -right-2.5 min-w-4 h-4 px-1 rounded-full bg-orange text-white text-[10px] leading-4 font-bold text-center ring-2 ring-white">
+                  {open}
+                </span>
+              )}
+            </span>
             {label}
           </button>
         ))}

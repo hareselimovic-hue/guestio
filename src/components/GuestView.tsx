@@ -614,7 +614,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       {/* AI Chat */}
       <GuestChat propertySlug={property.slug} token={token} lang={lang} />
 
-      {hotel && <HotelTabBar tab={hotelTab} onChange={changeHotelTab} lang={lang} />}
+      {hotel && <HotelTabBar tab={hotelTab} onChange={changeHotelTab} lang={lang} slug={property.slug} />}
 
     </div>
   );
