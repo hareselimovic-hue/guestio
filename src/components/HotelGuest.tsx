@@ -43,6 +43,9 @@ const EN = {
   scanTitle: "Requests & orders from your room",
   scanBody: "Scan the QR code in your room to send requests to the reception and order extras — we'll know your room number automatically.",
   myRequests: "My requests",
+  trackHint: "You can follow its status in the {tab} tab, under {my}.",
+  colRequest: "Request",
+  colStatus: "Status",
   noRequests: "Your requests will show up here, with their status.",
   status: { NEW: "Received", IN_PROGRESS: "In progress", DONE: "Done", DECLINED: "Not possible" } as Record<string, string>,
   replyFrom: "Reception",
@@ -97,6 +100,9 @@ const STRINGS: Record<string, Strings> = {
     scanTitle: "Zahtjevi i narudžbe iz vaše sobe",
     scanBody: "Skenirajte QR kod u svojoj sobi da pošaljete zahtjev recepciji i naručite dodatne usluge — broj sobe prepoznajemo automatski.",
     myRequests: "Moji zahtjevi",
+    trackHint: "Status možete pratiti u tabu {tab}, pod „{my}“.",
+    colRequest: "Zahtjev",
+    colStatus: "Status",
     noRequests: "Vaši zahtjevi će se pojaviti ovdje, sa statusom.",
     status: { NEW: "Primljeno", IN_PROGRESS: "U toku", DONE: "Završeno", DECLINED: "Nije moguće" } as Record<string, string>,
     replyFrom: "Recepcija",
@@ -142,6 +148,9 @@ const STRINGS: Record<string, Strings> = {
     scanTitle: "Wünsche & Bestellungen aus Ihrem Zimmer",
     scanBody: "Scannen Sie den QR-Code in Ihrem Zimmer, um Wünsche an die Rezeption zu senden und Extras zu bestellen — Ihre Zimmernummer erkennen wir automatisch.",
     myRequests: "Meine Wünsche",
+    trackHint: "Den Status sehen Sie im Tab {tab} unter „{my}“.",
+    colRequest: "Wunsch",
+    colStatus: "Status",
     noRequests: "Ihre Wünsche erscheinen hier, mit ihrem Status.",
     status: { NEW: "Erhalten", IN_PROGRESS: "In Bearbeitung", DONE: "Erledigt", DECLINED: "Nicht möglich" } as Record<string, string>,
     replyFrom: "Rezeption",
@@ -187,6 +196,9 @@ const STRINGS: Record<string, Strings> = {
     scanTitle: "Odanızdan istekler ve siparişler",
     scanBody: "Resepsiyona istek göndermek ve ekstra sipariş vermek için odanızdaki QR kodu okutun — oda numaranızı otomatik olarak alırız.",
     myRequests: "İsteklerim",
+    trackHint: "Durumunu {tab} sekmesinde, „{my}“ bölümünde takip edebilirsiniz.",
+    colRequest: "İstek",
+    colStatus: "Durum",
     noRequests: "İstekleriniz durumlarıyla birlikte burada görünecek.",
     status: { NEW: "Alındı", IN_PROGRESS: "İşleniyor", DONE: "Tamamlandı", DECLINED: "Mümkün değil" } as Record<string, string>,
     replyFrom: "Resepsiyon",
@@ -232,6 +244,9 @@ const STRINGS: Record<string, Strings> = {
     scanTitle: "Richieste e ordini dalla tua camera",
     scanBody: "Scansiona il codice QR nella tua camera per inviare richieste alla reception e ordinare extra — riconosciamo automaticamente il numero della camera.",
     myRequests: "Le mie richieste",
+    trackHint: "Puoi seguire lo stato nella scheda {tab}, in «{my}».",
+    colRequest: "Richiesta",
+    colStatus: "Stato",
     noRequests: "Le tue richieste appariranno qui, con il loro stato.",
     status: { NEW: "Ricevuta", IN_PROGRESS: "In corso", DONE: "Fatto", DECLINED: "Non possibile" } as Record<string, string>,
     replyFrom: "Reception",
@@ -390,7 +405,7 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
   function done(message: string) {
     setPending(null);
     setToast(message);
-    setTimeout(() => setToast(""), 5000);
+    setTimeout(() => setToast(""), 8000);
   }
 
   return (
@@ -558,8 +573,14 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
 
       {toast && (
         <div className="fixed bottom-24 left-4 right-4 z-[60] flex justify-center pointer-events-none">
-          <div className="bg-[#16803D] text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 max-w-md">
-            <CheckCircle2 className="w-4 h-4 shrink-0" /> {toast}
+          <div className="bg-[#16803D] text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg flex items-start gap-2 max-w-md">
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>
+              {toast}
+              <span className="block text-xs font-normal text-white/85 mt-0.5">
+                {s.trackHint.replace("{tab}", s.tabReception).replace("{my}", s.myRequests)}
+              </span>
+            </span>
           </div>
         </div>
       )}
@@ -602,7 +623,11 @@ function MyRequests({ ctx, refreshKey }: { ctx: GuestCtx; refreshKey: number }) 
   );
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
-      <p className="px-5 py-3.5 border-b border-line-2 font-bold text-ink text-base" style={HEADING}>{s.myRequests}</p>
+      <p className="px-5 pt-3.5 pb-2 font-bold text-ink text-base" style={HEADING}>{s.myRequests}</p>
+      <div className="flex items-center gap-2 px-5 pb-2 border-b border-line-2 text-[11px] font-semibold uppercase tracking-wide text-ink-3">
+        <span className="flex-1">{s.colRequest}</span>
+        <span className="shrink-0">{s.colStatus}</span>
+      </div>
       <ul className="divide-y divide-line-3">
         {items.map((r) => {
           const what = r.items?.length ? r.items.map((i) => (i.qty > 1 ? `${i.qty} × ${i.name}` : i.name)).join(", ") : s.quick[r.type] ?? r.type;
