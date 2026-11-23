@@ -388,17 +388,17 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
           className="relative flex-1 flex flex-col overflow-hidden"
           style={{ background: heroImage ? `url(${heroImage}) center/cover no-repeat` : "linear-gradient(135deg, #0F2F61 0%, #1a4a8a 100%)" }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0B1730]/75 via-[#0B1730]/70 to-[#0B1730]/90" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0B1730]/[0.82] via-[#0B1730]/[0.78] to-[#0B1730]/[0.93]" />
           {hasTranslations && <div className="absolute top-4 right-4 z-20">{langSelect}</div>}
 
           <div className="relative z-10 flex-1 flex flex-col gap-6 w-full max-w-lg mx-auto px-5 pt-16 pb-[calc(5rem+env(safe-area-inset-bottom))] text-white">
             {/* headline centred in the free space above the cards */}
             <div className="flex-1 flex flex-col justify-center text-center">
-              <div className="self-center inline-block bg-white/20 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full mb-4 tracking-wide">
+              <div className="self-center inline-block bg-white/15 backdrop-blur-sm text-white/90 text-[11px] font-medium px-3 py-1 rounded-full mb-3 tracking-wide">
                 {property.name}
                 {hotel?.roomNumber && <span className="text-white/70"> · {roomLabel(lang)} {hotel.roomNumber}</span>}
               </div>
-              <h1 className="text-3xl sm:text-4xl font-bold leading-tight" style={HEAD}>
+              <h1 className="text-[28px] sm:text-[32px] font-semibold leading-snug" style={HEAD}>
                 {guestName ? <>{ui.welcome}, <span className="text-orange">{guestName}</span>!</> : welcomeTitle}
               </h1>
               {(checkIn || checkOut) && (
@@ -409,7 +409,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
                 </div>
               )}
               {str(welcomeContent.message) && (
-                <p className="text-white/80 text-sm leading-relaxed mt-3 line-clamp-2">{str(welcomeContent.message)}</p>
+                <p className="text-white/75 text-[13px] leading-relaxed mt-2.5">{str(welcomeContent.message)}</p>
               )}
             </div>
 
@@ -419,26 +419,26 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
               {(timeIn || timeOut || address || phone) && (
                 <div className={`${glass} divide-y divide-white/15`}>
                   {(timeIn || timeOut) && (
-                    <div className="flex justify-between gap-4 px-4 py-2.5">
-                      {timeIn && <div><p className="text-xs text-white/65">{ui.checkInAfter}</p><p className="text-lg font-bold" style={HEAD}>{timeIn}</p></div>}
-                      {timeOut && <div className="text-right"><p className="text-xs text-white/65">{ui.checkOutBefore}</p><p className="text-lg font-bold" style={HEAD}>{timeOut}</p></div>}
+                    <div className="flex justify-between gap-4 px-3.5 py-2">
+                      {timeIn && <div><p className="text-[11px] text-white/65">{ui.checkInAfter}</p><p className="text-base font-bold leading-tight" style={HEAD}>{timeIn}</p></div>}
+                      {timeOut && <div className="text-right"><p className="text-[11px] text-white/65">{ui.checkOutBefore}</p><p className="text-base font-bold leading-tight" style={HEAD}>{timeOut}</p></div>}
                     </div>
                   )}
                   {address && (
-                    <a href={mapHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-2">
-                      <MapPin className="w-5 h-5 shrink-0 text-white/80" />
-                      <span className="flex-1 min-w-0 text-sm truncate">{address}</span>
-                      <span className="w-9 h-9 shrink-0 rounded-xl bg-white/15 flex items-center justify-center"><Navigation className="w-4 h-4" /></span>
+                    <a href={mapHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-3.5 py-1.5">
+                      <MapPin className="w-4 h-4 shrink-0 text-white/80" />
+                      <span className="flex-1 min-w-0 text-[13px] truncate">{address}</span>
+                      <span className="w-8 h-8 shrink-0 rounded-lg bg-white/15 flex items-center justify-center"><Navigation className="w-3.5 h-3.5" /></span>
                     </a>
                   )}
                   {phone && (
-                    <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="flex items-center gap-3 px-4 py-2">
-                      <User className="w-5 h-5 shrink-0 text-white/80" />
+                    <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="flex items-center gap-2.5 px-3.5 py-1.5">
+                      <User className="w-4 h-4 shrink-0 text-white/80" />
                       <span className="flex-1 min-w-0">
-                        <span className="block text-sm font-semibold truncate">{contactName || (hotel ? ui.reception : ui.host)}</span>
-                        <span className="block text-xs text-white/65">{phone}</span>
+                        <span className="block text-[13px] font-semibold truncate leading-tight">{contactName || (hotel ? ui.reception : ui.host)}</span>
+                        <span className="block text-[11px] text-white/65">{phone}</span>
                       </span>
-                      <span className="w-9 h-9 shrink-0 rounded-xl bg-white/15 flex items-center justify-center"><Phone className="w-4 h-4" /></span>
+                      <span className="w-8 h-8 shrink-0 rounded-lg bg-white/15 flex items-center justify-center"><Phone className="w-3.5 h-3.5" /></span>
                     </a>
                   )}
                 </div>
@@ -447,7 +447,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
               {registrationEnabled && (
                 <a
                   href={registrationHref}
-                  className="w-full inline-flex items-center justify-center gap-2 border-2 border-white/80 hover:bg-white/15 text-white font-semibold px-6 py-2.5 rounded-2xl transition-all backdrop-blur-sm"
+                  className="w-full inline-flex items-center justify-center gap-2 border-2 border-white/80 hover:bg-white/15 text-white text-sm font-semibold px-6 py-2 rounded-2xl transition-all backdrop-blur-sm"
                   style={HEAD}
                 >
                   {registrationSent ? <CheckCircle2 className="w-4 h-4" /> : <ClipboardList className="w-4 h-4" />}
@@ -458,7 +458,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
               {otherSections.length > 0 && (
                 <button
                   onClick={() => changeTab("info")}
-                  className="w-full inline-flex items-center justify-center gap-2 bg-orange hover:bg-orange-dark text-white font-semibold px-6 py-3 rounded-2xl transition-all active:scale-[0.99] shadow-lg"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-orange hover:bg-orange-dark text-white text-[15px] font-semibold px-6 py-2.5 rounded-2xl transition-all active:scale-[0.99] shadow-lg"
                   style={HEAD}
                 >
                   {ctaText} →

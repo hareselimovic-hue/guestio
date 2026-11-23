@@ -106,21 +106,21 @@ export default function GuestWeather({ slug, mapUrl, lang }: { slug: string; map
     i === 0 ? t.today : new Date(`${date}T12:00:00Z`).toLocaleDateString(LOCALE[lang] ?? "en-GB", { weekday: "short", timeZone: "UTC" }).replace(".", "");
 
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-white/12 backdrop-blur-md border border-white/20 px-4 py-2.5 text-white">
+    <div className="flex items-center gap-3 rounded-2xl bg-white/12 backdrop-blur-md border border-white/20 px-3.5 py-2 text-white">
       <div className="flex items-center gap-2.5 min-w-0 flex-1">
-        <span className="text-3xl leading-none">{icon(w.code, w.isDay)}</span>
+        <span className="text-2xl leading-none">{icon(w.code, w.isDay)}</span>
         <div className="min-w-0">
-          <p className="text-[11px] uppercase tracking-wide text-white/60 font-semibold">{t.now} · {time}</p>
-          <p className="text-xl font-bold leading-tight" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{w.temp}°C</p>
-          <p className="text-xs text-white/75 truncate">{t.desc(w.code)}</p>
+          <p className="text-[10px] uppercase tracking-wide text-white/60 font-semibold">{t.now} · {time}</p>
+          <p className="text-base font-bold leading-tight" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{w.temp}°C</p>
+          <p className="text-[11px] text-white/75 truncate">{t.desc(w.code)}</p>
         </div>
       </div>
-      <div className="flex gap-3 shrink-0 text-center">
+      <div className="flex gap-2.5 shrink-0 text-center">
         {w.days.map((d, i) => (
           <div key={d.date} className="flex flex-col items-center gap-0.5">
-            <span className="text-[11px] font-semibold text-white/80 capitalize">{dayName(d.date, i)}</span>
-            <span className="text-base leading-none">{icon(d.code)}</span>
-            <span className="text-[11px] text-white/75 whitespace-nowrap">{d.max}° / {d.min}°</span>
+            <span className="text-[10px] font-semibold text-white/80 capitalize">{dayName(d.date, i)}</span>
+            <span className="text-sm leading-none">{icon(d.code)}</span>
+            <span className="text-[10px] text-white/75 whitespace-nowrap">{d.max}° / {d.min}°</span>
           </div>
         ))}
       </div>

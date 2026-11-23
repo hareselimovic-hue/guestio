@@ -823,18 +823,18 @@ export function HotelTabBar({ tab, onChange, lang, slug, isHotel = true }: { tab
     { key: "assistant", label: s.tabAssistant, icon: MessageCircle },
   ];
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-line pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#0B1730] border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
       <div className="max-w-2xl mx-auto flex">
         {items.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => onChange(key)}
-            className={`flex-1 min-w-0 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-semibold transition-colors ${tab === key ? "text-orange" : "text-[#8A8A85]"}`}
+            className={`flex-1 min-w-0 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-semibold transition-colors ${tab === key ? "text-orange" : "text-white/70"}`}
           >
             <span className="relative">
               <Icon className="w-5 h-5" />
               {key === "reception" && open > 0 && (
-                <span className="absolute -top-1.5 -right-2.5 min-w-4 h-4 px-1 rounded-full bg-orange text-white text-[10px] leading-4 font-bold text-center ring-2 ring-white">
+                <span className="absolute -top-1.5 -right-2.5 min-w-4 h-4 px-1 rounded-full bg-orange text-white text-[10px] leading-4 font-bold text-center ring-2 ring-[#0B1730]">
                   {open}
                 </span>
               )}
