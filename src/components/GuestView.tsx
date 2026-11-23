@@ -405,7 +405,6 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
               <h1 className="text-[28px] sm:text-[32px] font-semibold leading-snug" style={HEAD}>
                 {guestName ? <>{ui.welcome}, <span className="text-orange">{guestName}</span>!</> : welcomeTitle}
               </h1>
-              <GuestWeather slug={property.slug} mapUrl={guideMapUrl} lang={lang} />
               {(checkIn || checkOut) && (
                 <div className="flex items-center justify-center gap-2 text-white/80 text-sm mt-2">
                   <span>{checkIn && formatDate(checkIn)}</span>
@@ -416,6 +415,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
               {str(welcomeContent.message) && (
                 <p className="text-white/75 text-[13px] leading-relaxed mt-2.5">{str(welcomeContent.message).length <= 140 ? str(welcomeContent.message) : ui.stayStarts}</p>
               )}
+              <GuestWeather slug={property.slug} mapUrl={guideMapUrl} lang={lang} />
             </div>
 
             <div className="space-y-2">
