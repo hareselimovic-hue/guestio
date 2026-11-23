@@ -100,11 +100,11 @@ const UI_STRINGS: Record<string, {
   trueLocalTitle: string; trueLocalBody: string; trueLocalCta: string;
   rentCarTitle: string; rentCarBody: string; callUs: string;
   regTitle: string; regBody: string; regCta: string; regDone: string; regDoneBody: string;
-  checkInAfter: string; checkOutBefore: string; searchPh: string; noResults: string; host: string; reception: string;
+  checkInAfter: string; checkOutBefore: string; searchPh: string; noResults: string; host: string; reception: string; stayStarts: string;
   sections: Record<string, { label: string; subtitle?: string }>;
 }> = {
   EN: {
-    checkInAfter: "Check-in after", checkOutBefore: "Check-out before", searchPh: "Search the guide…", noResults: "Nothing found for", host: "Your host", reception: "Reception",
+    checkInAfter: "Check-in after", checkOutBefore: "Check-out before", searchPh: "Search the guide…", noResults: "Nothing found for", host: "Your host", reception: "Reception", stayStarts: "Your stay starts here. All the important details and helpful information are just below.",
     welcome: "Welcome",
     exploreGuide: "Explore the guide",
     guideSoon: "Guide coming soon",
@@ -131,7 +131,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   BS: {
-    checkInAfter: "Check-in od", checkOutBefore: "Check-out do", searchPh: "Pretražite vodič…", noResults: "Nema rezultata za", host: "Vaš domaćin", reception: "Recepcija",
+    checkInAfter: "Check-in od", checkOutBefore: "Check-out do", searchPh: "Pretražite vodič…", noResults: "Nema rezultata za", host: "Vaš domaćin", reception: "Recepcija", stayStarts: "Vaš boravak počinje ovdje. Sve važne informacije i korisni savjeti su odmah ispod.",
     welcome: "Dobro došli",
     exploreGuide: "Pogledaj vodič",
     guideSoon: "Vodič uskoro",
@@ -158,7 +158,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   DE: {
-    checkInAfter: "Check-in ab", checkOutBefore: "Check-out bis", searchPh: "Im Gästeführer suchen…", noResults: "Keine Ergebnisse für", host: "Ihr Gastgeber", reception: "Rezeption",
+    checkInAfter: "Check-in ab", checkOutBefore: "Check-out bis", searchPh: "Im Gästeführer suchen…", noResults: "Keine Ergebnisse für", host: "Ihr Gastgeber", reception: "Rezeption", stayStarts: "Ihr Aufenthalt beginnt hier. Alle wichtigen Details und hilfreichen Informationen finden Sie gleich unten.",
     welcome: "Willkommen",
     exploreGuide: "Zum Gästeführer",
     guideSoon: "Leitfaden kommt bald",
@@ -185,7 +185,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   TR: {
-    checkInAfter: "Giriş saati", checkOutBefore: "Çıkış saati", searchPh: "Rehberde ara…", noResults: "Sonuç bulunamadı:", host: "Ev sahibiniz", reception: "Resepsiyon",
+    checkInAfter: "Giriş saati", checkOutBefore: "Çıkış saati", searchPh: "Rehberde ara…", noResults: "Sonuç bulunamadı:", host: "Ev sahibiniz", reception: "Resepsiyon", stayStarts: "Konaklamanız burada başlıyor. Tüm önemli bilgiler ve faydalı ipuçları hemen aşağıda.",
     welcome: "Hoş Geldiniz",
     exploreGuide: "Rehberi Keşfet",
     guideSoon: "Rehber Yakında",
@@ -212,7 +212,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   IT: {
-    checkInAfter: "Check-in dalle", checkOutBefore: "Check-out entro", searchPh: "Cerca nella guida…", noResults: "Nessun risultato per", host: "Il tuo host", reception: "Reception",
+    checkInAfter: "Check-in dalle", checkOutBefore: "Check-out entro", searchPh: "Cerca nella guida…", noResults: "Nessun risultato per", host: "Il tuo host", reception: "Reception", stayStarts: "Il tuo soggiorno inizia qui. Tutti i dettagli importanti e le informazioni utili sono qui sotto.",
     welcome: "Benvenuto",
     exploreGuide: "Esplora la guida",
     guideSoon: "Guida in arrivo",
@@ -358,12 +358,14 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       })
     : otherSections;
 
-  const langSelect = hasTranslations && (
+  const langPicker = (light: boolean) => hasTranslations && (
     <select
       value={lang}
       onChange={(e) => changeLang(e.target.value)}
-      className="bg-white/20 backdrop-blur-sm text-white text-sm font-medium px-3 py-1.5 rounded-full border border-white/30 outline-none cursor-pointer appearance-none pr-7"
-      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 8px center" }}
+      className={light
+        ? "shrink-0 bg-white text-ink text-sm font-medium px-3 h-12 rounded-2xl border border-line shadow-sm outline-none cursor-pointer appearance-none pr-7"
+        : "bg-white/20 backdrop-blur-sm text-white text-sm font-medium px-3 py-1.5 rounded-full border border-white/30 outline-none cursor-pointer appearance-none pr-7"}
+      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='${light ? "%23525252" : "white"}' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 8px center" }}
     >
       {LANGUAGES.map((l) => (
         <option key={l.code} value={l.code} style={{ color: "#262626", background: "#fff" }}>
@@ -389,7 +391,9 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
           style={{ background: heroImage ? `url(${heroImage}) center/cover no-repeat` : "linear-gradient(135deg, #0F2F61 0%, #1a4a8a 100%)" }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-[#0B1730]/[0.82] via-[#0B1730]/[0.78] to-[#0B1730]/[0.93]" />
-          {hasTranslations && <div className="absolute top-4 right-4 z-20">{langSelect}</div>}
+          {/* every photo ends in solid navy, so the tab icons sit on it */}
+          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#0B1730] via-[#0B1730]/90 to-transparent" />
+          {hasTranslations && <div className="absolute top-4 right-4 z-20">{langPicker(false)}</div>}
 
           <div className="relative z-10 flex-1 flex flex-col gap-6 w-full max-w-lg mx-auto px-5 pt-16 pb-[calc(5rem+env(safe-area-inset-bottom))] text-white">
             {/* headline centred in the free space above the cards */}
@@ -401,6 +405,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
               <h1 className="text-[28px] sm:text-[32px] font-semibold leading-snug" style={HEAD}>
                 {guestName ? <>{ui.welcome}, <span className="text-orange">{guestName}</span>!</> : welcomeTitle}
               </h1>
+              <GuestWeather slug={property.slug} mapUrl={guideMapUrl} lang={lang} />
               {(checkIn || checkOut) && (
                 <div className="flex items-center justify-center gap-2 text-white/80 text-sm mt-2">
                   <span>{checkIn && formatDate(checkIn)}</span>
@@ -409,12 +414,11 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
                 </div>
               )}
               {str(welcomeContent.message) && (
-                <p className="text-white/75 text-[13px] leading-relaxed mt-2.5">{str(welcomeContent.message)}</p>
+                <p className="text-white/75 text-[13px] leading-relaxed mt-2.5">{str(welcomeContent.message).length <= 140 ? str(welcomeContent.message) : ui.stayStarts}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <GuestWeather slug={property.slug} mapUrl={guideMapUrl} lang={lang} />
 
               {(timeIn || timeOut || address || phone) && (
                 <div className={`${glass} divide-y divide-white/15`}>
@@ -469,17 +473,9 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
         </div>
       )}
 
-      {/* ── Compact header on Info / Reception / Extras ── */}
-      {(tab === "info" || tab === "reception" || tab === "extras") && (
-        <div className="bg-navy text-white">
-          <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-lg leading-tight truncate" style={HEAD}>{property.name}</p>
-              {hotel?.roomNumber && <p className="text-xs text-white/70">{roomLabel(lang)} {hotel.roomNumber}</p>}
-            </div>
-            {langSelect}
-          </div>
-        </div>
+      {/* Reception / Extras: just the language picker, no header bar */}
+      {(tab === "reception" || tab === "extras") && hasTranslations && (
+        <div className="max-w-2xl mx-auto px-4 pt-4 -mb-1 flex justify-end">{langPicker(true)}</div>
       )}
 
       {/* Reception / Extras stay mounted (hidden otherwise) so the room-service cart survives tab switches */}
@@ -493,8 +489,10 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       {tab === "info" && <>
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
 
-        {otherSections.length > 3 && (
-          <div className="relative">
+        {(otherSections.length > 3 || hasTranslations) && (
+          <div className="flex gap-2">
+          {otherSections.length > 3 ? (
+          <div className="relative flex-1 min-w-0">
             <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-ink-3" />
             <input
               value={query}
@@ -507,6 +505,9 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
                 <X className="w-4 h-4" />
               </button>
             )}
+          </div>
+          ) : <div className="flex-1" />}
+          {langPicker(true)}
           </div>
         )}
 

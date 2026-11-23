@@ -823,7 +823,8 @@ export function HotelTabBar({ tab, onChange, lang, slug, isHotel = true }: { tab
     { key: "assistant", label: s.tabAssistant, icon: MessageCircle },
   ];
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#0B1730] border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
+    // On Home the bar has no background: the photo itself fades into navy at the bottom
+    <nav className={`fixed bottom-0 left-0 right-0 z-40 pb-[env(safe-area-inset-bottom)] transition-colors ${tab === "home" ? "bg-transparent border-t border-transparent" : "bg-[#0B1730] border-t border-white/10"}`}>
       <div className="max-w-2xl mx-auto flex">
         {items.map(({ key, label, icon: Icon }) => (
           <button

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 /**
- * Weather now + local time + 3 days for the guest guide's Home screen (Open-Meteo: free, no key).
+ * Current weather (one line under the headline) for the guest guide's Home screen (Open-Meteo: free, no key).
  * Location: coordinates from the guide's map link; otherwise /api/guide/geo (short Google Maps links, address with town).
  * Renders nothing until it has data (or if anything fails) — the guide never depends on it.
  */
@@ -62,7 +62,6 @@ const CACHE_MIN = 30;
 
 export default function GuestWeather({ slug, mapUrl, lang }: { slug: string; mapUrl?: string | null; lang: string }) {
   const [w, setW] = useState<Weather | null>(null);
-  const [, tick] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -93,37 +92,18 @@ export default function GuestWeather({ slug, mapUrl, lang }: { slug: string; map
         try { sessionStorage.setItem(key, JSON.stringify({ at: Date.now(), w: next })); } catch {}
       } catch { /* no weather — fine */ }
     })();
-    // the clock
-    const timer = setInterval(() => tick((n) => n + 1), 30_000);
-    return () => { alive = false; clearInterval(timer); };
+    return () => { alive = false; };
   }, [slug, mapUrl]);
 
   if (!w) return null;
   const t = T[lang] ?? T.EN;
-  const local = new Date(Date.now() + w.offset * 1000);
-  const time = `${String(local.getUTCHours()).padStart(2, "0")}:${String(local.getUTCMinutes()).padStart(2, "0")}`;
-  const dayName = (date: string, i: number) =>
-    i === 0 ? t.today : new Date(`${date}T12:00:00Z`).toLocaleDateString(LOCALE[lang] ?? "en-GB", { weekday: "short", timeZone: "UTC" }).replace(".", "");
 
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-white/12 backdrop-blur-md border border-white/20 px-3.5 py-2 text-white">
-      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-        <span className="text-2xl leading-none">{icon(w.code, w.isDay)}</span>
-        <div className="min-w-0">
-          <p className="text-[10px] uppercase tracking-wide text-white/60 font-semibold">{t.now} · {time}</p>
-          <p className="text-base font-bold leading-tight" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{w.temp}°C</p>
-          <p className="text-[11px] text-white/75 truncate">{t.desc(w.code)}</p>
-        </div>
-      </div>
-      <div className="flex gap-2.5 shrink-0 text-center">
-        {w.days.map((d, i) => (
-          <div key={d.date} className="flex flex-col items-center gap-0.5">
-            <span className="text-[10px] font-semibold text-white/80 capitalize">{dayName(d.date, i)}</span>
-            <span className="text-sm leading-none">{icon(d.code)}</span>
-            <span className="text-[10px] text-white/75 whitespace-nowrap">{d.max}° / {d.min}°</span>
-          </div>
-        ))}
-      </div>
-    </div>
+    <p className="self-center inline-flex items-center gap-1.5 mt-2 text-[13px] text-white/85">
+      <span className="text-base leading-none">{icon(w.code, w.isDay)}</span>
+      <span className="font-semibold text-white">{w.temp}°C</span>
+      <span className="text-white/50">·</span>
+      <span>{t.desc(w.code)}</span>
+    </p>
   );
 }
