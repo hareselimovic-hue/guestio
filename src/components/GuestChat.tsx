@@ -16,6 +16,14 @@ const SUGGESTED: Record<string, string[]> = {
   IT: ["Qual è la password WiFi?", "A che ora è il check-out?", "Dove posso parcheggiare?"],
 };
 
+const TXT: Record<string, { title: string; sub: string; empty: string; ph: string; error: string }> = {
+  EN: { title: "Ask your host assistant", sub: "Powered by AI · answers in seconds", empty: "Ask me anything about your stay!", ph: "Type a question...", error: "Sorry, something went wrong. Please try again." },
+  BS: { title: "Pitajte asistenta", sub: "AI asistent · odgovor za par sekundi", empty: "Pitajte me bilo šta o vašem boravku!", ph: "Upišite pitanje...", error: "Izvinite, nešto nije u redu. Pokušajte ponovo." },
+  DE: { title: "Fragen Sie den Assistenten", sub: "KI-Assistent · Antwort in Sekunden", empty: "Fragen Sie mich alles zu Ihrem Aufenthalt!", ph: "Frage eingeben...", error: "Entschuldigung, etwas ist schiefgelaufen. Bitte erneut versuchen." },
+  TR: { title: "Asistana sorun", sub: "Yapay zekâ · saniyeler içinde yanıt", empty: "Konaklamanızla ilgili her şeyi sorabilirsiniz!", ph: "Bir soru yazın...", error: "Üzgünüz, bir sorun oluştu. Lütfen tekrar deneyin." },
+  IT: { title: "Chiedi all'assistente", sub: "Assistente IA · risposte in pochi secondi", empty: "Chiedimi qualsiasi cosa sul tuo soggiorno!", ph: "Scrivi una domanda...", error: "Spiacenti, qualcosa è andato storto. Riprova." },
+};
+
 interface Props {
   propertySlug: string;
   token: string;
@@ -24,11 +32,15 @@ interface Props {
   hideLauncher?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Guest guide "Assistant" tab: the chat fills the screen above the bottom tab bar (kept mounted, shown when visible) */
+  embedded?: boolean;
+  visible?: boolean;
 }
 
-export default function GuestChat({ propertySlug, token, lang, hideLauncher, open: openProp, onOpenChange }: Props) {
+export default function GuestChat({ propertySlug, token, lang, hideLauncher, open: openProp, onOpenChange, embedded = false, visible = true }: Props) {
   const [openState, setOpenState] = useState(false);
-  const open = openProp ?? openState;
+  const open = embedded ? visible : openProp ?? openState;
+  const tx = TXT[lang] ?? TXT.EN;
   const setOpen = (o: boolean) => { setOpenState(o); onOpenChange?.(o); };
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -42,8 +54,9 @@ export default function GuestChat({ propertySlug, token, lang, hideLauncher, ope
   }, [messages]);
 
   useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 100);
-  }, [open]);
+    // Embedded tab: no auto-focus (the keyboard would pop up as soon as the guest opens the tab)
+    if (open && !embedded) setTimeout(() => inputRef.current?.focus(), 100);
+  }, [open, embedded]);
 
   // Adjust panel position when virtual keyboard opens on mobile
   useEffect(() => {
@@ -55,7 +68,8 @@ export default function GuestChat({ propertySlug, token, lang, hideLauncher, ope
       const panel = panelRef.current;
       if (!panel) return;
       const offsetBottom = window.innerHeight - vv.height - vv.offsetTop;
-      panel.style.bottom = `${Math.max(0, offsetBottom)}px`;
+      // Embedded: stays above the tab bar unless the keyboard is open (then it sits on the keyboard)
+      panel.style.bottom = embedded && offsetBottom < 40 ? "" : `${Math.max(0, offsetBottom)}px`;
     };
 
     vv.addEventListener("resize", adjust);
@@ -65,7 +79,7 @@ export default function GuestChat({ propertySlug, token, lang, hideLauncher, ope
       vv.removeEventListener("scroll", adjust);
       if (panelRef.current) panelRef.current.style.bottom = "";
     };
-  }, [open]);
+  }, [open, embedded]);
 
   async function send(question?: string) {
     const q = (question ?? input).trim();
@@ -104,7 +118,7 @@ export default function GuestChat({ propertySlug, token, lang, hideLauncher, ope
         const updated = [...prev];
         updated[updated.length - 1] = {
           role: "assistant",
-          content: "Sorry, something went wrong. Please try again.",
+          content: tx.error,
         };
         return updated;
       });
@@ -118,7 +132,7 @@ export default function GuestChat({ propertySlug, token, lang, hideLauncher, ope
   return (
     <>
       {/* Floating bubble */}
-      {!open && !hideLauncher && (
+      {!open && !hideLauncher && !embedded && (
         <button
           onClick={() => setOpen(true)}
           className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#FF6700] hover:bg-[#e05c00] text-white rounded-full shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95"
@@ -130,8 +144,11 @@ export default function GuestChat({ propertySlug, token, lang, hideLauncher, ope
 
       {/* Chat panel */}
       {open && (
-        <div ref={panelRef} className="fixed bottom-0 left-0 right-0 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[360px] z-50 bg-white sm:rounded-2xl shadow-2xl border border-[#EDEDE9] flex flex-col overflow-hidden"
-          style={{ height: 500, maxHeight: "85vh" }}>
+        <div ref={panelRef}
+          className={embedded
+            ? "fixed top-0 left-0 right-0 z-30 bg-white flex flex-col overflow-hidden bottom-[calc(4rem+env(safe-area-inset-bottom))]"
+            : "fixed bottom-0 left-0 right-0 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[360px] z-50 bg-white sm:rounded-2xl shadow-2xl border border-[#EDEDE9] flex flex-col overflow-hidden"}
+          style={embedded ? undefined : { height: 500, maxHeight: "85vh" }}>
 
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[#EDEDE9] bg-white shrink-0">
@@ -140,16 +157,16 @@ export default function GuestChat({ propertySlug, token, lang, hideLauncher, ope
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-sm text-[#262626]" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
-                Ask your host assistant
+                {tx.title}
               </p>
-              <p className="text-xs text-[#9B9B9B]">Powered by AI · answers in seconds</p>
+              <p className="text-xs text-[#9B9B9B]">{tx.sub}</p>
             </div>
-            <button
+            {!embedded && <button
               onClick={() => { inputRef.current?.blur(); setOpen(false); }}
               className="text-[#6B6B6B] hover:text-[#262626] transition-colors shrink-0 p-1"
             >
               <X className="w-5 h-5" />
-            </button>
+            </button>}
           </div>
 
           {/* Messages */}
@@ -157,7 +174,7 @@ export default function GuestChat({ propertySlug, token, lang, hideLauncher, ope
             {messages.length === 0 ? (
               <div className="py-4">
                 <p className="text-sm text-[#6B6B6B] text-center mb-4">
-                  Ask me anything about your stay!
+                  {tx.empty}
                 </p>
                 <div className="space-y-2">
                   {suggested.map((q) => (
@@ -201,7 +218,7 @@ export default function GuestChat({ propertySlug, token, lang, hideLauncher, ope
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
-                placeholder="Type a question..."
+                placeholder={tx.ph}
                 disabled={loading}
                 style={{ fontSize: 16, minWidth: 0, width: "100%" }}
                 className="text-sm px-4 py-2.5 rounded-xl border border-[#EDEDE9] focus:outline-none focus:border-[#FF6700] transition-colors disabled:opacity-50 bg-[#F7F7F5]"

@@ -5,10 +5,11 @@ import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
   Copy, Check, ChevronDown, Phone, ParkingSquare, X, ClipboardList, CheckCircle2,
   Coffee, Sparkles, UtensilsCrossed, Car, PawPrint, Waves, BookOpen, Dumbbell, Baby, Bike,
-  ShoppingBag, Thermometer, Tv, WashingMachine, Trash2, Info, Bus, Luggage,
+  ShoppingBag, Thermometer, Tv, WashingMachine, Trash2, Info, Bus, Luggage, Search, Navigation, User,
 } from "lucide-react";
 import { useState } from "react";
 import GuestChat from "./GuestChat";
+import GuestWeather from "./GuestWeather";
 import { REGISTRATION_SENT_KEY } from "./GuestRegistrationForm";
 import {
   GoogleReviewCard, HotelAnnouncements, HotelServicesPanel, HotelTabBar, roomLabel,
@@ -99,9 +100,11 @@ const UI_STRINGS: Record<string, {
   trueLocalTitle: string; trueLocalBody: string; trueLocalCta: string;
   rentCarTitle: string; rentCarBody: string; callUs: string;
   regTitle: string; regBody: string; regCta: string; regDone: string; regDoneBody: string;
+  checkInAfter: string; checkOutBefore: string; searchPh: string; noResults: string; host: string; reception: string;
   sections: Record<string, { label: string; subtitle?: string }>;
 }> = {
   EN: {
+    checkInAfter: "Check-in after", checkOutBefore: "Check-out before", searchPh: "Search the guide…", noResults: "Nothing found for", host: "Your host", reception: "Reception",
     welcome: "Welcome",
     exploreGuide: "Explore the guide",
     guideSoon: "Guide coming soon",
@@ -128,6 +131,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   BS: {
+    checkInAfter: "Check-in od", checkOutBefore: "Check-out do", searchPh: "Pretražite vodič…", noResults: "Nema rezultata za", host: "Vaš domaćin", reception: "Recepcija",
     welcome: "Dobro došli",
     exploreGuide: "Pogledaj vodič",
     guideSoon: "Vodič uskoro",
@@ -154,6 +158,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   DE: {
+    checkInAfter: "Check-in ab", checkOutBefore: "Check-out bis", searchPh: "Im Gästeführer suchen…", noResults: "Keine Ergebnisse für", host: "Ihr Gastgeber", reception: "Rezeption",
     welcome: "Willkommen",
     exploreGuide: "Zum Gästeführer",
     guideSoon: "Leitfaden kommt bald",
@@ -180,6 +185,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   TR: {
+    checkInAfter: "Giriş saati", checkOutBefore: "Çıkış saati", searchPh: "Rehberde ara…", noResults: "Sonuç bulunamadı:", host: "Ev sahibiniz", reception: "Resepsiyon",
     welcome: "Hoş Geldiniz",
     exploreGuide: "Rehberi Keşfet",
     guideSoon: "Rehber Yakında",
@@ -206,6 +212,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   IT: {
+    checkInAfter: "Check-in dalle", checkOutBefore: "Check-out entro", searchPh: "Cerca nella guida…", noResults: "Nessun risultato per", host: "Il tuo host", reception: "Reception",
     welcome: "Benvenuto",
     exploreGuide: "Esplora la guida",
     guideSoon: "Guida in arrivo",
@@ -275,7 +282,6 @@ function getContent(section: Section, lang: string): Record<string, unknown> {
 }
 
 export default function GuestView({ property, sections, guestName, checkIn, checkOut, token, registrationEnabled = false, hotel = null }: Props) {
-  const sectionsRef = useRef<HTMLDivElement>(null);
   const [lang, setLang] = useState("EN");
   const registrationHref = `/g/${property.slug}/registration?from=${token}`;
   const [registrationSent, setRegistrationSent] = useState(false);
@@ -323,18 +329,34 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString("en", { day: "numeric", month: "long" });
 
-  function scrollToSections() {
-    sectionsRef.current?.scrollIntoView({ behavior: "smooth" });
-  }
-
   const hotelCtx = hotel ? { slug: property.slug, token, lang, roomNumber: hotel.roomNumber } : null;
-  // Hotels: bottom tab bar — Guide / Reception / Extras
-  const [hotelTab, setHotelTab] = useState<HotelTab>("guide");
-  function changeHotelTab(next: HotelTab) {
-    setHotelTab(next);
+  // Bottom tabs for every guide: Home · Info · (hotels: Reception · Extras) · Assistant
+  const [tab, setTab] = useState<HotelTab>("home");
+  function changeTab(next: HotelTab) {
+    setTab(next);
     window.scrollTo({ top: 0 });
   }
-  const showGuide = !hotel || hotelTab === "guide";
+  const [query, setQuery] = useState("");
+
+  // Home screen facts — times, map link and phone from the EN content (not translated), labels translated
+  const enContent = (type: string) => (sections.find((x) => x.type === type)?.content ?? {}) as Record<string, unknown>;
+  const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+  const timeIn = str(enContent("CHECKIN").checkIn);
+  const timeOut = str(enContent("CHECKIN").checkOut);
+  const address = str(enContent("LOCATION").address);
+  const guideMapUrl = str(enContent("LOCATION").mapUrl);
+  const mapHref = guideMapUrl || (address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}` : "");
+  const phone = str(enContent("CONTACT").phone);
+  const contactName = str(enContent("CONTACT").label) || str(welcomeContent.hostName);
+
+  // Info tab search: section label, title and (translated) content
+  const q = query.trim().toLowerCase();
+  const visibleSections = q
+    ? otherSections.filter((sec) => {
+        const label = ui.sections[sec.type]?.label ?? sec.title;
+        return `${label} ${sec.title} ${JSON.stringify(getContent(sec, lang))}`.toLowerCase().includes(q);
+      })
+    : otherSections;
 
   const langSelect = hasTranslations && (
     <select
@@ -350,145 +372,152 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       ))}
     </select>
   );
+  const HEAD = { fontFamily: "Plus Jakarta Sans Variable, sans-serif" };
+  const glass = "rounded-2xl bg-white/12 backdrop-blur-md border border-white/20";
 
   return (
-    <div
-      className={`min-h-screen bg-canvas ${hotel ? "pb-20 [&_.bottom-6]:bottom-24" : "pb-24"}`}
-      style={{ fontFamily: "Inter, system-ui, sans-serif" }}
-    >
+    // Home fills exactly one screen (announcement bar included); other tabs scroll above the tab bar
+    <div className={tab === "home" ? "min-h-svh flex flex-col bg-canvas" : "min-h-screen bg-canvas pb-20"} style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
 
       {/* ── HOTEL ANNOUNCEMENTS ── */}
       {hotel && <HotelAnnouncements items={hotel.announcements} lang={lang} />}
 
-      {/* ── HOTEL: compact header on Reception / Extras ── */}
-      {hotel && !showGuide && (
+      {/* ── HOME: full-screen photo with the essentials ── */}
+      {tab === "home" && (
+        <div
+          className="relative flex-1 flex flex-col overflow-hidden"
+          style={{ background: heroImage ? `url(${heroImage}) center/cover no-repeat` : "linear-gradient(135deg, #0F2F61 0%, #1a4a8a 100%)" }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0B1730]/75 via-[#0B1730]/70 to-[#0B1730]/90" />
+          {hasTranslations && <div className="absolute top-4 right-4 z-20">{langSelect}</div>}
+
+          <div className="relative z-10 flex-1 flex flex-col gap-6 w-full max-w-lg mx-auto px-5 pt-16 pb-[calc(5rem+env(safe-area-inset-bottom))] text-white">
+            {/* headline centred in the free space above the cards */}
+            <div className="flex-1 flex flex-col justify-center text-center">
+              <div className="self-center inline-block bg-white/20 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full mb-4 tracking-wide">
+                {property.name}
+                {hotel?.roomNumber && <span className="text-white/70"> · {roomLabel(lang)} {hotel.roomNumber}</span>}
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-bold leading-tight" style={HEAD}>
+                {guestName ? <>{ui.welcome}, <span className="text-orange">{guestName}</span>!</> : welcomeTitle}
+              </h1>
+              {(checkIn || checkOut) && (
+                <div className="flex items-center justify-center gap-2 text-white/80 text-sm mt-2">
+                  <span>{checkIn && formatDate(checkIn)}</span>
+                  {checkIn && checkOut && <span className="text-white/40">→</span>}
+                  <span>{checkOut && formatDate(checkOut)}</span>
+                </div>
+              )}
+              {str(welcomeContent.message) && (
+                <p className="text-white/80 text-sm leading-relaxed mt-3 line-clamp-2">{str(welcomeContent.message)}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <GuestWeather slug={property.slug} mapUrl={guideMapUrl} lang={lang} />
+
+              {(timeIn || timeOut || address || phone) && (
+                <div className={`${glass} divide-y divide-white/15`}>
+                  {(timeIn || timeOut) && (
+                    <div className="flex justify-between gap-4 px-4 py-2.5">
+                      {timeIn && <div><p className="text-xs text-white/65">{ui.checkInAfter}</p><p className="text-lg font-bold" style={HEAD}>{timeIn}</p></div>}
+                      {timeOut && <div className="text-right"><p className="text-xs text-white/65">{ui.checkOutBefore}</p><p className="text-lg font-bold" style={HEAD}>{timeOut}</p></div>}
+                    </div>
+                  )}
+                  {address && (
+                    <a href={mapHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-2">
+                      <MapPin className="w-5 h-5 shrink-0 text-white/80" />
+                      <span className="flex-1 min-w-0 text-sm truncate">{address}</span>
+                      <span className="w-9 h-9 shrink-0 rounded-xl bg-white/15 flex items-center justify-center"><Navigation className="w-4 h-4" /></span>
+                    </a>
+                  )}
+                  {phone && (
+                    <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="flex items-center gap-3 px-4 py-2">
+                      <User className="w-5 h-5 shrink-0 text-white/80" />
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-sm font-semibold truncate">{contactName || (hotel ? ui.reception : ui.host)}</span>
+                        <span className="block text-xs text-white/65">{phone}</span>
+                      </span>
+                      <span className="w-9 h-9 shrink-0 rounded-xl bg-white/15 flex items-center justify-center"><Phone className="w-4 h-4" /></span>
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {registrationEnabled && (
+                <a
+                  href={registrationHref}
+                  className="w-full inline-flex items-center justify-center gap-2 border-2 border-white/80 hover:bg-white/15 text-white font-semibold px-6 py-2.5 rounded-2xl transition-all backdrop-blur-sm"
+                  style={HEAD}
+                >
+                  {registrationSent ? <CheckCircle2 className="w-4 h-4" /> : <ClipboardList className="w-4 h-4" />}
+                  {registrationSent ? ui.regDone : ui.regTitle}
+                </a>
+              )}
+
+              {otherSections.length > 0 && (
+                <button
+                  onClick={() => changeTab("info")}
+                  className="w-full inline-flex items-center justify-center gap-2 bg-orange hover:bg-orange-dark text-white font-semibold px-6 py-3 rounded-2xl transition-all active:scale-[0.99] shadow-lg"
+                  style={HEAD}
+                >
+                  {ctaText} →
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Compact header on Info / Reception / Extras ── */}
+      {(tab === "info" || tab === "reception" || tab === "extras") && (
         <div className="bg-navy text-white">
           <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-lg leading-tight truncate" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{property.name}</p>
-              {hotel.roomNumber && <p className="text-xs text-white/70">{roomLabel(lang)} {hotel.roomNumber}</p>}
+              <p className="font-bold text-lg leading-tight truncate" style={HEAD}>{property.name}</p>
+              {hotel?.roomNumber && <p className="text-xs text-white/70">{roomLabel(lang)} {hotel.roomNumber}</p>}
             </div>
             {langSelect}
           </div>
         </div>
       )}
 
-      {/* Reception / Extras stay mounted (hidden on Guide) so the room-service cart survives tab switches */}
+      {/* Reception / Extras stay mounted (hidden otherwise) so the room-service cart survives tab switches */}
       {hotelCtx && hotel && (
-        <div className={showGuide ? "hidden" : "max-w-2xl mx-auto px-4 py-4 space-y-4"}>
-          <HotelServicesPanel ctx={hotelCtx} services={hotel.services} view={hotelTab === "extras" ? "extras" : "reception"} />
+        <div className={tab === "reception" || tab === "extras" ? "max-w-2xl mx-auto px-4 py-4 space-y-4" : "hidden"}>
+          <HotelServicesPanel ctx={hotelCtx} services={hotel.services} view={tab === "extras" ? "extras" : "reception"} />
         </div>
       )}
 
-      {showGuide && <>
-      {/* ── HERO ── */}
-      <div
-        className={`relative ${hotel ? "min-h-[46svh]" : "min-h-[60svh]"} pt-16 pb-12 flex flex-col items-center justify-center overflow-hidden`}
-        style={{
-          background: heroImage
-            ? `url(${heroImage}) center/cover no-repeat`
-            : "linear-gradient(135deg, #0F2F61 0%, #1a4a8a 100%)",
-        }}
-      >
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/50" />
+      {/* ── INFO: search + every section ── */}
+      {tab === "info" && <>
+      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
 
-        {/* Content */}
-        <div className="relative z-10 text-center px-6 max-w-lg">
-          {/* Property badge */}
-          <div className="inline-block bg-white/20 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full mb-6 tracking-wide">
-            {property.name}
-            {hotel?.roomNumber && <span className="text-white/70"> · {roomLabel(lang)} {hotel.roomNumber}</span>}
+        {otherSections.length > 3 && (
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-ink-3" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={ui.searchPh}
+              className="w-full h-12 pl-11 pr-10 rounded-2xl bg-white border border-line shadow-sm text-[16px] outline-none focus:border-navy"
+            />
+            {query && (
+              <button onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-3 p-1" aria-label="Clear">
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
-
-          {/* Welcome message */}
-          <h1
-            className="text-4xl font-bold text-white mb-3 leading-tight"
-            style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
-          >
-            {guestName
-              ? <>{ui.welcome},<br /><span className="text-orange">{guestName}</span>!</>
-              : welcomeTitle
-            }
-          </h1>
-
-          {/* Dates */}
-          {(checkIn || checkOut) && (
-            <div className="flex items-center justify-center gap-2 text-white/80 text-sm mb-2">
-              <span>{checkIn && formatDate(checkIn)}</span>
-              {checkIn && checkOut && <span className="text-white/40">→</span>}
-              <span>{checkOut && formatDate(checkOut)}</span>
-            </div>
-          )}
-
-          {/* Subtitle from welcome message */}
-          {(welcomeContent.message as string) && (
-            <p className="text-white/80 text-sm leading-relaxed mt-3 mb-2">
-              {welcomeContent.message as string}
-            </p>
-          )}
-
-          {(welcomeContent.hostName as string) && (
-            <p className="text-white/60 text-xs mt-2">— {welcomeContent.hostName as string}</p>
-          )}
-
-          {/* CTA button */}
-          {otherSections.length > 0 && (
-            <button
-              onClick={scrollToSections}
-              className="mt-8 inline-flex items-center gap-2 bg-orange hover:bg-orange-dark text-white font-semibold px-6 py-3 rounded-full transition-all hover:scale-105 active:scale-95 shadow-lg"
-              style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
-            >
-              {ctaText}
-              <ChevronDown className="w-4 h-4" />
-            </button>
-          )}
-
-          {registrationEnabled && (
-            <div className="mt-3">
-              <a
-                href={registrationHref}
-                className="inline-flex items-center gap-2 border-2 border-white/80 hover:bg-white/15 text-white font-semibold px-6 py-2.5 rounded-full transition-all backdrop-blur-sm"
-                style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
-              >
-                {registrationSent ? <CheckCircle2 className="w-4 h-4" /> : <ClipboardList className="w-4 h-4" />}
-                {registrationSent ? ui.regDone : ui.regTitle}
-              </a>
-            </div>
-          )}
-        </div>
-
-        {/* Scroll indicator */}
-        {otherSections.length > 0 && (
-          <button
-            onClick={scrollToSections}
-            className="hidden"
-          >
-            <ChevronDown className="w-6 h-6" />
-          </button>
         )}
 
-        {/* Language dropdown — top right */}
-        {hasTranslations && (
-          <div className="absolute top-4 right-4 z-20">{langSelect}</div>
-        )}
-      </div>
-
-      {/* ── SECTION CARDS ── */}
-      <div ref={sectionsRef} className="max-w-2xl mx-auto px-4 py-6 space-y-4">
-
-        <QuickCards sections={sections} lang={lang} isHotel={!!hotel} />
-
-        {registrationEnabled && (
+        {registrationEnabled && !q && (
           registrationSent ? (
             <div className="bg-white rounded-2xl shadow-sm border border-green-200 px-5 py-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-green-50 text-green-600">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="font-bold text-ink text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
-                  {ui.regDone}
-                </h2>
+                <h2 className="font-bold text-ink text-base" style={HEAD}>{ui.regDone}</h2>
                 <p className="text-sm text-ink-2">{ui.regDoneBody}</p>
               </div>
             </div>
@@ -498,17 +527,11 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-orange-50 text-orange">
                   <ClipboardList className="w-5 h-5" />
                 </div>
-                <h2 className="font-bold text-ink text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
-                  {ui.regTitle}
-                </h2>
+                <h2 className="font-bold text-ink text-base" style={HEAD}>{ui.regTitle}</h2>
               </div>
               <div className="px-5 py-4 space-y-3">
-                {/* Right padding on phones keeps the text clear of the floating chat button */}
-                <p className="text-sm text-ink leading-relaxed pr-12 sm:pr-0">{ui.regBody}</p>
-                <a
-                  href={registrationHref}
-                  className="inline-flex items-center gap-2 bg-orange hover:bg-orange-dark text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
-                >
+                <p className="text-sm text-ink leading-relaxed">{ui.regBody}</p>
+                <a href={registrationHref} className="inline-flex items-center gap-2 bg-orange hover:bg-orange-dark text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors">
                   {ui.regCta} →
                 </a>
               </div>
@@ -516,11 +539,15 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
           )
         )}
 
-        {otherSections.map((section) => (
+        {visibleSections.map((section) => (
           <SectionCard key={section.id} section={section} content={getContent(section, lang)} ui={ui} />
         ))}
 
-        {hotel?.reviewUrl && <GoogleReviewCard lang={lang} url={hotel.reviewUrl} />}
+        {q && visibleSections.length === 0 && (
+          <p className="text-center text-sm text-ink-2 py-10">{ui.noResults} „{query.trim()}“</p>
+        )}
+
+        {hotel?.reviewUrl && !q && <GoogleReviewCard lang={lang} url={hotel.reviewUrl} />}
 
         {otherSections.length === 0 && (
           <div className="text-center py-16 text-ink-2">
@@ -531,7 +558,7 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       </div>
 
       {/* ── UPSELL CARDS ── */}
-      <div className="max-w-2xl mx-auto px-4 pb-6 space-y-4">
+      {!q && <div className="max-w-2xl mx-auto px-4 pb-6 space-y-4">
         {/* TrueLocal */}
         <div className="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
           <div className="flex items-center gap-3 px-5 py-4 border-b border-line-2">
@@ -540,14 +567,10 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
-            <h2 className="font-bold text-ink text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
-              {ui.trueLocalTitle}
-            </h2>
+            <h2 className="font-bold text-ink text-base" style={HEAD}>{ui.trueLocalTitle}</h2>
           </div>
           <div className="px-5 py-4 space-y-3">
-            <p className="text-sm text-ink leading-relaxed">
-              {ui.trueLocalBody}
-            </p>
+            <p className="text-sm text-ink leading-relaxed">{ui.trueLocalBody}</p>
             <a
               href="https://www.truelocal.ba"
               target="_blank"
@@ -570,19 +593,12 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
                 <rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
               </svg>
             </div>
-            <h2 className="font-bold text-ink text-base" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
-              {ui.rentCarTitle}
-            </h2>
+            <h2 className="font-bold text-ink text-base" style={HEAD}>{ui.rentCarTitle}</h2>
           </div>
           <div className="px-5 py-4 space-y-3">
-            <p className="text-sm text-ink leading-relaxed">
-              {ui.rentCarBody}
-            </p>
+            <p className="text-sm text-ink leading-relaxed">{ui.rentCarBody}</p>
             <div className="flex gap-2 flex-wrap">
-              <a
-                href="tel:+38761684110"
-                className="inline-flex items-center gap-2 bg-navy hover:bg-navy-dark text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
-              >
+              <a href="tel:+38761684110" className="inline-flex items-center gap-2 bg-navy hover:bg-navy-dark text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors">
                 <Phone className="w-4 h-4" />
                 {ui.callUs}
               </a>
@@ -598,23 +614,21 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
             </div>
           </div>
         </div>}
-      </div>
+      </div>}
 
       {/* Footer */}
       <div className="pb-10 text-center">
         <p className="text-xs text-ink-2">
           Powered by{" "}
-          <span className="font-semibold text-navy" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>
-            SmartStay
-          </span>
+          <span className="font-semibold text-navy" style={HEAD}>SmartStay</span>
         </p>
       </div>
       </>}
 
-      {/* AI Chat */}
-      <GuestChat propertySlug={property.slug} token={token} lang={lang} />
+      {/* ── ASSISTANT: the AI chat as its own tab (kept mounted so the conversation survives tab switches) ── */}
+      <GuestChat propertySlug={property.slug} token={token} lang={lang} embedded visible={tab === "assistant"} />
 
-      {hotel && <HotelTabBar tab={hotelTab} onChange={changeHotelTab} lang={lang} slug={property.slug} />}
+      <HotelTabBar tab={tab} onChange={changeTab} lang={lang} slug={property.slug} isHotel={!!hotel} />
 
     </div>
   );

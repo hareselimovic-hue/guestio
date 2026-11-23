@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import {
   Megaphone, BellRing, Sparkles, Bath, Wrench, MessageSquarePlus, UtensilsCrossed,
   CalendarCheck, Gift, Star, X, Minus, Plus, CheckCircle2, Loader2, ExternalLink, BookOpen, ShoppingBag, BedDouble, Car, MapPin, QrCode,
+  House, MessageCircle,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -59,6 +60,9 @@ const EN = {
   status: { NEW: "Received", IN_PROGRESS: "In progress", DONE: "Done", DECLINED: "Not possible", CANCELED: "Canceled" } as Record<string, string>,
   replyFrom: "Reception",
   tabGuide: "Guide",
+  tabHome: "Home",
+  tabInfo: "Info",
+  tabAssistant: "Assistant",
   tabReception: "Reception",
   tabExtras: "Extras",
   all: "All",
@@ -125,6 +129,9 @@ const STRINGS: Record<string, Strings> = {
     status: { NEW: "Primljeno", IN_PROGRESS: "U toku", DONE: "Završeno", DECLINED: "Nije moguće", CANCELED: "Otkazano" } as Record<string, string>,
     replyFrom: "Recepcija",
     tabGuide: "Vodič",
+    tabHome: "Početna",
+    tabInfo: "Info",
+    tabAssistant: "Asistent",
     tabReception: "Recepcija",
     tabExtras: "Dodatno",
     all: "Sve",
@@ -182,6 +189,9 @@ const STRINGS: Record<string, Strings> = {
     status: { NEW: "Erhalten", IN_PROGRESS: "In Bearbeitung", DONE: "Erledigt", DECLINED: "Nicht möglich", CANCELED: "Storniert" } as Record<string, string>,
     replyFrom: "Rezeption",
     tabGuide: "Guide",
+    tabHome: "Start",
+    tabInfo: "Info",
+    tabAssistant: "Assistent",
     tabReception: "Rezeption",
     tabExtras: "Extras",
     all: "Alle",
@@ -239,6 +249,9 @@ const STRINGS: Record<string, Strings> = {
     status: { NEW: "Alındı", IN_PROGRESS: "İşleniyor", DONE: "Tamamlandı", DECLINED: "Mümkün değil", CANCELED: "İptal edildi" } as Record<string, string>,
     replyFrom: "Resepsiyon",
     tabGuide: "Rehber",
+    tabHome: "Ana sayfa",
+    tabInfo: "Bilgi",
+    tabAssistant: "Asistan",
     tabReception: "Resepsiyon",
     tabExtras: "Ekstralar",
     all: "Tümü",
@@ -296,6 +309,9 @@ const STRINGS: Record<string, Strings> = {
     status: { NEW: "Ricevuta", IN_PROGRESS: "In corso", DONE: "Fatto", DECLINED: "Non possibile", CANCELED: "Annullata" } as Record<string, string>,
     replyFrom: "Reception",
     tabGuide: "Guida",
+    tabHome: "Home",
+    tabInfo: "Info",
+    tabAssistant: "Assistente",
     tabReception: "Reception",
     tabExtras: "Extra",
     all: "Tutti",
@@ -791,15 +807,20 @@ function MyRequests({ ctx, refreshKey }: { ctx: GuestCtx; refreshKey: number }) 
 
 // ─── Bottom tab bar (hotels) ──────────────────────────────────────────────────
 
-export type HotelTab = "guide" | HotelView;
+/** Guest guide bottom tabs: apartments Home · Info · Assistant; hotels also Reception · Extras */
+export type HotelTab = "home" | "info" | "assistant" | HotelView;
 
-export function HotelTabBar({ tab, onChange, lang, slug }: { tab: HotelTab; onChange: (t: HotelTab) => void; lang: string; slug?: string }) {
+export function HotelTabBar({ tab, onChange, lang, slug, isHotel = true }: { tab: HotelTab; onChange: (t: HotelTab) => void; lang: string; slug?: string; isHotel?: boolean }) {
   const s = t(lang);
-  const open = useOpenRequestCount(slug);
+  const open = useOpenRequestCount(isHotel ? slug : undefined);
   const items: { key: HotelTab; label: string; icon: typeof BookOpen }[] = [
-    { key: "guide", label: s.tabGuide, icon: BookOpen },
-    { key: "reception", label: s.tabReception, icon: BellRing },
-    { key: "extras", label: s.tabExtras, icon: ShoppingBag },
+    { key: "home", label: s.tabHome, icon: House },
+    { key: "info", label: s.tabInfo, icon: BookOpen },
+    ...(isHotel ? [
+      { key: "reception" as HotelTab, label: s.tabReception, icon: BellRing },
+      { key: "extras" as HotelTab, label: s.tabExtras, icon: ShoppingBag },
+    ] : []),
+    { key: "assistant", label: s.tabAssistant, icon: MessageCircle },
   ];
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-line pb-[env(safe-area-inset-bottom)]">
@@ -808,7 +829,7 @@ export function HotelTabBar({ tab, onChange, lang, slug }: { tab: HotelTab; onCh
           <button
             key={key}
             onClick={() => onChange(key)}
-            className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-semibold transition-colors ${tab === key ? "text-orange" : "text-[#8A8A85]"}`}
+            className={`flex-1 min-w-0 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-semibold transition-colors ${tab === key ? "text-orange" : "text-[#8A8A85]"}`}
           >
             <span className="relative">
               <Icon className="w-5 h-5" />
@@ -818,7 +839,7 @@ export function HotelTabBar({ tab, onChange, lang, slug }: { tab: HotelTab; onCh
                 </span>
               )}
             </span>
-            {label}
+            <span className="truncate max-w-full px-0.5">{label}</span>
           </button>
         ))}
       </div>
