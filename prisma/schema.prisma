@@ -383,8 +383,10 @@ model GuestRequest {
   scheduledFor String?  // free text from the guest ("tomorrow 7:00")
   guests       Int?
   lang         String?
-  // NEW | IN_PROGRESS | DONE | DECLINED
+  // NEW | IN_PROGRESS | DONE | DECLINED | CANCELED (by the guest, from "My requests")
   status       String   @default("NEW")
+  cancelReason String?  // guest's comment when canceling a request that was already in progress
+  canceledAt   DateTime?
   // Optional, only for status updates on this request; cleared after 30 days
   guestEmail   String?
   // Last status the guest was emailed about (avoids duplicate mails)

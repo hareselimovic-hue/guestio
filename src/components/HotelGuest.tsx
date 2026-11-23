@@ -46,8 +46,17 @@ const EN = {
   trackHint: "You can follow its status in the {tab} tab, under {my}.",
   colRequest: "Request",
   colStatus: "Status",
+  cancel: 'Cancel',
+  cancelConfirm: 'Cancel this request?',
+  cancelTitle: 'Cancel request',
+  cancelInfo: "The reception is already working on this. Please tell them why you're canceling.",
+  cancelPh: 'e.g. It works now, no longer needed',
+  cancelSend: 'Cancel request',
+  cancelBack: 'Back',
+  cancelNeed: 'Please add a short comment.',
+  cancelFail: "Couldn't cancel — please contact the reception.",
   noRequests: "Your requests will show up here, with their status.",
-  status: { NEW: "Received", IN_PROGRESS: "In progress", DONE: "Done", DECLINED: "Not possible" } as Record<string, string>,
+  status: { NEW: "Received", IN_PROGRESS: "In progress", DONE: "Done", DECLINED: "Not possible", CANCELED: "Canceled" } as Record<string, string>,
   replyFrom: "Reception",
   tabGuide: "Guide",
   tabReception: "Reception",
@@ -103,8 +112,17 @@ const STRINGS: Record<string, Strings> = {
     trackHint: "Status možete pratiti u tabu {tab}, pod „{my}“.",
     colRequest: "Zahtjev",
     colStatus: "Status",
+    cancel: "Otkaži",
+    cancelConfirm: "Otkazati ovaj zahtjev?",
+    cancelTitle: "Otkaži zahtjev",
+    cancelInfo: "Recepcija već radi na ovome. Napišite im zašto otkazujete.",
+    cancelPh: "npr. Sada radi, više ne treba",
+    cancelSend: "Otkaži zahtjev",
+    cancelBack: "Nazad",
+    cancelNeed: "Napišite kratak komentar.",
+    cancelFail: "Otkazivanje nije uspjelo — javite se recepciji.",
     noRequests: "Vaši zahtjevi će se pojaviti ovdje, sa statusom.",
-    status: { NEW: "Primljeno", IN_PROGRESS: "U toku", DONE: "Završeno", DECLINED: "Nije moguće" } as Record<string, string>,
+    status: { NEW: "Primljeno", IN_PROGRESS: "U toku", DONE: "Završeno", DECLINED: "Nije moguće", CANCELED: "Otkazano" } as Record<string, string>,
     replyFrom: "Recepcija",
     tabGuide: "Vodič",
     tabReception: "Recepcija",
@@ -151,8 +169,17 @@ const STRINGS: Record<string, Strings> = {
     trackHint: "Den Status sehen Sie im Tab {tab} unter „{my}“.",
     colRequest: "Wunsch",
     colStatus: "Status",
+    cancel: "Stornieren",
+    cancelConfirm: "Diesen Wunsch stornieren?",
+    cancelTitle: "Wunsch stornieren",
+    cancelInfo: "Die Rezeption kümmert sich bereits darum. Bitte schreiben Sie kurz, warum Sie stornieren.",
+    cancelPh: "z. B. Funktioniert jetzt, nicht mehr nötig",
+    cancelSend: "Wunsch stornieren",
+    cancelBack: "Zurück",
+    cancelNeed: "Bitte schreiben Sie einen kurzen Kommentar.",
+    cancelFail: "Stornieren fehlgeschlagen — bitte wenden Sie sich an die Rezeption.",
     noRequests: "Ihre Wünsche erscheinen hier, mit ihrem Status.",
-    status: { NEW: "Erhalten", IN_PROGRESS: "In Bearbeitung", DONE: "Erledigt", DECLINED: "Nicht möglich" } as Record<string, string>,
+    status: { NEW: "Erhalten", IN_PROGRESS: "In Bearbeitung", DONE: "Erledigt", DECLINED: "Nicht möglich", CANCELED: "Storniert" } as Record<string, string>,
     replyFrom: "Rezeption",
     tabGuide: "Guide",
     tabReception: "Rezeption",
@@ -199,8 +226,17 @@ const STRINGS: Record<string, Strings> = {
     trackHint: "Durumunu {tab} sekmesinde, „{my}“ bölümünde takip edebilirsiniz.",
     colRequest: "İstek",
     colStatus: "Durum",
+    cancel: "İptal et",
+    cancelConfirm: "Bu istek iptal edilsin mi?",
+    cancelTitle: "İsteği iptal et",
+    cancelInfo: "Resepsiyon bu istekle zaten ilgileniyor. Lütfen neden iptal ettiğinizi yazın.",
+    cancelPh: "ör. Artık çalışıyor, gerek kalmadı",
+    cancelSend: "İsteği iptal et",
+    cancelBack: "Geri",
+    cancelNeed: "Lütfen kısa bir açıklama yazın.",
+    cancelFail: "İptal edilemedi — lütfen resepsiyonla iletişime geçin.",
     noRequests: "İstekleriniz durumlarıyla birlikte burada görünecek.",
-    status: { NEW: "Alındı", IN_PROGRESS: "İşleniyor", DONE: "Tamamlandı", DECLINED: "Mümkün değil" } as Record<string, string>,
+    status: { NEW: "Alındı", IN_PROGRESS: "İşleniyor", DONE: "Tamamlandı", DECLINED: "Mümkün değil", CANCELED: "İptal edildi" } as Record<string, string>,
     replyFrom: "Resepsiyon",
     tabGuide: "Rehber",
     tabReception: "Resepsiyon",
@@ -247,8 +283,17 @@ const STRINGS: Record<string, Strings> = {
     trackHint: "Puoi seguire lo stato nella scheda {tab}, in «{my}».",
     colRequest: "Richiesta",
     colStatus: "Stato",
+    cancel: "Annulla",
+    cancelConfirm: "Annullare questa richiesta?",
+    cancelTitle: "Annulla richiesta",
+    cancelInfo: "La reception se ne sta già occupando. Scrivi perché annulli.",
+    cancelPh: "es. Ora funziona, non serve più",
+    cancelSend: "Annulla richiesta",
+    cancelBack: "Indietro",
+    cancelNeed: "Scrivi un breve commento.",
+    cancelFail: "Annullamento non riuscito — contatta la reception.",
     noRequests: "Le tue richieste appariranno qui, con il loro stato.",
-    status: { NEW: "Ricevuta", IN_PROGRESS: "In corso", DONE: "Fatto", DECLINED: "Non possibile" } as Record<string, string>,
+    status: { NEW: "Ricevuta", IN_PROGRESS: "In corso", DONE: "Fatto", DECLINED: "Non possibile", CANCELED: "Annullata" } as Record<string, string>,
     replyFrom: "Reception",
     tabGuide: "Guida",
     tabReception: "Reception",
@@ -614,15 +659,46 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
 
 // ─── My requests (status for the guest, no login) ────────────────────────────
 
-interface MyRequest { id: string; type: string; status: string; items: { name: string; qty: number }[] | null; createdAt: string; reply: string | null }
+interface MyRequest { id: string; type: string; status: string; items: { name: string; qty: number; price?: number | null }[] | null; createdAt: string; reply: string | null }
 
 const STATUS_TONE: Record<string, string> = {
-  NEW: "bg-orange-50 text-orange", IN_PROGRESS: "bg-blue-50 text-blue-700", DONE: "bg-green-50 text-green-700", DECLINED: "bg-gray-100 text-gray-600",
+  NEW: "bg-orange-50 text-orange", IN_PROGRESS: "bg-blue-50 text-blue-700", DONE: "bg-green-50 text-green-700", DECLINED: "bg-gray-100 text-gray-600", CANCELED: "bg-gray-100 text-gray-500",
 };
 
 function MyRequests({ ctx, refreshKey }: { ctx: GuestCtx; refreshKey: number }) {
   const s = t(ctx.lang);
   const [items, setItems] = useState<MyRequest[]>([]);
+  const [reload, setReload] = useState(0);
+  // Cancel: "Received" → simple confirm; "In progress" → sheet with a required comment for the reception
+  const [canceling, setCanceling] = useState<MyRequest | null>(null);
+  const [reason, setReason] = useState("");
+  const [cancelBusy, setCancelBusy] = useState(false);
+  const [cancelErr, setCancelErr] = useState("");
+
+  async function cancelRequest(r: MyRequest, why?: string) {
+    setCancelBusy(true);
+    setCancelErr("");
+    try {
+      const res = await fetch("/api/hotel/public/requests/cancel", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: ctx.slug, id: r.id, reason: why }),
+      });
+      if (!res.ok) throw new Error();
+      setCanceling(null);
+      setReason("");
+      setReload((n) => n + 1);
+      try { window.dispatchEvent(new Event(REQUESTS_EVENT)); } catch {}
+    } catch {
+      setCancelErr(s.cancelFail);
+      if (r.status === "NEW") alert(s.cancelFail);
+    }
+    setCancelBusy(false);
+  }
+
+  function onCancel(r: MyRequest) {
+    if (r.status === "IN_PROGRESS") { setCanceling(r); setReason(""); setCancelErr(""); return; }
+    if (confirm(s.cancelConfirm)) cancelRequest(r);
+  }
 
   useEffect(() => {
     let alive = true;
@@ -637,7 +713,7 @@ function MyRequests({ ctx, refreshKey }: { ctx: GuestCtx; refreshKey: number }) 
     load();
     const timer = setInterval(load, 20000);
     return () => { alive = false; clearInterval(timer); };
-  }, [ctx.slug, refreshKey]);
+  }, [ctx.slug, refreshKey, reload]);
 
   if (items.length === 0) return (
     <div className="rounded-2xl border border-dashed border-[#DADAD5] px-5 py-5 text-center">
@@ -656,13 +732,25 @@ function MyRequests({ ctx, refreshKey }: { ctx: GuestCtx; refreshKey: number }) 
         {items.map((r) => {
           const what = r.items?.length ? r.items.map((i) => (i.qty > 1 ? `${i.qty} × ${i.name}` : i.name)).join(", ") : s.quick[r.type] ?? r.type;
           const time = new Date(r.createdAt);
+          // Orders / paid extras: what it comes to (prices are stored with the items when the guest orders)
+          const total = r.items?.reduce((sum, i) => sum + (i.price ?? 0) * (i.qty ?? 1), 0) ?? 0;
           return (
             <li key={r.id} className="px-5 py-3">
               <div className="flex items-center gap-2">
                 <p className="flex-1 min-w-0 text-sm font-medium text-ink truncate">{what}</p>
                 <span className={`shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_TONE[r.status] ?? STATUS_TONE.NEW}`}>{s.status[r.status] ?? r.status}</span>
               </div>
-              <p className="text-[11px] text-ink-3 mt-0.5">{String(time.getHours()).padStart(2, "0")}:{String(time.getMinutes()).padStart(2, "0")}</p>
+              <div className="flex items-center justify-between gap-2 mt-0.5">
+                <p className="text-[11px] text-ink-3">
+                  {String(time.getHours()).padStart(2, "0")}:{String(time.getMinutes()).padStart(2, "0")}
+                  {total > 0 && <span className="text-ink-2 font-semibold"> · {s.total} {km(total)}</span>}
+                </p>
+                {OPEN_STATUSES.has(r.status) && (
+                  <button onClick={() => onCancel(r)} className="text-[11px] font-semibold text-ink-3 underline underline-offset-2 hover:text-red-600">
+                    {s.cancel}
+                  </button>
+                )}
+              </div>
               {r.reply && (
                 <p className="mt-1.5 text-sm text-ink bg-canvas rounded-lg px-3 py-2"><span className="text-xs font-semibold text-navy">{s.replyFrom}: </span>{r.reply}</p>
               )}
@@ -670,6 +758,33 @@ function MyRequests({ ctx, refreshKey }: { ctx: GuestCtx; refreshKey: number }) 
           );
         })}
       </ul>
+      {canceling && (
+        <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/40 p-0 sm:p-4" onClick={() => !cancelBusy && setCanceling(null)}>
+          <div className="w-full max-w-md bg-white rounded-t-2xl sm:rounded-2xl p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]" onClick={(e) => e.stopPropagation()}>
+            <p className="font-bold text-ink text-lg" style={HEADING}>{s.cancelTitle}</p>
+            <p className="text-sm text-ink-2 mt-1">{s.cancelInfo}</p>
+            <textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              maxLength={500}
+              rows={3}
+              placeholder={s.cancelPh}
+              className="mt-3 w-full border border-line rounded-xl px-3 py-2 text-[16px] outline-none focus:border-navy"
+            />
+            {cancelErr && <p className="text-sm text-red-600 mt-2">{cancelErr}</p>}
+            <div className="flex gap-2 mt-4">
+              <button onClick={() => setCanceling(null)} disabled={cancelBusy} className="flex-1 h-11 rounded-xl border border-line text-sm font-semibold text-ink">{s.cancelBack}</button>
+              <button
+                onClick={() => { if (!reason.trim()) { setCancelErr(s.cancelNeed); return; } cancelRequest(canceling, reason.trim()); }}
+                disabled={cancelBusy}
+                className="flex-1 h-11 rounded-xl bg-red-600 text-white text-sm font-semibold disabled:opacity-60"
+              >
+                {s.cancelSend}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

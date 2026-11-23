@@ -25,6 +25,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     include: { property: { select: { name: true, receptionEmail: true } } },
   });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  // The guest canceled it from "My requests" — keep it canceled
+  if (existing.status === "CANCELED") return NextResponse.json({ error: "The guest canceled this request." }, { status: 409 });
 
   const reply = cleanText(body.reply, 300);
   const updated = await prisma.guestRequest.update({

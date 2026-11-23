@@ -17,7 +17,7 @@ interface HotelRef { id: string; name: string; slug: string; reviewUrl: string |
 interface GuestRequest {
   id: string; roomNumber: string | null; type: string; status: string; note: string | null;
   scheduledFor: string | null; guests: number | null; lang: string | null; createdAt: string;
-  guestEmail: string | null; staffReply: string | null;
+  guestEmail: string | null; staffReply: string | null; cancelReason: string | null;
   items: { name: string; qty: number; price: number | null }[] | null;
   property: { name: string };
 }
@@ -48,7 +48,7 @@ const TYPE_TONE: Record<string, string> = {
   ISSUE: "bg-red-50 text-red-700", ORDER: "bg-rose-50 text-rose-700", BOOKING: "bg-emerald-50 text-emerald-700",
   WAKEUP: "bg-amber-50 text-amber-700",
 };
-const STATUS_LABEL: Record<string, string> = { NEW: "New", IN_PROGRESS: "In progress", DONE: "Done", DECLINED: "Declined" };
+const STATUS_LABEL: Record<string, string> = { NEW: "New", IN_PROGRESS: "In progress", DONE: "Done", DECLINED: "Declined", CANCELED: "Canceled by the guest" };
 
 const km = (n: number) => `${n.toFixed(2).replace(".", ",")} €`;
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -171,9 +171,10 @@ function RequestsTab({ propertyId }: { propertyId: string }) {
 
   async function setStatus(id: string, status: string) {
     setBusy(id);
-    await fetch(`/api/hotel/requests/${id}`, {
+    const res = await fetch(`/api/hotel/requests/${id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status, reply: replies[id] ?? "" }),
     });
+    if (res.status === 409) alert((await res.json().catch(() => ({}))).error ?? "This request was changed meanwhile.");
     setReplies((r) => { const n = { ...r }; delete n[id]; return n; });
     setBusy(null);
     load();
@@ -205,7 +206,7 @@ function RequestsTab({ propertyId }: { propertyId: string }) {
         <div className="space-y-3">
           {items.map((r) => {
             const total = r.items?.reduce((s, i) => s + (i.price ?? 0) * i.qty, 0) ?? 0;
-            const finished = r.status === "DONE" || r.status === "DECLINED";
+            const finished = r.status === "DONE" || r.status === "DECLINED" || r.status === "CANCELED";
             return (
               <div key={r.id} className={`${card} p-4 flex gap-4 ${r.status === "NEW" ? "border-orange border-2" : ""} ${finished ? "opacity-60" : ""}`}>
                 <div className="w-16 shrink-0 text-center">
@@ -232,6 +233,7 @@ function RequestsTab({ propertyId }: { propertyId: string }) {
                   )}
                   {r.note && <p className="text-sm text-ink mt-1 bg-canvas rounded-lg px-2.5 py-1.5 whitespace-pre-wrap">“{r.note}”</p>}
                   {r.staffReply && <p className="text-xs text-navy mt-1.5">↳ Your reply: {r.staffReply}</p>}
+                  {r.status === "CANCELED" && <p className="text-xs text-red-600 mt-1.5">✕ Canceled by the guest{r.cancelReason ? `: “${r.cancelReason}”` : ""}</p>}
                   {r.guestEmail && !finished && <p className="text-xs text-ink-2 mt-1.5">✉ The guest gets an email when you take it and when it&apos;s done.</p>}
                   {!finished && (
                     <input
