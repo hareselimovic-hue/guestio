@@ -100,11 +100,11 @@ const UI_STRINGS: Record<string, {
   trueLocalTitle: string; trueLocalBody: string; trueLocalCta: string;
   rentCarTitle: string; rentCarBody: string; callUs: string;
   regTitle: string; regBody: string; regCta: string; regDone: string; regDoneBody: string;
-  checkInAfter: string; checkOutBefore: string; searchPh: string; noResults: string; host: string; reception: string; stayStarts: string;
+  checkInAfter: string; checkOutBefore: string; searchPh: string; noResults: string; host: string; reception: string; stayStarts: string; infoTitle: string;
   sections: Record<string, { label: string; subtitle?: string }>;
 }> = {
   EN: {
-    checkInAfter: "Check-in after", checkOutBefore: "Check-out before", searchPh: "Search the guide…", noResults: "Nothing found for", host: "Your host", reception: "Reception", stayStarts: "Your stay starts here. All the important details and helpful information are just below.",
+    checkInAfter: "Check-in after", checkOutBefore: "Check-out before", searchPh: "Search the guide…", noResults: "Nothing found for", host: "Your host", reception: "Reception", infoTitle: "Everything about your stay", stayStarts: "Your stay starts here. All the important details and helpful information are just below.",
     welcome: "Welcome",
     exploreGuide: "Explore the guide",
     guideSoon: "Guide coming soon",
@@ -131,7 +131,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   BS: {
-    checkInAfter: "Check-in od", checkOutBefore: "Check-out do", searchPh: "Pretražite vodič…", noResults: "Nema rezultata za", host: "Vaš domaćin", reception: "Recepcija", stayStarts: "Vaš boravak počinje ovdje. Sve važne informacije i korisni savjeti su odmah ispod.",
+    checkInAfter: "Check-in od", checkOutBefore: "Check-out do", searchPh: "Pretražite vodič…", noResults: "Nema rezultata za", host: "Vaš domaćin", reception: "Recepcija", infoTitle: "Sve o vašem boravku", stayStarts: "Vaš boravak počinje ovdje. Sve važne informacije i korisni savjeti su odmah ispod.",
     welcome: "Dobro došli",
     exploreGuide: "Pogledaj vodič",
     guideSoon: "Vodič uskoro",
@@ -158,7 +158,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   DE: {
-    checkInAfter: "Check-in ab", checkOutBefore: "Check-out bis", searchPh: "Im Gästeführer suchen…", noResults: "Keine Ergebnisse für", host: "Ihr Gastgeber", reception: "Rezeption", stayStarts: "Ihr Aufenthalt beginnt hier. Alle wichtigen Details und hilfreichen Informationen finden Sie gleich unten.",
+    checkInAfter: "Check-in ab", checkOutBefore: "Check-out bis", searchPh: "Im Gästeführer suchen…", noResults: "Keine Ergebnisse für", host: "Ihr Gastgeber", reception: "Rezeption", infoTitle: "Alles rund um Ihren Aufenthalt", stayStarts: "Ihr Aufenthalt beginnt hier. Alle wichtigen Details und hilfreichen Informationen finden Sie gleich unten.",
     welcome: "Willkommen",
     exploreGuide: "Zum Gästeführer",
     guideSoon: "Leitfaden kommt bald",
@@ -185,7 +185,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   TR: {
-    checkInAfter: "Giriş saati", checkOutBefore: "Çıkış saati", searchPh: "Rehberde ara…", noResults: "Sonuç bulunamadı:", host: "Ev sahibiniz", reception: "Resepsiyon", stayStarts: "Konaklamanız burada başlıyor. Tüm önemli bilgiler ve faydalı ipuçları hemen aşağıda.",
+    checkInAfter: "Giriş saati", checkOutBefore: "Çıkış saati", searchPh: "Rehberde ara…", noResults: "Sonuç bulunamadı:", host: "Ev sahibiniz", reception: "Resepsiyon", infoTitle: "Konaklamanız hakkında her şey", stayStarts: "Konaklamanız burada başlıyor. Tüm önemli bilgiler ve faydalı ipuçları hemen aşağıda.",
     welcome: "Hoş Geldiniz",
     exploreGuide: "Rehberi Keşfet",
     guideSoon: "Rehber Yakında",
@@ -212,7 +212,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   IT: {
-    checkInAfter: "Check-in dalle", checkOutBefore: "Check-out entro", searchPh: "Cerca nella guida…", noResults: "Nessun risultato per", host: "Il tuo host", reception: "Reception", stayStarts: "Il tuo soggiorno inizia qui. Tutti i dettagli importanti e le informazioni utili sono qui sotto.",
+    checkInAfter: "Check-in dalle", checkOutBefore: "Check-out entro", searchPh: "Cerca nella guida…", noResults: "Nessun risultato per", host: "Il tuo host", reception: "Reception", infoTitle: "Tutto sul tuo soggiorno", stayStarts: "Il tuo soggiorno inizia qui. Tutti i dettagli importanti e le informazioni utili sono qui sotto.",
     welcome: "Benvenuto",
     exploreGuide: "Esplora la guida",
     guideSoon: "Guida in arrivo",
@@ -358,22 +358,32 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       })
     : otherSections;
 
-  const langPicker = (light: boolean) => hasTranslations && (
+  const langOptions = LANGUAGES.map((l) => (
+    <option key={l.code} value={l.code} style={{ color: "#262626", background: "#fff" }}>
+      {l.flag} {l.label}
+    </option>
+  ));
+  const langPicker = (light: boolean) => hasTranslations && (light ? (
     <select
       value={lang}
       onChange={(e) => changeLang(e.target.value)}
-      className={light
-        ? "shrink-0 bg-white text-ink text-sm font-medium px-3 h-12 rounded-2xl border border-line shadow-sm outline-none cursor-pointer appearance-none pr-7"
-        : "bg-white/20 backdrop-blur-sm text-white text-sm font-medium px-3 py-1.5 rounded-full border border-white/30 outline-none cursor-pointer appearance-none pr-7"}
-      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='${light ? "%23525252" : "white"}' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 8px center" }}
+      className="bg-transparent text-ink-2 text-xs font-semibold pl-0 pr-5 py-1 outline-none cursor-pointer appearance-none"
+      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 4px center" }}
+      aria-label="Language"
     >
-      {LANGUAGES.map((l) => (
-        <option key={l.code} value={l.code} style={{ color: "#262626", background: "#fff" }}>
-          {l.flag} {l.label}
-        </option>
-      ))}
+      {langOptions}
     </select>
-  );
+  ) : (
+    <select
+      value={lang}
+      onChange={(e) => changeLang(e.target.value)}
+      className="bg-white/15 backdrop-blur-sm text-white text-xs font-medium pl-2.5 pr-6 py-1 rounded-full border border-white/25 outline-none cursor-pointer appearance-none"
+      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 7px center" }}
+      aria-label="Language"
+    >
+      {langOptions}
+    </select>
+  ));
   const HEAD = { fontFamily: "Plus Jakarta Sans Variable, sans-serif" };
   const glass = "rounded-2xl bg-white/12 backdrop-blur-md border border-white/20";
 
@@ -473,10 +483,6 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
         </div>
       )}
 
-      {/* Reception / Extras: just the language picker, no header bar */}
-      {(tab === "reception" || tab === "extras") && hasTranslations && (
-        <div className="max-w-2xl mx-auto px-4 pt-4 -mb-1 flex justify-end">{langPicker(true)}</div>
-      )}
 
       {/* Reception / Extras stay mounted (hidden otherwise) so the room-service cart survives tab switches */}
       {hotelCtx && hotel && (
@@ -489,25 +495,26 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       {tab === "info" && <>
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
 
-        {(otherSections.length > 3 || hasTranslations) && (
-          <div className="flex gap-2">
-          {otherSections.length > 3 ? (
-          <div className="relative flex-1 min-w-0">
+        <div>
+          <div className="flex items-center justify-between gap-3 min-h-7">
+            {langPicker(true) || <span />}
+            <span className="text-xs font-semibold text-ink-3 truncate">{property.name}</span>
+          </div>        </div>
+
+        {otherSections.length > 3 && (
+          <div className="relative">
             <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-ink-3" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={ui.searchPh}
-              className="w-full h-12 pl-11 pr-10 rounded-2xl bg-white border border-line shadow-sm text-[16px] outline-none focus:border-navy"
+              className="w-full h-11 pl-11 pr-10 rounded-2xl bg-white border border-line shadow-sm text-[16px] outline-none focus:border-navy"
             />
             {query && (
               <button onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-3 p-1" aria-label="Clear">
                 <X className="w-4 h-4" />
               </button>
             )}
-          </div>
-          ) : <div className="flex-1" />}
-          {langPicker(true)}
           </div>
         )}
 
@@ -540,9 +547,13 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
           )
         )}
 
-        {visibleSections.map((section) => (
-          <SectionCard key={section.id} section={section} content={getContent(section, lang)} ui={ui} />
-        ))}
+        {visibleSections.length > 0 && (
+          <div className="bg-white rounded-2xl border border-line shadow-sm divide-y divide-line-2 overflow-hidden">
+            {visibleSections.map((section) => (
+              <SectionRow key={section.id} section={section} content={getContent(section, lang)} ui={ui} />
+            ))}
+          </div>
+        )}
 
         {q && visibleSections.length === 0 && (
           <p className="text-center text-sm text-ink-2 py-10">{ui.noResults} „{query.trim()}“</p>
@@ -635,41 +646,19 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   );
 }
 
-function SectionCard({ section, content, ui }: { section: Section; content: Record<string, unknown>; ui: typeof UI_STRINGS["EN"] }) {
+function SectionRow({ section, content, ui }: { section: Section; content: Record<string, unknown>; ui: typeof UI_STRINGS["EN"] }) {
   const [open, setOpen] = useState(false);
   const meta = sectionMeta(section.type, section.title);
-  const sectionStrings = ui.sections[section.type];
-  const subtitle = sectionSubtitle(section.type, content, sectionStrings?.subtitle);
-
+  const label = section.type === "CUSTOM" ? section.title : (ui.sections[section.type]?.label ?? section.title);
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
-      {/* Card header — tap to toggle */}
-      <button
-        onClick={() => setOpen(!open)}
-        className={`w-full flex items-center justify-between px-5 py-4 text-left ${open ? "border-b border-line-2" : ""}`}
-      >
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${meta.bg} ${meta.color}`}>
-            {meta.icon}
-          </div>
-          <div>
-            <h2
-              className="font-bold text-ink text-base leading-tight"
-              style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}
-            >
-              {section.type === "CUSTOM" ? section.title : (sectionStrings?.label ?? section.title)}
-            </h2>
-            {subtitle && (
-              <p className="text-xs text-ink-3 font-normal mt-0.5 line-clamp-1">{subtitle}</p>
-            )}
-          </div>
-        </div>
-        <ChevronDown className={`w-4 h-4 text-ink-2 transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`} />
+    <div>
+      <button onClick={() => setOpen(!open)} aria-expanded={open} className="w-full flex items-center gap-3 px-4 py-3 text-left active:bg-line-2 transition-colors">
+        <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 [&_svg]:w-4 [&_svg]:h-4 ${meta.bg} ${meta.color}`}>{meta.icon}</span>
+        <span className="flex-1 min-w-0 text-[15px] font-semibold text-ink truncate" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{label}</span>
+        <ChevronDown className={`w-4 h-4 text-ink-3 shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       </button>
-
-      {/* Card body */}
       {open && (
-        <div className="px-5 py-4">
+        <div className="px-4 pb-4 pt-1">
           <SectionBody type={section.type} content={content} />
         </div>
       )}

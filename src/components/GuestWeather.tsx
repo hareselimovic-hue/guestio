@@ -100,6 +100,7 @@ export default function GuestWeather({ slug, mapUrl, lang }: { slug: string; map
 
   return (
     <p className="self-center inline-flex items-center gap-1.5 mt-3 text-[13px] text-white/85">
+      <span className="text-[11px] uppercase tracking-wide font-semibold text-white/60">{t.now}</span>
       <span className="text-base leading-none">{icon(w.code, w.isDay)}</span>
       <span className="font-semibold text-white">{w.temp}°C</span>
       <span className="text-white/50">·</span>
