@@ -100,11 +100,11 @@ const UI_STRINGS: Record<string, {
   trueLocalTitle: string; trueLocalBody: string; trueLocalCta: string;
   rentCarTitle: string; rentCarBody: string; callUs: string;
   regTitle: string; regBody: string; regCta: string; regDone: string; regDoneBody: string;
-  checkInAfter: string; checkOutBefore: string; searchPh: string; noResults: string; host: string; reception: string; stayStarts: string; infoTitle: string;
+  checkInAfter: string; checkOutBefore: string; searchPh: string; noResults: string; host: string; reception: string; stayStarts: string; infoTitle: string; hiThere: string;
   sections: Record<string, { label: string; subtitle?: string }>;
 }> = {
   EN: {
-    checkInAfter: "Check-in after", checkOutBefore: "Check-out before", searchPh: "Search the guide…", noResults: "Nothing found for", host: "Your host", reception: "Reception", infoTitle: "Everything about your stay", stayStarts: "Your stay starts here. All the important details and helpful information are just below.",
+    checkInAfter: "Check-in after", checkOutBefore: "Check-out before", searchPh: "Search the guide…", noResults: "Nothing found for", host: "Your host", reception: "Reception", hiThere: "Hi there! 👋", infoTitle: "Everything about your stay", stayStarts: "Your stay starts here. All the important details and helpful information are just below.",
     welcome: "Welcome",
     exploreGuide: "Explore the guide",
     guideSoon: "Guide coming soon",
@@ -131,7 +131,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   BS: {
-    checkInAfter: "Check-in od", checkOutBefore: "Check-out do", searchPh: "Pretražite vodič…", noResults: "Nema rezultata za", host: "Vaš domaćin", reception: "Recepcija", infoTitle: "Sve o vašem boravku", stayStarts: "Vaš boravak počinje ovdje. Sve važne informacije i korisni savjeti su odmah ispod.",
+    checkInAfter: "Check-in od", checkOutBefore: "Check-out do", searchPh: "Pretražite vodič…", noResults: "Nema rezultata za", host: "Vaš domaćin", reception: "Recepcija", hiThere: "Dobro došli! 👋", infoTitle: "Sve o vašem boravku", stayStarts: "Vaš boravak počinje ovdje. Sve važne informacije i korisni savjeti su odmah ispod.",
     welcome: "Dobro došli",
     exploreGuide: "Pogledaj vodič",
     guideSoon: "Vodič uskoro",
@@ -158,7 +158,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   DE: {
-    checkInAfter: "Check-in ab", checkOutBefore: "Check-out bis", searchPh: "Im Gästeführer suchen…", noResults: "Keine Ergebnisse für", host: "Ihr Gastgeber", reception: "Rezeption", infoTitle: "Alles rund um Ihren Aufenthalt", stayStarts: "Ihr Aufenthalt beginnt hier. Alle wichtigen Details und hilfreichen Informationen finden Sie gleich unten.",
+    checkInAfter: "Check-in ab", checkOutBefore: "Check-out bis", searchPh: "Im Gästeführer suchen…", noResults: "Keine Ergebnisse für", host: "Ihr Gastgeber", reception: "Rezeption", hiThere: "Hallo! 👋", infoTitle: "Alles rund um Ihren Aufenthalt", stayStarts: "Ihr Aufenthalt beginnt hier. Alle wichtigen Details und hilfreichen Informationen finden Sie gleich unten.",
     welcome: "Willkommen",
     exploreGuide: "Zum Gästeführer",
     guideSoon: "Leitfaden kommt bald",
@@ -185,7 +185,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   TR: {
-    checkInAfter: "Giriş saati", checkOutBefore: "Çıkış saati", searchPh: "Rehberde ara…", noResults: "Sonuç bulunamadı:", host: "Ev sahibiniz", reception: "Resepsiyon", infoTitle: "Konaklamanız hakkında her şey", stayStarts: "Konaklamanız burada başlıyor. Tüm önemli bilgiler ve faydalı ipuçları hemen aşağıda.",
+    checkInAfter: "Giriş saati", checkOutBefore: "Çıkış saati", searchPh: "Rehberde ara…", noResults: "Sonuç bulunamadı:", host: "Ev sahibiniz", reception: "Resepsiyon", hiThere: "Merhaba! 👋", infoTitle: "Konaklamanız hakkında her şey", stayStarts: "Konaklamanız burada başlıyor. Tüm önemli bilgiler ve faydalı ipuçları hemen aşağıda.",
     welcome: "Hoş Geldiniz",
     exploreGuide: "Rehberi Keşfet",
     guideSoon: "Rehber Yakında",
@@ -212,7 +212,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   IT: {
-    checkInAfter: "Check-in dalle", checkOutBefore: "Check-out entro", searchPh: "Cerca nella guida…", noResults: "Nessun risultato per", host: "Il tuo host", reception: "Reception", infoTitle: "Tutto sul tuo soggiorno", stayStarts: "Il tuo soggiorno inizia qui. Tutti i dettagli importanti e le informazioni utili sono qui sotto.",
+    checkInAfter: "Check-in dalle", checkOutBefore: "Check-out entro", searchPh: "Cerca nella guida…", noResults: "Nessun risultato per", host: "Il tuo host", reception: "Reception", hiThere: "Ciao! 👋", infoTitle: "Tutto sul tuo soggiorno", stayStarts: "Il tuo soggiorno inizia qui. Tutti i dettagli importanti e le informazioni utili sono qui sotto.",
     welcome: "Benvenuto",
     exploreGuide: "Esplora la guida",
     guideSoon: "Guida in arrivo",
@@ -323,7 +323,8 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   const welcomeContentEN = (welcomeSection?.content ?? {}) as Record<string, unknown>;
   const welcomeContent = welcomeSection ? getContent(welcomeSection, lang) : welcomeContentEN;
   const heroImage = (welcomeContentEN.heroImage as string) ?? "";
-  const welcomeTitle = ((welcomeContent.welcomeTitle as string) ?? property.name) as string;
+  const customTitle = typeof welcomeContent.welcomeTitle === "string" ? welcomeContent.welcomeTitle.trim() : "";
+  const welcomeTitle = customTitle && customTitle !== property.name ? customTitle : ui.hiThere;
   const ctaText = ((welcomeContent.ctaText as string) || ui.exploreGuide) as string;
 
   const formatDate = (iso: string) =>
@@ -458,17 +459,6 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
                 </div>
               )}
 
-              {registrationEnabled && (
-                <a
-                  href={registrationHref}
-                  className="w-full inline-flex items-center justify-center gap-2 border-2 border-white/80 hover:bg-white/15 text-white text-sm font-semibold px-6 py-2 rounded-2xl transition-all backdrop-blur-sm"
-                  style={HEAD}
-                >
-                  {registrationSent ? <CheckCircle2 className="w-4 h-4" /> : <ClipboardList className="w-4 h-4" />}
-                  {registrationSent ? ui.regDone : ui.regTitle}
-                </a>
-              )}
-
               {otherSections.length > 0 && (
                 <button
                   onClick={() => changeTab("info")}
@@ -495,11 +485,10 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
       {tab === "info" && <>
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
 
-        <div>
-          <div className="flex items-center justify-between gap-3 min-h-7">
-            {langPicker(true) || <span />}
-            <span className="text-xs font-semibold text-ink-3 truncate">{property.name}</span>
-          </div>        </div>
+        <div className="flex items-center justify-between gap-3 min-h-7">
+          {langPicker(true) || <span />}
+          <span className="text-xs font-semibold text-ink-3 truncate">{property.name}</span>
+        </div>
 
         {otherSections.length > 3 && (
           <div className="relative">
@@ -520,29 +509,27 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 
         {registrationEnabled && !q && (
           registrationSent ? (
-            <div className="bg-white rounded-2xl shadow-sm border border-green-200 px-5 py-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-green-50 text-green-600">
-                <CheckCircle2 className="w-5 h-5" />
+            <div className="bg-white rounded-2xl shadow-sm border border-green-200 px-4 py-3 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-green-50 text-green-600">
+                <CheckCircle2 className="w-4 h-4" />
               </div>
-              <div>
-                <h2 className="font-bold text-ink text-base" style={HEAD}>{ui.regDone}</h2>
-                <p className="text-sm text-ink-2">{ui.regDoneBody}</p>
+              <div className="min-w-0">
+                <h2 className="font-semibold text-ink text-[15px] leading-tight" style={HEAD}>{ui.regDone}</h2>
+                <p className="text-[13px] text-ink-2">{ui.regDoneBody}</p>
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl shadow-sm border-2 border-orange overflow-hidden">
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-line-2">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-orange-50 text-orange">
-                  <ClipboardList className="w-5 h-5" />
+            <div className="bg-white rounded-2xl shadow-sm border-2 border-orange px-4 py-3.5">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-orange-50 text-orange">
+                  <ClipboardList className="w-4 h-4" />
                 </div>
-                <h2 className="font-bold text-ink text-base" style={HEAD}>{ui.regTitle}</h2>
+                <h2 className="font-semibold text-ink text-[15px]" style={HEAD}>{ui.regTitle}</h2>
               </div>
-              <div className="px-5 py-4 space-y-3">
-                <p className="text-sm text-ink leading-relaxed">{ui.regBody}</p>
-                <a href={registrationHref} className="inline-flex items-center gap-2 bg-orange hover:bg-orange-dark text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors">
-                  {ui.regCta} →
-                </a>
-              </div>
+              <p className="text-[13px] text-ink-2 leading-relaxed mt-2">{ui.regBody}</p>
+              <a href={registrationHref} className="inline-flex items-center gap-1.5 mt-3 bg-orange hover:bg-orange-dark text-white text-[13px] font-semibold px-3.5 py-2 rounded-lg transition-colors">
+                {ui.regCta} →
+              </a>
             </div>
           )
         )}
