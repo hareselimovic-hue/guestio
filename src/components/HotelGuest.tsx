@@ -505,7 +505,8 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
         </div>
       )}
 
-      {view === "reception" && canOrder && (
+      {/* Shown on the general hotel link too (read-only), so the hotel sees what guests can ask for */}
+      {view === "reception" && (
         <div className="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
           <div className="flex items-center gap-3 px-5 py-4 border-b border-line-2">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-navy/10 text-navy">
@@ -522,8 +523,9 @@ export function HotelServicesPanel({ ctx, services, view }: { ctx: GuestCtx; ser
               return (
                 <button
                   key={type}
-                  onClick={() => setPending({ kind: "quick", type })}
-                  className={`min-h-[76px] flex ${wide ? "col-span-2 flex-row items-center gap-3" : "flex-col items-start justify-between gap-2"} bg-white border border-line hover:border-navy/30 active:scale-[0.98] transition rounded-2xl p-3 text-left shadow-[0_1px_2px_rgba(0,0,0,0.03)]`}
+                  onClick={() => canOrder && setPending({ kind: "quick", type })}
+                  disabled={!canOrder}
+                  className={`min-h-[76px] flex ${wide ? "col-span-2 flex-row items-center gap-3" : "flex-col items-start justify-between gap-2"} bg-white border border-line enabled:hover:border-navy/30 enabled:active:scale-[0.98] disabled:cursor-default transition rounded-2xl p-3 text-left shadow-[0_1px_2px_rgba(0,0,0,0.03)]`}
                 >
                   <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${tone}`}><Icon className="w-[18px] h-[18px]" /></span>
                   <span className="text-sm font-semibold text-ink leading-tight">{s.quick[type]}</span>
