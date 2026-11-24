@@ -65,6 +65,22 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   return NextResponse.json({ created: toCreate.length, skipped: wanted.length - toCreate.length });
 }
 
+/** Rename a room (e.g. "12" → "Lavanda"). The link token stays the same, so printed QR codes keep working. */
+export async function PATCH(req: NextRequest, { params }: Ctx) {
+  const { propertyId } = await params;
+  const property = await guard(propertyId);
+  if (!property) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  const { id, name } = await req.json();
+  const roomNumber = typeof name === "string" ? cleanRoomName(name) : "";
+  if (typeof id !== "string" || !roomNumber) return NextResponse.json({ error: "Upišite naziv sobe" }, { status: 400 });
+  const taken = await prisma.guestLink.findFirst({ where: { propertyId, roomNumber, NOT: { id } }, select: { id: true } });
+  if (taken) return NextResponse.json({ error: `Soba „${roomNumber}“ već postoji` }, { status: 409 });
+  const res = await prisma.guestLink.updateMany({ where: { id, propertyId, roomNumber: { not: null } }, data: { roomNumber } });
+  if (res.count === 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  return NextResponse.json({ ok: true, roomNumber });
+}
+
 export async function DELETE(req: NextRequest, { params }: Ctx) {
   const { propertyId } = await params;
   const property = await guard(propertyId);

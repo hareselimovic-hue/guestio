@@ -385,6 +385,10 @@ function RoomsTab({ hotel }: { hotel: HotelRef }) {
   const [editing, setEditing] = useState<string | null>(null);
   const [qrRoom, setQrRoom] = useState<Room | null>(null);
   const [adding, setAdding] = useState(false);
+  // Simple way: "how many rooms" + "starting from"; the free-text list (ranges, names) is the advanced way
+  const [count, setCount] = useState("10");
+  const [start, setStart] = useState("");
+  const [custom, setCustom] = useState(false);
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/hotel/${hotel.id}/rooms`);
@@ -392,14 +396,23 @@ function RoomsTab({ hotel }: { hotel: HotelRef }) {
   }, [hotel.id]);
   useEffect(() => { load(); }, [load]);
 
+  // next free number: after the highest numbered room, or 101 for a new hotel
+  const nextNumber = (() => {
+    const nums = (rooms ?? []).map((r) => Number(r.roomNumber)).filter((n) => Number.isInteger(n) && n > 0);
+    return nums.length ? Math.max(...nums) + 1 : 101;
+  })();
+  const n = Math.min(300, Math.max(0, parseInt(count, 10) || 0));
+  const from = parseInt(start, 10) || nextNumber;
+
   async function add() {
     setBusy(true); setMsg("");
-    const res = await fetch(`/api/hotel/${hotel.id}/rooms`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rooms: value }) });
+    const list = custom ? value : n > 0 ? `${from}-${from + n - 1}` : "";
+    const res = await fetch(`/api/hotel/${hotel.id}/rooms`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rooms: list }) });
     const d = await res.json();
     setBusy(false);
     if (!res.ok) { setMsg(d.error ?? "Error"); return; }
-    setMsg(`${d.created} room${d.created === 1 ? "" : "s"} added${d.skipped ? `, ${d.skipped} already existed` : ""}. New rooms follow the hotel guide.`);
-    setValue("");
+    setMsg(`${d.created} room${d.created === 1 ? "" : "s"} added${d.skipped ? `, ${d.skipped} already existed` : ""}. New rooms follow the hotel guide — open a room to rename it (e.g. “Lavanda”).`);
+    setValue(""); setStart("");
     load();
   }
 
@@ -422,12 +435,37 @@ function RoomsTab({ hotel }: { hotel: HotelRef }) {
         <p className="text-sm text-ink-2 mt-0.5 mb-3">
           A new room automatically shows everything from the <strong>Hotel guide</strong>. Open a room only to change what&apos;s different there (e.g. Wi-Fi or parking).
         </p>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <input value={value} onChange={(e) => setValue(e.target.value)} placeholder="e.g. 101-110, 201-210, Suite A" className={input} />
-          <button onClick={add} disabled={busy || !value.trim()} className={btnPrimary}>
-            {busy && <Loader2 className="w-4 h-4 animate-spin" />} Add
-          </button>
-        </div>
+        {!custom ? (
+          <>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="block">
+                <span className="block text-xs font-medium text-ink-2 mb-1">How many rooms?</span>
+                <input type="number" inputMode="numeric" min={1} max={300} value={count} onChange={(e) => setCount(e.target.value)} className={input} />
+              </label>
+              <label className="block">
+                <span className="block text-xs font-medium text-ink-2 mb-1">Starting from number</span>
+                <input type="number" inputMode="numeric" min={1} value={start} onChange={(e) => setStart(e.target.value)} placeholder={String(nextNumber)} className={input} />
+              </label>
+            </div>
+            {n > 0 && <p className="text-xs text-ink-3 mt-2">Creates rooms {from}{n > 1 ? ` – ${from + n - 1}` : ""}. You can rename any room afterwards.</p>}
+            <div className="flex items-center justify-between gap-2 mt-3">
+              <button onClick={() => setCustom(true)} className="text-xs text-navy font-medium hover:underline">Rooms have names or several floors? Type them instead</button>
+              <button onClick={add} disabled={busy || n === 0} className={btnPrimary}>
+                {busy && <Loader2 className="w-4 h-4 animate-spin" />} Add {n || ""} room{n === 1 ? "" : "s"}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input value={value} onChange={(e) => setValue(e.target.value)} placeholder="e.g. 101-110, 201-210 or names: Lavanda, Ruža" className={input} />
+              <button onClick={add} disabled={busy || !value.trim()} className={btnPrimary}>
+                {busy && <Loader2 className="w-4 h-4 animate-spin" />} Add
+              </button>
+            </div>
+            <button onClick={() => setCustom(false)} className="text-xs text-navy font-medium hover:underline mt-2">← Just a number of rooms</button>
+          </>
+        )}
         {msg && <p className="text-sm text-navy mt-2">{msg}</p>}
       </div>
       </AddSheet>
@@ -572,6 +610,21 @@ function RoomEditor({ hotel, roomId, rooms, onBack, onQr, qrRoom, closeQr }: {
   const [busy, setBusy] = useState<string | null>(null);
   const [applyFor, setApplyFor] = useState<string | null>(null);
   const [note, setNote] = useState("");
+  const [renaming, setRenaming] = useState<string | null>(null); // the new name while editing it
+  const [renameErr, setRenameErr] = useState("");
+
+  async function rename() {
+    if (renaming === null) return;
+    setRenameErr("");
+    const res = await fetch(`/api/hotel/${hotel.id}/rooms`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: roomId, name: renaming }),
+    });
+    const d = await res.json();
+    if (!res.ok) { setRenameErr(d.error ?? "Error"); return; }
+    setRenaming(null);
+    setNote(`Renamed to “${d.roomNumber}”. The QR code stays the same.`);
+    load();
+  }
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/hotel/${hotel.id}/rooms/${roomId}`);
@@ -607,7 +660,20 @@ function RoomEditor({ hotel, roomId, rooms, onBack, onQr, qrRoom, closeQr }: {
       <button onClick={onBack} className="text-sm text-ink-2 hover:text-ink mb-3">← All rooms</button>
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         <div className="flex-1">
-          <h2 className="text-xl font-bold text-ink">Room {data.room.roomNumber}</h2>
+          {renaming === null ? (
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold text-ink">Room {data.room.roomNumber}</h2>
+              <button onClick={() => { setRenaming(data.room.roomNumber ?? ""); setRenameErr(""); }} className="text-xs font-medium text-navy border border-navy/30 rounded-lg px-2 py-1 hover:bg-navy/5">Rename</button>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              <input autoFocus value={renaming} onChange={(e) => setRenaming(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") rename(); if (e.key === "Escape") setRenaming(null); }}
+                maxLength={30} placeholder="e.g. 12 or Lavanda" className={`${input} max-w-[220px]`} />
+              <button onClick={rename} disabled={!renaming.trim()} className={btnPrimary}>Save</button>
+              <button onClick={() => setRenaming(null)} className="text-sm text-ink-2 px-2">Cancel</button>
+              {renameErr && <p className="w-full text-sm text-red-600">{renameErr}</p>}
+            </div>
+          )}
           <p className="text-sm text-ink-2">
             Everything follows the <strong>Hotel guide</strong>. Change a section here only if it&apos;s different in this room — the rest keeps updating from the hotel.
           </p>
