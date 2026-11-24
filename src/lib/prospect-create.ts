@@ -102,6 +102,8 @@ export async function createProspectGuide(input: unknown, opts: { internalLabel?
       prospectEmail: email,
       prospectSource: str(body.source, 500) || null,
       prospectExpiresAt: expiresAt,
+      // ready-made guides show guest registration too, so the owner sees the whole product
+      guestRegistrationEnabled: true,
       sections: { create: sections },
       ...(services.length ? { hotelServices: { create: services } } : {}),
     },
