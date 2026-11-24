@@ -5,7 +5,7 @@ import {
   Wifi, Key, ScrollText, MapPin, Star, Heart, Plus,
   Copy, Check, ChevronDown, Phone, ParkingSquare, X, ClipboardList, CheckCircle2,
   Coffee, Sparkles, UtensilsCrossed, Car, PawPrint, Waves, BookOpen, Dumbbell, Baby, Bike,
-  ShoppingBag, Thermometer, Tv, WashingMachine, Trash2, Info, Bus, Luggage, Search, Navigation, User,
+  ShoppingBag, Thermometer, Tv, WashingMachine, Trash2, Info, Bus, Luggage, Search, Navigation, User, Compass, ExternalLink, ChevronRight, Headphones, Map as MapIcon,
 } from "lucide-react";
 import { useState } from "react";
 import GuestChat from "./GuestChat";
@@ -100,11 +100,11 @@ const UI_STRINGS: Record<string, {
   trueLocalTitle: string; trueLocalBody: string; trueLocalCta: string;
   rentCarTitle: string; rentCarBody: string; callUs: string;
   regTitle: string; regBody: string; regCta: string; regDone: string; regDoneBody: string;
-  checkInAfter: string; checkOutBefore: string; searchPh: string; noResults: string; host: string; reception: string; stayStarts: string; infoTitle: string; hiThere: string;
+  checkInAfter: string; checkOutBefore: string; searchPh: string; noResults: string; host: string; reception: string; stayStarts: string; infoTitle: string; hiThere: string; guideLabel: string; copied: string; stayGuide: string; stayGuideSub: string; essential: string; discover: string; exploreLocal: string; exploreLocalBody: string; exploreRecs: string; needHelp: string; needHelpBody: string;
   sections: Record<string, { label: string; subtitle?: string }>;
 }> = {
   EN: {
-    checkInAfter: "Check-in after", checkOutBefore: "Check-out before", searchPh: "Search the guide…", noResults: "Nothing found for", host: "Your host", reception: "Reception", hiThere: "Hi there! 👋", infoTitle: "Everything about your stay", stayStarts: "Your stay starts here. All the important details and helpful information are just below.",
+    checkInAfter: "Check-in after", checkOutBefore: "Check-out before", searchPh: "Search the guide…", noResults: "Nothing found for", host: "Your host", reception: "Reception", stayGuide: "Your Stay Guide", stayGuideSub: "Everything you need during your stay.", essential: "Essential information", discover: "Discover the area", exploreLocal: "Explore like a local", exploreLocalBody: "Restaurants, attractions and local recommendations.", exploreRecs: "See recommendations", needHelp: "Need assistance?", needHelpBody: "Our assistant is here to help you during your stay.", guideLabel: "Guest guide", copied: "Copied", hiThere: "Hi there! 👋", infoTitle: "Everything about your stay", stayStarts: "Your stay starts here. All the important details and helpful information are just below.",
     welcome: "Welcome",
     exploreGuide: "Explore the guide",
     guideSoon: "Guide coming soon",
@@ -131,7 +131,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   BS: {
-    checkInAfter: "Check-in od", checkOutBefore: "Check-out do", searchPh: "Pretražite vodič…", noResults: "Nema rezultata za", host: "Vaš domaćin", reception: "Recepcija", hiThere: "Dobro došli! 👋", infoTitle: "Sve o vašem boravku", stayStarts: "Vaš boravak počinje ovdje. Sve važne informacije i korisni savjeti su odmah ispod.",
+    checkInAfter: "Check-in od", checkOutBefore: "Check-out do", searchPh: "Pretražite vodič…", noResults: "Nema rezultata za", host: "Vaš domaćin", reception: "Recepcija", stayGuide: "Vaš vodič za boravak", stayGuideSub: "Sve što vam treba tokom boravka.", essential: "Osnovne informacije", discover: "Istražite okolinu", exploreLocal: "Istražite kao lokalac", exploreLocalBody: "Restorani, znamenitosti i lokalne preporuke.", exploreRecs: "Pogledajte preporuke", needHelp: "Trebate pomoć?", needHelpBody: "Naš asistent vam je na raspolaganju tokom boravka.", guideLabel: "Vodič za goste", copied: "Kopirano", hiThere: "Dobro došli! 👋", infoTitle: "Sve o vašem boravku", stayStarts: "Vaš boravak počinje ovdje. Sve važne informacije i korisni savjeti su odmah ispod.",
     welcome: "Dobro došli",
     exploreGuide: "Pogledaj vodič",
     guideSoon: "Vodič uskoro",
@@ -158,7 +158,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   DE: {
-    checkInAfter: "Check-in ab", checkOutBefore: "Check-out bis", searchPh: "Im Gästeführer suchen…", noResults: "Keine Ergebnisse für", host: "Ihr Gastgeber", reception: "Rezeption", hiThere: "Hallo! 👋", infoTitle: "Alles rund um Ihren Aufenthalt", stayStarts: "Ihr Aufenthalt beginnt hier. Alle wichtigen Details und hilfreichen Informationen finden Sie gleich unten.",
+    checkInAfter: "Check-in ab", checkOutBefore: "Check-out bis", searchPh: "Im Gästeführer suchen…", noResults: "Keine Ergebnisse für", host: "Ihr Gastgeber", reception: "Rezeption", stayGuide: "Ihr Aufenthaltsguide", stayGuideSub: "Alles, was Sie während Ihres Aufenthalts brauchen.", essential: "Wichtige Informationen", discover: "Die Umgebung entdecken", exploreLocal: "Wie ein Einheimischer entdecken", exploreLocalBody: "Restaurants, Sehenswürdigkeiten und lokale Tipps.", exploreRecs: "Empfehlungen ansehen", needHelp: "Brauchen Sie Hilfe?", needHelpBody: "Unser Assistent hilft Ihnen während Ihres Aufenthalts.", guideLabel: "Gästeführer", copied: "Kopiert", hiThere: "Hallo! 👋", infoTitle: "Alles rund um Ihren Aufenthalt", stayStarts: "Ihr Aufenthalt beginnt hier. Alle wichtigen Details und hilfreichen Informationen finden Sie gleich unten.",
     welcome: "Willkommen",
     exploreGuide: "Zum Gästeführer",
     guideSoon: "Leitfaden kommt bald",
@@ -185,7 +185,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   TR: {
-    checkInAfter: "Giriş saati", checkOutBefore: "Çıkış saati", searchPh: "Rehberde ara…", noResults: "Sonuç bulunamadı:", host: "Ev sahibiniz", reception: "Resepsiyon", hiThere: "Merhaba! 👋", infoTitle: "Konaklamanız hakkında her şey", stayStarts: "Konaklamanız burada başlıyor. Tüm önemli bilgiler ve faydalı ipuçları hemen aşağıda.",
+    checkInAfter: "Giriş saati", checkOutBefore: "Çıkış saati", searchPh: "Rehberde ara…", noResults: "Sonuç bulunamadı:", host: "Ev sahibiniz", reception: "Resepsiyon", stayGuide: "Konaklama Rehberiniz", stayGuideSub: "Konaklamanız boyunca ihtiyacınız olan her şey.", essential: "Temel bilgiler", discover: "Çevreyi keşfedin", exploreLocal: "Bir yerli gibi keşfedin", exploreLocalBody: "Restoranlar, gezilecek yerler ve yerel öneriler.", exploreRecs: "Önerilere göz atın", needHelp: "Yardıma mı ihtiyacınız var?", needHelpBody: "Asistanımız konaklamanız boyunca size yardımcı olur.", guideLabel: "Misafir rehberi", copied: "Kopyalandı", hiThere: "Merhaba! 👋", infoTitle: "Konaklamanız hakkında her şey", stayStarts: "Konaklamanız burada başlıyor. Tüm önemli bilgiler ve faydalı ipuçları hemen aşağıda.",
     welcome: "Hoş Geldiniz",
     exploreGuide: "Rehberi Keşfet",
     guideSoon: "Rehber Yakında",
@@ -212,7 +212,7 @@ const UI_STRINGS: Record<string, {
     },
   },
   IT: {
-    checkInAfter: "Check-in dalle", checkOutBefore: "Check-out entro", searchPh: "Cerca nella guida…", noResults: "Nessun risultato per", host: "Il tuo host", reception: "Reception", hiThere: "Ciao! 👋", infoTitle: "Tutto sul tuo soggiorno", stayStarts: "Il tuo soggiorno inizia qui. Tutti i dettagli importanti e le informazioni utili sono qui sotto.",
+    checkInAfter: "Check-in dalle", checkOutBefore: "Check-out entro", searchPh: "Cerca nella guida…", noResults: "Nessun risultato per", host: "Il tuo host", reception: "Reception", stayGuide: "La tua guida al soggiorno", stayGuideSub: "Tutto ciò che ti serve durante il soggiorno.", essential: "Informazioni essenziali", discover: "Scopri la zona", exploreLocal: "Esplora come un locale", exploreLocalBody: "Ristoranti, attrazioni e consigli locali.", exploreRecs: "Vedi i consigli", needHelp: "Serve aiuto?", needHelpBody: "Il nostro assistente è qui per aiutarti durante il soggiorno.", guideLabel: "Guida per gli ospiti", copied: "Copiato", hiThere: "Ciao! 👋", infoTitle: "Tutto sul tuo soggiorno", stayStarts: "Il tuo soggiorno inizia qui. Tutti i dettagli importanti e le informazioni utili sono qui sotto.",
     welcome: "Benvenuto",
     exploreGuide: "Esplora la guida",
     guideSoon: "Guida in arrivo",
@@ -338,6 +338,8 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
     window.scrollTo({ top: 0 });
   }
   const [query, setQuery] = useState("");
+  const [rentOpen, setRentOpen] = useState(false);
+  const [openTile, setOpenTile] = useState<string | null>(null);
 
   // Home screen facts — times, map link and phone from the EN content (not translated), labels translated
   const enContent = (type: string) => (sections.find((x) => x.type === type)?.content ?? {}) as Record<string, unknown>;
@@ -483,21 +485,32 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
 
       {/* ── INFO: search + every section ── */}
       {tab === "info" && <>
-      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
-
-        <div className="flex items-center justify-between gap-3 min-h-7">
-          {langPicker(true) || <span />}
-          <span className="text-xs font-semibold text-ink-3 truncate">{property.name}</span>
+      {/* Header: the same photo as Home, curved bottom, title; the search overlaps its lower edge */}
+      <div className="relative text-white rounded-b-[28px] overflow-hidden" style={{ background: heroImage ? `url(${heroImage}) center/cover no-repeat` : "#0F2F61" }}>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0B1730]/[0.92] via-[#0B1730]/[0.78] to-[#0B1730]/[0.55]" />
+        <div className="relative max-w-2xl mx-auto px-5 pt-4 pb-14">
+          <div className="flex items-start justify-between gap-3">
+            <span className="min-w-0 inline-block bg-white/12 backdrop-blur-sm border border-white/20 text-white/90 text-[11px] font-medium px-3 py-1 rounded-full truncate">
+              {property.name}
+              {hotel?.roomNumber && <span className="text-white/70"> · {roomLabel(lang)} {hotel.roomNumber}</span>}
+            </span>
+            <span className="shrink-0">{langPicker(false)}</span>
+          </div>
+          <h1 className="mt-4 text-[28px] font-bold leading-tight" style={HEAD}>{ui.stayGuide}</h1>
+          <p className="mt-1.5 text-[14px] text-white/80 leading-snug max-w-[18rem]">{ui.stayGuideSub}</p>
+          <span className="block w-10 h-1 rounded-full bg-orange mt-4" />
         </div>
+      </div>
 
+      <div className="max-w-2xl mx-auto px-4 pb-4 space-y-5">
         {otherSections.length > 3 && (
-          <div className="relative">
-            <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-ink-3" />
+          <div className="relative -mt-7">
+            <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-ink-2" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={ui.searchPh}
-              className="w-full h-11 pl-11 pr-10 rounded-2xl bg-white border border-line shadow-sm text-[16px] outline-none focus:border-navy"
+              className="w-full h-[52px] pl-12 pr-10 rounded-2xl bg-white text-ink border border-line shadow-[0_8px_24px_rgba(11,23,48,0.12)] text-[16px] outline-none"
             />
             {query && (
               <button onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-3 p-1" aria-label="Clear">
@@ -534,13 +547,55 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
           )
         )}
 
-        {visibleSections.length > 0 && (
-          <div className="bg-white rounded-2xl border border-line shadow-sm divide-y divide-line-2 overflow-hidden">
-            {visibleSections.map((section) => (
-              <SectionRow key={section.id} section={section} content={getContent(section, lang)} ui={ui} />
-            ))}
-          </div>
-        )}
+        {(() => {
+          // Recommendations get their own "Discover the area" card (unless searching)
+          const recs = !q ? visibleSections.find((x) => x.type === "LOCAL_RECS") : undefined;
+          const tiles = visibleSections.filter((x) => x !== recs);
+          return <>
+            {tiles.length > 0 && (
+              <section>
+                {!q && <h2 className="text-[11px] font-bold uppercase tracking-[0.18em] text-ink mb-3">{ui.essential}</h2>}
+                <div className="grid grid-cols-2 gap-3">
+                  {tiles.map((section, i) => {
+                    const rowEnd = i % 2 === 1 || i === tiles.length - 1;
+                    const rowOpen = rowEnd ? tiles.slice(i - (i % 2), i + 1).find((x) => x.id === openTile) : undefined;
+                    return (
+                      <React.Fragment key={section.id}>
+                        <SectionTile section={section} ui={ui}
+                          open={openTile === section.id} onToggle={() => setOpenTile(openTile === section.id ? null : section.id)} />
+                        {rowOpen && <SectionPanel section={rowOpen} content={getContent(rowOpen, lang)} ui={ui} onClose={() => setOpenTile(null)} />}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+            {recs && (
+              <section>
+                <h2 className="text-[11px] font-bold uppercase tracking-[0.18em] text-ink mb-3">{ui.discover}</h2>
+                <div className="bg-white rounded-2xl border border-line shadow-sm overflow-hidden">
+                  <button onClick={() => setOpenTile(openTile === recs.id ? null : recs.id)} aria-expanded={openTile === recs.id} className="w-full flex items-stretch text-left">
+                    <span className="w-[38%] shrink-0 bg-gradient-to-br from-orange to-[#FF9A4D] flex items-center justify-center min-h-[124px]">
+                      <MapIcon className="w-11 h-11 text-white/95" strokeWidth={1.6} />
+                    </span>
+                    <span className="flex-1 min-w-0 p-4">
+                      <span className="block text-[17px] font-bold text-ink leading-tight" style={HEAD}>{ui.exploreLocal}</span>
+                      <span className="block text-[13px] text-ink-2 leading-snug mt-1.5">{ui.exploreLocalBody}</span>
+                      <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-orange mt-2.5">
+                        {ui.exploreRecs} <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${openTile === recs.id ? "rotate-90" : ""}`} />
+                      </span>
+                    </span>
+                  </button>
+                  {openTile === recs.id && (
+                    <div className="px-4 pb-4 pt-3 border-t border-line-2">
+                      <SectionBody type={recs.type} content={getContent(recs, lang)} />
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+          </>;
+        })()}
 
         {q && visibleSections.length === 0 && (
           <p className="text-center text-sm text-ink-2 py-10">{ui.noResults} „{query.trim()}“</p>
@@ -556,63 +611,49 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
         )}
       </div>
 
-      {/* ── UPSELL CARDS ── */}
-      {!q && <div className="max-w-2xl mx-auto px-4 pb-6 space-y-4">
-        {/* TrueLocal */}
-        <div className="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-line-2">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-green-50 text-green-600">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
+      {/* ── Extras: compact rows, same look as the list ── */}
+      {!q && <div className="max-w-2xl mx-auto px-4 pb-6">
+        <div className="bg-white rounded-2xl border border-line shadow-sm divide-y divide-line-2 overflow-hidden">
+          <a href="https://www.truelocal.ba" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-3 active:bg-line-2 transition-colors">
+            <span className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-green-50 text-green-600"><Compass className="w-4 h-4" /></span>
+            <span className="flex-1 min-w-0">
+              <span className="block text-[15px] font-semibold text-ink leading-snug" style={HEAD}>{ui.trueLocalTitle}</span>
+              <span className="block text-xs text-ink-3">TrueLocal.ba</span>
+            </span>
+            <ExternalLink className="w-4 h-4 text-ink-3 shrink-0" />
+          </a>
+          {!hotel && (
+            <div>
+              <button onClick={() => setRentOpen(!rentOpen)} aria-expanded={rentOpen} className="w-full flex items-center gap-3 px-4 py-3 text-left active:bg-line-2 transition-colors">
+                <span className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-blue-50 text-blue-600"><Car className="w-4 h-4" /></span>
+                <span className="flex-1 min-w-0 text-[15px] font-semibold text-ink leading-snug" style={HEAD}>{ui.rentCarTitle}</span>
+                <ChevronDown className={`w-4 h-4 text-ink-3 shrink-0 transition-transform duration-200 ${rentOpen ? "rotate-180" : ""}`} />
+              </button>
+              {rentOpen && (
+                <div className="px-4 pb-4 pt-1 space-y-3">
+                  <p className="text-[13px] text-ink-2 leading-relaxed">{ui.rentCarBody}</p>
+                  <div className="flex gap-2 flex-wrap">
+                    <a href="tel:+38761684110" className="inline-flex items-center gap-1.5 bg-navy hover:bg-navy-dark text-white text-[13px] font-medium px-3.5 py-2 rounded-lg transition-colors">
+                      <Phone className="w-3.5 h-3.5" />{ui.callUs}
+                    </a>
+                    <a href="https://wa.me/38761684110" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 bg-whatsapp hover:bg-[#1db955] text-white text-[13px] font-medium px-3.5 py-2 rounded-lg transition-colors">
+                      <WhatsAppIcon />WhatsApp
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
-            <h2 className="font-bold text-ink text-base" style={HEAD}>{ui.trueLocalTitle}</h2>
-          </div>
-          <div className="px-5 py-4 space-y-3">
-            <p className="text-sm text-ink leading-relaxed">{ui.trueLocalBody}</p>
-            <a
-              href="https://www.truelocal.ba"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
-            >
-              {ui.trueLocalCta}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-              </svg>
-            </a>
-          </div>
+          )}
         </div>
 
-        {/* Rent-a-car — not for hotels (they run their own extras) */}
-        {!hotel && <div className="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-line-2">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-blue-50 text-blue-600">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-              </svg>
-            </div>
-            <h2 className="font-bold text-ink text-base" style={HEAD}>{ui.rentCarTitle}</h2>
-          </div>
-          <div className="px-5 py-4 space-y-3">
-            <p className="text-sm text-ink leading-relaxed">{ui.rentCarBody}</p>
-            <div className="flex gap-2 flex-wrap">
-              <a href="tel:+38761684110" className="inline-flex items-center gap-2 bg-navy hover:bg-navy-dark text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors">
-                <Phone className="w-4 h-4" />
-                {ui.callUs}
-              </a>
-              <a
-                href="https://wa.me/38761684110"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-whatsapp hover:bg-[#1db955] text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
-              >
-                <WhatsAppIcon />
-                WhatsApp
-              </a>
-            </div>
-          </div>
-        </div>}
+        <button onClick={() => changeTab("assistant")} className="w-full mt-5 flex items-center gap-4 bg-[#0B1730] text-white rounded-2xl px-5 py-4 text-left active:scale-[0.99] transition-transform">
+          <Headphones className="w-8 h-8 text-orange shrink-0" strokeWidth={1.8} />
+          <span className="flex-1 min-w-0">
+            <span className="block text-[15px] font-bold" style={HEAD}>{ui.needHelp}</span>
+            <span className="block text-[13px] text-white/75 leading-snug">{ui.needHelpBody}</span>
+          </span>
+          <ChevronRight className="w-5 h-5 text-orange shrink-0" />
+        </button>
       </div>}
 
       {/* Footer */}
@@ -633,22 +674,41 @@ export default function GuestView({ property, sections, guestName, checkIn, chec
   );
 }
 
-function SectionRow({ section, content, ui }: { section: Section; content: Record<string, unknown>; ui: typeof UI_STRINGS["EN"] }) {
-  const [open, setOpen] = useState(false);
+function SectionTile({ section, ui, open, onToggle }: {
+  section: Section; ui: typeof UI_STRINGS["EN"]; open: boolean; onToggle: () => void;
+}) {
   const meta = sectionMeta(section.type, section.title);
+  const strings = ui.sections[section.type];
+  const label = section.type === "CUSTOM" ? section.title : (strings?.label ?? section.title);
+  // icon on top, title and a short line below; the open one is outlined in orange
+  return (
+    <button onClick={onToggle} aria-expanded={open}
+      className={`relative bg-white rounded-2xl border shadow-[0_1px_2px_rgba(0,0,0,0.03)] p-3 text-left active:scale-[0.98] transition ${open ? "border-orange ring-1 ring-orange" : "border-line"}`}>
+      {/* same size as the Reception tiles */}
+      <span className={`w-9 h-9 rounded-xl flex items-center justify-center [&_svg]:w-[18px] [&_svg]:h-[18px] ${meta.bg} ${meta.color}`}>{meta.icon}</span>
+      <ChevronRight className={`absolute top-3.5 right-3 w-3.5 h-3.5 text-orange transition-transform duration-200 ${open ? "rotate-90" : ""}`} />
+      <span className="block mt-2 text-sm font-semibold text-ink leading-tight" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{label}</span>
+      {strings?.subtitle && <span className="block text-[11px] text-ink-3 leading-snug mt-0.5 line-clamp-1">{strings.subtitle}</span>}
+    </button>
+  );
+}
+
+/** The open tile's content: full width, right under the tile's row */
+function SectionPanel({ section, content, ui, onClose }: {
+  section: Section; content: Record<string, unknown>; ui: typeof UI_STRINGS["EN"]; onClose: () => void;
+}) {
   const label = section.type === "CUSTOM" ? section.title : (ui.sections[section.type]?.label ?? section.title);
   return (
-    <div>
-      <button onClick={() => setOpen(!open)} aria-expanded={open} className="w-full flex items-center gap-3 px-4 py-3 text-left active:bg-line-2 transition-colors">
-        <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 [&_svg]:w-4 [&_svg]:h-4 ${meta.bg} ${meta.color}`}>{meta.icon}</span>
-        <span className="flex-1 min-w-0 text-[15px] font-semibold text-ink truncate" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{label}</span>
-        <ChevronDown className={`w-4 h-4 text-ink-3 shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
-      </button>
-      {open && (
-        <div className="px-4 pb-4 pt-1">
-          <SectionBody type={section.type} content={content} />
-        </div>
-      )}
+    <div className="col-span-2 bg-white rounded-2xl border border-line shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between gap-3 px-4 pt-3.5">
+        <p className="text-[15px] font-bold text-ink" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>{label}</p>
+        <button onClick={onClose} className="w-8 h-8 -mr-1.5 rounded-full flex items-center justify-center text-ink-3 hover:bg-line-2" aria-label="Close">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="px-4 pb-4 pt-2">
+        <SectionBody type={section.type} content={content} />
+      </div>
     </div>
   );
 }
