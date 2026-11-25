@@ -1,14 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Building2 } from "lucide-react";
+import { ArrowLeft, Building2, Link2, PencilLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import GuideWizard from "@/components/onboarding/GuideWizard";
+
+type Method = "choose" | "link" | "manual";
 
 export default function NewPropertyPage() {
   const router = useRouter();
+  // Apartments: "From listing link" (wizard) or "Manually" (the form below). Hotels keep the form.
+  const [method, setMethod] = useState<Method>("choose");
+  const [apartments, setApartments] = useState<{ id: string; name: string }[]>([]);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("kind") === "hotel") { setMethod("manual"); return; }
+    fetch("/api/properties").then((r) => (r.ok ? r.json() : [])).then((list: { id: string; name: string; kind?: string }[]) => {
+      setApartments(list.filter((p) => p.kind !== "HOTEL").map((p) => ({ id: p.id, name: p.name })));
+    }).catch(() => {});
+  }, []);
   const [name, setName] = useState("");
   const [internalName, setInternalName] = useState("");
   const [address, setAddress] = useState("");
@@ -45,12 +57,43 @@ export default function NewPropertyPage() {
     <div className="p-4 sm:p-8 max-w-xl">
       <button
         type="button"
-        onClick={() => router.back()}
+        onClick={() => (method === "choose" || new URLSearchParams(window.location.search).get("kind") === "hotel" ? router.back() : setMethod("choose"))}
         className="inline-flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back
       </button>
+
+      {method === "choose" && (
+        <div className="space-y-3">
+          <h1 className="text-xl font-bold text-ink mb-1" style={{ fontFamily: "Plus Jakarta Sans Variable, sans-serif" }}>New property</h1>
+          <p className="text-sm text-ink-2 mb-5">How do you want to create the guide?</p>
+          <button type="button" onClick={() => setMethod("link")}
+            className="flex w-full items-start gap-3 rounded-2xl border-2 border-orange bg-orange-tint p-4 text-left hover:bg-orange-soft/40">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-orange text-white"><Link2 className="h-5 w-5" /></span>
+            <span>
+              <span className="flex items-center gap-2 font-semibold text-ink">From listing link <span className="rounded bg-green-50 px-1.5 py-0.5 text-[11px] font-semibold text-green-700">Recommended</span></span>
+              <span className="mt-0.5 block text-sm text-ink-2">Paste your Airbnb or Booking link. Name, photos, address, house rules and nearby places are filled in for you.</span>
+            </span>
+          </button>
+          <button type="button" onClick={() => setMethod("manual")}
+            className="flex w-full items-start gap-3 rounded-2xl border-2 border-line bg-white p-4 text-left hover:border-ink-2/30">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-canvas text-ink-2"><PencilLine className="h-5 w-5" /></span>
+            <span>
+              <span className="block font-semibold text-ink">Manually</span>
+              <span className="mt-0.5 block text-sm text-ink-2">An empty guide: name, address and link, you fill in the rest.</span>
+            </span>
+          </button>
+        </div>
+      )}
+
+      {method === "link" && (
+        <div className="rounded-2xl border border-line bg-white p-5 sm:p-7">
+          <GuideWizard mode="app" lang="en" sessionEmail="" copySources={apartments} />
+        </div>
+      )}
+
+      {method === "manual" && (<>
 
       <div className="flex items-center gap-3 mb-8">
         <div className="w-10 h-10 bg-navy/10 rounded-xl flex items-center justify-center">
@@ -150,6 +193,7 @@ export default function NewPropertyPage() {
           </Button>
         </div>
       </form>
+      </>)}
     </div>
   );
 }

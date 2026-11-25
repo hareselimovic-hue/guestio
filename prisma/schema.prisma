@@ -517,6 +517,12 @@ model GuideRequest {
   propertyId String?   // the prospect guide (Property with prospectToken)
   notifiedAt DateTime? // admin got the "review" email
   sentAt     DateTime? // visitor got their guide
+  // PROSPECT = old flow (admin approves, guide emailed); ONBOARDING = self-serve wizard (/start, New property
+  // from link): the listing is only read into `draft`, the signed-in owner reviews it and creates the guide.
+  purpose    String    @default("PROSPECT")
+  draft      Json?     // ONBOARDING: what was read from the listing (see lib/onboarding.ts OnboardingDraft)
+  userId     String?   // ONBOARDING: owner who created the guide from it
+  ip         String?   // ONBOARDING: abuse guard for the public import endpoint
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 

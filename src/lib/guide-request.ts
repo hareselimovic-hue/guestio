@@ -4,6 +4,7 @@ import { ADMIN_EMAIL } from "@/lib/features";
 import { APP_URL, prospectGuideUrl, prospectClaimPath } from "@/lib/prospect";
 import { createProspectGuide, TODO } from "@/lib/prospect-create";
 import { readAirbnb, readWebsite, composeGuide, firstWorkingPhoto, type RawListing } from "@/lib/listing-import";
+import { draftFromRaw, applyLateDraft } from "@/lib/onboarding";
 
 /** "Vodič iz linka" flow — see the GuideRequest model. */
 
@@ -56,6 +57,19 @@ export async function buildFromRaw(id: string, raw: RawListing): Promise<{ ok: b
   const req = await prisma.guideRequest.findUnique({ where: { id } });
   if (!req) return { ok: false, error: "not found" };
   if (req.status === "READY" || req.status === "SENT") return { ok: true };
+  // Self-serve wizard: only read the listing into a draft — the owner reviews it and creates the guide
+  if (req.purpose === "ONBOARDING") {
+    try {
+      const draft = await draftFromRaw(raw);
+      await prisma.guideRequest.update({ where: { id }, data: { status: "READY", draft: draft as object, raw: raw as object, error: null } });
+      // The owner didn't wait (Booking can take a while) → fill the empty parts of the guide they made
+      if (req.propertyId) await applyLateDraft(req.propertyId, draft);
+      return { ok: true };
+    } catch (e) {
+      await failRequest(id, String(e).slice(0, 300), raw);
+      return { ok: false, error: String(e) };
+    }
+  }
   const kind = req.kind === "HOTEL" ? "HOTEL" : "APARTMENT";
   try {
     const composed = await composeGuide(raw, kind);
@@ -84,6 +98,8 @@ export async function failRequest(id: string, error: string, raw?: RawListing) {
     where: { id },
     data: { status: "FAILED", error, attempts: { increment: 1 }, ...(raw ? { raw: raw as object } : {}) },
   });
+  // Wizard: the owner sees "couldn't read it" on screen and fills the guide in themselves — nobody waits for a mail
+  if (req.purpose === "ONBOARDING") return;
   await sendMail(ADMIN_EMAIL, `Vodič iz linka: nisam uspio (${req.email})`, adminShell(`
     <p style="margin:0 0 12px;font-size:20px;font-weight:700;color:#262626;">Nisam uspio napraviti vodič</p>
     <p style="margin:0 0 6px;font-size:14px;color:#6B6B6B;"><b>Email:</b> ${esc(req.email)}<br>

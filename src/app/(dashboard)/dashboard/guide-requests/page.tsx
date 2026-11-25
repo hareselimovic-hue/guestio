@@ -19,7 +19,7 @@ const STATUS: Record<string, [string, string]> = {
 export default async function GuideRequestsPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (session?.user.email !== ADMIN_EMAIL) redirect("/dashboard");
-  const rows = await prisma.guideRequest.findMany({ orderBy: { createdAt: "desc" }, take: 100 });
+  const rows = await prisma.guideRequest.findMany({ where: { purpose: "PROSPECT" }, orderBy: { createdAt: "desc" }, take: 100 });
   return (
     <div className="max-w-3xl mx-auto p-4 md:p-8">
       <h1 className="text-2xl font-bold text-ink mb-1">Vodiči iz linka</h1>
