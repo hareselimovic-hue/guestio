@@ -35,15 +35,31 @@ export default async function DashboardPage() {
   ]);
   const accessWhere = propertyAccessWhere(userId, wsIds, memberUserIds);
 
-  const properties = await prisma.property.findMany({
-    where: { AND: [accessWhere, { prospectToken: null }] }, // ready-made (prospect) guides are edited from /dashboard/vodici, not listed here
-    select: {
-      id: true, name: true, internalName: true, kind: true, previewViewCount: true, chatCount: true, reviewUrl: true, receptionEmail: true, workspaceId: true, userId: true,
-      guests: { select: { viewCount: true } },
-      sections: { select: { type: true, content: true, isVisible: true, updatedAt: true, _count: { select: { translations: true } } } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const ownWhere = { AND: [accessWhere, { prospectToken: null }] }; // ready-made (prospect) guides are edited from /dashboard/vodici, not listed here
+  const now = Date.now();
+  // One round trip: the list, the few section contents guideIssues() reads, and the apartment counters
+  const [rawProperties, issueContents, registrations7d, openTasks] = await Promise.all([
+    prisma.property.findMany({
+      where: ownWhere,
+      select: {
+        id: true, name: true, internalName: true, kind: true, previewViewCount: true, chatCount: true, reviewUrl: true, receptionEmail: true, workspaceId: true, userId: true,
+        guests: { select: { viewCount: true } },
+        sections: { select: { id: true, type: true, isVisible: true, updatedAt: true, _count: { select: { translations: true } } } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.section.findMany({
+      where: { type: { in: ["WIFI", "CHECKIN", "CONTACT"] }, property: ownWhere },
+      select: { id: true, content: true },
+    }),
+    prisma.guestRegistration.count({ where: { property: { AND: [ownWhere, { kind: { not: "HOTEL" } }] }, createdAt: { gte: new Date(now - 7 * DAY) } } }),
+    wsIds.length ? prisma.task.count({ where: { workspaceId: { in: wsIds }, status: "IN_PROGRESS" } }) : 0,
+  ]);
+  const contentById = new Map(issueContents.map((s) => [s.id, s.content]));
+  const properties = rawProperties.map((p) => ({
+    ...p,
+    sections: p.sections.map((s) => ({ ...s, content: contentById.get(s.id) ?? null })),
+  }));
   const firstName = session!.user.name?.split(" ")[0] ?? "there";
 
   // ── New account: onboarding checklist instead of empty numbers ──
@@ -80,14 +96,8 @@ export default async function DashboardPage() {
 
   const apartments = properties.filter((p) => p.kind !== "HOTEL");
   const hotels = properties.filter((p) => p.kind === "HOTEL");
-  const now = Date.now();
 
   // ── Apartments ──
-  const aptIds = apartments.map((p) => p.id);
-  const [registrations7d, openTasks] = await Promise.all([
-    aptIds.length ? prisma.guestRegistration.count({ where: { propertyId: { in: aptIds }, createdAt: { gte: new Date(now - 7 * DAY) } } }) : 0,
-    wsIds.length ? prisma.task.count({ where: { workspaceId: { in: wsIds }, status: "IN_PROGRESS" } }) : 0,
-  ]);
   const aptOpens = apartments.reduce((s, p) => s + p.previewViewCount + p.guests.reduce((g, l) => g + l.viewCount, 0), 0);
   const aptChats = apartments.reduce((s, p) => s + (p.chatCount ?? 0), 0);
   const attention = apartments

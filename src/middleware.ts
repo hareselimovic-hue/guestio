@@ -53,6 +53,11 @@ export async function middleware(req: NextRequest) {
   // Subscription guard (the subscription page itself stays reachable)
   if (pathname.startsWith(SUBSCRIPTION_PAGE)) return NextResponse.next();
 
+  // Recently confirmed active subscription → skip the extra round trip to /api/subscription/status.
+  // The cookie is signed and tied to this session token; it never outlives validUntil or 1 hour.
+  const passUntil = await readSubPass(req.cookies.get(SUB_PASS_COOKIE)?.value, sessionToken);
+  if (passUntil && passUntil > Date.now()) return NextResponse.next();
+
   // Check subscription via internal API call
   const baseUrl = req.nextUrl.origin;
   try {
@@ -60,16 +65,52 @@ export async function middleware(req: NextRequest) {
       headers: { cookie: req.headers.get("cookie") ?? "" },
     });
     if (res.ok) {
-      const { expired, isAdmin } = await res.json();
+      const { expired, isAdmin, validUntil } = await res.json();
       if (expired && !isAdmin) {
         return NextResponse.redirect(new URL(SUBSCRIPTION_PAGE, req.url));
       }
+      const until = Math.min(Date.now() + SUB_PASS_MAX_MS, isAdmin ? Infinity : new Date(validUntil).getTime());
+      const pass = await signSubPass(sessionToken, until);
+      const next = NextResponse.next();
+      if (pass && Number.isFinite(until)) {
+        next.cookies.set(SUB_PASS_COOKIE, pass, {
+          httpOnly: true, secure: req.nextUrl.protocol === "https:", sameSite: "lax", path: "/dashboard",
+          expires: new Date(until),
+        });
+      }
+      return next;
     }
   } catch {
     // If check fails, allow through (don't block on error)
   }
 
   return NextResponse.next();
+}
+
+// ─── Short-lived "subscription OK" pass ──────────────────────────────────────
+const SUB_PASS_COOKIE = "ss_sub_pass";
+const SUB_PASS_MAX_MS = 60 * 60 * 1000;
+
+async function hmacHex(data: string): Promise<string | null> {
+  const secret = process.env.BETTER_AUTH_SECRET;
+  if (!secret) return null;
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(data));
+  return Array.from(new Uint8Array(sig), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function signSubPass(sessionToken: string, until: number): Promise<string | null> {
+  const sig = await hmacHex(`sub-pass:${sessionToken}:${until}`);
+  return sig ? `${until}.${sig}` : null;
+}
+
+async function readSubPass(value: string | undefined, sessionToken: string): Promise<number | null> {
+  if (!value) return null;
+  const [untilStr, sig] = value.split(".");
+  const until = Number(untilStr);
+  if (!Number.isFinite(until) || !sig) return null;
+  const expected = await hmacHex(`sub-pass:${sessionToken}:${until}`);
+  return expected && expected === sig ? until : null;
 }
 
 export const config = {

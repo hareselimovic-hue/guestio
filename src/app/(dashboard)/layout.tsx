@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import Sidebar from "@/components/Sidebar";
 import BottomNav from "@/components/BottomNav";
 import SubscriptionExpiryPopup from "@/components/SubscriptionExpiryPopup";
-import { getManagedHotelIds } from "@/lib/hotel";
 import { getUserWorkspaceIds, getWorkspaceMemberUserIds, propertyAccessWhere } from "@/lib/workspace";
 
 const ADMIN_EMAIL = "hareselimovic@gmail.com";
@@ -25,7 +24,9 @@ export default async function DashboardLayout({
     getUserWorkspaceIds(session.user.id),
     getWorkspaceMemberUserIds(session.user.id),
   ]);
-  const [workspace, subscription, account, hotelIds, apartmentCount] = await Promise.all([
+  const accessWhere = propertyAccessWhere(session.user.id, wsIds, memberUserIds);
+  // Same queries as getManagedHotelIds, reusing wsIds/memberUserIds instead of fetching them again
+  const [workspace, subscription, account, hotelCount, apartmentCount] = await Promise.all([
     prisma.workspace.findFirst({
       where: { ownerId: session.user.id },
       select: { name: true },
@@ -34,12 +35,12 @@ export default async function DashboardLayout({
       ? prisma.subscription.findUnique({ where: { userId: session.user.id } })
       : null,
     prisma.user.findUnique({ where: { id: session.user.id }, select: { accountType: true } }),
-    getManagedHotelIds(session.user.id),
-    prisma.property.count({ where: { kind: "APARTMENT", prospectToken: null, ...propertyAccessWhere(session.user.id, wsIds, memberUserIds) } }),
+    prisma.property.count({ where: { kind: "HOTEL", ...accessWhere } }),
+    prisma.property.count({ where: { kind: "APARTMENT", prospectToken: null, ...accessWhere } }),
   ]);
   // Hotel menu for hotel accounts and anyone managing a hotel property;
   // Apartments for anyone with apartments (and apartment accounts that have none yet)
-  const showHotel = account?.accountType === "HOTEL" || hotelIds.length > 0;
+  const showHotel = account?.accountType === "HOTEL" || hotelCount > 0;
   const showApartments = apartmentCount > 0 || !showHotel;
 
   const daysLeft = subscription
