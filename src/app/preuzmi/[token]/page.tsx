@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle, XCircle, BookOpen } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import { trackProspect } from "@/components/ProspectTracker";
 
 type Info = { name: string; kind: string; email: string | null; guideUrl: string };
 
@@ -29,7 +30,11 @@ function ClaimPage() {
       .then(async (r) => {
         const d = await r.json();
         if (!r.ok) setError(d.error ?? "Vodič više nije dostupan.");
-        else setInfo(d);
+        else {
+          setInfo(d);
+          // funnel: reached the claim page (not when coming back from signup)
+          if (new URLSearchParams(window.location.search).get("auto") !== "1") trackProspect(token, "claim_page");
+        }
       })
       .catch(() => setError("Vodič trenutno ne možemo učitati. Pokušajte ponovo."));
   }, [token]);
@@ -41,6 +46,7 @@ function ClaimPage() {
     setError(null);
     const res = await fetch(`/api/prospects/claim/${token}`, { method: "POST" });
     if (res.status === 401) {
+      trackProspect(token, "register_start");
       const email = info?.email ? `&email=${encodeURIComponent(info.email)}` : "";
       router.push(`/register?redirect=${encodeURIComponent(back)}${email}`);
       return;

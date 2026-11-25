@@ -5,6 +5,7 @@ import { timingSafeEqual } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { prospectClaimPath } from "@/lib/prospect";
 import GuestView from "@/components/GuestView";
+import ProspectTracker from "@/components/ProspectTracker";
 export const dynamic = "force-dynamic";
 
 /** Link preview (WhatsApp, Booking/Airbnb inbox, iMessage): the property's name and photo instead of the generic app title */
@@ -143,6 +144,7 @@ export default async function GuestPage({
 
   return (
     <>
+      <ProspectTracker token={token} />
       <div className="bg-navy text-white px-4 py-3">
         <div className="max-w-2xl mx-auto flex flex-col sm:flex-row sm:items-center gap-3">
           <p className="text-sm leading-snug flex-1">

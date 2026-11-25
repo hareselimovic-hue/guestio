@@ -128,6 +128,7 @@ model Property {
   guestRequests  GuestRequest[]
   announcements  Announcement[]
   feedback       GuestFeedback[]
+  prospectEvents ProspectEvent[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
@@ -528,4 +529,15 @@ model GuideRequest {
 
   @@index([status])
   @@index([email])
+}
+
+// Outreach guide funnel: where prospects drop off on the way to claiming (the admin's own visits are not recorded)
+model ProspectEvent {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  type       String   // "view" (real visitor interacted with the guide) | "claim_page" | "register_start"
+  createdAt  DateTime @default(now())
+
+  @@index([propertyId, type])
 }
