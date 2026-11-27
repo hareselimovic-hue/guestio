@@ -52,22 +52,31 @@ export default async function GuestPage({
 
   if (!property) notFound();
 
-  // Ready-made outreach guide: only its secret link works (not /g/<slug> or /preview), until claimed
+  // Ready-made outreach guide: only its secret link works (not /g/<slug> or /preview), until claimed.
+  // Its room links (unguessable tokens, opened from the hotel editor) work too — they 404'd before.
   const isProspect = !!property.prospectToken;
+  let guestLink = null;
+  let isProspectLink = false;
   if (isProspect) {
     const expired = property.prospectExpiresAt && property.prospectExpiresAt < new Date();
-    if (expired || token.length !== property.prospectToken!.length || !timingSafeEqual(Buffer.from(token), Buffer.from(property.prospectToken!))) {
-      notFound();
+    if (expired) notFound();
+    isProspectLink =
+      token.length === property.prospectToken!.length &&
+      timingSafeEqual(Buffer.from(token), Buffer.from(property.prospectToken!));
+    if (!isProspectLink) {
+      guestLink = await prisma.guestLink.findUnique({ where: { token } });
+      if (!guestLink || guestLink.propertyId !== property.id || !guestLink.roomNumber) notFound();
     }
   }
 
   // Handle preview (track at property level) or real guest link
-  let guestLink = null;
-  if (isProspect) {
+  if (isProspectLink) {
     await prisma.property.update({
       where: { id: property.id },
       data: { prospectViews: { increment: 1 }, prospectLastViewAt: new Date() },
     });
+  } else if (isProspect) {
+    // room link of an unclaimed guide — owner preview, not counted as a guest view
   } else if (token === "preview") {
     await Promise.all([
       prisma.property.update({
@@ -137,14 +146,15 @@ export default async function GuestPage({
       guestName={guestLink?.guestName ?? null}
       checkIn={guestLink?.checkIn?.toISOString() ?? null}
       checkOut={guestLink?.checkOut?.toISOString() ?? null}
-      token={isProspect ? "preview" : token}
+      token={isProspectLink ? "preview" : token}
     />
   );
   if (!isProspect) return view;
 
+  const prospectToken = property.prospectToken!;
   return (
     <>
-      <ProspectTracker token={token} />
+      {isProspectLink && <ProspectTracker token={prospectToken} />}
       <div className="bg-navy text-white px-4 py-3">
         <div className="max-w-2xl mx-auto flex flex-col sm:flex-row sm:items-center gap-3">
           <p className="text-sm leading-snug flex-1">
@@ -152,7 +162,7 @@ export default async function GuestPage({
             preuzmite ga, doradite i nastavite koristiti, prvih 30 dana besplatno.
           </p>
           <Link
-            href={prospectClaimPath(token)}
+            href={prospectClaimPath(prospectToken)}
             className="shrink-0 text-center bg-orange hover:bg-orange-dark text-white text-sm font-semibold rounded-lg px-4 py-2.5"
           >
             Preuzmi vodič →
