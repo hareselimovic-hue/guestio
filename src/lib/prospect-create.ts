@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { translateSections } from "@/lib/translate";
-import { SERVICE_KINDS } from "@/lib/hotel";
+import { SERVICE_KINDS, cleanRoomName, roomToken } from "@/lib/hotel";
 import { PROSPECT_DAYS, PROSPECT_OWNER_EMAIL, APP_URL, newProspectToken, prospectGuideUrl, prospectClaimPath } from "@/lib/prospect";
 
 // Shown in place of what public pages don't tell us — the owner fills it in after claiming
@@ -54,6 +54,26 @@ export async function createProspectGuide(input: unknown, opts: { internalLabel?
   }).filter((p) => p.name);
   const ruleList = (Array.isArray(rules.rules) ? rules.rules : []).map((r) => str(r, 300)).filter(Boolean).slice(0, 20);
 
+  // Several apartments at one address (complex, house with apartments): one guide for the whole place with an
+  // "Our apartments" section listing every unit (name, m²/guests/beds, link to their page, one photo each)
+  const unitsIn = obj(body.units);
+  const unitItems = (Array.isArray(unitsIn.items) ? unitsIn.items : []).slice(0, 40).map((x) => {
+    const o = obj(x);
+    const url = str(o.url, 500), image = str(o.image, 500);
+    return { name: str(o.name, 120), description: str(o.description, 300), url: url.startsWith("https://") ? url : "", image: image.startsWith("https://") ? image : "" };
+  }).filter((u) => u.name);
+  const unitsSection = !isHotel && unitItems.length ? [{
+    type: "CUSTOM" as const, title: str(unitsIn.title, 60) || "Our apartments", order: 9, content: {
+      body: str(unitsIn.intro, 1000),
+      links: unitItems.map(({ name, description, url }) => ({ name, description, url })),
+      images: unitItems.map((u) => u.image).filter(Boolean),
+    },
+  }] : [];
+
+  // Hotels: rooms by their real names (Booking room types or room numbers) — each gets its own room link / QR
+  const roomNames = isHotel ? [...new Set((Array.isArray(body.rooms) ? body.rooms : [])
+    .map((r) => cleanRoomName(typeof r === "string" ? r : str(obj(r).name, 60))).filter(Boolean))].slice(0, 150) : [];
+
   const sections = [
     { type: "CHECKIN" as const, title: "Check-in & Check-out", order: 0, content: {
       ...(isHotel ? { checkInType: "PERSONAL" } : {}),
@@ -76,6 +96,7 @@ export async function createProspectGuide(input: unknown, opts: { internalLabel?
       available: parking.available === true, parkingType: str(parking.parkingType, 30), paid: parking.paid === true, notes: str(parking.notes),
     } },
     ...(str(ai.body, 5000) ? [{ type: "AI_CONTEXT" as const, title: "AI context", order: 8, content: { body: str(ai.body, 5000) } }] : []),
+    ...unitsSection,
   ];
 
   const validKinds = new Set<string>(SERVICE_KINDS);
@@ -106,6 +127,7 @@ export async function createProspectGuide(input: unknown, opts: { internalLabel?
       guestRegistrationEnabled: true,
       sections: { create: sections },
       ...(services.length ? { hotelServices: { create: services } } : {}),
+      ...(roomNames.length ? { guests: { create: roomNames.map((roomNumber) => ({ roomNumber, token: roomToken(roomNumber) })) } } : {}),
     },
     include: { sections: { select: { id: true } } },
   });

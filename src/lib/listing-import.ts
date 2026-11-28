@@ -27,6 +27,7 @@ export interface RawListing {
   host?: string;
   photos?: string[];
   text?: string; // free page text (websites / Booking policies)
+  rooms?: { name: string; beds?: string }[]; // Booking room types (browser worker)
 }
 
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36";

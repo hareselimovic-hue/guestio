@@ -6,7 +6,7 @@ const LANGUAGES = ["BS", "DE", "TR", "IT"] as const;
 const SKIP_FIELDS = new Set([
   "checkIn", "checkOut", "network", "password", "mapUrl",
   "phone", "url", "photoUrl", "videoUrl", "photos",
-  "available", "paid", "parkingType", "checkInType", "links",
+  "available", "paid", "parkingType", "checkInType", "images",
 ]);
 
 function extractTranslatableText(content: Record<string, unknown>): Record<string, string> {
@@ -14,7 +14,8 @@ function extractTranslatableText(content: Record<string, unknown>): Record<strin
   for (const [key, value] of Object.entries(content)) {
     if (SKIP_FIELDS.has(key)) continue;
     if (typeof value === "string" && value.trim()) result[key] = value;
-    if ((key === "rules" || key === "places") && Array.isArray(value)) {
+    // links (CUSTOM sections, e.g. "Our apartments"): names/descriptions are translated, urls kept
+    if ((key === "rules" || key === "places" || key === "links") && Array.isArray(value) && value.length) {
       result[key] = JSON.stringify(value);
     }
   }
@@ -27,7 +28,7 @@ function applyTranslation(
 ): Record<string, unknown> {
   const result = { ...original };
   for (const [key, value] of Object.entries(translated)) {
-    if (key === "rules" || key === "places") {
+    if (key === "rules" || key === "places" || key === "links") {
       try { result[key] = JSON.parse(value); } catch { result[key] = value; }
     } else {
       result[key] = value;
@@ -75,7 +76,7 @@ Return ONLY a valid JSON object with this exact structure:
 
 Rules:
 - Translate naturally for a hospitality/accommodation context
-- For "rules" and "places" fields that are JSON array strings, translate text inside array items and return as JSON array strings
+- For "rules", "places" and "links" fields that are JSON array strings, translate text inside array items and return as JSON array strings; never change "url" or "link" values
 - Keep proper nouns, brand names, place names where appropriate
 - Return ONLY the JSON, no explanation
 

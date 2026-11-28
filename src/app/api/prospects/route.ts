@@ -15,7 +15,11 @@ export const maxDuration = 60; // translation into 4 languages
  *                  HOUSE_RULES?: {rules: string[]}, LOCATION?: {address, mapUrl, directions},
  *                  LOCAL_RECS?: {places: [{name, category, description}]}, CONTACT?: {phone, label},
  *                  PARKING?: {available, parkingType, paid, notes}, AI_CONTEXT?: {body} },
- *     services?: [{kind, name, description}]   (hotels; no prices — we don't guess them) }
+ *     services?: [{kind, name, description}]   (hotels; no prices — we don't guess them),
+ *     rooms?: ["Standard Double", "Deluxe Double with Balcony", "101", …]   (hotels: each gets a room link / QR; ≤ 30 chars),
+ *     units?: { title?, intro?, items: [{name, description, url?, image?}] }   (apartments: several units at one
+ *              address → one guide with an "Our apartments" section) }
+ *   Listing data for the agent (Booking via the browser worker): POST /api/prospects/read — see that route.
  *   → 201 { id, url, claimUrl, expiresAt }   ·   409 { error, url } if an open guide exists for that email
  *   Content is written in English; Bosnian/German/Turkish/Italian are generated.
  *   Only facts from the prospect's public pages — unknown WiFi etc. are shown as "— dopunite —".

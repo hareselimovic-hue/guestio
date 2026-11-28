@@ -57,6 +57,11 @@ export async function buildFromRaw(id: string, raw: RawListing): Promise<{ ok: b
   const req = await prisma.guideRequest.findUnique({ where: { id } });
   if (!req) return { ok: false, error: "not found" };
   if (req.status === "READY" || req.status === "SENT") return { ok: true };
+  // Sales agent only wanted the listing data (it builds the prospect guide itself)
+  if (req.purpose === "AGENT_READ") {
+    await prisma.guideRequest.update({ where: { id }, data: { status: "READY", raw: raw as object, error: null } });
+    return { ok: true };
+  }
   // Self-serve wizard: only read the listing into a draft — the owner reviews it and creates the guide
   if (req.purpose === "ONBOARDING") {
     try {
@@ -99,7 +104,7 @@ export async function failRequest(id: string, error: string, raw?: RawListing) {
     data: { status: "FAILED", error, attempts: { increment: 1 }, ...(raw ? { raw: raw as object } : {}) },
   });
   // Wizard: the owner sees "couldn't read it" on screen and fills the guide in themselves — nobody waits for a mail
-  if (req.purpose === "ONBOARDING") return;
+  if (req.purpose === "ONBOARDING" || req.purpose === "AGENT_READ") return;
   await sendMail(ADMIN_EMAIL, `Vodič iz linka: nisam uspio (${req.email})`, adminShell(`
     <p style="margin:0 0 12px;font-size:20px;font-weight:700;color:#262626;">Nisam uspio napraviti vodič</p>
     <p style="margin:0 0 6px;font-size:14px;color:#6B6B6B;"><b>Email:</b> ${esc(req.email)}<br>
